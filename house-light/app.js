@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "./vendor/OrbitControls.js";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
-import geo from "./geometry.js?v=20";
+import geo from "./geometry.js?v=21";
 
 const panel = document.getElementById("panel");
 const dateInput = document.getElementById("date");
@@ -368,7 +368,7 @@ const headZ = PLINTH + geo.head;
 const houseWindows = [
   [5.46, 6.96, 0.0, 0.5],
   [1.51, 2.96, 0.0, 0.5],
-  [9.61, 11.56, 3.6, 4.1],
+  [9.61, 10.66, 3.6, 4.1],
   [6.19, 7.66, 16.0, 16.5],
   [1.11, 2.06, 16.9, 17.4],
   [12.31, 12.71, 6.35, 7.85],
@@ -384,6 +384,205 @@ for (const [x0, x1, y0, y1] of houseWindows) {
   addOpeningFrame(x0, x1, y0, y1, sillZ, headZ, true);
 }
 addOpeningFrame(5.31, 6.19, 16.0, 16.5, PLINTH, headZ, false);
+addOpeningFrame(10.66, 11.56, 3.6, 4.1, PLINTH, headZ, false);
+
+// Стол 1,0×1,5 м и 6 кресел на террасе. Длинная сторона вдоль стены зала,
+// проход к двери остаётся около 0,9 м.
+{
+  const floor = PLINTH;
+  const tx0 = 10.05;
+  const tx1 = 11.55;
+  const ty0 = 1.19;
+  const ty1 = 2.19;
+  const top = floor + 0.75;
+  const wood = 0x9a7049;
+  const legC = 0x5c4033;
+  planBox([[tx0, ty0], [tx1, ty0], [tx1, ty1], [tx0, ty1]], top - 0.045, top, wood);
+  const inset = 0.1;
+  const ls = 0.07;
+  for (const [ex, ny] of [
+    [tx0 + inset, ty0 + inset],
+    [tx1 - inset - ls, ty0 + inset],
+    [tx0 + inset, ty1 - inset - ls],
+    [tx1 - inset - ls, ty1 - inset - ls],
+  ]) {
+    planBox([[ex, ny], [ex + ls, ny], [ex + ls, ny + ls], [ex, ny + ls]], floor, top - 0.045, legC);
+  }
+  const addChair = (cx, cy, face) => {
+    const s = 0.46;
+    const h = s / 2;
+    const x0 = cx - h;
+    const x1 = cx + h;
+    const y0 = cy - h;
+    const y1 = cy + h;
+    const seat = floor + 0.45;
+    const t = 0.045;
+    planBox([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], seat - 0.04, seat, 0xd7c4a8);
+    for (const [ex, ny] of [
+      [x0 + 0.04, y0 + 0.04],
+      [x1 - 0.04 - t, y0 + 0.04],
+      [x0 + 0.04, y1 - 0.04 - t],
+      [x1 - 0.04 - t, y1 - 0.04 - t],
+    ]) {
+      planBox([[ex, ny], [ex + t, ny], [ex + t, ny + t], [ex, ny + t]], floor, seat - 0.04, legC);
+    }
+    const back = {
+      n: [[x0, y0], [x1, y0], [x1, y0 + t], [x0, y0 + t]],
+      s: [[x0, y1 - t], [x1, y1 - t], [x1, y1], [x0, y1]],
+      e: [[x0, y0], [x0 + t, y0], [x0 + t, y1], [x0, y1]],
+      w: [[x1 - t, y0], [x1, y0], [x1, y1], [x1 - t, y1]],
+    };
+    planBox(back[face], seat, floor + 0.92, legC);
+  };
+  const gap = 0.29;
+  const midY = (ty0 + ty1) / 2;
+  for (const cx of [tx0 + 0.375, tx0 + 1.125]) {
+    addChair(cx, ty0 - gap, "n");
+    addChair(cx, ty1 + gap, "s");
+  }
+  addChair(tx0 - gap, midY, "e");
+  addChair(tx1 + gap, midY, "w");
+}
+
+// Стол и стулья зала — по контурам плана.
+{
+  const floor = PLINTH;
+  const wood = 0x5c4033;
+  planBox([[9.62, 8.68], [11.10, 8.68], [11.10, 9.42], [9.62, 9.42]], floor + 0.70, floor + 0.75, wood);
+  for (const [ex, ny] of [[9.70, 8.76], [11.02, 8.76], [9.70, 9.28], [11.02, 9.28]]) {
+    planBox([[ex, ny], [ex + 0.06, ny], [ex + 0.06, ny + 0.06], [ex, ny + 0.06]], floor, floor + 0.70, wood);
+  }
+  const addChair = (cx, cy, face) => {
+    const s = 0.46;
+    const h = s / 2;
+    const x0 = cx - h;
+    const x1 = cx + h;
+    const y0 = cy - h;
+    const y1 = cy + h;
+    const top = floor + 0.45;
+    const t = 0.045;
+    planBox([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], top - 0.04, top, 0xd7c4a8);
+    const back = {
+      n: [[x0, y0], [x1, y0], [x1, y0 + t], [x0, y0 + t]],
+      s: [[x0, y1 - t], [x1, y1 - t], [x1, y1], [x0, y1]],
+      e: [[x0, y0], [x0 + t, y0], [x0 + t, y1], [x0, y1]],
+      w: [[x1 - t, y0], [x1, y0], [x1, y1], [x1 - t, y1]],
+    };
+    planBox(back[face], top, floor + 0.90, wood);
+  };
+  addChair(9.97, 8.38, "n");
+  addChair(10.78, 8.38, "n");
+  addChair(9.98, 9.67, "s");
+  addChair(10.78, 9.67, "s");
+  addChair(9.34, 9.02, "e");
+  addChair(11.40, 9.02, "w");
+}
+
+// Спинка параллельно восточной стене, на 0,5 м ближе к телевизору.
+// Одинаковый проход до стульев стола и до окна террасы.
+{
+  const floor = PLINTH;
+  const fab = 0xd7c4a8;
+  const wood = 0x5c4033;
+  const xBack = 12.216 - 2;
+  const depth = 0.9;
+  const xFront = xBack - depth;
+  const y0 = 4.775;
+  const y1 = 7.475;
+  const seat = floor + 0.45;
+  const backT = 0.16;
+  const arm = 0.12;
+  planBox([[xFront, y0], [xBack, y0], [xBack, y1], [xFront, y1]], floor + 0.12, seat, fab);
+  planBox([[xBack - backT, y0], [xBack, y0], [xBack, y1], [xBack - backT, y1]], seat, floor + 0.95, fab);
+  planBox([[xFront, y0], [xBack, y0], [xBack, y0 + arm], [xFront, y0 + arm]], seat, floor + 0.62, fab);
+  planBox([[xFront, y1 - arm], [xBack, y1 - arm], [xBack, y1], [xFront, y1]], seat, floor + 0.62, fab);
+  for (const [lx, ly] of [
+    [xFront + 0.06, y0 + 0.06],
+    [xBack - 0.14, y0 + 0.06],
+    [xFront + 0.06, y1 - 0.14],
+    [xBack - 0.14, y1 - 0.14],
+  ]) {
+    planBox([[lx, ly], [lx + 0.08, ly], [lx + 0.08, ly + 0.08], [lx, ly + 0.08]], floor, floor + 0.12, wood);
+  }
+}
+
+// Тумба, саундбар и телевизор 72" напротив дивана, у западной стены зала.
+{
+  const floor = PLINTH;
+  const wallX = 6.52;
+  const cy = (4.775 + 7.475) / 2;
+  const standW = 1.8;
+  const standD = 0.42;
+  const y0 = cy - standW / 2;
+  const y1 = cy + standW / 2;
+  const x1 = wallX + standD;
+  const top = floor + 0.5;
+  planBox([[wallX, y0], [x1, y0], [x1, y1], [wallX, y1]], floor + 0.08, top - 0.03, 0x8b5a2b);
+  planBox([[wallX, y0], [x1, y0], [x1, y1], [wallX, y1]], top - 0.03, top, 0x6b3e24);
+  const barW = 1.1;
+  const barD = 0.09;
+  planBox(
+    [[wallX, cy - barW / 2], [wallX + barD, cy - barW / 2], [wallX + barD, cy + barW / 2], [wallX, cy + barW / 2]],
+    top, top + 0.08, 0x1c1e22
+  );
+  const tvW = 72 * 0.0254 * 16 / Math.hypot(16, 9);
+  const tvH = 72 * 0.0254 * 9 / Math.hypot(16, 9);
+  const tvBottom = top + 0.12;
+  const bezel = 0.025;
+  planBox(
+    [[wallX, cy - tvW / 2], [wallX + 0.05, cy - tvW / 2], [wallX + 0.05, cy + tvW / 2], [wallX, cy + tvW / 2]],
+    tvBottom, tvBottom + tvH, 0x2a2a2a
+  );
+  planBox(
+    [[wallX + 0.03, cy - tvW / 2 + bezel], [wallX + 0.055, cy - tvW / 2 + bezel],
+      [wallX + 0.055, cy + tvW / 2 - bezel], [wallX + 0.03, cy + tvW / 2 - bezel]],
+    tvBottom + bezel, tvBottom + tvH - bezel, 0x101216
+  );
+  const tower = (yA) => {
+    const w = 0.18;
+    const yB = yA + w;
+    const xf = wallX + 0.22;
+    planBox([[wallX, yA], [xf, yA], [xf, yB], [wallX, yB]], floor + 0.02, floor + 0.95, 0x8b5a2b);
+    const inset = 0.015;
+    planBox(
+      [[xf - 0.006, yA + inset], [xf + 0.01, yA + inset], [xf + 0.01, yB - inset], [xf - 0.006, yB - inset]],
+      floor + 0.08, floor + 0.88, 0x141414
+    );
+  };
+  tower(y0 - 0.06 - 0.18);
+  tower(y1 + 0.06);
+}
+
+// Угловая кухня: север до двери у x=8.2. Восток и остров выходят
+// на 0,2 м за линию угла кладовой в зал. По бокам острова проход по 1 м. Навесных на востоке нет.
+{
+  const floor = PLINTH;
+  const cab = 0xefe6d4;
+  const top = 0x4e5963;
+  const base = (x0, x1, y0, y1) => {
+    planBox([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], floor + 0.10, floor + 0.88, cab);
+  };
+  const upper = (x0, x1, y0, y1) => {
+    planBox([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], floor + 1.45, floor + 2.10, cab);
+  };
+  const cut = 11.801;
+  const past = 0.2;
+  const end = cut - past;
+  base(8.28, 11.66, 13.50, 14.10);
+  base(11.66, 12.26, end, 14.10);
+  planBox([[8.28, 13.48], [12.26, 13.48], [12.26, 14.10], [8.28, 14.10]], floor + 0.88, floor + 0.92, top);
+  planBox([[11.64, end], [12.26, end], [12.26, 13.48], [11.64, 13.48]], floor + 0.88, floor + 0.92, top);
+  upper(8.32, 10.90, 13.72, 14.10);
+  planBox([[11.20, 13.62], [11.70, 13.62], [11.70, 14.08], [11.20, 14.08]], floor + 0.92, floor + 0.95, 0x9aa3ab);
+  planBox([[11.78, 12.05], [12.22, 12.05], [12.22, 12.45], [11.78, 12.45]], floor + 0.92, floor + 0.95, 0x1c1e22);
+  const isleX0 = 8.164 + 1;
+  const isleX1 = 11.64 - 1;
+  base(isleX0, isleX1, end, end + 1);
+  planBox(
+    [[isleX0, end], [isleX1, end], [isleX1, end + 1], [isleX0, end + 1]],
+    floor + 0.88, floor + 0.92, top
+  );
+}
 northGroup.add(houseRig);
 
 function addSite() {
@@ -948,7 +1147,7 @@ function addWestVariant() {
 
   // Баня восточнее дома. С севера на юг: предбанник, пар, хозблок.
   // Дорожка с середины правого края террасы прямо на восток, к двери предбанника.
-  const bE0 = WEST_OX + 12;
+  const bE0 = WEST_OX + 14;
   const bE1 = bE0 + 4;
   const doorC = WEST_OY - 10.905;
   const bN1 = doorC + 1.5;
@@ -1135,11 +1334,10 @@ function addWestVariant() {
   const nN = nS + 6.5;
   const eNear = wallN[0] - 1;
   const eFar = eNear - 6;
-  const paveN = nN + 1.6;
   addSlab([
-    gateN,
-    fenceNorth(paveN),
-    [wallN[0], paveN],
+    [eFar - 1, wallN[1]],
+    [eFar - 1, nN + 1],
+    [wallN[0], nN + 1],
     [wallN[0], wallN[1]],
   ], 0.03, 0.035, 0xe6d3b0, false);
   const ov = 0.4;
@@ -1179,11 +1377,12 @@ function addWestVariant() {
     mesh.castShadow = true;
     mesh.receiveShadow = true;
     bucket.add(mesh);
+    return mesh;
   };
   const under = 0.05;
-  steelTube(eFar, nS, eave - tube, eNear, nS, eave - tube);
-  steelTube(eFar, nN, eave - tube, eNear, nN, eave - tube);
-  steelTube(eFar, nR, ridge - under, eNear, nR, ridge - under);
+  asRoof(steelTube(eFar, nS, eave - tube, eNear, nS, eave - tube));
+  asRoof(steelTube(eFar, nN, eave - tube, eNear, nN, eave - tube));
+  asRoof(steelTube(eFar, nR, ridge - under, eNear, nR, ridge - under));
   const V = (e, n, z) => {
     const [x, zz] = planToWorld(e, n);
     return [x, z, zz];
@@ -1222,7 +1421,7 @@ function addWestVariant() {
     const c = V(e, nR, ridge - dz - 0.02);
     return [[a, b, c], [a, c, b]];
   };
-  addMesh(geometryFromTriangles([...gable(eFar + 0.02), ...gable(eNear - 0.02)]), 0xf4efe8);
+  asRoof(addMesh(geometryFromTriangles([...gable(eFar + 0.02), ...gable(eNear - 0.02)]), 0xf4efe8));
   const carE = (eNear + eFar) / 2;
   const stall = (nN - nS) / 2;
   addParkedModel({
@@ -1237,6 +1436,134 @@ function addWestVariant() {
     centerE: carE,
     centerN: nN - stall / 2,
   });
+
+  // Мангальная зона 5×3 м, длинная сторона параллельна южному забору,
+  // южный край в 1,5 м от него. Мангал 2,5 м на восточном крае.
+  const terrE = WEST_OX - 1.745;
+  const terrN = WEST_OY - 12.71;
+  const fenceD = [-12.963, -4.345];
+  const fenceC = [39.044, -10.647];
+  const fdx = fenceC[0] - fenceD[0];
+  const fdy = fenceC[1] - fenceD[1];
+  const flen = Math.hypot(fdx, fdy);
+  const along = [fdx / flen, fdy / flen];
+  const inward = [-fdy / flen, fdx / flen];
+  const shift = (p, dir, s) => [p[0] + dir[0] * s, p[1] + dir[1] * s];
+  const fenceE = terrE - 4.5 * inward[0];
+  const fenceN = fenceD[1] + ((fenceE - fenceD[0]) / fdx) * fdy;
+  const southMid = shift([fenceE, fenceN], inward, 1.5);
+  const kkSW = shift(southMid, along, -2.5);
+  const kkSE = shift(southMid, along, 2.5);
+  const kkNW = shift(kkSW, inward, 3);
+  const kkNE = shift(kkSE, inward, 3);
+  const edgeAtE = (a, b, e) => {
+    const t = (e - a[0]) / (b[0] - a[0]);
+    return [e, a[1] + t * (b[1] - a[1])];
+  };
+  const pathL = edgeAtE(kkNW, kkNE, terrE - 0.5);
+  const pathR = edgeAtE(kkNW, kkNE, terrE + 0.5);
+  addSlab([
+    pathL, pathR, [terrE + 0.5, terrN], [terrE - 0.5, terrN],
+  ], 0.03, 0.035, 0xe6d3b0, false);
+  addSlab([kkSW, kkSE, kkNE, kkNW], 0.03, 0.035, 0xe6d3b0, false);
+  const kkEave = 2.35;
+  const kkPost = 0.1;
+  const kkInset = 0.14;
+  const postAt = (p) => planBox([
+    shift(shift(p, along, -kkPost), inward, -kkPost),
+    shift(shift(p, along, kkPost), inward, -kkPost),
+    shift(shift(p, along, kkPost), inward, kkPost),
+    shift(shift(p, along, -kkPost), inward, kkPost),
+  ], 0, kkEave, 0x6a727a);
+  postAt(shift(shift(kkSW, along, kkInset), inward, kkInset));
+  postAt(shift(shift(kkSE, along, -kkInset), inward, kkInset));
+  postAt(shift(shift(kkNW, along, kkInset), inward, -kkInset));
+  postAt(shift(shift(kkNE, along, -kkInset), inward, -kkInset));
+  postAt(shift(southMid, inward, kkInset));
+  postAt(shift(shift(southMid, inward, 3), inward, -kkInset));
+  const kkOv = 0.18;
+  const kkRise = Math.tan(22 * Math.PI / 180) * (1.5 + kkOv);
+  const kkRidge = kkEave + kkRise;
+  const kkWest = [(kkSW[0] + kkNW[0]) / 2, (kkSW[1] + kkNW[1]) / 2];
+  const kkEast = [(kkSE[0] + kkNE[0]) / 2, (kkSE[1] + kkNE[1]) / 2];
+  asRoof(steelTube(kkSW[0], kkSW[1], kkEave - 0.04, kkSE[0], kkSE[1], kkEave - 0.04));
+  asRoof(steelTube(kkNW[0], kkNW[1], kkEave - 0.04, kkNE[0], kkNE[1], kkEave - 0.04));
+  asRoof(steelTube(kkSW[0], kkSW[1], kkEave - 0.04, kkNW[0], kkNW[1], kkEave - 0.04));
+  asRoof(steelTube(kkSE[0], kkSE[1], kkEave - 0.04, kkNE[0], kkNE[1], kkEave - 0.04));
+  asRoof(steelTube(kkWest[0], kkWest[1], kkRidge - 0.05, kkEast[0], kkEast[1], kkRidge - 0.05));
+  const grill0 = shift(shift(kkEast, along, -0.4), inward, -1.25);
+  const grill1 = shift(shift(kkEast, along, -0.4), inward, 1.25);
+  const grill2 = shift(grill1, along, -0.45);
+  const grill3 = shift(grill0, along, -0.45);
+  const bowl0 = 0.72;
+  const bowl1 = 0.9;
+  const legAt = (p) => planBox([
+    shift(shift(p, along, -0.04), inward, -0.04),
+    shift(shift(p, along, 0.04), inward, -0.04),
+    shift(shift(p, along, 0.04), inward, 0.04),
+    shift(shift(p, along, -0.04), inward, 0.04),
+  ], 0.065, bowl0, 0x3c3530);
+  legAt(grill0);
+  legAt(grill1);
+  legAt(grill2);
+  legAt(grill3);
+  planBox([grill0, grill1, grill2, grill3], bowl0, bowl1, 0x2c2824);
+  planBox([
+    shift(shift(grill0, inward, 0.06), along, -0.06),
+    shift(shift(grill1, inward, -0.06), along, -0.06),
+    shift(shift(grill2, inward, -0.06), along, 0.06),
+    shift(shift(grill3, inward, 0.06), along, 0.06),
+  ], bowl1 - 0.015, bowl1 + 0.01, 0x6a727a);
+  const shelf0 = shift(shift(grill0, inward, 0.15), along, -0.06);
+  const shelf1 = shift(shift(grill1, inward, -0.15), along, -0.06);
+  const shelf2 = shift(shelf1, along, -0.30);
+  const shelf3 = shift(shelf0, along, -0.30);
+  planBox([shelf0, shelf1, shelf2, shelf3], 0.28, 0.33, 0x5c4033);
+  const woodLog = (p0, p1, r, y, color) => {
+    const [x0, zz0] = planToWorld(p0[0], p0[1]);
+    const [x1, zz1] = planToWorld(p1[0], p1[1]);
+    const a = new THREE.Vector3(x0, y, zz0);
+    const b = new THREE.Vector3(x1, y, zz1);
+    const dir = new THREE.Vector3().subVectors(b, a);
+    const mesh = new THREE.Mesh(
+      new THREE.CylinderGeometry(r, r, dir.length(), 8),
+      new THREE.MeshLambertMaterial({ color })
+    );
+    mesh.position.copy(a).add(b).multiplyScalar(0.5);
+    mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    bucket.add(mesh);
+  };
+  const tones = [0x6b4428, 0x8a5a32, 0x5a3820, 0x7a5230];
+  for (let i = 0; i < 7; i++) {
+    const p = shift(shelf0, inward, 0.12 + i * 0.30);
+    woodLog(p, shift(p, along, -0.28), 0.05, 0.38, tones[i % tones.length]);
+  }
+  for (let i = 0; i < 6; i++) {
+    const p = shift(shift(shelf0, inward, 0.27 + i * 0.30), along, -0.02);
+    woodLog(p, shift(p, along, -0.26), 0.045, 0.47, tones[(i + 2) % tones.length]);
+  }
+  const kV = (p, z) => {
+    const [x, zz] = planToWorld(p[0], p[1]);
+    return [x, z, zz];
+  };
+  const sW = shift(shift(kkSW, along, -kkOv), inward, -kkOv);
+  const sE = shift(shift(kkSE, along, kkOv), inward, -kkOv);
+  const nW = shift(shift(kkNW, along, -kkOv), inward, kkOv);
+  const nE = shift(shift(kkNE, along, kkOv), inward, kkOv);
+  const rW = shift(kkWest, along, -kkOv);
+  const rE = shift(kkEast, along, kkOv);
+  const kSWo = kV(sW, kkEave);
+  const kSEo = kV(sE, kkEave);
+  const kNWo = kV(nW, kkEave);
+  const kNEo = kV(nE, kkEave);
+  const kRWo = kV(rW, kkRidge);
+  const kREo = kV(rE, kkRidge);
+  asRoof(addMesh(geometryFromTriangles([
+    [kSWo, kSEo, kREo], [kSWo, kREo, kRWo],
+    [kNWo, kRWo, kREo], [kNWo, kREo, kNEo],
+  ]), 0x5c4033));
 
   const plot = [[-18, 22.877], [32.835, 22.877], [39.044, -10.647], [-12.963, -4.345]];
   const fenceH = 1.5;
@@ -1384,8 +1711,58 @@ function showRoofs(on) {
   });
 }
 
+const VIEW_KEY = "house-light-view";
+let viewVariant = "north";
+let pendingVariant = null;
+
+function saveView() {
+  try {
+    localStorage.setItem(VIEW_KEY, JSON.stringify({
+      px: camera.position.x,
+      py: camera.position.y,
+      pz: camera.position.z,
+      tx: controls.target.x,
+      ty: controls.target.y,
+      tz: controls.target.z,
+      roof: roofToggle.checked,
+      variant: viewVariant,
+    }));
+  } catch {
+    // браузер может запретить localStorage
+  }
+}
+
+function loadView() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(VIEW_KEY) || "null");
+    if (!saved) return;
+    const nums = [saved.px, saved.py, saved.pz, saved.tx, saved.ty, saved.tz];
+    if (nums.every((n) => Number.isFinite(n))) {
+      camera.position.set(saved.px, saved.py, saved.pz);
+      controls.target.set(saved.tx, saved.ty, saved.tz);
+      controls.update();
+    }
+    if (typeof saved.roof === "boolean") {
+      roofToggle.checked = saved.roof;
+      showRoofs(saved.roof);
+    }
+    if (saved.variant === "north" || saved.variant === "west") pendingVariant = saved.variant;
+  } catch {
+    // битая запись не мешает обычному виду
+  }
+}
+
+loadView();
+
+let saveTimer = 0;
+controls.addEventListener("change", () => {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveView, 200);
+});
+
 roofToggle.addEventListener("change", () => {
   showRoofs(roofToggle.checked);
+  saveView();
 });
 
 const blurb = document.getElementById("blurb");
@@ -1393,18 +1770,22 @@ const varNorth = document.getElementById("var-north");
 const varWest = document.getElementById("var-west");
 
 function showVariant(name) {
-  northGroup.visible = name === "north";
-  westGroup.visible = name === "west";
-  varNorth.classList.toggle("active", name === "north");
-  varWest.classList.toggle("active", name === "west");
-  blurb.textContent = name === "north"
+  viewVariant = name === "west" ? "west" : "north";
+  northGroup.visible = viewVariant === "north";
+  westGroup.visible = viewVariant === "west";
+  varNorth.classList.toggle("active", viewVariant === "north");
+  varWest.classList.toggle("active", viewVariant === "west");
+  blurb.textContent = viewVariant === "north"
     ? "Вход с северной дороги. Дом, гараж, баня, барбекю и забор 1,5 м. Время минское."
-    : "Вход с западной дороги. Дом параллельно северному забору, навес на две машины, баня с хозблоком. Время минское.";
+    : "Вход с западной дороги. Навес на две машины, баня глубже, от террасы летняя кухня. Время минское.";
+  const hash = viewVariant === "west" ? "#west" : "#north";
+  if (location.hash !== hash) history.replaceState(null, "", hash);
+  saveView();
 }
 
 varNorth.addEventListener("click", () => showVariant("north"));
 varWest.addEventListener("click", () => showVariant("west"));
-if (location.hash === "#west") showVariant("west");
+showVariant(pendingVariant || (location.hash === "#west" ? "west" : "north"));
 dateInput.addEventListener("input", () => applySun(geo));
 timeInput.addEventListener("input", () => applySun(geo));
 panel.addEventListener("click", (event) => {
