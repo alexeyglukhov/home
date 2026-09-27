@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "./vendor/OrbitControls.js";
+import { GLTFLoader } from "./vendor/GLTFLoader.js";
 import geo from "./geometry.js?v=20";
 
 const panel = document.getElementById("panel");
@@ -462,7 +463,9 @@ function addSite() {
     [13.71, -1], [13.71, 15.588], [9.618, 15.588], [9.618, 19.877],
     [3.843, 19.878], [3.842, 18.415], [-1, 18.414], [-1, -1],
   ], 0.07, 0.025, blind, false);
-  addSlab([[-12.38, 9.2], [-4.4, 9.2], [-4.4, 18.414], [-12.38, 18.414]], 0.07, 0.025, blind, false);
+  addSlab([[-12.38, 9.2], [-4.4, 9.2], [-4.4, 10.2], [-12.38, 10.2]], 0.07, 0.025, blind, false);
+  addSlab([[-12.38, 10.2], [-11.38, 10.2], [-11.38, 17.414], [-12.38, 17.414]], 0.07, 0.025, blind, false);
+  addSlab([[-5.4, 10.2], [-4.4, 10.2], [-4.4, 17.414], [-5.4, 17.414]], 0.07, 0.025, blind, false);
   addSlab([[23.6, -0.55], [31.1, -0.55], [31.1, 5.35], [23.6, 5.35]], 0.07, 0.025, blind, false);
 
   const gx0 = -11.38;
@@ -476,18 +479,68 @@ function addSite() {
   const d1b = -8.47;
   const d2a = -8.31;
   const d2b = -5.91;
-  planBox([[gx0 - 0.08, gy0 - 0.08], [gx1 + 0.08, gy0 - 0.08], [gx1 + 0.08, gy1 + 0.08], [gx0 - 0.08, gy1 + 0.08]], 0, PLINTH, plinthColor);
-  planBox([[gx0, gy0], [gx1, gy0], [gx1, gy0 + t], [gx0, gy0 + t]], PLINTH, PLINTH + gTop, 0xf4f0e8);
-  planBox([[gx0, gy0], [gx0 + t, gy0], [gx0 + t, gy1], [gx0, gy1]], PLINTH, PLINTH + gTop, 0xf4f0e8);
-  planBox([[gx1 - t, gy0], [gx1, gy0], [gx1, gy1], [gx1 - t, gy1]], PLINTH, PLINTH + gTop, 0xf4f0e8);
-  planBox([[gx0, gy1 - t], [d1a, gy1 - t], [d1a, gy1], [gx0, gy1]], PLINTH, PLINTH + gTop, 0xf4f0e8);
-  planBox([[d1b, gy1 - t], [d2a, gy1 - t], [d2a, gy1], [d1b, gy1]], PLINTH, PLINTH + gTop, 0xf4f0e8);
-  planBox([[d2b, gy1 - t], [gx1, gy1 - t], [gx1, gy1], [d2b, gy1]], PLINTH, PLINTH + gTop, 0xf4f0e8);
+  planBox([[gx0, gy0], [gx1, gy0], [gx1, gy0 + t], [gx0, gy0 + t]], 0, PLINTH + gTop, 0xf4f0e8);
+  planBox([[gx0, gy0], [gx0 + t, gy0], [gx0 + t, gy1], [gx0, gy1]], 0, PLINTH + gTop, 0xf4f0e8);
+  planBox([[gx1 - t, gy0], [gx1, gy0], [gx1, gy1], [gx1 - t, gy1]], 0, PLINTH + gTop, 0xf4f0e8);
+  planBox([[gx0, gy1 - t], [d1a, gy1 - t], [d1a, gy1], [gx0, gy1]], 0, PLINTH + gTop, 0xf4f0e8);
+  planBox([[d1b, gy1 - t], [d2a, gy1 - t], [d2a, gy1], [d1b, gy1]], 0, PLINTH + gTop, 0xf4f0e8);
+  planBox([[d2b, gy1 - t], [gx1, gy1 - t], [gx1, gy1], [d2b, gy1]], 0, PLINTH + gTop, 0xf4f0e8);
   planBox([[gx0, gy1 - t], [gx1, gy1 - t], [gx1, gy1], [gx0, gy1]], PLINTH + doorH, PLINTH + gTop, 0xf4f0e8);
-  planBox([[gx0 + t, gy0 + t], [gx1 - t, gy0 + t], [gx1 - t, gy1 - t], [gx0 + t, gy1 - t]], PLINTH, PLINTH + 0.04, 0xd5cfc4, false);
-  planBox([[gx0 + t, 12.14], [-8.84, 12.14], [-8.84, 12.26], [gx0 + t, 12.26]], PLINTH, PLINTH + gTop, 0xefe6d4);
-  planBox([[-7.94, 12.14], [gx1 - t, 12.14], [gx1 - t, 12.26], [-7.94, 12.26]], PLINTH, PLINTH + gTop, 0xefe6d4);
-  asRoof(planBox([[gx0 - 0.12, gy0 - 0.12], [gx1 + 0.12, gy0 - 0.12], [gx1 + 0.12, gy1 + 0.08], [gx0 - 0.12, gy1 + 0.08]], PLINTH + gTop, PLINTH + gTop + 0.12, 0x6e675e));
+  planBox([[gx0 + t, gy0 + t], [gx1 - t, gy0 + t], [gx1 - t, gy1], [gx0 + t, gy1]], 0.03, 0.065, 0xe6d3b0, false);
+  planBox([[gx0 + t, 12.14], [-8.84, 12.14], [-8.84, 12.26], [gx0 + t, 12.26]], 0.065, PLINTH + gTop, 0xefe6d4);
+  planBox([[-7.94, 12.14], [gx1 - t, 12.14], [gx1 - t, 12.26], [-7.94, 12.26]], 0.065, PLINTH + gTop, 0xefe6d4);
+  // Двускатная крыша: конёк вдоль гаража, скаты на восток и запад, фронтон над воротами.
+  {
+    const ov = 0.22;
+    const eW = gx0 - ov;
+    const eE = gx1 + ov;
+    const nS = gy0 - ov;
+    const nN = gy1 + ov;
+    const eR = (gx0 + gx1) / 2;
+    const eave = PLINTH + gTop;
+    const rise = Math.tan(22 * Math.PI / 180) * (eR - eW);
+    const ridge = eave + rise;
+    const dz = 0.1;
+    const V = (e, n, z) => {
+      const [x, zz] = planToWorld(e, n);
+      return [x, z, zz];
+    };
+    const WSo = V(eW, nS, eave);
+    const WNo = V(eW, nN, eave);
+    const ESo = V(eE, nS, eave);
+    const ENo = V(eE, nN, eave);
+    const RSo = V(eR, nS, ridge);
+    const RNo = V(eR, nN, ridge);
+    const WSi = V(eW, nS, eave - dz);
+    const WNi = V(eW, nN, eave - dz);
+    const ESi = V(eE, nS, eave - dz);
+    const ENi = V(eE, nN, eave - dz);
+    const RSi = V(eR, nS, ridge - dz);
+    const RNi = V(eR, nN, ridge - dz);
+    const tris = [];
+    const quad = (a, b, c, d) => {
+      tris.push([a, b, c], [a, c, d]);
+    };
+    quad(WSo, WNo, RNo, RSo);
+    quad(ESo, RSo, RNo, ENo);
+    quad(WSi, RSi, RNi, WNi);
+    quad(ESi, ENi, RNi, RSi);
+    quad(WSo, WSi, WNi, WNo);
+    quad(ESo, ENo, ENi, ESi);
+    quad(WSo, RSo, RSi, WSi);
+    quad(ESo, ESi, RSi, RSo);
+    quad(WNo, WNi, RNi, RNo);
+    quad(ENo, RNo, RNi, ENi);
+    quad(RSo, RNo, RNi, RSi);
+    asRoof(addMesh(geometryFromTriangles(tris), 0x6e675e));
+    const gable = (n) => {
+      const a = V(gx0, n, eave);
+      const b = V(gx1, n, eave);
+      const c = V(eR, n, ridge - dz - 0.02);
+      return [[a, b, c], [a, c, b]];
+    };
+    addMesh(geometryFromTriangles([...gable(gy0 + 0.02), ...gable(gy1 - 0.02)]), 0xf4f0e8);
+  }
 
   const bx0 = 24.6;
   const bx1 = 30.1;
@@ -532,7 +585,79 @@ function addSite() {
   addOpeningFrame(bx0, bx0 + t, bDoor0, bDoor1, PLINTH, PLINTH + bDoorHead, false);
   addOpeningFrame(dressWin0, dressWin1, by0, by0 + t, PLINTH + dressSill, PLINTH + dressHead, true);
   addOpeningFrame(bx1 - t, bx1, steamWin0, steamWin1, PLINTH + steamSill, PLINTH + steamHead, true);
-  asRoof(planBox([[bx0 - 0.15, by0 - 0.15], [bx1 + 0.15, by0 - 0.15], [bx1 + 0.15, by1 + 0.15], [bx0 - 0.15, by1 + 0.15]], PLINTH + bTop, PLINTH + bTop + 0.14, 0x5c4033));
+  // Двускатная крыша: длинная сторона бани восток–запад, конёк по ней, скаты на север и юг.
+  {
+    const ov = 0.22;
+    const eW = bx0 - ov;
+    const eE = bx1 + ov;
+    const nS = by0 - ov;
+    const nN = by1 + ov;
+    const nR = (by0 + by1) / 2;
+    const eave = PLINTH + bTop;
+    const rise = Math.tan(22 * Math.PI / 180) * (nR - nS);
+    const ridge = eave + rise;
+    const dz = 0.1;
+    const V = (e, n, z) => {
+      const [x, zz] = planToWorld(e, n);
+      return [x, z, zz];
+    };
+    const SWo = V(eW, nS, eave);
+    const SEo = V(eE, nS, eave);
+    const NWo = V(eW, nN, eave);
+    const NEo = V(eE, nN, eave);
+    const RWo = V(eW, nR, ridge);
+    const REo = V(eE, nR, ridge);
+    const SWi = V(eW, nS, eave - dz);
+    const SEi = V(eE, nS, eave - dz);
+    const NWi = V(eW, nN, eave - dz);
+    const NEi = V(eE, nN, eave - dz);
+    const RWi = V(eW, nR, ridge - dz);
+    const REi = V(eE, nR, ridge - dz);
+    const tris = [];
+    const quad = (a, b, c, d) => {
+      tris.push([a, b, c], [a, c, d]);
+    };
+    quad(SWo, SEo, REo, RWo);
+    quad(NWo, RWo, REo, NEo);
+    quad(SWi, RWi, REi, SEi);
+    quad(NWi, NEi, REi, RWi);
+    quad(SWo, SWi, SEi, SEo);
+    quad(NWo, NEo, NEi, NWi);
+    quad(SWo, RWo, RWi, SWi);
+    quad(NWo, NWi, RWi, RWo);
+    quad(SEo, SEi, REi, REo);
+    quad(NEo, REo, REi, NEi);
+    quad(RWo, REo, REi, RWi);
+    asRoof(addMesh(geometryFromTriangles(tris), 0x5c4033));
+    const gable = (e) => {
+      const a = V(e, by0, eave);
+      const b = V(e, by1, eave);
+      const c = V(e, nR, ridge - dz - 0.02);
+      return [[a, b, c], [a, c, b]];
+    };
+    addMesh(geometryFromTriangles([...gable(bx0 + 0.02), ...gable(bx1 - 0.02)]), bWall);
+    const steamE = (partX1 + bx1) / 2;
+    const [px, pz] = planToWorld(steamE, nR);
+    const pipeH = 0.9;
+    const pipeY = ridge + 0.22;
+    const pipe = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.1, 0.11, pipeH, 16),
+      new THREE.MeshLambertMaterial({ color: 0x3c3530 })
+    );
+    pipe.position.set(px, pipeY, pz);
+    pipe.castShadow = true;
+    pipe.receiveShadow = true;
+    pipe.userData.roof = true;
+    bucket.add(pipe);
+    const cap = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.16, 0.14, 0.05, 16),
+      new THREE.MeshLambertMaterial({ color: 0x2a2622 })
+    );
+    cap.position.set(px, pipeY + pipeH / 2 + 0.01, pz);
+    cap.castShadow = true;
+    cap.userData.roof = true;
+    bucket.add(cap);
+  }
 
   const q0 = 17.205;
   const q1 = 21.105;
@@ -643,6 +768,24 @@ function addSite() {
     bucket.add(cap);
   }
 
+  // Coolray задом в западные ворота гаража, носом на дорогу. Mazda на плитке между гаражом и домом.
+  const coolLen = 4.33;
+  const inside = 2;
+  addParkedModel({
+    url: "./models/geely-coolray.glb",
+    length: coolLen,
+    heading: "north",
+    centerE: (-10.87 + -8.47) / 2,
+    centerN: 17.414 - inside + coolLen / 2,
+  });
+  addParkedModel({
+    url: "./models/mazda-cx5.glb",
+    length: 4.55,
+    heading: "north",
+    centerE: (-4.4 + -1) / 2,
+    centerN: 14.5,
+  });
+
   const [ne, nn] = planToWorld(-16, 26);
   sharedGroup.add(new THREE.ArrowHelper(
     new THREE.Vector3(0, 0, 1),
@@ -661,8 +804,11 @@ function ai(along, inset) {
   ];
 }
 
+// Дом повёрнут параллельно северному забору: локальный +X смотрит на юг, вход — на запад.
+const WEST_OX = 13.52913028853758;
+const WEST_OY = 16.58501426667908;
 function westPlan(lx, ly) {
-  return ai(9.5 + lx, 10 + (18.88 - ly));
+  return [WEST_OX - ly, WEST_OY - lx];
 }
 
 function westHouseMatrix() {
@@ -709,6 +855,79 @@ function addSlabHole(outer, holePts, y0, height, color) {
   return addMesh(geom, color, false);
 }
 
+const gltfLoader = new GLTFLoader();
+
+// Модель из glb: длина вдоль Z, вверх Y. Нос на запад или на север, длина заводская.
+// Верх плитки 0.065. У Coolray шина доходит до низа модели, у Mazda видимое колесо выше.
+const PAVER_TOP = 0.065;
+
+function addParkedModel({ url, length, centerE, centerN, heading = "west" }) {
+  const ground = PAVER_TOP - (url.includes("mazda") ? 0.16 : 0.02);
+  const parent = bucket;
+  const holder = new THREE.Group();
+  const forward = heading === "north"
+    ? new THREE.Vector3(Math.sin(AZ_Y), 0, Math.cos(AZ_Y))
+    : new THREE.Vector3(Math.sin(AZ_X), 0, Math.cos(AZ_X));
+  const up = new THREE.Vector3(0, 1, 0);
+  const side = new THREE.Vector3().crossVectors(forward, up).normalize();
+  holder.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(forward, up, side));
+  const [wx, wz] = planToWorld(centerE, centerN);
+  holder.position.set(wx, 0, wz);
+  parent.add(holder);
+  gltfLoader.load(url, (gltf) => {
+    const model = gltf.scene;
+    model.rotation.y = Math.PI / 2;
+    const fit = new THREE.Group();
+    fit.add(model);
+    fit.updateMatrixWorld(true);
+    const size = new THREE.Box3().setFromObject(fit).getSize(new THREE.Vector3());
+    fit.scale.setScalar(length / size.x);
+    fit.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(fit);
+    const center = box.getCenter(new THREE.Vector3());
+    fit.position.set(-center.x, ground - box.min.y, -center.z);
+    model.traverse((obj) => {
+      if (!obj.isMesh) return;
+      obj.castShadow = true;
+      obj.receiveShadow = true;
+      const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+      for (const mat of mats) {
+        if (!mat) continue;
+        mat.side = THREE.DoubleSide;
+        const paint = mat.name || "";
+        const chrome = paint.includes("chrome") || paint.includes("Material_04");
+        if (chrome) {
+          mat.color.set(0xe6e8ec);
+          mat.map = null;
+          mat.metalness = 0.72;
+          mat.roughness = 0.16;
+          if (mat.specular) mat.specular.set(0xffffff);
+        }
+        // Кузов CX-5 был почти чёрной текстурой, капот и бампер — отдельным материалом.
+        if (url.includes("mazda") && (paint.includes("Material_01") || paint.includes("Material_03"))) {
+          mat.color.set(0x6a7078);
+          mat.map = null;
+          mat.metalness = 0.22;
+          mat.roughness = 0.4;
+        }
+        // Решётка пришла оранжевой текстурой; значок — отдельный хром поверх неё.
+        if (url.includes("mazda") && paint.includes("Material_11")) {
+          mat.color.set(0x24262a);
+          mat.map = null;
+          mat.metalness = 0.45;
+          mat.roughness = 0.38;
+        }
+        if (url.includes("coolray") && paint.includes("carpaint") && !paint.includes("second")) {
+          mat.color.set(0x6e675e);
+          mat.metalness = 0.18;
+          mat.roughness = 0.46;
+        }
+      }
+    });
+    holder.add(fit);
+  });
+}
+
 function addWestVariant() {
   bucket = westGroup;
   const houseWest = houseRig.clone();
@@ -717,34 +936,61 @@ function addWestVariant() {
   houseWest.matrixWorldNeedsUpdate = true;
   westGroup.add(houseWest);
 
-  const blind = [
-    [8.5, 29.88], [23.21, 29.88], [23.21, 13.29], [19.12, 13.29],
-    [19.12, 9], [13.34, 9], [13.34, 10.47], [8.5, 10.47],
-  ].map(([a, i]) => ai(a, i));
   const houseHole = [
-    [9.5, 28.88], [22.21, 28.88], [22.21, 14.29], [18.12, 14.29],
-    [18.12, 10], [14.34, 10], [14.34, 11.47], [9.5, 11.47],
-  ].map(([a, i]) => ai(a, i));
+    [0, 0], [12.71, 0], [12.71, 14.59], [8.62, 14.59],
+    [8.62, 18.88], [4.84, 18.88], [4.84, 17.41], [0, 17.41],
+  ].map(([x, y]) => westPlan(x, y));
+  const blind = [
+    [14.529, 17.585], [14.529, 2.875], [-2.061, 2.875], [-2.061, 6.965],
+    [-6.351, 6.965], [-6.351, 12.745], [-4.881, 12.745], [-4.881, 17.585],
+  ];
   addSlabHole(blind, houseHole, 0.06, 0.02, 0xd4cfc4);
 
-  const b0 = 20;
-  const b1 = 28;
-  const n0 = 40.88;
-  const n1 = 44.88;
+  // Баня восточнее дома. С севера на юг: предбанник, пар, хозблок.
+  // Дорожка с середины правого края террасы прямо на восток, к двери предбанника.
+  const bE0 = WEST_OX + 12;
+  const bE1 = bE0 + 4;
+  const doorC = WEST_OY - 10.905;
+  const bN1 = doorC + 1.5;
+  const bN0 = bN1 - 8;
+  const predS = bN1 - 3;
+  const parS = predS - 2.5;
   addSlabHole(
-    [ai(b0 - 1, n0 - 1), ai(b1 + 1, n0 - 1), ai(b1 + 1, n1 + 1), ai(b0 - 1, n1 + 1)],
-    [ai(b0, n0), ai(b1, n0), ai(b1, n1), ai(b0, n1)],
+    [[bE0 - 1, bN0 - 1], [bE1 + 1, bN0 - 1], [bE1 + 1, bN1 + 1], [bE0 - 1, bN1 + 1]],
+    [[bE0, bN0], [bE1, bN0], [bE1, bN1], [bE0, bN1]],
     0.06, 0.02, 0xd4cfc4
   );
 
-  addSlab([ai(9.5, -5), ai(14.34, -5), ai(14.34, 0), ai(9.5, 0)], 0.03, 0.035, 0xe6d3b0, false);
+  const fenceNorth = (north) => {
+    const t = (north + 4.345) / (22.877 + 4.345);
+    return [-12.963 + t * (-18 + 12.963), north];
+  };
+  const wallN = westPlan(0, 17.41);
+  const wallS = westPlan(4.84, 17.41);
+  const gateN = fenceNorth(wallN[1]);
+  const gateS = fenceNorth(wallS[1]);
+  const fenceAlong = 27.683 / 27.222;
+  const kalN = fenceNorth(wallS[1] - 0.9 / fenceAlong);
+  const kalS = fenceNorth(wallS[1] - (0.9 + 1.05) / fenceAlong);
+  const courtS = fenceNorth(westPlan(12.71, 14.59)[1]);
   addSlab([
-    ai(9.5, 0), ai(22.21, 0), ai(22.21, 14.29), ai(18.12, 14.29),
-    ai(18.12, 10), ai(14.34, 10), ai(14.34, 11.47), ai(9.5, 11.47),
+    [gateN[0] - 5 * WEST_IN[0], gateN[1] - 5 * WEST_IN[1]],
+    [kalS[0] - 5 * WEST_IN[0], kalS[1] - 5 * WEST_IN[1]],
+    kalS, gateN,
   ], 0.03, 0.035, 0xe6d3b0, false);
-  addSlab([ai(20, 29.88), ai(22, 29.88), ai(22, n0), ai(20, n0)], 0.03, 0.035, 0xe6d3b0, false);
-  addSlab([ai(23.21, 16.5), ai(27.21, 16.5), ai(27.21, 17.5), ai(23.21, 17.5)], 0.03, 0.035, 0xe6d3b0, false);
-  addSlab([ai(27.21, 16), ai(29.21, 16), ai(29.21, 18), ai(27.21, 18)], 0.03, 0.035, 0xe6d3b0, false);
+  addSlab([
+    gateN, courtS,
+    westPlan(12.71, 14.59), westPlan(8.62, 14.59), westPlan(8.62, 18.88),
+    westPlan(4.84, 18.88), westPlan(4.84, 17.41), westPlan(0, 17.41),
+  ], 0.03, 0.035, 0xe6d3b0, false);
+  addSlab([
+    [WEST_OX, doorC - 1], [WEST_OX, doorC + 1],
+    [bE0, doorC + 1], [bE0, doorC - 1],
+  ], 0.03, 0.035, 0xe6d3b0, false);
+  const wellE = 3.85;
+  const wellN = westPlan(12.71, 0)[1] - 6;
+  addSlab([[wellE - 0.5, wellN + 5], [wellE + 0.5, wellN + 5], [wellE + 0.5, wellN + 1], [wellE - 0.5, wellN + 1]], 0.03, 0.035, 0xe6d3b0, false);
+  addSlab([[wellE - 1, wellN - 1], [wellE + 1, wellN - 1], [wellE + 1, wellN + 1], [wellE - 1, wellN + 1]], 0.03, 0.035, 0xe6d3b0, false);
   addSlab([[27.24, 17.68], [31.24, 17.68], [31.24, 20.88], [27.24, 20.88]], 0.03, 0.035, 0xe6d3b0, false);
 
   const t = 0.18;
@@ -752,78 +998,273 @@ function addWestVariant() {
   const doorHead = PLINTH + 2.05;
   const wall = 0xf4efe8;
   const part = 0xd7c4a8;
-  const strip = (a0, a1, i0, i1, z0, z1, color) => {
-    planBox([ai(a0, i0), ai(a1, i0), ai(a1, i1), ai(a0, i1)], z0, z1, color);
+  const box = (e0, e1, n0, n1, z0, z1, color) => {
+    planBox([[e0, n0], [e1, n0], [e1, n1], [e0, n1]], z0, z1, color);
   };
-  planBox(
-    [ai(b0 - 0.08, n0 - 0.08), ai(b1 + 0.08, n0 - 0.08), ai(b1 + 0.08, n1 + 0.08), ai(b0 - 0.08, n1 + 0.08)],
-    0, PLINTH, plinthColor
-  );
-  // Ближняя стена, двери предбанника и хозблока.
-  strip(b0 + t, 20.55, n0, n0 + t, PLINTH, top, wall);
-  strip(21.45, 26.3, n0, n0 + t, PLINTH, top, wall);
-  strip(27.2, b1 - t, n0, n0 + t, PLINTH, top, wall);
-  strip(20.55, 21.45, n0, n0 + t, doorHead, top, wall);
-  strip(26.3, 27.2, n0, n0 + t, doorHead, top, wall);
-  // Дальняя стена: окна предбанника и парной.
-  const far = n1 - t;
-  strip(b0 + t, 20.7, far, n1, PLINTH, top, wall);
-  strip(21.9, 23.45, far, n1, PLINTH, top, wall);
-  strip(25.05, b1 - t, far, n1, PLINTH, top, wall);
-  strip(20.7, 21.9, far, n1, PLINTH, PLINTH + 0.9, wall);
-  strip(20.7, 21.9, far, n1, PLINTH + 1.85, top, wall);
-  strip(23.45, 25.05, far, n1, PLINTH, PLINTH + 1.25, wall);
-  strip(23.45, 25.05, far, n1, PLINTH + 1.85, top, wall);
-  // Торцы.
-  strip(b0, b0 + t, n0, n1, PLINTH, top, wall);
-  strip(b1 - t, b1, n0, n1, PLINTH, top, wall);
-  // Перегородка предбанник–пар с дверью, хозблок глухой.
-  const iIn = n0 + t;
-  const iOut = n1 - t;
-  strip(22.94, 23.06, iIn, 41.15, PLINTH, top, part);
-  strip(22.94, 23.06, 41.95, iOut, PLINTH, top, part);
-  strip(22.94, 23.06, 41.15, 41.95, PLINTH + 2.0, top, part);
-  strip(25.44, 25.56, iIn, iOut, PLINTH, top, part);
-  const frame = (a0, a1, i0, i1, z0, z1, withSill) => {
+  box(bE0 - 0.08, bE1 + 0.08, bN0 - 0.08, bN1 + 0.08, 0, PLINTH, plinthColor);
+  const predA = doorC - 0.45;
+  const predB = doorC + 0.45;
+  const hozC = (bN0 + parS) / 2;
+  const hozA = hozC - 0.45;
+  const hozB = hozC + 0.45;
+  const westIn = bE0 + t;
+  box(bE0, westIn, bN0 + t, hozA, PLINTH, top, wall);
+  box(bE0, westIn, hozB, predA, PLINTH, top, wall);
+  box(bE0, westIn, predB, bN1 - t, PLINTH, top, wall);
+  box(bE0, westIn, predA, predB, doorHead, top, wall);
+  box(bE0, westIn, hozA, hozB, doorHead, top, wall);
+  const east = bE1 - t;
+  const predWa = doorC - 0.6;
+  const predWb = doorC + 0.6;
+  const parC = (parS + predS) / 2;
+  const parWa = parC - 0.8;
+  const parWb = parC + 0.8;
+  box(east, bE1, predWb, bN1 - t, PLINTH, top, wall);
+  box(east, bE1, parWb, predWa, PLINTH, top, wall);
+  box(east, bE1, bN0 + t, parWa, PLINTH, top, wall);
+  box(east, bE1, predWa, predWb, PLINTH, PLINTH + 0.9, wall);
+  box(east, bE1, predWa, predWb, PLINTH + 1.85, top, wall);
+  box(east, bE1, parWa, parWb, PLINTH, PLINTH + 1.25, wall);
+  box(east, bE1, parWa, parWb, PLINTH + 1.85, top, wall);
+  box(bE0, bE1, bN1 - t, bN1, PLINTH, top, wall);
+  box(bE0, bE1, bN0, bN0 + t, PLINTH, top, wall);
+  const innerE = bE1 - t;
+  const gap0 = westIn + 0.09;
+  const gap1 = gap0 + 0.8;
+  box(westIn, gap0, predS - 0.06, predS + 0.06, PLINTH, top, part);
+  box(gap1, innerE, predS - 0.06, predS + 0.06, PLINTH, top, part);
+  box(gap0, gap1, predS - 0.06, predS + 0.06, PLINTH + 2.0, top, part);
+  box(westIn, innerE, parS - 0.06, parS + 0.06, PLINTH, top, part);
+  const frame = (e0, e1, n0, n1, z0, z1, withSill) => {
     const fw = 0.07;
-    strip(a0, a0 + fw, i0, i1, z0, z1, FRAME);
-    strip(a1 - fw, a1, i0, i1, z0, z1, FRAME);
-    strip(a0, a1, i0, i1, z1 - fw, z1, FRAME);
-    if (withSill) strip(a0, a1, i0, i1, z0, z0 + fw, FRAME);
+    const alongN = n1 - n0 >= e1 - e0;
+    if (alongN) {
+      box(e0, e1, n0, n0 + fw, z0, z1, FRAME);
+      box(e0, e1, n1 - fw, n1, z0, z1, FRAME);
+      box(e0, e1, n0, n1, z1 - fw, z1, FRAME);
+      if (withSill) box(e0, e1, n0, n1, z0, z0 + fw, FRAME);
+    } else {
+      box(e0, e0 + fw, n0, n1, z0, z1, FRAME);
+      box(e1 - fw, e1, n0, n1, z0, z1, FRAME);
+      box(e0, e1, n0, n1, z1 - fw, z1, FRAME);
+      if (withSill) box(e0, e1, n0, n1, z0, z0 + fw, FRAME);
+    }
   };
-  frame(20.55, 21.45, n0, n0 + t, PLINTH, doorHead, false);
-  frame(26.3, 27.2, n0, n0 + t, PLINTH, doorHead, false);
-  frame(22.94, 23.06, 41.15, 41.95, PLINTH, PLINTH + 2.0, false);
-  frame(20.7, 21.9, far, n1, PLINTH + 0.9, PLINTH + 1.85, true);
-  frame(23.45, 25.05, far, n1, PLINTH + 1.25, PLINTH + 1.85, true);
-  asRoof(planBox(
-    [ai(b0 - 0.15, n0 - 0.15), ai(b1 + 0.15, n0 - 0.15), ai(b1 + 0.15, n1 + 0.15), ai(b0 - 0.15, n1 + 0.15)],
-    top, top + 0.14, 0x5c4033
-  ));
+  frame(bE0, westIn, predA, predB, PLINTH, doorHead, false);
+  frame(bE0, westIn, hozA, hozB, PLINTH, doorHead, false);
+  frame(gap0, gap1, predS - 0.06, predS + 0.06, PLINTH, PLINTH + 2.0, false);
+  frame(east, bE1, predWa, predWb, PLINTH + 0.9, PLINTH + 1.85, true);
+  frame(east, bE1, parWa, parWb, PLINTH + 1.25, PLINTH + 1.85, true);
+  // Двускатная крыша: конёк вдоль бани, скаты на восток и запад. Труба из парной.
+  {
+    const ov = 0.22;
+    const eW = bE0 - ov;
+    const eE = bE1 + ov;
+    const nS = bN0 - ov;
+    const nN = bN1 + ov;
+    const eR = (bE0 + bE1) / 2;
+    const eave = top;
+    const rise = Math.tan(22 * Math.PI / 180) * (eR - eW);
+    const ridge = eave + rise;
+    const dz = 0.1;
+    const V = (e, n, z) => {
+      const [x, zz] = planToWorld(e, n);
+      return [x, z, zz];
+    };
+    const WSo = V(eW, nS, eave);
+    const WNo = V(eW, nN, eave);
+    const ESo = V(eE, nS, eave);
+    const ENo = V(eE, nN, eave);
+    const RSo = V(eR, nS, ridge);
+    const RNo = V(eR, nN, ridge);
+    const WSi = V(eW, nS, eave - dz);
+    const WNi = V(eW, nN, eave - dz);
+    const ESi = V(eE, nS, eave - dz);
+    const ENi = V(eE, nN, eave - dz);
+    const RSi = V(eR, nS, ridge - dz);
+    const RNi = V(eR, nN, ridge - dz);
+    const tris = [];
+    const quad = (a, b, c, d) => {
+      tris.push([a, b, c], [a, c, d]);
+    };
+    quad(WSo, WNo, RNo, RSo);
+    quad(ESo, RSo, RNo, ENo);
+    quad(WSi, RSi, RNi, WNi);
+    quad(ESi, ENi, RNi, RSi);
+    quad(WSo, WSi, WNi, WNo);
+    quad(ESo, ENo, ENi, ESi);
+    quad(WSo, RSo, RSi, WSi);
+    quad(ESo, ESi, RSi, RSo);
+    quad(WNo, WNi, RNi, RNo);
+    quad(ENo, RNo, RNi, ENi);
+    quad(RSo, RNo, RNi, RSi);
+    asRoof(addMesh(geometryFromTriangles(tris), 0x5c4033));
+    const gable = (n) => {
+      const a = V(bE0, n, eave);
+      const b = V(bE1, n, eave);
+      const c = V(eR, n, ridge - dz - 0.02);
+      return [[a, b, c], [a, c, b]];
+    };
+    addMesh(geometryFromTriangles([...gable(bN0 + 0.02), ...gable(bN1 - 0.02)]), wall);
+    const parMid = (parS + predS) / 2;
+    const [px, pz] = planToWorld(eR, parMid);
+    const pipeH = 0.9;
+    const pipeY = ridge + 0.22;
+    const pipe = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.1, 0.11, pipeH, 16),
+      new THREE.MeshLambertMaterial({ color: 0x3c3530 })
+    );
+    pipe.position.set(px, pipeY, pz);
+    pipe.castShadow = true;
+    pipe.receiveShadow = true;
+    pipe.userData.roof = true;
+    bucket.add(pipe);
+    const cap = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.16, 0.14, 0.05, 16),
+      new THREE.MeshLambertMaterial({ color: 0x2a2622 })
+    );
+    cap.position.set(px, pipeY + pipeH / 2 + 0.01, pz);
+    cap.castShadow = true;
+    cap.userData.roof = true;
+    bucket.add(cap);
+  }
 
-  const roofZ = PLINTH + 2.35;
-  asRoof(planBox([ai(9.5, 6), ai(14.34, 6), ai(14.34, 11.47), ai(9.5, 11.47)], roofZ, roofZ + 0.12, 0x6e675e));
-  for (const a of [9.68, 14.16]) {
+  // Навес на две машины, в метре от стены, расширен на север — влево от въезда.
+  // Конёк поперёк стены: скаты на север и юг, снег не идёт на дом.
+  const nS = wallN[1] - 3.8;
+  const nN = nS + 6.5;
+  const eNear = wallN[0] - 1;
+  const eFar = eNear - 6;
+  const paveN = nN + 1.6;
+  addSlab([
+    gateN,
+    fenceNorth(paveN),
+    [wallN[0], paveN],
+    [wallN[0], wallN[1]],
+  ], 0.03, 0.035, 0xe6d3b0, false);
+  const ov = 0.4;
+  const eave = 2.5;
+  const nR = (nS + nN) / 2;
+  const nSouth = nS - ov;
+  const nNorth = nN + ov;
+  const eW = eFar - ov;
+  const eE = eNear + ov;
+  const rise = Math.tan(22 * Math.PI / 180) * (nR - nSouth);
+  const ridge = eave + rise;
+  const dz = 0.08;
+  const steel = 0x6a727a;
+  const post = 0.12;
+  const eMid = (eFar + eNear) / 2;
+  for (const [pe, pn] of [[eFar, nS], [eFar, nN], [eNear, nS], [eNear, nN], [eMid, nS], [eMid, nN]]) {
     planBox(
-      [ai(a - 0.07, 6.12), ai(a + 0.07, 6.12), ai(a + 0.07, 6.26), ai(a - 0.07, 6.26)],
-      0, roofZ, 0x3f3832
+      [[pe - post / 2, pn - post / 2], [pe + post / 2, pn - post / 2], [pe + post / 2, pn + post / 2], [pe - post / 2, pn + post / 2]],
+      0, eave, steel
     );
   }
+  const tube = 0.07;
+  const steelTube = (e0, n0, z0, e1, n1, z1) => {
+    const [x0, zz0] = planToWorld(e0, n0);
+    const [x1, zz1] = planToWorld(e1, n1);
+    const a = new THREE.Vector3(x0, z0, zz0);
+    const b = new THREE.Vector3(x1, z1, zz1);
+    const dir = new THREE.Vector3().subVectors(b, a);
+    const len = dir.length();
+    if (len < 1e-4) return;
+    const mesh = new THREE.Mesh(
+      new THREE.BoxGeometry(tube, tube, len),
+      new THREE.MeshLambertMaterial({ color: steel })
+    );
+    mesh.position.copy(a).add(b).multiplyScalar(0.5);
+    mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), dir.normalize());
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    bucket.add(mesh);
+  };
+  const under = 0.05;
+  steelTube(eFar, nS, eave - tube, eNear, nS, eave - tube);
+  steelTube(eFar, nN, eave - tube, eNear, nN, eave - tube);
+  steelTube(eFar, nR, ridge - under, eNear, nR, ridge - under);
+  const V = (e, n, z) => {
+    const [x, zz] = planToWorld(e, n);
+    return [x, z, zz];
+  };
+  const SWo = V(eW, nSouth, eave);
+  const SEo = V(eE, nSouth, eave);
+  const NWo = V(eW, nNorth, eave);
+  const NEo = V(eE, nNorth, eave);
+  const RWo = V(eW, nR, ridge);
+  const REo = V(eE, nR, ridge);
+  const SWi = V(eW, nSouth, eave - dz);
+  const SEi = V(eE, nSouth, eave - dz);
+  const NWi = V(eW, nNorth, eave - dz);
+  const NEi = V(eE, nNorth, eave - dz);
+  const RWi = V(eW, nR, ridge - dz);
+  const REi = V(eE, nR, ridge - dz);
+  const tris = [];
+  const quad = (a, b, c, d) => {
+    tris.push([a, b, c], [a, c, d]);
+  };
+  quad(SWo, SEo, REo, RWo);
+  quad(NWo, RWo, REo, NEo);
+  quad(SWi, RWi, REi, SEi);
+  quad(NWi, NEi, REi, RWi);
+  quad(SWo, SWi, SEi, SEo);
+  quad(NWo, NEo, NEi, NWi);
+  quad(SWo, RWo, RWi, SWi);
+  quad(NWo, NWi, RWi, RWo);
+  quad(SEo, SEi, REi, REo);
+  quad(NEo, REo, REi, NEi);
+  quad(RWo, REo, REi, RWi);
+  asRoof(addMesh(geometryFromTriangles(tris), 0x3a4148));
+  const gable = (e) => {
+    const a = V(e, nS, eave);
+    const b = V(e, nN, eave);
+    const c = V(e, nR, ridge - dz - 0.02);
+    return [[a, b, c], [a, c, b]];
+  };
+  addMesh(geometryFromTriangles([...gable(eFar + 0.02), ...gable(eNear - 0.02)]), 0xf4efe8);
+  const carE = (eNear + eFar) / 2;
+  const stall = (nN - nS) / 2;
+  addParkedModel({
+    url: "./models/geely-coolray.glb",
+    length: 4.33,
+    centerE: carE,
+    centerN: nS + stall / 2,
+  });
+  addParkedModel({
+    url: "./models/mazda-cx5.glb",
+    length: 4.55,
+    centerE: carE,
+    centerN: nN - stall / 2,
+  });
 
   const plot = [[-18, 22.877], [32.835, 22.877], [39.044, -10.647], [-12.963, -4.345]];
   const fenceH = 1.5;
   const fenceT = 0.06;
-  const g0 = ai(9.5, 0);
-  const g1 = ai(14.34, 0);
+  const g0 = gateN;
+  const g1 = gateS;
+  const leaf0 = [gateN[0] + 0.22 * WEST_IN[0], gateN[1] + 0.22 * WEST_IN[1]];
+  const leaf1 = [gateS[0] + 0.22 * WEST_IN[0], gateS[1] + 0.22 * WEST_IN[1]];
   addWallRun(plot[0], plot[1], fenceT, 0, fenceH, 0x7d6a52);
   addWallRun(plot[1], plot[2], fenceT, 0, fenceH, 0x7d6a52);
   addWallRun(plot[2], plot[3], fenceT, 0, fenceH, 0x7d6a52);
-  addWallRun(plot[3], g1, fenceT, 0, fenceH, 0x7d6a52);
+  addWallRun(plot[3], kalS, fenceT, 0, fenceH, 0x7d6a52);
+  addWallRun(kalN, g1, fenceT, 0, fenceH, 0x7d6a52);
   addWallRun(g0, plot[0], fenceT, 0, fenceH, 0x7d6a52);
-  addWallRun(ai(9.5, 0.22), ai(14.34, 0.22), 0.04, 0.08, 1.46, 0x4e463c);
-  addWallRun(ai(9.5, 0.22), ai(14.34, 0.22), 0.015, 0.02, 0.07, 0x2c2824);
-  planBox([ai(9.28, 0.32), ai(9.62, 0.32), ai(9.62, 0.72), ai(9.28, 0.72)], 0, 0.38, 0x2a2622);
-  for (const p of [plot[0], plot[1], plot[2], plot[3], g0, g1]) {
+  addWallRun(leaf0, leaf1, 0.04, 0.08, 1.46, 0x4e463c);
+  addWallRun(leaf0, leaf1, 0.015, 0.02, 0.07, 0x2c2824);
+  addWallRun(
+    [kalN[0] + 0.06 * WEST_IN[0], kalN[1] + 0.06 * WEST_IN[1]],
+    [kalS[0] + 0.06 * WEST_IN[0], kalS[1] + 0.06 * WEST_IN[1]],
+    0.025, 0.02, 1.48, 0xa68455
+  );
+  planBox([
+    [gateN[0] + 0.15, gateN[1] + 0.35],
+    [gateN[0] + 0.55, gateN[1] + 0.35],
+    [gateN[0] + 0.55, gateN[1] + 0.75],
+    [gateN[0] + 0.15, gateN[1] + 0.75],
+  ], 0, 0.38, 0x2a2622);
+  for (const p of [plot[0], plot[1], plot[2], plot[3], g0, g1, kalN, kalS]) {
     planBox(
       [[p[0] - 0.08, p[1] - 0.08], [p[0] + 0.08, p[1] - 0.08], [p[0] + 0.08, p[1] + 0.08], [p[0] - 0.08, p[1] + 0.08]],
       0, 1.68, 0x4a4036
@@ -850,7 +1291,7 @@ function addWestVariant() {
     bucket.add(lid);
   }
   {
-    const [wx, wy] = ai(28.21, 17);
+    const [wx, wy] = [wellE, wellN];
     const [e, n] = planToWorld(wx, wy);
     const curb = new THREE.Mesh(
       new THREE.CylinderGeometry(0.52, 0.56, 0.18, 24),
@@ -870,8 +1311,72 @@ function addWestVariant() {
   }
 }
 
+// Полукруглый парник из поликарбоната, 2 м в высоту, вдоль северного забора у септика.
+function addGreenhouse() {
+  const fenceY = 22.877;
+  const radius = 2;
+  const length = 6;
+  const e1 = 27.24 - 0.55;
+  const e0 = e1 - length;
+  const nNorth = fenceY - 1.1;
+  const nSouth = nNorth - radius * 2;
+  const nC = (nSouth + nNorth) / 2;
+  const foundH = 0.2;
+  planBox(
+    [[e0 - 0.1, nSouth - 0.1], [e1 + 0.1, nSouth - 0.1], [e1 + 0.1, nNorth + 0.1], [e0 - 0.1, nNorth + 0.1]],
+    0, foundH, 0xc5c0b6, false
+  );
+  const V = (e, n, z) => {
+    const [x, zz] = planToWorld(e, n);
+    return [x, z, zz];
+  };
+  const segs = 18;
+  const arch = (e, r) => {
+    const pts = [];
+    for (let i = 0; i <= segs; i++) {
+      const a = (Math.PI * i) / segs;
+      pts.push(V(e, nC - r * Math.cos(a), foundH + r * Math.sin(a)));
+    }
+    return pts;
+  };
+  const skinTris = [];
+  const west = arch(e0, radius);
+  const east = arch(e1, radius);
+  for (let i = 0; i < segs; i++) {
+    skinTris.push([west[i], east[i], east[i + 1]], [west[i], east[i + 1], west[i + 1]]);
+  }
+  const cap = (pts) => {
+    const base = V(pts === west ? e0 : e1, nC, foundH);
+    for (let i = 0; i < segs; i++) skinTris.push([base, pts[i], pts[i + 1]], [base, pts[i + 1], pts[i]]);
+  };
+  cap(west);
+  cap(east);
+  const skin = addMesh(geometryFromTriangles(skinTris), 0xd7eee8);
+  skin.material.transparent = true;
+  skin.material.opacity = 0.42;
+  skin.material.depthWrite = false;
+  const ribTris = [];
+  const rib = (e) => {
+    const inner = arch(e, radius);
+    const outer = arch(e, radius + 0.035);
+    for (let i = 0; i < segs; i++) {
+      ribTris.push([inner[i], outer[i], outer[i + 1]], [inner[i], outer[i + 1], inner[i + 1]]);
+    }
+  };
+  for (let e = e0; e <= e1 + 0.01; e += 1) rib(Math.min(e, e1));
+  addMesh(geometryFromTriangles(ribTris), 0xb7bcc4);
+  const doorN0 = nC - 0.45;
+  const doorN1 = nC + 0.45;
+  const doorTop = foundH + 1.7;
+  planBox([[e0 - 0.04, doorN0 - 0.04], [e0 + 0.02, doorN0 - 0.04], [e0 + 0.02, doorN0], [e0 - 0.04, doorN0]], foundH, doorTop, 0xb7bcc4);
+  planBox([[e0 - 0.04, doorN1], [e0 + 0.02, doorN1], [e0 + 0.02, doorN1 + 0.04], [e0 - 0.04, doorN1 + 0.04]], foundH, doorTop, 0xb7bcc4);
+  planBox([[e0 - 0.04, doorN0], [e0 + 0.02, doorN0], [e0 + 0.02, doorN1], [e0 - 0.04, doorN1]], doorTop, doorTop + 0.05, 0xb7bcc4);
+}
+
 addSite();
 addWestVariant();
+bucket = sharedGroup;
+addGreenhouse();
 
 function showRoofs(on) {
   scene.traverse((obj) => {
@@ -894,7 +1399,7 @@ function showVariant(name) {
   varWest.classList.toggle("active", name === "west");
   blurb.textContent = name === "north"
     ? "Вход с северной дороги. Дом, гараж, баня, барбекю и забор 1,5 м. Время минское."
-    : "Вход с западной дороги. Дом с навесом у топочной, баня с хозблоком. Время минское.";
+    : "Вход с западной дороги. Дом параллельно северному забору, навес на две машины, баня с хозблоком. Время минское.";
 }
 
 varNorth.addEventListener("click", () => showVariant("north"));
