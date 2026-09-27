@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Свет дома, Абрикосовая 22</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #d5e2ef; font-family: "DejaVu Sans", "Liberation Sans", sans-serif; }
+  canvas { display: block; }
+  #panel {
+    position: absolute; top: 12px; left: 12px; width: 280px;
+    background: #fffef9; border: 1px solid #cfc8b8; border-radius: 6px;
+    padding: 12px 14px 10px; color: #222; box-sizing: border-box;
+  }
+  h1 { font-size: 16px; margin: 0 0 4px; }
+  p { margin: 6px 0; font-size: 12.5px; line-height: 1.35; }
+  label { display: block; font-size: 13px; margin-top: 8px; }
+  input[type="date"], input[type="range"] { width: 100%; box-sizing: border-box; }
+  input[type="range"] { margin-top: 4px; }
+  .row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  button {
+    font: inherit; font-size: 12px; padding: 4px 8px; cursor: pointer;
+    background: #f4efe4; border: 1px solid #cfc8b8; border-radius: 4px;
+  }
+  button:hover { background: #efe6d4; }
+  #sun { font-variant-numeric: tabular-nums; }
+  #clock { font-weight: 700; }
+</style>
+</head>
+<body>
+<div id="panel">
+  <h1>Свет на участке</h1>
+  <p>Абрикосовая 22. Дом, гараж, баня, барбекю и забор 1,5 м с калиткой и воротами. Время минское.</p>
+  <label>Дата <input id="date" type="date" value="2026-06-21"></label>
+  <label>Время <span id="clock">09:00</span>
+    <input id="time" type="range" min="240" max="1320" value="540" step="10">
+  </label>
+  <div class="row">
+    <button type="button" data-date="2026-03-21">21 марта</button>
+    <button type="button" data-date="2026-06-21">21 июня</button>
+    <button type="button" data-date="2026-09-23">23 сентября</button>
+    <button type="button" data-date="2026-12-21">21 декабря</button>
+  </div>
+  <div class="row">
+    <button type="button" data-min="540">9:00</button>
+    <button type="button" data-min="790">13:10</button>
+    <button type="button" data-min="1020">17:00</button>
+  </div>
+  <p id="sun"></p>
+  <label><input id="roof" type="checkbox" checked> Крыша</label>
+  <div class="row">
+    <button type="button" id="view-side">Сбоку</button>
+    <button type="button" id="view-top">Сверху</button>
+  </div>
+</div>
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.js" } }
+</script>
+<script type="module" src="./app.js?v=35"></script>
+</body>
+</html>
