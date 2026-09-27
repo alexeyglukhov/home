@@ -177,8 +177,12 @@ function applySun(geo) {
   const azR = (az * Math.PI) / 180;
   const elR = (el * Math.PI) / 180;
   const up = Math.sin(elR);
-  // Участок в мире зеркален по X, географический восток — это −X.
-  const dir = new THREE.Vector3(-Math.sin(azR) * Math.cos(elR), up, Math.cos(azR) * Math.cos(elR));
+  const horiz = Math.cos(elR);
+  // Север и восток — как стрелка «С» на листе, не оси мира.
+  const dir = new THREE.Vector3()
+    .addScaledVector(cadastralEast, Math.sin(azR) * horiz)
+    .addScaledVector(cadastralNorth, Math.cos(azR) * horiz);
+  dir.y = up;
   sun.position.copy(dir).multiplyScalar(90);
   sun.target.position.set(0, 1, 0);
   sun.target.updateMatrixWorld();
@@ -269,7 +273,8 @@ function asRoof(mesh) {
   return mesh;
 }
 
-// План схемы зеркалится так же, как контур дома: +X мира — восток, +Z — север.
+// План на участке зеркален по X так же, как контур дома.
+// Кадастровый север — не ось Z, а стрелка «С» вверх листа.
 const PLAN_W = 12.71;
 const AZ_X = Math.atan2(0.945323, 0.326137);
 const AZ_Y = Math.atan2(-0.326137, 0.945323);
@@ -282,6 +287,15 @@ function planToWorld(x, y) {
   const north = xm * Math.cos(AZ_X) + y * Math.cos(AZ_Y);
   return [east - CE, north - CN];
 }
+
+function planDeltaToWorld(dx, dy) {
+  const x = -dx * Math.sin(AZ_X) + dy * Math.sin(AZ_Y);
+  const z = -dx * Math.cos(AZ_X) + dy * Math.cos(AZ_Y);
+  return new THREE.Vector3(x, 0, z).normalize();
+}
+
+const cadastralNorth = planDeltaToWorld(Math.cos(AZ_X), Math.cos(AZ_Y));
+const cadastralEast = planDeltaToWorld(Math.sin(AZ_X), Math.sin(AZ_Y));
 
 addHouseHip();
 
@@ -985,12 +999,49 @@ function addSite() {
     centerN: 14.5,
   });
 
-  const [ne, nn] = planToWorld(-16, 26);
-  sharedGroup.add(new THREE.ArrowHelper(
-    new THREE.Vector3(0, 0, 1),
-    new THREE.Vector3(ne, 1.7, nn),
-    6, 0x16320f, 1.1, 0.55
-  ));
+  const [cx, cz] = planToWorld(-22, 31);
+  const origin = new THREE.Vector3(cx, 1.6, cz);
+  const southDir = cadastralNorth.clone().negate();
+  const westDir = cadastralEast.clone().negate();
+  const rose = new THREE.Group();
+  const arm = (dir, len, color) => {
+    rose.add(new THREE.ArrowHelper(dir, origin, len, color, len * 0.22, len * 0.1));
+  };
+  arm(cadastralNorth, 7, 0x16320f);
+  arm(cadastralEast, 4.5, 0x6a727a);
+  arm(southDir, 4.5, 0x6a727a);
+  arm(westDir, 4.5, 0x6a727a);
+  const disc = new THREE.Mesh(
+    new THREE.CircleGeometry(0.55, 24),
+    new THREE.MeshLambertMaterial({ color: 0xf4efe8 })
+  );
+  disc.rotation.x = -Math.PI / 2;
+  disc.position.set(cx, 1.45, cz);
+  rose.add(disc);
+  const mark = (text, dir, len) => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 128;
+    canvas.height = 128;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = text === "С" ? "#16320f" : "#3a4148";
+    ctx.font = "bold 84px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, 64, 68);
+    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: new THREE.CanvasTexture(canvas),
+      depthTest: false,
+    }));
+    sprite.position.copy(origin).addScaledVector(dir, len + 1.3);
+    sprite.position.y = 2.4;
+    sprite.scale.set(2.4, 2.4, 1);
+    rose.add(sprite);
+  };
+  mark("С", cadastralNorth, 7);
+  mark("В", cadastralEast, 4.5);
+  mark("Ю", southDir, 4.5);
+  mark("З", westDir, 4.5);
+  sharedGroup.add(rose);
 }
 
 const WEST_U = [0.181945681134421, -0.9833085828551136];
