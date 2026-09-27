@@ -23,6 +23,7 @@
     background: #f4efe4; border: 1px solid #cfc8b8; border-radius: 4px;
   }
   button:hover { background: #efe6d4; }
+  button.active { background: #e4d7bf; border-color: #6b5a45; }
   #sun { font-variant-numeric: tabular-nums; }
   #clock { font-weight: 700; }
 </style>
@@ -30,7 +31,11 @@
 <body>
 <div id="panel">
   <h1>Свет на участке</h1>
-  <p>Абрикосовая 22. Дом, гараж, баня, барбекю и забор 1,5 м с калиткой и воротами. Время минское.</p>
+  <p id="blurb">Вход с северной дороги. Дом, гараж, баня, барбекю и забор 1,5 м. Время минское.</p>
+  <div class="row">
+    <button type="button" id="var-north" class="active">Вход с севера</button>
+    <button type="button" id="var-west">Вход с запада</button>
+  </div>
   <label>Дата <input id="date" type="date" value="2026-06-21"></label>
   <label>Время <span id="clock">09:00</span>
     <input id="time" type="range" min="240" max="1320" value="540" step="10">
@@ -56,6 +61,6 @@
 <script type="importmap">
 { "imports": { "three": "./vendor/three.module.js" } }
 </script>
-<script type="module" src="./app.js?v=43"></script>
+<script type="module" src="./app.js?v=55"></script>
 </body>
 </html>

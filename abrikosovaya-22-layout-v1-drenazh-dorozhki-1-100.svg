@@ -10,11 +10,21 @@
 </pattern>
 </defs>
 <rect width="100%" height="100%" fill="#f7f6f2"/>
-<polygon points="32.00,291.44 714.40,56.00 1063.94,673.12 336.57,829.39" fill="#c8c8c6" stroke="#6a6a68" stroke-width="0.45"/>
+<polygon points="32.00,291.44 714.40,56.00 1063.94,673.12 336.57,829.39" fill="#d3ebc0" stroke="#9bb58a" stroke-width="0.45"/>
 <polygon points="276.41,418.68 756.96,252.89 924.99,549.55 412.81,659.59" fill="#b7d48c" stroke="#c0392b" stroke-width="0.7" stroke-linejoin="miter"/>
+<polygon points="85.36,294.18 709.27,78.93 725.58,126.20 101.67,341.45" fill="#e3e3e0" stroke="#bdbdb8" stroke-width="0.3" stroke-linejoin="miter"/>
+<polygon points="163.20,320.22 369.30,684.22 325.79,708.86 115.14,336.80" fill="#e3e3e0" stroke="#bdbdb8" stroke-width="0.3" stroke-linejoin="miter"/>
+<polygon points="339.81,399.45 518.28,337.88 475.07,212.62 296.59,274.20" fill="url(#paver)" stroke="#a08050" stroke-width="0.35" stroke-linejoin="miter"/>
 <polygon points="750.52,269.92 903.42,539.87 419.93,643.74 296.88,426.43" fill="none" stroke="#3f6a34" stroke-width="1.15" stroke-linejoin="round" opacity="0.85"/>
 <polygon points="738.55,301.55 863.35,521.88 433.14,614.31 334.91,440.81" fill="none" stroke="#2c4a28" stroke-width="0.38" stroke-dasharray="2.2 1.3"/>
 <polygon points="449.58,503.62 481.72,492.53 454.93,414.88 510.17,395.82 505.40,381.99 541.08,369.68 550.53,366.42 561.26,397.51 599.94,384.17 576.17,315.26 329.54,400.35 347.35,451.99 413.34,429.23 422.79,425.97" fill="url(#paver)" stroke="#a08050" stroke-width="0.35" stroke-linejoin="miter"/>
+<g id="gate">
+<line x1="338.99" y1="397.09" x2="395.52" y2="377.59" stroke="#f7f6f2" stroke-width="1.35" stroke-linecap="butt"/>
+<line x1="339.44" y1="398.38" x2="418.65" y2="371.05" stroke="#4e463c" stroke-width="1.15" stroke-linecap="butt"/>
+<line x1="419.60" y1="373.80" x2="432.84" y2="369.23" stroke="#4e463c" stroke-width="0.4" marker-end="url(#arrS)"/>
+<polygon points="400.25,383.64 404.04,382.34 402.73,378.56 398.95,379.86" fill="#2f2a26" stroke="#2f2a26" stroke-width="0.15"/>
+<text x="371.49" y="399.92" font-size="2.5" font-weight="700" fill="#3a342c" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, Liberation Sans, sans-serif" transform="rotate(-19.04 371.49 399.92)">откатные</text>
+</g>
 <g id="garage">
 <polygon points="380.33,516.93 436.86,497.43 413.34,429.23 356.81,448.73" fill="#f4f0e8" stroke="#3f3832" stroke-width="0.55" stroke-linejoin="miter"/>
 <polygon points="381.57,514.39 434.32,496.19 428.45,479.17 375.70,497.37" fill="#efe6d4" stroke="none"/>
@@ -29,7 +39,9 @@
 <polygon points="752.26,491.75 804.25,473.82 791.53,436.95 739.54,454.89" fill="#f4efe8" stroke="#5c4033" stroke-width="0.55" stroke-linejoin="round"/>
 <polygon points="780.62,481.97 804.25,473.82 791.53,436.95 767.90,445.10" fill="#f0e0d4" stroke="#5c4033" stroke-width="0.3" stroke-linejoin="round"/>
 <path d="M 746.07,504.47 L 816.97,480.01 L 797.73,424.23 L 726.83,448.69 Z M 752.26,491.75 L 804.25,473.82 L 791.53,436.95 L 739.54,454.89 Z" fill="#d4cfc4" fill-rule="evenodd" stroke="#8a8378" stroke-width="0.3" stroke-linejoin="round"/>
-<polygon points="439.16,596.07 475.08,583.68 465.95,557.21 430.03,569.60" fill="#c4d68a" stroke="#6a7a3a" stroke-width="0.3" stroke-linejoin="round"/>
+<polygon points="439.16,596.07 475.08,583.68 467.26,560.99 431.33,573.38" fill="#c4d68a" stroke="#6a7a3a" stroke-width="0.3" stroke-linejoin="round"/>
+<polygon points="444.57,568.82 463.48,562.29 456.95,543.39 452.23,545.02 439.18,507.20 429.73,510.47 442.77,548.28 438.05,549.91" fill="url(#paver)" stroke="#a08050" stroke-width="0.35" stroke-linejoin="miter"/>
+<polygon points="721.02,320.26 758.84,307.22 748.40,276.97 710.59,290.01" fill="url(#paver)" stroke="#a08050" stroke-width="0.35" stroke-linejoin="miter"/>
 <circle cx="681.54" cy="453.74" r="1.15" fill="#6b6b6b" stroke="#333" stroke-width="0.2"/>
 <polygon points="654.04,540.98 599.94,384.17 561.26,397.51 547.27,356.97 492.68,375.79 497.44,389.63 451.67,405.43 514.99,588.95" fill="#d4cfc4" stroke="#8a8378" stroke-width="0.3" stroke-linejoin="round"/>
 <polygon points="657.86,542.82 601.80,380.35 563.12,393.70 549.13,353.15 488.87,373.94 493.64,387.77 447.86,403.57 513.13,592.77" fill="none" stroke="#1a6fbf" stroke-width="0.55" stroke-dasharray="2.4 1.15" stroke-linejoin="round"/>
@@ -123,7 +135,7 @@
 <text x="950.00" y="825.00" font-size="2.4" font-weight="400" fill="#1c1c1c" text-anchor="middle" dominant-baseline="central" >5 м</text>
 <text x="1000.00" y="825.00" font-size="2.4" font-weight="400" fill="#1c1c1c" text-anchor="middle" dominant-baseline="central" >10 м</text>
 </g>
-<rect x="34" y="20" width="228" height="176" rx="1.5" fill="#fffef9" stroke="#cfc8b8" stroke-width="0.35"/>
+<rect x="34" y="20" width="228" height="205" rx="1.5" fill="#fffef9" stroke="#cfc8b8" stroke-width="0.35"/>
 <text x="40.00" y="29.00" font-size="3.05" font-weight="700" fill="#222" text-anchor="start" dominant-baseline="central" >Вариант 1 · дорожки и дренаж</text>
 <text x="40.00" y="39.60" font-size="2.55" font-weight="400" fill="#222" text-anchor="start" dominant-baseline="central" >Масштаб 1:100, 1 м = 10 мм. Без настила.</text>
 <text x="40.00" y="49.15" font-size="2.55" font-weight="400" fill="#222" text-anchor="start" dominant-baseline="central" >Вход — на северную дорогу.</text>
@@ -141,6 +153,9 @@
 <text x="40.00" y="163.75" font-size="2.55" font-weight="400" fill="#222" text-anchor="start" dominant-baseline="central" >Баня около 12 м от дома. Барбекю сбоку от дорожки.</text>
 <text x="40.00" y="173.30" font-size="2.55" font-weight="400" fill="#222" text-anchor="start" dominant-baseline="central" >Плитка: терраса—баня прямо, поворот к барбекю.</text>
 <text x="40.00" y="182.85" font-size="2.55" font-weight="400" fill="#222" text-anchor="start" dominant-baseline="central" >Гараж на 2 машины. Перед ним площадка 5,5 м от ворот.</text>
+<text x="40.00" y="192.40" font-size="2.55" font-weight="400" fill="#222" text-anchor="start" dominant-baseline="central" >Ворота откатные с приводом, створка уезжает к калитке.</text>
+<text x="40.00" y="201.95" font-size="2.55" font-weight="400" fill="#222" text-anchor="start" dominant-baseline="central" >К скважине дорожка 1 м от отмостки гаража и площадка у люка.</text>
+<text x="40.00" y="211.50" font-size="2.55" font-weight="400" fill="#222" text-anchor="start" dominant-baseline="central" >У септика мощение вокруг крышек. Прохода в заборе нет.</text>
 <g id="voda">
 <circle cx="450.76" cy="556.10" r="2.4" fill="#d6ebf7" stroke="#1a6fbf" stroke-width="0.45"/>
 <circle cx="450.76" cy="556.10" r="0.7" fill="#1a6fbf"/>
@@ -150,7 +165,7 @@
 <circle cx="740.56" cy="297.68" r="3.6" fill="#efe6d4" stroke="#6b4f2a" stroke-width="0.35"/>
 <circle cx="740.56" cy="297.68" r="2.3" fill="#d7c4a8" stroke="#6b4f2a" stroke-width="0.25"/>
 
-<text x="441.20" y="552.80" font-size="2.8" font-weight="700" fill="#1a6fbf" text-anchor="end" dominant-baseline="central" font-family="DejaVu Sans, Liberation Sans, sans-serif">скважина</text>
+<text x="438.46" y="558.76" font-size="2.8" font-weight="700" fill="#1a6fbf" text-anchor="end" dominant-baseline="central" font-family="DejaVu Sans, Liberation Sans, sans-serif">скважина</text>
 <text x="735.00" y="312.50" font-size="2.8" font-weight="700" fill="#6b4f2a" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, Liberation Sans, sans-serif" transform="rotate(-19.04 735.00 312.50)">септик</text>
 </g>
 </g></svg>
