@@ -1889,6 +1889,8 @@ function saveView() {
       tz: controls.target.z,
       roof: roofToggle.checked,
       variant: viewVariant,
+      date: dateInput.value,
+      minutes: Number(timeInput.value),
     }));
   } catch {
     // браузер может запретить localStorage
@@ -1910,6 +1912,8 @@ function loadView() {
       showRoofs(saved.roof);
     }
     if (saved.variant === "north" || saved.variant === "west") pendingVariant = saved.variant;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(saved.date)) dateInput.value = saved.date;
+    if (Number.isFinite(saved.minutes)) timeInput.value = String(saved.minutes);
   } catch {
     // битая запись не мешает обычному виду
   }
@@ -1949,14 +1953,22 @@ function showVariant(name) {
 varNorth.addEventListener("click", () => showVariant("north"));
 varWest.addEventListener("click", () => showVariant("west"));
 showVariant(pendingVariant || (location.hash === "#west" ? "west" : "north"));
-dateInput.addEventListener("input", () => applySun(geo));
-timeInput.addEventListener("input", () => applySun(geo));
+dateInput.addEventListener("input", () => {
+  applySun(geo);
+  saveView();
+});
+timeInput.addEventListener("input", () => {
+  applySun(geo);
+  saveView();
+});
 panel.addEventListener("click", (event) => {
   const button = event.target.closest("button");
   if (!button) return;
+  if (!button.dataset.date && !button.dataset.min) return;
   if (button.dataset.date) dateInput.value = button.dataset.date;
   if (button.dataset.min) timeInput.value = button.dataset.min;
   applySun(geo);
+  saveView();
 });
 
 function setView(kind) {
