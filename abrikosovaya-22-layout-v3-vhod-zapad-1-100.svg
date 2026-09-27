@@ -16,7 +16,7 @@
 <path d="M 777.90,506.92 L 834.62,487.35 L 802.01,392.82 L 745.29,412.39 Z M 784.10,494.21 L 821.91,481.16 L 795.82,405.54 L 758.00,418.58 Z" fill="#d4cfc4" fill-rule="evenodd" stroke="#8a8378" stroke-width="0.3" stroke-linejoin="round"/>
 <polygon points="264.43,499.00 298.28,558.80 341.79,534.16 307.94,474.36" fill="url(#paver)" stroke="#a08050" stroke-width="0.35" stroke-linejoin="miter"/>
 <polygon points="307.94,474.36 371.62,586.84 498.51,543.07 485.17,504.40 444.62,518.39 432.29,482.66 446.19,477.87 430.40,432.11" fill="url(#paver)" stroke="#a08050" stroke-width="0.35" stroke-linejoin="miter"/>
-<polygon points="354.78,458.20 342.71,423.23 418.33,397.14 430.40,432.11" fill="url(#paver)" stroke="#a08050" stroke-width="0.35" stroke-linejoin="miter"/>
+<polygon points="307.94,474.36 289.40,441.62 418.33,397.14 430.40,432.11" fill="url(#paver)" stroke="#a08050" stroke-width="0.35" stroke-linejoin="miter"/>
 <polygon points="633.81,487.87 627.29,468.97 759.63,423.31 766.15,442.21" fill="url(#paver)" stroke="#a08050" stroke-width="0.35" stroke-linejoin="miter"/>
 <g id="bbq">
 <polygon points="636.82,565.43 646.67,563.32 624.66,499.54 615.21,502.80" fill="url(#paver)" stroke="#a08050" stroke-width="0.35" stroke-linejoin="miter"/>
