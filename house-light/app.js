@@ -46,8 +46,11 @@ scene.add(sun.target);
 const sharedGroup = new THREE.Group();
 const northGroup = new THREE.Group();
 const westGroup = new THREE.Group();
+const variant2Group = new THREE.Group();
+const greenhouseGroup = new THREE.Group();
 const houseRig = new THREE.Group();
-scene.add(sharedGroup, northGroup, westGroup);
+scene.add(sharedGroup, northGroup, westGroup, variant2Group);
+variant2Group.visible = false;
 westGroup.visible = false;
 let bucket = sharedGroup;
 
@@ -599,6 +602,99 @@ addOpeningFrame(10.66, 11.56, 3.6, 4.1, PLINTH, headZ, false);
 }
 northGroup.add(houseRig);
 
+function addGarage() {
+  const gateW = 5.98;
+  const gateTailLen = 2.4;
+  const gx0 = -18 + 0.08 + 0.5 + gateTailLen + gateW;
+  const gx1 = gx0 + gateW;
+  const gy0 = 8.7;
+  const gy1 = 15.914;
+  addSlab([[gx0 - 1, gy0 - 1], [gx1, gy0 - 1], [gx1, gy0], [gx0 - 1, gy0]], 0.07, 0.025, 0xd4cfc4, false);
+  addSlab([[gx0 - 1, gy0], [gx0, gy0], [gx0, gy1], [gx0 - 1, gy1]], 0.07, 0.025, 0xd4cfc4, false);
+  const t = 0.18;
+  const gTop = 2.55;
+  const doorH = 2.15;
+  const d1a = gx0 + 0.51;
+  const d1b = d1a + 2.4;
+  const d2a = d1b + 0.16;
+  const d2b = d2a + 2.4;
+  const backDoorW = 0.9;
+  const backDoor1 = gx1 - t - 0.45;
+  const backDoor0 = backDoor1 - backDoorW;
+  planBox([[gx0, gy0], [backDoor0, gy0], [backDoor0, gy0 + t], [gx0, gy0 + t]], 0, PLINTH + gTop, 0xf4f0e8);
+  planBox([[backDoor1, gy0], [gx1, gy0], [gx1, gy0 + t], [backDoor1, gy0 + t]], 0, PLINTH + gTop, 0xf4f0e8);
+  planBox([[backDoor0, gy0], [backDoor1, gy0], [backDoor1, gy0 + t], [backDoor0, gy0 + t]], PLINTH + doorH, PLINTH + gTop, 0xf4f0e8);
+  addOpeningFrame(backDoor0, backDoor1, gy0, gy0 + t, 0, PLINTH + doorH, false);
+  planBox([[gx0, gy0], [gx0 + t, gy0], [gx0 + t, gy1], [gx0, gy1]], 0, PLINTH + gTop, 0xf4f0e8);
+  planBox([[gx1 - t, gy0], [gx1, gy0], [gx1, gy1], [gx1 - t, gy1]], 0, PLINTH + gTop, 0xf4f0e8);
+  planBox([[gx0, gy1 - t], [d1a, gy1 - t], [d1a, gy1], [gx0, gy1]], 0, PLINTH + gTop, 0xf4f0e8);
+  planBox([[d1b, gy1 - t], [d2a, gy1 - t], [d2a, gy1], [d1b, gy1]], 0, PLINTH + gTop, 0xf4f0e8);
+  planBox([[d2b, gy1 - t], [gx1, gy1 - t], [gx1, gy1], [d2b, gy1]], 0, PLINTH + gTop, 0xf4f0e8);
+  planBox([[gx0, gy1 - t], [gx1, gy1 - t], [gx1, gy1], [gx0, gy1]], PLINTH + doorH, PLINTH + gTop, 0xf4f0e8);
+  addOpeningFrame(d1a, d1b, gy1 - t, gy1, 0, PLINTH + doorH, false);
+  addOpeningFrame(d2a, d2b, gy1 - t, gy1, 0, PLINTH + doorH, false);
+  planBox([[gx0 + t, gy0 + t], [gx1 - t, gy0 + t], [gx1 - t, gy1], [gx0 + t, gy1]], 0.03, 0.065, 0xe6d3b0, false);
+  const shopY0 = gy0 + 1.94;
+  const shopY1 = gy0 + 2.06;
+  const shopDoorW = 0.9;
+  const shopDoor0 = gx0 + t + 0.45;
+  const shopDoor1 = shopDoor0 + shopDoorW;
+  planBox([[gx0 + t, shopY0], [shopDoor0, shopY0], [shopDoor0, shopY1], [gx0 + t, shopY1]], 0.065, PLINTH + gTop, 0xefe6d4);
+  planBox([[shopDoor1, shopY0], [gx1 - t, shopY0], [gx1 - t, shopY1], [shopDoor1, shopY1]], 0.065, PLINTH + gTop, 0xefe6d4);
+  // Двускатная крыша: конёк вдоль гаража, скаты на восток и запад, фронтон над воротами.
+  {
+    const ov = 0.22;
+    const eW = gx0 - ov;
+    const eE = gx1 + ov;
+    const nS = gy0 - ov;
+    const nN = gy1 + ov;
+    const eR = (gx0 + gx1) / 2;
+    const eave = PLINTH + gTop;
+    const rise = Math.tan(22 * Math.PI / 180) * (eR - eW);
+    const ridge = eave + rise;
+    const dz = 0.1;
+    const V = (e, n, z) => {
+      const [x, zz] = planToWorld(e, n);
+      return [x, z, zz];
+    };
+    const WSo = V(eW, nS, eave);
+    const WNo = V(eW, nN, eave);
+    const ESo = V(eE, nS, eave);
+    const ENo = V(eE, nN, eave);
+    const RSo = V(eR, nS, ridge);
+    const RNo = V(eR, nN, ridge);
+    const WSi = V(eW, nS, eave - dz);
+    const WNi = V(eW, nN, eave - dz);
+    const ESi = V(eE, nS, eave - dz);
+    const ENi = V(eE, nN, eave - dz);
+    const RSi = V(eR, nS, ridge - dz);
+    const RNi = V(eR, nN, ridge - dz);
+    const tris = [];
+    const quad = (a, b, c, d) => {
+      tris.push([a, b, c], [a, c, d]);
+    };
+    quad(WSo, WNo, RNo, RSo);
+    quad(ESo, RSo, RNo, ENo);
+    quad(WSi, RSi, RNi, WNi);
+    quad(ESi, ENi, RNi, RSi);
+    quad(WSo, WSi, WNi, WNo);
+    quad(ESo, ENo, ENi, ESi);
+    quad(WSo, RSo, RSi, WSi);
+    quad(ESo, ESi, RSi, RSo);
+    quad(WNo, WNi, RNi, RNo);
+    quad(ENo, RNo, RNi, ENi);
+    quad(RSo, RNo, RNi, RSi);
+    asRoof(addMesh(geometryFromTriangles(tris), 0x6e675e));
+    const gable = (n) => {
+      const a = V(gx0, n, eave);
+      const b = V(gx1, n, eave);
+      const c = V(eR, n, ridge - dz - 0.02);
+      return [[a, b, c], [a, c, b]];
+    };
+    addMesh(geometryFromTriangles([...gable(gy0 + 0.02), ...gable(gy1 - 0.02)]), 0xf4f0e8);
+  }
+}
+
 function addSite() {
   const plot = [
     [-18.0, 22.877],
@@ -689,82 +785,11 @@ function addSite() {
     [13.71, -1], [13.71, 15.588], [9.618, 15.588], [9.618, 19.877],
     [3.843, 19.878], [3.842, 18.415], [-1, 18.414], [-1, -1],
   ], 0.07, 0.025, blind, false);
-  addSlab([[gx0 - 1, gy0 - 1], [gx1, gy0 - 1], [gx1, gy0], [gx0 - 1, gy0]], 0.07, 0.025, blind, false);
-  addSlab([[gx0 - 1, gy0], [gx0, gy0], [gx0, gy1], [gx0 - 1, gy1]], 0.07, 0.025, blind, false);
   addSlab([[23.6, -0.55], [31.1, -0.55], [31.1, 5.35], [23.6, 5.35]], 0.07, 0.025, blind, false);
 
-  const t = 0.18;
-  const gTop = 2.55;
-  const doorH = 2.15;
-  const d1a = gx0 + 0.51;
-  const d1b = d1a + 2.4;
-  const d2a = d1b + 0.16;
-  const d2b = d2a + 2.4;
-  planBox([[gx0, gy0], [gx1, gy0], [gx1, gy0 + t], [gx0, gy0 + t]], 0, PLINTH + gTop, 0xf4f0e8);
-  planBox([[gx0, gy0], [gx0 + t, gy0], [gx0 + t, gy1], [gx0, gy1]], 0, PLINTH + gTop, 0xf4f0e8);
-  planBox([[gx1 - t, gy0], [gx1, gy0], [gx1, gy1], [gx1 - t, gy1]], 0, PLINTH + gTop, 0xf4f0e8);
-  planBox([[gx0, gy1 - t], [d1a, gy1 - t], [d1a, gy1], [gx0, gy1]], 0, PLINTH + gTop, 0xf4f0e8);
-  planBox([[d1b, gy1 - t], [d2a, gy1 - t], [d2a, gy1], [d1b, gy1]], 0, PLINTH + gTop, 0xf4f0e8);
-  planBox([[d2b, gy1 - t], [gx1, gy1 - t], [gx1, gy1], [d2b, gy1]], 0, PLINTH + gTop, 0xf4f0e8);
-  planBox([[gx0, gy1 - t], [gx1, gy1 - t], [gx1, gy1], [gx0, gy1]], PLINTH + doorH, PLINTH + gTop, 0xf4f0e8);
-  planBox([[gx0 + t, gy0 + t], [gx1 - t, gy0 + t], [gx1 - t, gy1], [gx0 + t, gy1]], 0.03, 0.065, 0xe6d3b0, false);
-  const shopY0 = gy0 + 1.94;
-  const shopY1 = gy0 + 2.06;
-  planBox([[gx0 + t, shopY0], [gx0 + 2.54, shopY0], [gx0 + 2.54, shopY1], [gx0 + t, shopY1]], 0.065, PLINTH + gTop, 0xefe6d4);
-  planBox([[gx0 + 3.44, shopY0], [gx1 - t, shopY0], [gx1 - t, shopY1], [gx0 + 3.44, shopY1]], 0.065, PLINTH + gTop, 0xefe6d4);
-  // Двускатная крыша: конёк вдоль гаража, скаты на восток и запад, фронтон над воротами.
-  {
-    const ov = 0.22;
-    const eW = gx0 - ov;
-    const eE = gx1 + ov;
-    const nS = gy0 - ov;
-    const nN = gy1 + ov;
-    const eR = (gx0 + gx1) / 2;
-    const eave = PLINTH + gTop;
-    const rise = Math.tan(22 * Math.PI / 180) * (eR - eW);
-    const ridge = eave + rise;
-    const dz = 0.1;
-    const V = (e, n, z) => {
-      const [x, zz] = planToWorld(e, n);
-      return [x, z, zz];
-    };
-    const WSo = V(eW, nS, eave);
-    const WNo = V(eW, nN, eave);
-    const ESo = V(eE, nS, eave);
-    const ENo = V(eE, nN, eave);
-    const RSo = V(eR, nS, ridge);
-    const RNo = V(eR, nN, ridge);
-    const WSi = V(eW, nS, eave - dz);
-    const WNi = V(eW, nN, eave - dz);
-    const ESi = V(eE, nS, eave - dz);
-    const ENi = V(eE, nN, eave - dz);
-    const RSi = V(eR, nS, ridge - dz);
-    const RNi = V(eR, nN, ridge - dz);
-    const tris = [];
-    const quad = (a, b, c, d) => {
-      tris.push([a, b, c], [a, c, d]);
-    };
-    quad(WSo, WNo, RNo, RSo);
-    quad(ESo, RSo, RNo, ENo);
-    quad(WSi, RSi, RNi, WNi);
-    quad(ESi, ENi, RNi, RSi);
-    quad(WSo, WSi, WNi, WNo);
-    quad(ESo, ENo, ENi, ESi);
-    quad(WSo, RSo, RSi, WSi);
-    quad(ESo, ESi, RSi, RSo);
-    quad(WNo, WNi, RNi, RNo);
-    quad(ENo, RNo, RNi, ENi);
-    quad(RSo, RNo, RNi, RSi);
-    asRoof(addMesh(geometryFromTriangles(tris), 0x6e675e));
-    const gable = (n) => {
-      const a = V(gx0, n, eave);
-      const b = V(gx1, n, eave);
-      const c = V(eR, n, ridge - dz - 0.02);
-      return [[a, b, c], [a, c, b]];
-    };
-    addMesh(geometryFromTriangles([...gable(gy0 + 0.02), ...gable(gy1 - 0.02)]), 0xf4f0e8);
-  }
+  addGarage();
 
+  const t = 0.18;
   const bx0 = 24.6;
   const bx1 = 30.1;
   const by0 = 0.45;
@@ -1084,6 +1109,8 @@ function addSite() {
 
   // Coolray задом в западные ворота гаража, носом на дорогу.
   // Mazda перед гаражом, внутри участка, в полуметре к востоку от Кулрея.
+  const d1a = gx0 + 0.51;
+  const d1b = d1a + 2.4;
   const coolLen = 4.33;
   const inside = 1.3;
   addParkedModel({
@@ -1264,7 +1291,7 @@ function addParkedModel({ url, length, centerE, centerN, heading = "west" }) {
         }
         // Кузов CX-5 был почти чёрной текстурой, капот и бампер — отдельным материалом.
         if (url.includes("mazda") && (paint.includes("Material_01") || paint.includes("Material_03"))) {
-          mat.color.set(0x6a7078);
+          mat.color.set(0x6e675e);
           mat.map = null;
           mat.metalness = 0.22;
           mat.roughness = 0.4;
@@ -1277,7 +1304,7 @@ function addParkedModel({ url, length, centerE, centerN, heading = "west" }) {
           mat.roughness = 0.38;
         }
         if (url.includes("coolray") && paint.includes("carpaint") && !paint.includes("second")) {
-          mat.color.set(0x6e675e);
+          mat.color.set(0x6a7078);
           mat.metalness = 0.18;
           mat.roughness = 0.46;
         }
@@ -1803,6 +1830,8 @@ function addWestVariant() {
 
 // Полукруглый парник из поликарбоната, 2 м в высоту, вдоль северного забора у септика.
 function addGreenhouse() {
+  const savedBucket = bucket;
+  bucket = greenhouseGroup;
   const fenceY = 22.877;
   const radius = 2;
   const length = 6;
@@ -1861,12 +1890,567 @@ function addGreenhouse() {
   planBox([[e0 - 0.04, doorN0 - 0.04], [e0 + 0.02, doorN0 - 0.04], [e0 + 0.02, doorN0], [e0 - 0.04, doorN0]], foundH, doorTop, 0xb7bcc4);
   planBox([[e0 - 0.04, doorN1], [e0 + 0.02, doorN1], [e0 + 0.02, doorN1 + 0.04], [e0 - 0.04, doorN1 + 0.04]], foundH, doorTop, 0xb7bcc4);
   planBox([[e0 - 0.04, doorN0], [e0 + 0.02, doorN0], [e0 + 0.02, doorN1], [e0 - 0.04, doorN1]], doorTop, doorTop + 0.05, 0xb7bcc4);
+  bucket = savedBucket;
 }
 
 addSite();
 addWestVariant();
 bucket = sharedGroup;
 addGreenhouse();
+sharedGroup.add(greenhouseGroup);
+
+// Вариант 2: новый дом. u — от оси А на восток к оси Г на запад, v — от оси 6 (юг) к оси 1 (север).
+const V2_XE = 20.16;
+const V2_YS = 2.66;
+const V2_PLINTH = 0.3;
+const V2_BRICK = 0xc4a484;
+const V2_PART = 0xd9d3c8;
+const V2_ROOF = 0x2a2e32;
+
+function v2p(u, v) {
+  return [V2_XE - u, V2_YS + v];
+}
+
+function v2box(u0, v0, u1, v1, z0, z1, color) {
+  return planBox([v2p(u0, v0), v2p(u1, v0), v2p(u1, v1), v2p(u0, v1)], z0 + V2_PLINTH, z1 + V2_PLINTH, color);
+}
+
+function v2wallU(u, v0, v1, thick, holes, zTop, color) {
+  const a = u - thick / 2;
+  const b = u + thick / 2;
+  const list = holes.slice().sort((p, q) => p.v0 - q.v0);
+  let v = v0;
+  for (const h of list) {
+    if (h.v0 > v + 0.02) v2box(a, v, b, h.v0, -0.05, zTop, color);
+    if (h.z0 > 0.02) v2box(a, h.v0, b, h.v1, -0.05, h.z0, color);
+    if (zTop > h.z1 + 0.02) v2box(a, h.v0, b, h.v1, h.z1, zTop, color);
+    v2winX(u, h.v0, h.v1, h.z0, h.z1);
+    v = Math.max(v, h.v1);
+  }
+  if (v1 > v + 0.02) v2box(a, v, b, v1, -0.05, zTop, color);
+}
+
+function v2wallV(v, u0, u1, thick, holes, zTop, color) {
+  const a = v - thick / 2;
+  const b = v + thick / 2;
+  const list = holes.slice().sort((p, q) => p.u0 - q.u0);
+  let u = u0;
+  for (const h of list) {
+    if (h.u0 > u + 0.02) v2box(u, a, h.u0, b, -0.05, zTop, color);
+    if (h.z0 > 0.02) v2box(h.u0, a, h.u1, b, -0.05, h.z0, color);
+    if (zTop > h.z1 + 0.02) v2box(h.u0, a, h.u1, b, h.z1, zTop, color);
+    v2winY(v, h.u0, h.u1, h.z0, h.z1);
+    u = Math.max(u, h.u1);
+  }
+  if (u1 > u + 0.02) v2box(u, a, u1, b, -0.05, zTop, color);
+}
+
+function v2winX(u, v0, v1, z0, z1) {
+  const x = V2_XE - u;
+  const y0 = V2_YS + Math.min(v0, v1);
+  const y1 = V2_YS + Math.max(v0, v1);
+  addOpeningFrame(x - 0.1, x + 0.1, y0, y1, z0 + V2_PLINTH, z1 + V2_PLINTH, z0 > 0.2);
+  const glass = v2box(u - 0.02, v0, u + 0.02, v1, z0, z1, 0xb7d4e4);
+  glass.material.transparent = true;
+  glass.material.opacity = 0.28;
+  glass.material.depthWrite = false;
+  glass.castShadow = false;
+}
+
+function v2winY(v, u0, u1, z0, z1) {
+  const y = V2_YS + v;
+  const x0 = V2_XE - Math.max(u0, u1);
+  const x1 = V2_XE - Math.min(u0, u1);
+  addOpeningFrame(x0, x1, y - 0.1, y + 0.1, z0 + V2_PLINTH, z1 + V2_PLINTH, z0 > 0.2);
+  const glass = v2box(u0, v - 0.02, u1, v + 0.02, z0, z1, 0xb7d4e4);
+  glass.material.transparent = true;
+  glass.material.opacity = 0.28;
+  glass.material.depthWrite = false;
+  glass.castShadow = false;
+}
+
+function v2roof(tris) {
+  const lift = ([u, v, z]) => {
+    const [e, n] = planToWorld(V2_XE - u, V2_YS + v);
+    return [e, z + V2_PLINTH, n];
+  };
+  const out = tris.map(([a, b, c]) => {
+    const A = lift(a);
+    const B = lift(b);
+    const C = lift(c);
+    const ab = [B[0] - A[0], B[1] - A[1], B[2] - A[2]];
+    const ac = [C[0] - A[0], C[1] - A[1], C[2] - A[2]];
+    const ny = ab[2] * ac[0] - ab[0] * ac[2];
+    return ny > 0 ? [A, C, B] : [A, B, C];
+  });
+  asRoof(addMesh(geometryFromTriangles(out), V2_ROOF));
+}
+
+function v2solid(tris, color) {
+  const lift = ([u, v, z]) => {
+    const [e, n] = planToWorld(V2_XE - u, V2_YS + v);
+    return [e, z + V2_PLINTH, n];
+  };
+  const out = tris.map(([a, b, c]) => {
+    const A = lift(a);
+    const B = lift(b);
+    const C = lift(c);
+    const ab = [B[0] - A[0], B[1] - A[1], B[2] - A[2]];
+    const ac = [C[0] - A[0], C[1] - A[1], C[2] - A[2]];
+    const ny = ab[2] * ac[0] - ab[0] * ac[2];
+    return ny > 0 ? [A, C, B] : [A, B, C];
+  });
+  const mesh = addMesh(geometryFromTriangles(out), color);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  return mesh;
+}
+
+function v2glass(tris) {
+  const mesh = v2solid(tris, 0xb7d4e4);
+  mesh.material.transparent = true;
+  mesh.material.opacity = 0.42;
+  mesh.material.depthWrite = false;
+  mesh.castShadow = false;
+  return mesh;
+}
+
+function v2shell(tris, drop) {
+  const shell = [];
+  for (const [a, b, c] of tris) {
+    const ad = [a[0], a[1], a[2] - drop];
+    const bd = [b[0], b[1], b[2] - drop];
+    const cd = [c[0], c[1], c[2] - drop];
+    shell.push([a, b, c], [ad, cd, bd]);
+    const edges = [[a, b, bd, ad], [b, c, cd, bd], [c, a, ad, cd]];
+    for (const [p, q, r, s] of edges) shell.push([p, q, r], [p, r, s]);
+  }
+  v2roof(shell);
+}
+
+function addVariant2() {
+  bucket = variant2Group;
+  addGarage();
+  const plot = [
+    [-18.0, 22.877],
+    [32.835, 22.877],
+    [39.044, -10.647],
+    [-12.963, -4.345],
+  ];
+  const fenceY = 22.877;
+  const gateW = 5.98;
+  const gateTailLen = 2.4;
+  const gateX0 = -18 + 0.08 + 0.5 + gateTailLen + gateW;
+  const gateX1 = gateX0 + gateW;
+  const kalX0 = gateX1 + 0.45;
+  const kalX1 = kalX0 + 1.5;
+  const fenceH = 1.5;
+  const fenceT = 0.06;
+  addWallRun(plot[0], [gateX0, fenceY], fenceT, 0, fenceH, 0x7d6a52);
+  addWallRun([gateX1, fenceY], [kalX0, fenceY], fenceT, 0, fenceH, 0x7d6a52);
+  addWallRun([kalX1, fenceY], plot[1], fenceT, 0, fenceH, 0x7d6a52);
+  addWallRun(plot[1], plot[2], fenceT, 0, fenceH, 0x7d6a52);
+  addWallRun(plot[2], plot[3], fenceT, 0, fenceH, 0x7d6a52);
+  addWallRun(plot[3], plot[0], fenceT, 0, fenceH, 0x7d6a52);
+  const gateY = fenceY - 0.35;
+  const gateTail = gateX0 - gateTailLen;
+  addWallRun([gateTail, gateY], [gateX1, gateY], 0.04, 0.08, 1.46, 0x4e463c);
+  addWallRun([gateTail, gateY], [gateX1, gateY], 0.015, 0.02, 0.07, 0x2c2824);
+  planBox(
+    [[gateX0 - 0.5, fenceY - 0.7], [gateX0 - 0.12, fenceY - 0.7], [gateX0 - 0.12, fenceY - 0.28], [gateX0 - 0.5, fenceY - 0.28]],
+    0, 0.38, 0x2a2622
+  );
+  addWallRun([kalX0 + 0.08, fenceY], [kalX1 - 0.08, fenceY], 0.03, 0.02, 1.48, 0xa68455);
+  for (const [px, py] of [
+    [gateX0, fenceY], [gateX1, fenceY], [kalX0, fenceY], [kalX1, fenceY],
+    plot[0], plot[1], plot[2], plot[3],
+  ]) {
+    planBox(
+      [[px - 0.08, py - 0.08], [px + 0.08, py - 0.08], [px + 0.08, py + 0.08], [px - 0.08, py + 0.08]],
+      0, 1.68, 0x4a4036
+    );
+  }
+  const gy1 = 15.914;
+  const d1a = gateX0 + 0.51;
+  const d1b = d1a + 2.4;
+  const coolLen = 4.33;
+  addParkedModel({
+    url: "./models/geely-coolray.glb",
+    length: coolLen,
+    heading: "north",
+    centerE: (d1a + d1b) / 2,
+    centerN: gy1 - 1.3 + coolLen / 2,
+  });
+  const mazdaLen = 4.55;
+  addParkedModel({
+    url: "./models/mazda-cx5.glb",
+    length: mazdaLen,
+    heading: "north",
+    centerE: (d1a + d1b) / 2 + 1.019 + 0.5 + 1.037,
+    centerN: ((fenceY - 0.35 - 0.6) + (gy1 + 0.8)) / 2 - 0.5,
+  });
+
+  // Септик как на остальных моделях: северо-восток у забора, ниже по стоку к Глебковке.
+  addSlab([[27.24, 17.68], [31.24, 17.68], [31.24, 20.88], [27.24, 20.88]], 0.03, 0.035, 0xe6d3b0, false);
+  addSlab([[28.139, 18.478], [30.34, 18.478], [30.34, 19.877], [28.139, 19.877]], 0.07, 0.05, 0xefe6d4, false);
+  for (const [sx, sy] of [[28.653, 19.178], [29.823, 19.178]]) {
+    const [e, n] = planToWorld(sx, sy);
+    const neck = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.34, 0.36, 0.42, 20),
+      new THREE.MeshLambertMaterial({ color: 0xd9cfc0 })
+    );
+    neck.position.set(e, 0.28, n);
+    neck.castShadow = true;
+    neck.receiveShadow = true;
+    bucket.add(neck);
+    const lid = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.4, 0.4, 0.06, 20),
+      new THREE.MeshLambertMaterial({ color: 0x6b4f2a })
+    );
+    lid.position.set(e, 0.5, n);
+    lid.castShadow = true;
+    bucket.add(lid);
+  }
+  // Скважина в северо-западном углу у гаража: дальше 20 м от септика и не под откатом ворот.
+  const wellE = -15.8;
+  const wellN = 21.2;
+  // Газон 1,5 м вдоль забора. Заезд и отмостка скважины в эту полосу не входят.
+  const grass = 1.5;
+  const driveWest = gateX0 - 1;
+  const driveEast = kalX1 + 1;
+  const pathW = 1;
+  const pathNorth = fenceY - grass;
+  const pathSouth = pathNorth - pathW;
+  const pad0 = wellE - 1;
+  const pad1 = wellE + 1;
+  const padSouth = wellN - 1;
+  const padNorth = wellN + 1;
+  addSlab([
+    [driveWest, pathNorth],
+    [pad1, pathNorth],
+    [pad1, pathSouth],
+    [driveWest, pathSouth],
+  ], 0.03, 0.035, 0xe6d3b0, false);
+  addSlab([
+    [pad0, padSouth], [pad1, padSouth], [pad1, padNorth], [pad0, padNorth],
+  ], 0.03, 0.035, 0xe6d3b0, false);
+  {
+    const [e, n] = planToWorld(wellE, wellN);
+    const curb = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.52, 0.56, 0.18, 24),
+      new THREE.MeshLambertMaterial({ color: 0xd6ebf7 })
+    );
+    curb.position.set(e, 0.12, n);
+    curb.castShadow = true;
+    curb.receiveShadow = true;
+    bucket.add(curb);
+    const cap = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.32, 0.32, 0.06, 20),
+      new THREE.MeshLambertMaterial({ color: 0x1a6fbf })
+    );
+    cap.position.set(e, 0.22, n);
+    cap.castShadow = true;
+    bucket.add(cap);
+  }
+
+  // Туи на газоне 1,5 м вдоль северного забора: перед домом и у скважины, шаг 1–2 м.
+  {
+    const rowY = fenceY - 0.78;
+    const addThuja = (x, y, height, radius, kind) => {
+      height *= 1.6;
+      radius *= 1.12;
+      const [e, n] = planToWorld(x, y);
+      const trunkH = 0.1;
+      const trunk = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.04, 0.06, trunkH, 6),
+        new THREE.MeshLambertMaterial({ color: 0x6a4a32 })
+      );
+      trunk.position.set(e, trunkH / 2, n);
+      trunk.castShadow = true;
+      bucket.add(trunk);
+      const fullness = kind === 1 ? 1.18 : kind === 2 ? 0.78 : 1;
+      const R = radius * fullness;
+      const peak = kind === 1 ? 0.2 : kind === 2 ? 0.34 : 0.26;
+      const pts = [];
+      const steps = 16;
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps;
+        const rad = t <= peak
+          ? R * (0.32 + 0.68 * Math.sin((t / peak) * Math.PI / 2))
+          : R * Math.sqrt(Math.max(0, 1 - ((t - peak) / (1 - peak)) ** 2));
+        pts.push(new THREE.Vector2(Math.max(rad, 0.004), t * height));
+      }
+      const mesh = new THREE.Mesh(
+        new THREE.LatheGeometry(pts, 12),
+        new THREE.MeshLambertMaterial({ color: [0x2f6a38, 0x3c7a44, 0x275c32][kind] })
+      );
+      mesh.position.set(e, trunkH, n);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      bucket.add(mesh);
+    };
+    const front = [
+      [1.05, 1.7, 0.32, 0], [2.5, 2.15, 0.38, 1], [4.2, 1.55, 0.28, 2], [5.4, 1.95, 0.34, 0],
+      [7.0, 2.35, 0.4, 1], [8.3, 1.65, 0.3, 2], [10.1, 2.05, 0.36, 0], [11.4, 1.8, 0.33, 1],
+      [13.1, 2.25, 0.39, 2], [14.6, 1.6, 0.29, 0], [15.8, 2.0, 0.35, 1], [17.5, 1.75, 0.31, 2],
+      [19.0, 2.2, 0.37, 0], [20.2, 1.5, 0.27, 1],
+    ];
+    for (const [x, height, radius, kind] of front) addThuja(x, rowY, height, radius, kind);
+    const byWell = [
+      [-13.7, 1.9, 0.34, 1], [-12.0, 1.55, 0.28, 2], [-10.65, 2.1, 0.36, 0],
+    ];
+    for (const [x, height, radius, kind] of byWell) addThuja(x, rowY, height, radius, kind);
+    const west0 = plot[0];
+    const west1 = plot[3];
+    const wdx = west1[0] - west0[0];
+    const wdy = west1[1] - west0[1];
+    const wlen = Math.hypot(wdx, wdy);
+    const inx = -wdy / wlen;
+    const iny = wdx / wlen;
+    const westMid = (y) => {
+      const s = (west0[1] - y) / (west0[1] - west1[1]);
+      return [west0[0] + s * wdx + inx * 0.75, y + iny * 0.75];
+    };
+    for (const [y, height, radius, kind] of [[19.2, 1.85, 0.33, 0], [17.5, 2.2, 0.37, 1]]) {
+      const [x, yy] = westMid(y);
+      addThuja(x, yy, height, radius, kind);
+    }
+  }
+
+  const ext = 0.38;
+  const door = (u0, u1) => ({ u0, u1, z0: 0, z1: 2.15 });
+  const doorV = (v0, v1) => ({ v0, v1, z0: 0, z1: 2.15 });
+  const win = (u0, u1, z0 = 0.82, z1 = 2.4) => ({ u0, u1, z0, z1 });
+  const winV = (v0, v1, z0 = 0.82, z1 = 2.4) => ({ v0, v1, z0, z1 });
+  const footUV = [
+    [-0.19, 3.4], [-0.19, 13.96], [4.93, 13.96], [4.93, 16.22], [9.65, 16.22], [9.65, 13.96],
+    [18.22, 13.96], [18.22, 3.4], [14.23, 3.4], [14.23, 0], [7.11, 0], [7.11, 3.4],
+  ];
+  const foot = footUV.map((p, i) => {
+    const prev = footUV[(i + footUV.length - 1) % footUV.length];
+    const next = footUV[(i + 1) % footUV.length];
+    const outward = (a, b) => {
+      const dx = b[0] - a[0];
+      const dy = b[1] - a[1];
+      const len = Math.hypot(dx, dy) || 1;
+      return [-dy / len, dx / len];
+    };
+    const n1 = outward(prev, p);
+    const n2 = outward(p, next);
+    const ledge = 0.04;
+    return v2p(p[0] + (n1[0] + n2[0]) * ledge, p[1] + (n1[1] + n2[1]) * ledge);
+  });
+  addSlab(foot, 0.07, V2_PLINTH - 0.07, plinthColor, true);
+  const blind = [
+    [-1.19, 2.4], [-1.19, 14.96], [3.93, 14.96], [3.93, 17.22], [10.65, 17.22], [10.65, 14.96],
+    [19.22, 14.96], [19.22, 2.4], [15.23, 2.4], [15.23, -1], [6.11, -1], [6.11, 2.4],
+  ].map(([u, v]) => v2p(u, v));
+  const holeUV = footUV.map((p, i) => {
+    const prev = footUV[(i + footUV.length - 1) % footUV.length];
+    const next = footUV[(i + 1) % footUV.length];
+    const outward = (a, b) => {
+      const dx = b[0] - a[0];
+      const dy = b[1] - a[1];
+      const len = Math.hypot(dx, dy) || 1;
+      return [-dy / len, dx / len];
+    };
+    const n1 = outward(prev, p);
+    const n2 = outward(p, next);
+    const tuck = 0.01;
+    return v2p(p[0] + (n1[0] + n2[0]) * tuck, p[1] + (n1[1] + n2[1]) * tuck);
+  });
+  addSlabHole(blind, holeUV, 0.04, 0.02, 0xd4cfc4);
+  const roadNear = fenceY + 13;
+  addSlab(
+    [[driveWest, fenceY - 0.25], [driveEast, fenceY - 0.25], [driveEast, roadNear], [driveWest, roadNear]],
+    0.03, 0.035, 0xe6d3b0, false
+  );
+  const gx0 = gateX0;
+  const gx1 = gateX1;
+  const gy0 = 8.7;
+  // Плитка от отмостки дома: промежуток до восточной линии гаража, юг по южной отмостке гаража, проезд до ворот по западной отмостке.
+  const yard = [
+    [21.37, 17.64], [16.25, 17.64], [16.25, 19.9], [9.49, 19.9], [9.49, 17.64], [0.92, 17.64],
+    [0.92, 7.72], [gx1 + 0.02, gy0 - 1 + 0.02], [gx1 + 0.02, gy1 + 0.02], [driveWest, gy1 + 0.02],
+    [driveWest, fenceY - 0.25], [driveEast, fenceY - 0.25],
+    [driveEast, fenceY - grass], [21.37, fenceY - grass],
+  ];
+  addSlab(yard, 0.03, 0.035, 0xe6d3b0, false);
+  addSlab([
+    v2p(-0.13, 13.9), v2p(18.16, 13.9), v2p(18.16, 3.46), v2p(14.07, 3.46),
+    v2p(14.07, 2.51), v2p(7.32, 2.51), v2p(7.32, 3.46), v2p(-0.13, 3.46),
+  ], V2_PLINTH + 0.02, 0.08, 0xf3efe6, false);
+  addSlab([v2p(4.93, 16.22), v2p(9.65, 16.22), v2p(9.65, 13.9), v2p(4.93, 13.9)], V2_PLINTH + 0.02, 0.16, 0xcfc6b8, false);
+  addSlab([v2p(14.23, 2.52), v2p(7.11, 2.52), v2p(7.11, 0), v2p(14.23, 0)], V2_PLINTH + 0.08, 0.1, 0xd7c4a3, false);
+
+  v2wallU(0, 3.59, 13.77, ext, [
+    winV(5.15, 6.55, 0.85, 2.45),
+    winV(8.55, 9.35, 1.45, 2.15),
+    winV(11.15, 12.45, 1.4, 2.4),
+  ], 3.14, V2_BRICK);
+  v2wallU(18.03, 3.59, 13.77, ext, [winV(8.05, 9.45)], 3.14, V2_BRICK);
+  v2wallV(3.59, -0.19, 7.26, ext, [win(1.2, 2.85), win(4.7, 6.35)], 3.14, V2_BRICK);
+  v2wallV(3.59, 13.84, 18.22, ext, [win(15.05, 16.85)], 3.14, V2_BRICK);
+  v2wallV(2.64, 7.26, 14.13, ext, [
+    win(8.15, 10.05, 0.15, 3.14),
+    win(11.2, 13.15, 0.15, 3.14),
+  ], 3.14, V2_BRICK);
+  v2wallV(13.77, -0.19, 18.22, ext, [
+    win(1.1, 2.9),
+    door(5.75, 6.85),
+    win(7.8, 8.75),
+    win(11.05, 12.45),
+    win(14.85, 15.9),
+  ], 3.14, V2_BRICK);
+
+  // Ванная 2,30×1,91: восточная грань 0,19, западная 2,49, южная 8,02, северная 9,93.
+  // Дверь только в западной стене, в холл. Юг в детскую и север в кабинет глухие.
+  v2wallU(3.69, 3.78, 7.95, 0.16, [], 2.7, V2_PART);
+  v2wallV(7.95, 0.19, 7.45, 0.14, [door(2.72, 3.48), door(4.15, 4.95)], 2.7, V2_PART);
+  v2wallU(2.57, 7.95, 10.01, 0.16, [doorV(8.85, 9.55)], 2.7, V2_PART);
+  v2wallV(10.01, 0.19, 9.55, 0.16, [door(2.72, 3.35), door(5.50, 7.15)], 2.7, V2_PART);
+  v2wallU(3.51, 10.01, 13.58, 0.16, [], 2.7, V2_PART);
+  v2wallU(5.34, 10.01, 13.58, 0.16, [doorV(11.40, 12.20)], 2.7, V2_PART);
+  v2wallU(7.45, 2.45, 3.59, ext, [], 3.14, V2_BRICK);
+  v2wallU(7.45, 3.59, 13.58, 0.3, [doorV(8.15, 9.90), doorV(10.90, 11.70)], 2.7, V2_PART);
+  v2wallU(9.55, 10.01, 13.58, 0.16, [], 2.7, V2_PART);
+  // Западный гардероб: вход с гостиной, двери в спальню и санузел сразу у этого входа.
+  v2wallU(13.94, 2.45, 3.59, ext, [], 3.14, V2_BRICK);
+  v2wallU(13.94, 3.59, 13.58, 0.3, [doorV(8.28, 9.12), doorV(12.10, 12.90)], 2.7, V2_PART);
+  v2wallV(7.73, 14.13, 17.84, 0.12, [door(14.22, 15.02)], 2.7, V2_PART);
+  v2wallV(10.02, 14.13, 17.84, 0.12, [door(14.25, 15.05)], 2.7, V2_PART);
+  v2wallV(12.06, 14.13, 17.84, 0.12, [], 2.7, V2_PART);
+
+  for (const u of [7.3, 14.05]) v2box(u - 0.14, 0.05, u + 0.14, 0.33, 0.18, 2.95, 0x6b5344);
+  v2box(10.56, 0.05, 10.84, 0.33, 0.18, 5.05, 0x6b5344);
+  for (const u of [5.25, 9.35]) v2box(u - 0.16, 15.7, u + 0.16, 16.05, 0.16, 2.85, 0x6b5344);
+  const stepN = 3;
+  const stepGround = 0.05;
+  const stepTop = V2_PLINTH + 0.18;
+  const stepRise = (stepTop - stepGround) / stepN;
+  const tread = 0.3;
+  for (let i = 0; i < stepN; i++) {
+    const top = stepGround + (i + 1) * stepRise;
+    const vNear = 16.2 + (stepN - 1 - i) * tread;
+    const vFar = vNear + tread;
+    v2box(5.45, vNear, 7.15, vFar, stepGround - V2_PLINTH, top - V2_PLINTH, 0xcfc6b8);
+  }
+
+  const eave = 3.14;
+  const ridge = 5.703;
+  const bite = 0.08;
+  asRoof(v2box(-0.19 + ext - bite, 3.4 + ext - bite, 18.22 - ext + bite, 13.96 - ext + bite, 2.7, 2.88, 0xe4ddd0));
+  const u0 = -0.69;
+  const u1 = 18.53;
+  const v0 = 3.04;
+  const v1 = 14.27;
+  const half = (v1 - v0) / 2;
+  const ru0 = u0 + half;
+  const ru1 = u1 - half;
+  const rv = (v0 + v1) / 2;
+  // Вальма: скаты — трапеции на весь карниз, иначе по углам остаются дыры.
+  v2roof([
+    [[u0, v0, eave], [u1, v0, eave], [ru1, rv, ridge]],
+    [[u0, v0, eave], [ru1, rv, ridge], [ru0, rv, ridge]],
+    [[u0, v1, eave], [ru0, rv, ridge], [ru1, rv, ridge]],
+    [[u0, v1, eave], [ru1, rv, ridge], [u1, v1, eave]],
+    [[u0, v0, eave], [ru0, rv, ridge], [u0, v1, eave]],
+    [[u1, v1, eave], [ru1, rv, ridge], [u1, v0, eave]],
+  ]);
+  // Южный фронтон. Конёк 5,499 доведён до наружных столбов террасы, задняя кромка лежит на южном скате.
+  const gp = 5.499;
+  const gu = 10.7;
+  const gf = -0.45;
+  const gL = 7.15;
+  const gR = 14.25;
+  const vMeet = v0 + ((gp - eave) / (ridge - eave)) * (rv - v0);
+  const gableTris = [
+    [[gL, gf, eave], [gu, gf, gp], [gu, vMeet, gp]],
+    [[gL, gf, eave], [gu, vMeet, gp], [gL, v0, eave]],
+    [[gR, gf, eave], [gu, vMeet, gp], [gu, gf, gp]],
+    [[gR, gf, eave], [gR, v0, eave], [gu, vMeet, gp]],
+  ];
+  const roofDrop = 0.45;
+  v2shell(gableTris, roofDrop);
+  const soffitAt = (u) => {
+    const rise = gp - eave;
+    const zTop = u <= gu
+      ? eave + rise * ((u - gL) / (gu - gL))
+      : eave + rise * ((gR - u) / (gR - gu));
+    return zTop - roofDrop;
+  };
+  const bayV = 2.64;
+  const bayT = ext;
+  const head = 3.14;
+  const slopeWall = (u0, u1) => {
+    const z0 = soffitAt(u0);
+    const z1 = soffitAt(u1);
+    if (z0 < head + 0.04 && z1 < head + 0.04) return;
+    const a = Math.max(z0, head);
+    const b = Math.max(z1, head);
+    const va = bayV - bayT / 2;
+    const vb = bayV + bayT / 2;
+    const quad = (p, q, r, s) => [[p, q, r], [p, r, s]];
+    v2solid([
+      ...quad([u0, va, head], [u1, va, head], [u1, va, b], [u0, va, a]),
+      ...quad([u0, vb, head], [u1, vb, b], [u1, vb, head], [u0, vb, a]),
+      ...quad([u0, va, head], [u0, vb, head], [u0, vb, a], [u0, va, a]),
+      ...quad([u1, va, head], [u1, va, b], [u1, vb, b], [u1, vb, head]),
+      ...quad([u0, va, a], [u0, vb, a], [u1, vb, b], [u1, va, b]),
+    ], V2_BRICK);
+  };
+  const slopeFrame = (u0, u1) => {
+    const fw = 0.07;
+    const va = bayV - 0.112;
+    const vb = bayV + 0.112;
+    const zL = soffitAt(u0);
+    const zR = soffitAt(u1);
+    const quad = (p, q, r, s) => [[p, q, r], [p, r, s]];
+    const jamb = head - 0.04;
+    if (zL > head + 0.02) v2box(u0, va, u0 + fw, vb, jamb, zL, 0x6b3e24);
+    if (zR > head + 0.02) v2box(u1 - fw, va, u1, vb, jamb, zR, 0x6b3e24);
+    v2solid([
+      ...quad([u0, va, zL], [u1, va, zR], [u1, va, zR - fw], [u0, va, zL - fw]),
+      ...quad([u0, vb, zL], [u0, vb, zL - fw], [u1, vb, zR - fw], [u1, vb, zR]),
+      ...quad([u0, va, zL], [u0, vb, zL], [u1, vb, zR], [u1, va, zR]),
+      ...quad([u0, va, zL - fw], [u1, va, zR - fw], [u1, vb, zR - fw], [u0, vb, zL - fw]),
+      ...quad([u0, va, zL], [u0, va, zL - fw], [u0, vb, zL - fw], [u0, vb, zL]),
+      ...quad([u1, va, zR], [u1, vb, zR], [u1, vb, zR - fw], [u1, va, zR - fw]),
+    ], 0x6b3e24);
+    const g0 = u0 + fw + 0.015;
+    const g1 = u1 - fw - 0.015;
+    const gv = bayV - 0.03;
+    const gBot = head + 0.02;
+    v2glass([
+      [[g0, gv, gBot], [g1, gv, gBot], [g1, gv, soffitAt(g1) - fw - 0.01]],
+      [[g0, gv, gBot], [g1, gv, soffitAt(g1) - fw - 0.01], [g0, gv, soffitAt(g0) - fw - 0.01]],
+    ]);
+  };
+  slopeWall(7.83, 8.15);
+  slopeFrame(8.15, 10.05);
+  slopeWall(10.05, 10.7);
+  slopeWall(10.7, 11.2);
+  slopeFrame(11.2, 13.15);
+  slopeWall(13.15, 13.57);
+  // Крыльцо: скат от карниза у улицы до пересечения с северным скатом основной крыши.
+  const pp = 4.596;
+  const pu = 7.3;
+  const pL = 4.7;
+  const pR = 9.9;
+  const pFront = 16.5;
+  const zMain = (v) => eave + (ridge - eave) * ((v1 - v) / (v1 - rv));
+  const vMeetN = v1 - ((pp - eave) / (ridge - eave)) * (v1 - rv);
+  const vJoin = vMeetN - 0.08;
+  const zJoin = zMain(vJoin);
+  v2shell([
+    [[pL, pFront, eave], [pu, pFront, eave], [pu, vJoin, zJoin]],
+    [[pL, pFront, eave], [pu, vJoin, zJoin], [pL, v1, eave]],
+    [[pR, pFront, eave], [pu, vJoin, zJoin], [pu, pFront, eave]],
+    [[pR, pFront, eave], [pR, v1, eave], [pu, vJoin, zJoin]],
+  ], roofDrop);
+}
+
+addVariant2();
 
 function showRoofs(on) {
   scene.traverse((obj) => {
@@ -1900,7 +2484,7 @@ function saveView() {
 function loadView() {
   try {
     const saved = JSON.parse(localStorage.getItem(VIEW_KEY) || "null");
-    if (!saved) return;
+    if (!saved) return false;
     const nums = [saved.px, saved.py, saved.pz, saved.tx, saved.ty, saved.tz];
     if (nums.every((n) => Number.isFinite(n))) {
       camera.position.set(saved.px, saved.py, saved.pz);
@@ -1911,15 +2495,17 @@ function loadView() {
       roofToggle.checked = saved.roof;
       showRoofs(saved.roof);
     }
-    if (saved.variant === "north" || saved.variant === "west") pendingVariant = saved.variant;
+    if (saved.variant === "north" || saved.variant === "west" || saved.variant === "v2") pendingVariant = saved.variant;
     if (/^\d{4}-\d{2}-\d{2}$/.test(saved.date)) dateInput.value = saved.date;
     if (Number.isFinite(saved.minutes)) timeInput.value = String(saved.minutes);
+    return nums.every((n) => Number.isFinite(n));
   } catch {
     // битая запись не мешает обычному виду
   }
+  return false;
 }
 
-loadView();
+const restoredCamera = loadView();
 
 let saveTimer = 0;
 controls.addEventListener("change", () => {
@@ -1935,24 +2521,41 @@ roofToggle.addEventListener("change", () => {
 const blurb = document.getElementById("blurb");
 const varNorth = document.getElementById("var-north");
 const varWest = document.getElementById("var-west");
+const varV2 = document.getElementById("var-v2");
 
-function showVariant(name) {
-  viewVariant = name === "west" ? "west" : "north";
+function focusVariant2() {
+  controls.target.set(-3.69, 1.5, -3.45);
+  camera.position.set(10.86, 11, -20.94);
+  controls.update();
+}
+
+function showVariant(name, moveCamera) {
+  viewVariant = name === "west" ? "west" : name === "v2" ? "v2" : "north";
   northGroup.visible = viewVariant === "north";
   westGroup.visible = viewVariant === "west";
+  variant2Group.visible = viewVariant === "v2";
+  greenhouseGroup.visible = viewVariant !== "v2";
   varNorth.classList.toggle("active", viewVariant === "north");
   varWest.classList.toggle("active", viewVariant === "west");
-  blurb.textContent = viewVariant === "north"
-    ? "Вход с северной дороги. Дом, гараж, баня, барбекю и забор 1,5 м. Время минское."
-    : "Вход с западной дороги. Навес на две машины, баня глубже, от террасы летняя кухня. Время минское.";
-  const hash = viewVariant === "west" ? "#west" : "#north";
+  varV2.classList.toggle("active", viewVariant === "v2");
+  blurb.textContent = viewVariant === "v2"
+    ? "Вариант 2. Терраса и гостиная на юг, вход на север, детские на восток. Гараж у ворот, дом в 5 м к востоку от него."
+    : viewVariant === "north"
+      ? "Вход с северной дороги. Дом, гараж, баня, барбекю и забор 1,5 м. Время минское."
+      : "Вход с западной дороги. Навес на две машины, баня глубже, от террасы летняя кухня. Время минское.";
+  const hash = viewVariant === "west" ? "#west" : viewVariant === "v2" ? "#v2" : "#north";
   if (location.hash !== hash) history.replaceState(null, "", hash);
+  if (viewVariant === "v2" && moveCamera) focusVariant2();
   saveView();
 }
 
-varNorth.addEventListener("click", () => showVariant("north"));
-varWest.addEventListener("click", () => showVariant("west"));
-showVariant(pendingVariant || (location.hash === "#west" ? "west" : "north"));
+varNorth.addEventListener("click", () => showVariant("north", true));
+varWest.addEventListener("click", () => showVariant("west", true));
+varV2.addEventListener("click", () => showVariant("v2", true));
+{
+  const initial = pendingVariant || (location.hash === "#west" ? "west" : location.hash === "#v2" ? "v2" : "north");
+  showVariant(initial, initial === "v2" && !restoredCamera);
+}
 dateInput.addEventListener("input", () => {
   applySun(geo);
   saveView();
@@ -1972,9 +2575,17 @@ panel.addEventListener("click", (event) => {
 });
 
 function setView(kind) {
-  if (kind === "top") camera.position.set(-2, 96, -5.7);
-  else camera.position.set(24, 36, -52);
-  controls.target.set(-2, 0.4, -6);
+  if (viewVariant === "v2") {
+    if (kind === "top") camera.position.set(-3.69, 55, -3.14);
+    else camera.position.set(10.86, 11, -20.94);
+    controls.target.set(-3.69, 1.5, -3.45);
+  } else if (kind === "top") {
+    camera.position.set(-2, 96, -5.7);
+    controls.target.set(-2, 0.4, -6);
+  } else {
+    camera.position.set(24, 36, -52);
+    controls.target.set(-2, 0.4, -6);
+  }
   controls.update();
 }
 document.getElementById("view-side").addEventListener("click", () => setView("side"));
