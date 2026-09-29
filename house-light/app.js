@@ -146,6 +146,35 @@ function addMesh(geom, color, cast = true) {
   return mesh;
 }
 
+function addBeam(a, b, size, color, cast = true) {
+  const ax = new THREE.Vector3(a[0], a[1], a[2]);
+  const bx = new THREE.Vector3(b[0], b[1], b[2]);
+  const dir = bx.clone().sub(ax);
+  if (dir.lengthSq() < 1e-8) return null;
+  dir.normalize();
+  const helper = Math.abs(dir.y) < 0.85 ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(1, 0, 0);
+  const n1 = new THREE.Vector3().crossVectors(dir, helper).normalize();
+  const n2 = new THREE.Vector3().crossVectors(dir, n1).normalize();
+  const h = size / 2;
+  const corner = (p, s1, s2) => [
+    p.x + (n1.x * s1 + n2.x * s2) * h,
+    p.y + (n1.y * s1 + n2.y * s2) * h,
+    p.z + (n1.z * s1 + n2.z * s2) * h,
+  ];
+  const signs = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
+  const A = signs.map(([s1, s2]) => corner(ax, s1, s2));
+  const B = signs.map(([s1, s2]) => corner(bx, s1, s2));
+  const tris = [];
+  const q = (p, r, s, t) => tris.push([p, r, s], [p, s, t]);
+  q(A[0], A[1], A[2], A[3]);
+  q(B[0], B[2], B[1], B[3]);
+  for (let i = 0; i < 4; i++) {
+    const j = (i + 1) % 4;
+    q(A[i], B[i], B[j], A[j]);
+  }
+  return addMesh(geometryFromTriangles(tris), color, cast);
+}
+
 function sunPosition(year, month, day, hour, minute, lat, lon) {
   const utc = Date.UTC(year, month - 1, day, hour, minute) - 3 * 3600 * 1000;
   const n = utc / 86400000 + 2440587.5 - 2451545.0;
@@ -602,19 +631,220 @@ addOpeningFrame(10.66, 11.56, 3.6, 4.1, PLINTH, headZ, false);
 }
 northGroup.add(houseRig);
 
-function addGarage() {
+function addFloorNotes(rooms) {
+  const markTris = [];
+  const dash = 0.16;
+  const dashGap = 0.1;
+  const halfW = 0.012;
+  for (const [, x0, y0, x1, y1, floorY] of rooms) {
+    const inset = 0.04;
+    const edges = [
+      [x0 + inset, y0 + inset, x1 - inset, y0 + inset],
+      [x1 - inset, y0 + inset, x1 - inset, y1 - inset],
+      [x1 - inset, y1 - inset, x0 + inset, y1 - inset],
+      [x0 + inset, y1 - inset, x0 + inset, y0 + inset],
+    ];
+    const y = floorY + 0.006;
+    for (const [eu0, ev0, eu1, ev1] of edges) {
+      const len = Math.hypot(eu1 - eu0, ev1 - ev0);
+      if (len < 0.2) continue;
+      const dx = (eu1 - eu0) / len;
+      const dy = (ev1 - ev0) / len;
+      for (let s = 0.03; s + 0.06 < len; s += dash + dashGap) {
+        const s1 = Math.min(s + dash, len - 0.03);
+        if (s1 - s < 0.05) continue;
+        const at = (t, side) => {
+          const [e, n] = planToWorld(eu0 + dx * t - dy * side, ev0 + dy * t + dx * side);
+          return [e, y, n];
+        };
+        const a = at(s, -halfW);
+        const b = at(s1, -halfW);
+        const c = at(s1, halfW);
+        const d = at(s, halfW);
+        markTris.push([a, b, c], [a, c, d]);
+      }
+    }
+  }
+  const marks = new THREE.Mesh(
+    geometryFromTriangles(markTris),
+    new THREE.MeshBasicMaterial({
+      color: 0x8d8982,
+      toneMapped: false,
+      polygonOffset: true,
+      polygonOffsetFactor: -4,
+      polygonOffsetUnits: -4,
+    })
+  );
+  marks.castShadow = false;
+  marks.receiveShadow = false;
+  bucket.add(marks);
+
+  const face = '"DejaVu Sans", "Liberation Sans", sans-serif';
+  const canvasW = 1200;
+  const canvasH = 720;
+  let fontPx = 210;
+  const probe = document.createElement("canvas").getContext("2d");
+  probe.font = `700 ${fontPx}px ${face}`;
+  while (probe.measureText("Мастер-спальня").width > 1100 && fontPx > 80) {
+    fontPx -= 4;
+    probe.font = `700 ${fontPx}px ${face}`;
+  }
+  const labelW = 2.2;
+  const labelH = labelW * (canvasH / canvasW);
+  const fmtM = (n) => n.toFixed(2).replace(".", ",");
+  const eastAxis = planDeltaToWorld(1, 0);
+  const northAxis = planDeltaToWorld(0, 1);
+  const labelBasis = new THREE.Matrix4().makeBasis(
+    eastAxis.clone().negate(),
+    northAxis.clone().negate(),
+    new THREE.Vector3(0, 1, 0)
+  );
+  for (const [name, x0, y0, x1, y1, floorY] of rooms) {
+    const w = x1 - x0;
+    const d = y1 - y0;
+    const canvas = document.createElement("canvas");
+    canvas.width = canvasW;
+    canvas.height = canvasH;
+    const g = canvas.getContext("2d");
+    g.clearRect(0, 0, canvasW, canvasH);
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    g.font = `700 ${fontPx}px ${face}`;
+    const lines = [name, `${fmtM(w)} × ${fmtM(d)}`, `${fmtM(w * d)} м²`];
+    lines.forEach((line, i) => {
+      g.fillStyle = i === 0 ? "#2c2824" : "#4e4842";
+      g.fillText(line, canvasW / 2, canvasH * (0.22 + i * 0.28));
+    });
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    const label = new THREE.Mesh(
+      new THREE.PlaneGeometry(labelW, labelH),
+      new THREE.MeshBasicMaterial({
+        map: tex,
+        transparent: true,
+        alphaTest: 0.4,
+        toneMapped: false,
+        depthWrite: false,
+      })
+    );
+    const [e, n] = planToWorld((x0 + x1) / 2, (y0 + y1) / 2);
+    label.position.set(e, floorY + 0.012, n);
+    label.quaternion.setFromRotationMatrix(labelBasis);
+    label.castShadow = false;
+    label.receiveShadow = false;
+    bucket.add(label);
+  }
+}
+
+function addGroundLabel(text, east, north, y) {
+  const face = '"DejaVu Sans", "Liberation Sans", sans-serif';
+  const fontPx = 200;
+  const probe = document.createElement("canvas").getContext("2d");
+  probe.font = `700 ${fontPx}px ${face}`;
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.ceil(probe.measureText(text).width) + 48;
+  canvas.height = Math.ceil(fontPx * 1.35);
+  const g = canvas.getContext("2d");
+  g.clearRect(0, 0, canvas.width, canvas.height);
+  g.font = `700 ${fontPx}px ${face}`;
+  g.fillStyle = "#2c2824";
+  g.textAlign = "center";
+  g.textBaseline = "middle";
+  g.fillText(text, canvas.width / 2, canvas.height / 2);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  const labelH = 0.42;
+  const labelW = labelH * (canvas.width / canvas.height);
+  const label = new THREE.Mesh(
+    new THREE.PlaneGeometry(labelW, labelH),
+    new THREE.MeshBasicMaterial({
+      map: tex,
+      transparent: true,
+      alphaTest: 0.4,
+      toneMapped: false,
+      depthWrite: false,
+    })
+  );
+  const [e, n] = planToWorld(east, north);
+  label.position.set(e, y, n);
+  const basis = new THREE.Matrix4().makeBasis(
+    planDeltaToWorld(1, 0).negate(),
+    planDeltaToWorld(0, 1).negate(),
+    new THREE.Vector3(0, 1, 0)
+  );
+  label.quaternion.setFromRotationMatrix(basis);
+  label.castShadow = false;
+  label.receiveShadow = false;
+  bucket.add(label);
+}
+
+function addSiteDim(x0, y0, x1, y1, text, side = 1, gap = 0.55) {
+  const yLine = 0.14;
+  const dx = x1 - x0;
+  const dy = y1 - y0;
+  const len = Math.hypot(dx, dy) || 1;
+  const px = (-dy / len) * side;
+  const py = (dx / len) * side;
+  const world = (x, y) => {
+    const [e, n] = planToWorld(x, y);
+    return [e, yLine, n];
+  };
+  const stroke = (ax, ay, bx, by) => addBeam(world(ax, ay), world(bx, by), 0.035, 0x3a342e, false);
+  stroke(x0, y0, x1, y1);
+  const tick = 0.32;
+  stroke(x0 - px * tick, y0 - py * tick, x0 + px * tick, y0 + py * tick);
+  stroke(x1 - px * tick, y1 - py * tick, x1 + px * tick, y1 + py * tick);
+  addGroundLabel(text, (x0 + x1) / 2 + px * gap, (y0 + y1) / 2 + py * gap, 0.17);
+}
+
+function addGarage(spec = {}) {
+  if (typeof spec === "number") spec = { gy0: spec };
   const gateW = 5.98;
   const gateTailLen = 2.4;
-  const gx0 = -18 + 0.08 + 0.5 + gateTailLen + gateW;
-  const gx1 = gx0 + gateW;
-  const gy0 = 8.7;
-  const gy1 = 15.914;
-  addSlab([[gx0 - 1, gy0 - 1], [gx1, gy0 - 1], [gx1, gy0], [gx0 - 1, gy0]], 0.07, 0.025, 0xd4cfc4, false);
-  addSlab([[gx0 - 1, gy0], [gx0, gy0], [gx0, gy1], [gx0 - 1, gy1]], 0.07, 0.025, 0xd4cfc4, false);
+  const gateX0 = -18 + 0.08 + 0.5 + gateTailLen + gateW;
+  const gateX1 = gateX0 + gateW;
   const t = 0.18;
+  const gy1 = spec.northFace ?? 15.914;
+  const sized = spec.clearW && spec.shopClear && spec.garageClear;
+  let gx0 = gateX0;
+  let gx1 = gateX1;
+  let gy0 = spec.gy0 ?? 8.7;
+  let shopY0;
+  let shopY1;
+  let doorShift = 0;
+  if (sized) {
+    const ext = spec.clearW + 2 * t;
+    const centered0 = (gateX0 + gateX1) / 2 - ext / 2;
+    if (spec.eastFace != null) {
+      gx1 = spec.eastFace;
+      gx0 = gx1 - ext;
+    } else {
+      gx0 = centered0;
+      gx1 = centered0 + ext;
+    }
+    doorShift = gx0 - centered0;
+    shopY1 = gy1 - t - spec.garageClear;
+    shopY0 = shopY1 - 0.12;
+    gy0 = shopY0 - t - spec.shopClear;
+  } else {
+    shopY0 = gy0 + 1.94;
+    shopY1 = gy0 + 2.06;
+  }
+  const blindColor = sized ? 0xb4b4ae : 0xd4cfc4;
+  if (sized) {
+    addSlab([[gx0 - 1, gy0 - 1], [gx1 + 1, gy0 - 1], [gx1 + 1, gy0], [gx0 - 1, gy0]], 0.07, 0.025, blindColor, false);
+    addSlab([[gx0 - 1, gy1], [gx1 + 1, gy1], [gx1 + 1, gy1 + 1], [gx0 - 1, gy1 + 1]], 0.07, 0.025, blindColor, false);
+    addSlab([[gx0 - 1, gy0], [gx0, gy0], [gx0, gy1], [gx0 - 1, gy1]], 0.07, 0.025, blindColor, false);
+    addSlab([[gx1, gy0], [gx1 + 1, gy0], [gx1 + 1, gy1], [gx1, gy1]], 0.07, 0.025, blindColor, false);
+  } else {
+    addSlab([[gx0 - 1, gy0 - 1], [gx1, gy0 - 1], [gx1, gy0], [gx0 - 1, gy0]], 0.07, 0.025, blindColor, false);
+    addSlab([[gx0 - 1, gy0], [gx0, gy0], [gx0, gy1], [gx0 - 1, gy1]], 0.07, 0.025, blindColor, false);
+  }
   const gTop = 2.55;
   const doorH = 2.15;
-  const d1a = gx0 + 0.51;
+  const d1a = gateX0 + 0.51 + doorShift;
   const d1b = d1a + 2.4;
   const d2a = d1b + 0.16;
   const d2b = d2a + 2.4;
@@ -634,8 +864,6 @@ function addGarage() {
   addOpeningFrame(d1a, d1b, gy1 - t, gy1, 0, PLINTH + doorH, false);
   addOpeningFrame(d2a, d2b, gy1 - t, gy1, 0, PLINTH + doorH, false);
   planBox([[gx0 + t, gy0 + t], [gx1 - t, gy0 + t], [gx1 - t, gy1], [gx0 + t, gy1]], 0.03, 0.065, 0xe6d3b0, false);
-  const shopY0 = gy0 + 1.94;
-  const shopY1 = gy0 + 2.06;
   const shopDoorW = 0.9;
   const shopDoor0 = gx0 + t + 0.45;
   const shopDoor1 = shopDoor0 + shopDoorW;
@@ -693,6 +921,53 @@ function addGarage() {
     };
     addMesh(geometryFromTriangles([...gable(gy0 + 0.02), ...gable(gy1 - 0.02)]), 0xf4f0e8);
   }
+  const gutterC = 0x2a2826;
+  const pipe = 0.07;
+  const eaveZ = PLINTH + gTop;
+  const gutterBox = (x0, y0, x1, y1, z0, z1) => asRoof(planBox(
+    [[Math.min(x0, x1), Math.min(y0, y1)], [Math.max(x0, x1), Math.min(y0, y1)],
+      [Math.max(x0, x1), Math.max(y0, y1)], [Math.min(x0, x1), Math.max(y0, y1)]],
+    z0, z1, gutterC
+  ));
+  gutterBox(gx0 - 0.32, gy0 - 0.18, gx0 - 0.22, gy1 + 0.18, eaveZ - 0.16, eaveZ - 0.04);
+  gutterBox(gx1 + 0.22, gy0 - 0.18, gx1 + 0.32, gy1 + 0.18, eaveZ - 0.16, eaveZ - 0.04);
+  const planWorld = (x, y, z) => {
+    const [e, n] = planToWorld(x, y);
+    return [e, z, n];
+  };
+  const garageSpout = (gx, gy, wx, wy) => {
+    const zTop = eaveZ - 0.14;
+    const zBend = eaveZ - 0.26;
+    const zWallBot = 0.14;
+    const beam = (xa, ya, za, xb, yb, zb) => asRoof(addBeam(
+      planWorld(xa, ya, za), planWorld(xb, yb, zb), pipe, gutterC
+    ));
+    beam(gx, gy, zBend, gx, gy, zTop);
+    beam(gx, gy, zBend, wx, wy, zBend);
+    beam(wx, wy, zWallBot, wx, wy, zBend);
+    const ox = gx - wx;
+    const oy = gy - wy;
+    const len = Math.hypot(ox, oy) || 1;
+    const kick = 0.18;
+    const kx = wx + (ox / len) * kick;
+    const ky = wy + (oy / len) * kick;
+    beam(wx, wy, zWallBot, kx, ky, 0.04);
+    beam(kx, ky, -0.02, kx, ky, 0.1);
+  };
+  const xW = gx0 - 0.27;
+  const xE = gx1 + 0.27;
+  const yS = gy0 - 0.18 + pipe / 2;
+  const yN = gy1 + 0.18 - pipe / 2;
+  garageSpout(xW, yS, gx0 - 0.05, gy0 - 0.05);
+  garageSpout(xW, yN, gx0 - 0.05, gy1 + 0.05);
+  garageSpout(xE, yS, gx1 + 0.05, gy0 - 0.05);
+  garageSpout(xE, yN, gx1 + 0.05, gy1 + 0.05);
+  const shopFloor = 0.065;
+  addFloorNotes([
+    ["Хозблок", gx0 + t, gy0 + t, gx1 - t, shopY0, shopFloor],
+    ["Гараж", gx0 + t, shopY1, gx1 - t, gy1 - t, shopFloor],
+  ]);
+  return { gx0, gx1, gy0, gy1 };
 }
 
 function addSite() {
@@ -1905,7 +2180,7 @@ const V2_YS = 2.66;
 const V2_PLINTH = 0.3;
 const V2_BRICK = 0xc4a484;
 const V2_PART = 0xd9d3c8;
-const V2_ROOF = 0x2a2e32;
+const V2_ROOF = 0x3a332c;
 
 function v2p(u, v) {
   return [V2_XE - u, V2_YS + v];
@@ -1924,7 +2199,7 @@ function v2wallU(u, v0, v1, thick, holes, zTop, color) {
     if (h.v0 > v + 0.02) v2box(a, v, b, h.v0, -0.05, zTop, color);
     if (h.z0 > 0.02) v2box(a, h.v0, b, h.v1, -0.05, h.z0, color);
     if (zTop > h.z1 + 0.02) v2box(a, h.v0, b, h.v1, h.z1, zTop, color);
-    v2winX(u, h.v0, h.v1, h.z0, h.z1);
+    if (!h.open) v2winX(u, h.v0, h.v1, h.z0, h.z1);
     v = Math.max(v, h.v1);
   }
   if (v1 > v + 0.02) v2box(a, v, b, v1, -0.05, zTop, color);
@@ -1939,7 +2214,7 @@ function v2wallV(v, u0, u1, thick, holes, zTop, color) {
     if (h.u0 > u + 0.02) v2box(u, a, h.u0, b, -0.05, zTop, color);
     if (h.z0 > 0.02) v2box(h.u0, a, h.u1, b, -0.05, h.z0, color);
     if (zTop > h.z1 + 0.02) v2box(h.u0, a, h.u1, b, h.z1, zTop, color);
-    v2winY(v, h.u0, h.u1, h.z0, h.z1);
+    if (!h.open) v2winY(v, h.u0, h.u1, h.z0, h.z1);
     u = Math.max(u, h.u1);
   }
   if (u1 > u + 0.02) v2box(u, a, u1, b, -0.05, zTop, color);
@@ -1957,11 +2232,11 @@ function v2winX(u, v0, v1, z0, z1) {
   glass.castShadow = false;
 }
 
-function v2winY(v, u0, u1, z0, z1) {
+function v2winY(v, u0, u1, z0, z1, withSill = z0 > 0.2) {
   const y = V2_YS + v;
   const x0 = V2_XE - Math.max(u0, u1);
   const x1 = V2_XE - Math.min(u0, u1);
-  addOpeningFrame(x0, x1, y - 0.1, y + 0.1, z0 + V2_PLINTH, z1 + V2_PLINTH, z0 > 0.2);
+  addOpeningFrame(x0, x1, y - 0.1, y + 0.1, z0 + V2_PLINTH, z1 + V2_PLINTH, withSill);
   const glass = v2box(u0, v - 0.02, u1, v + 0.02, z0, z1, 0xb7d4e4);
   glass.material.transparent = true;
   glass.material.opacity = 0.28;
@@ -2030,7 +2305,13 @@ function v2shell(tris, drop) {
 
 function addVariant2() {
   bucket = variant2Group;
-  addGarage();
+  const garageBox = addGarage({
+    clearW: 6,
+    shopClear: 2,
+    garageClear: 6,
+    eastFace: V2_XE - 18.22 - 6,
+    northFace: 22.877 - 7,
+  });
   const plot = [
     [-18.0, 22.877],
     [32.835, 22.877],
@@ -2070,8 +2351,9 @@ function addVariant2() {
       0, 1.68, 0x4a4036
     );
   }
-  const gy1 = 15.914;
-  const d1a = gateX0 + 0.51;
+  const gy1 = garageBox.gy1;
+  const gateMid = (gateX0 + gateX1) / 2;
+  const d1a = gateX0 + 0.51 + (garageBox.gx0 - (gateMid - 3.18));
   const d1b = d1a + 2.4;
   const coolLen = 4.33;
   addParkedModel({
@@ -2090,10 +2372,16 @@ function addVariant2() {
     centerN: ((fenceY - 0.35 - 0.6) + (gy1 + 0.8)) / 2 - 0.5,
   });
 
-  // Септик как на остальных моделях: северо-восток у забора, ниже по стоку к Глебковке.
-  addSlab([[27.24, 17.68], [31.24, 17.68], [31.24, 20.88], [27.24, 20.88]], 0.03, 0.035, 0xe6d3b0, false);
-  addSlab([[28.139, 18.478], [30.34, 18.478], [30.34, 19.877], [28.139, 19.877]], 0.07, 0.05, 0xefe6d4, false);
-  for (const [sx, sy] of [[28.653, 19.178], [29.823, 19.178]]) {
+  // Септик сдвинут так, чтобы центр восточного люка был в 4 м от восточного забора.
+  const septicShift = [-0.3586313514065793, -0.06642232612109211];
+  const septicPt = (x, y) => [x + septicShift[0], y + septicShift[1]];
+  addSlab([
+    septicPt(27.24, 17.68), septicPt(31.24, 17.68), septicPt(31.24, 20.88), septicPt(27.24, 20.88),
+  ], 0.03, 0.035, 0xe6d3b0, false);
+  addSlab([
+    septicPt(28.139, 18.478), septicPt(30.34, 18.478), septicPt(30.34, 19.877), septicPt(28.139, 19.877),
+  ], 0.07, 0.05, 0xefe6d4, false);
+  for (const [sx, sy] of [septicPt(28.653, 19.178), septicPt(29.823, 19.178)]) {
     const [e, n] = planToWorld(sx, sy);
     const neck = new THREE.Mesh(
       new THREE.CylinderGeometry(0.34, 0.36, 0.42, 20),
@@ -2113,14 +2401,14 @@ function addVariant2() {
   }
   // Скважина в северо-западном углу у гаража: дальше 20 м от септика и не под откатом ворот.
   const wellE = -15.8;
-  const wellN = 21.2;
+  const wellN = fenceY - 3;
   // Газон 1,5 м вдоль забора. Заезд и отмостка скважины в эту полосу не входят.
   const grass = 1.5;
   const driveWest = gateX0 - 1;
   const driveEast = kalX1 + 1;
   const pathW = 1;
-  const pathNorth = fenceY - grass;
-  const pathSouth = pathNorth - pathW;
+  const pathNorth = wellN + pathW / 2;
+  const pathSouth = wellN - pathW / 2;
   const pad0 = wellE - 1;
   const pad1 = wellE + 1;
   const padSouth = wellN - 1;
@@ -2196,32 +2484,32 @@ function addVariant2() {
       [19.0, 2.2, 0.37, 0], [20.2, 1.5, 0.27, 1],
     ];
     for (const [x, height, radius, kind] of front) addThuja(x, rowY, height, radius, kind);
-    const byWell = [
-      [-13.7, 1.9, 0.34, 1], [-12.0, 1.55, 0.28, 2], [-10.65, 2.1, 0.36, 0],
+    // За линией отката ворот, на газоне западнее плитки заезда.
+    const behindGate = [
+      [-12.55, 22.0, 1.55, 0.28, 2],
+      [-13.95, 22.0, 1.9, 0.34, 1],
     ];
-    for (const [x, height, radius, kind] of byWell) addThuja(x, rowY, height, radius, kind);
-    const west0 = plot[0];
-    const west1 = plot[3];
-    const wdx = west1[0] - west0[0];
-    const wdy = west1[1] - west0[1];
-    const wlen = Math.hypot(wdx, wdy);
-    const inx = -wdy / wlen;
-    const iny = wdx / wlen;
-    const westMid = (y) => {
-      const s = (west0[1] - y) / (west0[1] - west1[1]);
-      return [west0[0] + s * wdx + inx * 0.75, y + iny * 0.75];
-    };
-    for (const [y, height, radius, kind] of [[19.2, 1.85, 0.33, 0], [17.5, 2.2, 0.37, 1]]) {
-      const [x, yy] = westMid(y);
-      addThuja(x, yy, height, radius, kind);
-    }
+    for (const [x, y, height, radius, kind] of behindGate) addThuja(x, y, height, radius, kind);
+    // Ряд параллельно дорожке, в метре южнее неё и в метре от площадки скважины.
+    const behindWell = [
+      [-13.8, 18.38, 2.1, 0.36, 0],
+      [-12.25, 18.38, 1.85, 0.33, 1],
+      [-10.7, 18.38, 2.2, 0.37, 2],
+    ];
+    for (const [x, y, height, radius, kind] of behindWell) addThuja(x, y, height, radius, kind);
+    // Пара у северного забора за септиком.
+    const bySeptic = [
+      [27.6, 22.05, 1.7, 0.3, 2],
+      [29.9, 22.05, 2.05, 0.35, 0],
+    ];
+    for (const [x, y, height, radius, kind] of bySeptic) addThuja(x, y, height, radius, kind);
   }
 
   const ext = 0.38;
   const door = (u0, u1) => ({ u0, u1, z0: 0, z1: 2.15 });
   const doorV = (v0, v1) => ({ v0, v1, z0: 0, z1: 2.15 });
-  const win = (u0, u1, z0 = 0.82, z1 = 2.4) => ({ u0, u1, z0, z1 });
-  const winV = (v0, v1, z0 = 0.82, z1 = 2.4) => ({ v0, v1, z0, z1 });
+  const win = (u0, u1, z0 = 0.25, z1 = 2.15) => ({ u0, u1, z0, z1 });
+  const winV = (v0, v1, z0 = 0.25, z1 = 2.15) => ({ v0, v1, z0, z1 });
   const footUV = [
     [-0.19, 3.4], [-0.19, 13.96], [4.93, 13.96], [4.93, 16.22], [9.65, 16.22], [9.65, 13.96],
     [18.22, 13.96], [18.22, 3.4], [14.23, 3.4], [14.23, 0], [7.11, 0], [7.11, 3.4],
@@ -2265,13 +2553,11 @@ function addVariant2() {
     [[driveWest, fenceY - 0.25], [driveEast, fenceY - 0.25], [driveEast, roadNear], [driveWest, roadNear]],
     0.03, 0.035, 0xe6d3b0, false
   );
-  const gx0 = gateX0;
-  const gx1 = gateX1;
-  const gy0 = 8.7;
-  // Плитка от отмостки дома: промежуток до восточной линии гаража, юг по южной отмостке гаража, проезд до ворот по западной отмостке.
+  const { gx0, gx1, gy0 } = garageBox;
+  // Плитка доходит до наружного края серой отмостки гаража (1 м по периметру).
   const yard = [
     [21.37, 17.64], [16.25, 17.64], [16.25, 19.9], [9.49, 19.9], [9.49, 17.64], [0.92, 17.64],
-    [0.92, 7.72], [gx1 + 0.02, gy0 - 1 + 0.02], [gx1 + 0.02, gy1 + 0.02], [driveWest, gy1 + 0.02],
+    [0.92, gy0 - 1 + 0.02], [gx1 + 1 - 0.02, gy0 - 1 + 0.02], [gx1 + 1 - 0.02, gy1 + 1 - 0.02], [driveWest, gy1 + 1 - 0.02],
     [driveWest, fenceY - 0.25], [driveEast, fenceY - 0.25],
     [driveEast, fenceY - grass], [21.37, fenceY - grass],
   ];
@@ -2284,21 +2570,30 @@ function addVariant2() {
   addSlab([v2p(14.23, 2.52), v2p(7.11, 2.52), v2p(7.11, 0), v2p(14.23, 0)], V2_PLINTH + 0.08, 0.1, 0xd7c4a3, false);
 
   v2wallU(0, 3.59, 13.77, ext, [
-    winV(5.15, 6.55, 0.85, 2.45),
-    winV(8.55, 9.35, 1.45, 2.15),
-    winV(11.15, 12.45, 1.4, 2.4),
+    winV(5.15, 6.55),
+    winV(8.55, 9.35, 1.35, 2.15),
+    winV(11.15, 12.45),
   ], 3.14, V2_BRICK);
-  v2wallU(18.03, 3.59, 13.77, ext, [winV(8.05, 9.45)], 3.14, V2_BRICK);
+  v2wallU(18.03, 3.59, 13.77, ext, [winV(8.55, 9.35, 1.35, 2.15)], 3.14, V2_BRICK);
   v2wallV(3.59, -0.19, 7.26, ext, [win(1.2, 2.85), win(4.7, 6.35)], 3.14, V2_BRICK);
   v2wallV(3.59, 13.84, 18.22, ext, [win(15.05, 16.85)], 3.14, V2_BRICK);
   v2wallV(2.64, 7.26, 14.13, ext, [
-    win(8.15, 10.05, 0.15, 3.14),
-    win(11.2, 13.15, 0.15, 3.14),
+    { u0: 8.15, u1: 10.05, z0: 0, z1: 3.14, open: true },
+    { u0: 11.2, u1: 13.15, z0: 0, z1: 3.14, open: true },
   ], 3.14, V2_BRICK);
+  // Двери до верха обычных рам, кирпичная перемычка, выше неё окно до второго света.
+  const doorHead = 2.15;
+  const lintelTop = 2.31;
+  for (const [a, b, c, d] of [[8.15, 9.08, 9.12, 10.05], [11.2, 12.15, 12.19, 13.15]]) {
+    v2winY(2.64, a, b, 0, doorHead);
+    v2winY(2.64, c, d, 0, doorHead);
+    v2box(b, 2.45, c, 2.83, -0.05, doorHead, V2_BRICK);
+    v2box(a, 2.45, d, 2.83, doorHead, lintelTop, V2_BRICK);
+  }
   v2wallV(13.77, -0.19, 18.22, ext, [
     win(1.1, 2.9),
     door(5.75, 6.85),
-    win(7.8, 8.75),
+    door(7.985, 9.085),
     win(11.05, 12.45),
     win(14.85, 15.9),
   ], 3.14, V2_BRICK);
@@ -2308,16 +2603,23 @@ function addVariant2() {
   v2wallU(3.69, 3.78, 7.95, 0.16, [], 2.7, V2_PART);
   v2wallV(7.95, 0.19, 7.45, 0.14, [door(2.72, 3.48), door(4.15, 4.95)], 2.7, V2_PART);
   v2wallU(2.57, 7.95, 10.01, 0.16, [doorV(8.85, 9.55)], 2.7, V2_PART);
-  v2wallV(10.01, 0.19, 9.55, 0.16, [door(2.72, 3.35), door(5.50, 7.15)], 2.7, V2_PART);
+  const gap = (u0, u1) => ({ u0, u1, z0: 0, z1: 2.7, open: true });
+  // Юг прихожей открыт в зал: по прямой от входной двери стены нет.
+  v2wallV(10.01, 0.19, 5.42, 0.16, [door(2.72, 3.35)], 2.7, V2_PART);
+  v2wallV(10.01, 7.30, 9.55, 0.16, [], 2.7, V2_PART);
   v2wallU(3.51, 10.01, 13.58, 0.16, [], 2.7, V2_PART);
   v2wallU(5.34, 10.01, 13.58, 0.16, [doorV(11.40, 12.20)], 2.7, V2_PART);
   v2wallU(7.45, 2.45, 3.59, ext, [], 3.14, V2_BRICK);
-  v2wallU(7.45, 3.59, 13.58, 0.3, [doorV(8.15, 9.90), doorV(10.90, 11.70)], 2.7, V2_PART);
+  v2wallU(7.45, 3.59, 13.58, 0.3, [
+    { v0: 8.15, v1: 9.90, z0: 0, z1: 2.7, open: true },
+    doorV(10.90, 11.70),
+  ], 2.7, V2_PART);
   v2wallU(9.55, 10.01, 13.58, 0.16, [], 2.7, V2_PART);
-  // Западный гардероб: вход с гостиной, двери в спальню и санузел сразу у этого входа.
+  // Западный гардероб: у входа проёмы в спальню и санузел, окно отделено стеной.
   v2wallU(13.94, 2.45, 3.59, ext, [], 3.14, V2_BRICK);
   v2wallU(13.94, 3.59, 13.58, 0.3, [doorV(8.28, 9.12), doorV(12.10, 12.90)], 2.7, V2_PART);
-  v2wallV(7.73, 14.13, 17.84, 0.12, [door(14.22, 15.02)], 2.7, V2_PART);
+  v2wallU(15.35, 7.73, 10.02, 0.16, [], 2.7, V2_PART);
+  v2wallV(7.73, 14.09, 17.84, 0.12, [gap(14.09, 15.27), door(16.19, 17.09)], 2.7, V2_PART);
   v2wallV(10.02, 14.13, 17.84, 0.12, [door(14.25, 15.05)], 2.7, V2_PART);
   v2wallV(12.06, 14.13, 17.84, 0.12, [], 2.7, V2_PART);
 
@@ -2406,9 +2708,9 @@ function addVariant2() {
     const zL = soffitAt(u0);
     const zR = soffitAt(u1);
     const quad = (p, q, r, s) => [[p, q, r], [p, r, s]];
-    const jamb = head - 0.04;
-    if (zL > head + 0.02) v2box(u0, va, u0 + fw, vb, jamb, zL, 0x6b3e24);
-    if (zR > head + 0.02) v2box(u1 - fw, va, u1, vb, jamb, zR, 0x6b3e24);
+    // Боковые стойки идут от перемычки до ската: прямоугольник и треугольник — одна рама.
+    if (zL > lintelTop + 0.02) v2box(u0, va, u0 + fw, vb, lintelTop, zL, 0x6b3e24);
+    if (zR > lintelTop + 0.02) v2box(u1 - fw, va, u1, vb, lintelTop, zR, 0x6b3e24);
     v2solid([
       ...quad([u0, va, zL], [u1, va, zR], [u1, va, zR - fw], [u0, va, zL - fw]),
       ...quad([u0, vb, zL], [u0, vb, zL - fw], [u1, vb, zR - fw], [u1, vb, zR]),
@@ -2420,7 +2722,7 @@ function addVariant2() {
     const g0 = u0 + fw + 0.015;
     const g1 = u1 - fw - 0.015;
     const gv = bayV - 0.03;
-    const gBot = head + 0.02;
+    const gBot = lintelTop + 0.02;
     v2glass([
       [[g0, gv, gBot], [g1, gv, gBot], [g1, gv, soffitAt(g1) - fw - 0.01]],
       [[g0, gv, gBot], [g1, gv, soffitAt(g1) - fw - 0.01], [g0, gv, soffitAt(g0) - fw - 0.01]],
@@ -2448,6 +2750,121 @@ function addVariant2() {
     [[pR, pFront, eave], [pu, vJoin, zJoin], [pu, pFront, eave]],
     [[pR, pFront, eave], [pR, v1, eave], [pu, vJoin, zJoin]],
   ], roofDrop);
+
+  // Карниз по периметру: доска от 2,69 до 3,14, жёлоб снаружи и водостоки по углам.
+  const fasciaLo = 2.69;
+  const board = 0.12;
+  const gutterW = 0.14;
+  const gutterC = 0x2a2826;
+  const eaveBand = (ua, va, ub, vb, z0, z1, color) => asRoof(v2box(ua, va, ub, vb, z0, z1, color));
+  const soffitHi = fasciaLo + 0.05;
+  const gutterLo = fasciaLo - 0.1;
+  const gutterHi = fasciaLo + 0.04;
+  eaveBand(u0, v0 - board, gL, v0, fasciaLo, eave, V2_ROOF);
+  eaveBand(gR, v0 - board, u1, v0, fasciaLo, eave, V2_ROOF);
+  eaveBand(u0 - board, v0, u0, v1, fasciaLo, eave, V2_ROOF);
+  eaveBand(u1, v0, u1 + board, v1, fasciaLo, eave, V2_ROOF);
+  eaveBand(u0, v1, pL, v1 + board, fasciaLo, eave, V2_ROOF);
+  eaveBand(pR, v1, u1, v1 + board, fasciaLo, eave, V2_ROOF);
+  eaveBand(u0, v0, gL, 3.4, fasciaLo, soffitHi, V2_ROOF);
+  eaveBand(gR, v0, u1, 3.4, fasciaLo, soffitHi, V2_ROOF);
+  eaveBand(u0, v0, -0.19, v1, fasciaLo, soffitHi, V2_ROOF);
+  eaveBand(18.22, v0, u1, v1, fasciaLo, soffitHi, V2_ROOF);
+  eaveBand(u0, 13.96, pL, v1, fasciaLo, soffitHi, V2_ROOF);
+  eaveBand(pR, 13.96, u1, v1, fasciaLo, soffitHi, V2_ROOF);
+  eaveBand(u0, v0 - board - gutterW, gL, v0 - board, gutterLo, gutterHi, gutterC);
+  eaveBand(gR, v0 - board - gutterW, u1, v0 - board, gutterLo, gutterHi, gutterC);
+  eaveBand(u0 - board - gutterW, v0, u0 - board, v1, gutterLo, gutterHi, gutterC);
+  eaveBand(u1 + board, v0, u1 + board + gutterW, v1, gutterLo, gutterHi, gutterC);
+  eaveBand(u0, v1 + board, pL, v1 + board + gutterW, gutterLo, gutterHi, gutterC);
+  eaveBand(pR, v1 + board, u1, v1 + board + gutterW, gutterLo, gutterHi, gutterC);
+  eaveBand(pL, pFront, pR, pFront + gutterW, gutterLo, gutterHi, gutterC);
+  const gout = board + gutterW;
+  eaveBand(u0 - gout, v0 - gout, u0 - board, v0 - board, gutterLo, gutterHi, gutterC);
+  eaveBand(u1 + board, v0 - gout, u1 + gout, v0 - board, gutterLo, gutterHi, gutterC);
+  eaveBand(u0 - gout, v1 + board, u0 - board, v1 + gout, gutterLo, gutterHi, gutterC);
+  eaveBand(u1 + board, v1 + board, u1 + gout, v1 + gout, gutterLo, gutterHi, gutterC);
+  const pipe = 0.07;
+  const uvWorld = (u, v, z) => {
+    const [e, n] = planToWorld(V2_XE - u, V2_YS + v);
+    return [e, z + V2_PLINTH, n];
+  };
+  // С угла карниза по биссектрисе к углу стены, вниз по углу и отлив наружу по той же биссектрисе.
+  const spout = (gu, gv, wu, wv, zTop = gutterLo + 0.03) => {
+    const zBend = fasciaLo - 0.22;
+    const zWallBot = 0.12;
+    const beam = (ua, va, za, ub, vb, zb) => asRoof(addBeam(
+      uvWorld(ua, va, za), uvWorld(ub, vb, zb), pipe, gutterC
+    ));
+    beam(gu, gv, zBend, gu, gv, zTop);
+    beam(gu, gv, zBend, wu, wv, zBend);
+    beam(wu, wv, zWallBot, wu, wv, zBend);
+    const ox = gu - wu;
+    const oy = gv - wv;
+    const len = Math.hypot(ox, oy) || 1;
+    const kick = 0.2;
+    const ku = wu + (ox / len) * kick;
+    const kv = wv + (oy / len) * kick;
+    beam(wu, wv, zWallBot, ku, kv, 0.02);
+    beam(ku, kv, -0.1, ku, kv, 0.08);
+  };
+  const gMid = board + gutterW / 2;
+  spout(u0 - gMid, v0 - gMid, -0.19 - 0.05, 3.4 - 0.05);
+  spout(u1 + gMid, v0 - gMid, 18.22 + 0.05, 3.4 - 0.05);
+  spout(u0 - gMid, v1 + gMid, -0.19 - 0.05, 13.96 + 0.05);
+  spout(u1 + gMid, v1 + gMid, 18.22 + 0.05, 13.96 + 0.05);
+  const pv = pFront + gutterW / 2;
+  const porchClear = 0.12;
+  spout(pL + pipe / 2, pv, 4.93 - porchClear, 16.22 + porchClear);
+  spout(pR - pipe / 2, pv, 9.65 + porchClear, 16.22 + porchClear);
+  // Углы кровли террасы: от кромки крыши к наружным столбам, без жёлоба по их линии.
+  const terraceTop = fasciaLo - pipe / 2 + 0.02;
+  spout(gL - pipe / 2, gf - pipe / 2, 7.16 - 0.06, 0.05 - 0.06, terraceTop);
+  spout(gR + pipe / 2, gf - pipe / 2, 14.19 + 0.06, 0.05 - 0.06, terraceTop);
+
+  // Подписи и пунктир границ на полу. Прямоугольник — чистый размер между гранями стен.
+  addFloorNotes([
+    ["Детская-1", 0.19, 3.78, 3.61, 7.88, 0.4],
+    ["Детская-2", 3.77, 3.78, 7.3, 7.88, 0.4],
+    ["Ванная", 0.19, 8.02, 2.49, 9.93, 0.4],
+    ["Холл", 2.65, 8.02, 7.3, 9.93, 0.4],
+    ["Кабинет", 0.19, 10.09, 3.43, 13.58, 0.4],
+    ["Гардероб", 3.59, 10.09, 5.26, 13.58, 0.4],
+    ["Прихожая", 5.42, 10.09, 7.3, 13.58, 0.4],
+    ["Котельная", 7.6, 10.09, 9.47, 13.58, 0.4],
+    ["Кухня", 9.63, 10.09, 13.79, 13.58, 0.4],
+    ["Гостиная", 7.6, 2.83, 13.79, 9.93, 0.4],
+    ["Терраса", 7.11, 0, 14.23, 2.45, 0.48],
+    ["Мастер-спальня", 14.09, 3.78, 17.84, 7.67, 0.4],
+    ["Гардероб", 14.09, 7.79, 15.27, 9.96, 0.4],
+    ["Гардероб", 15.43, 7.79, 17.84, 9.96, 0.4],
+    ["С/у", 14.09, 10.08, 17.84, 12, 0.4],
+    ["Кладовая", 14.09, 12.12, 17.84, 13.58, 0.4],
+    ["Крыльцо", 4.93, 13.96, 9.65, 16.22, 0.48],
+  ].map(([name, u0, v0, u1, v1, floorY]) => [name, V2_XE - u1, V2_YS + v0, V2_XE - u0, V2_YS + v1, floorY]));
+
+  const houseWest = V2_XE - 18.22;
+  const porchNorth = V2_YS + 16.22;
+  const porchX = V2_XE - (4.93 + 9.65) / 2;
+  const { gx0: gWest, gx1: gEast, gy0: gSouth, gy1: gNorth } = garageBox;
+  const metres = (n) => `${n.toFixed(2).replace(".", ",")} м`;
+  const footOn = (px, py, ax, ay, bx, by) => {
+    const abx = bx - ax;
+    const aby = by - ay;
+    const t = ((px - ax) * abx + (py - ay) * aby) / (abx * abx + aby * aby);
+    return [ax + t * abx, ay + t * aby];
+  };
+  const [westX, westY] = footOn(gWest, gSouth, -18, 22.877, -12.963, -4.345);
+  const hatch = [29.823 - 0.3586313514065793, 19.178 - 0.06642232612109211];
+  const [septicX, septicY] = footOn(hatch[0], hatch[1], 32.835, 22.877, 39.044, -10.647);
+  addSiteDim(gEast, 11.5, houseWest, 11.5, "6,00 м", 1);
+  addSiteDim(porchX, porchNorth, porchX, fenceY, "4,00 м", -1);
+  addSiteDim(gWest - 0.35, gNorth, gWest - 0.35, fenceY, "7,00 м", 1);
+  addSiteDim(driveWest, 24, driveEast, 24, "9,93 м", 1);
+  addSiteDim(wellE, wellN, wellE, fenceY, "3,00 м", -1, 1.05);
+  addSiteDim(wellE, wellN, gWest, gNorth, metres(Math.hypot(wellE - gWest, wellN - gNorth)), -1);
+  addSiteDim(hatch[0], hatch[1], septicX, septicY, "4,00 м", -1, 0.7);
+  addSiteDim(gWest, gSouth, westX, westY, metres(Math.hypot(gWest - westX, gSouth - westY)), 1, 0.7);
 }
 
 addVariant2();
@@ -2539,7 +2956,7 @@ function showVariant(name, moveCamera) {
   varWest.classList.toggle("active", viewVariant === "west");
   varV2.classList.toggle("active", viewVariant === "v2");
   blurb.textContent = viewVariant === "v2"
-    ? "Вариант 2. Терраса и гостиная на юг, вход на север, детские на восток. Гараж у ворот, дом в 5 м к востоку от него."
+    ? "Вариант 2. Терраса и гостиная на юг, вход на север, детские на восток. Гараж в 6 м от дома и в 7 м от ворот."
     : viewVariant === "north"
       ? "Вход с северной дороги. Дом, гараж, баня, барбекю и забор 1,5 м. Время минское."
       : "Вход с западной дороги. Навес на две машины, баня глубже, от террасы летняя кухня. Время минское.";
