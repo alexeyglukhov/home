@@ -2,8 +2,8 @@ import * as THREE from "three";
 import { OrbitControls } from "./vendor/OrbitControls.js";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
 import geo from "./geometry.js?v=21";
-import { FURNITURE_LINES } from "./furniture-sketch.js?v=2";
-import { WALL_LINES } from "./wall-sketch.js?v=1";
+import { FURNITURE_LINES } from "./furniture-sketch.js?v=3";
+import { WALL_LINES } from "./wall-sketch.js?v=2";
 
 const panel = document.getElementById("panel");
 const dateInput = document.getElementById("date");
@@ -2959,9 +2959,10 @@ function addVariant2() {
   v2wallV(10.02, 14.13, 17.86, 0.12, [door(14.23, 15.03)], 2.7, V2_PART);
   v2wallV(12.06, 14.13, 17.86, 0.12, [], 2.7, V2_PART);
 
-  for (const u of [7.3, 14.05]) v2box(u - 0.14, 0.05, u + 0.14, 0.33, 0.18, 2.95, 0x6b5344);
-  v2box(10.56, 0.05, 10.84, 0.33, 0.18, 5.05, 0x6b5344);
-  for (const u of [5.25, 9.35]) v2box(u - 0.16, 15.7, u + 0.16, 16.05, 0.16, 2.85, 0x6b5344);
+  // Терраса: одна угловая колонна (как на схемах).
+  v2box(7.3 - 0.13, 0.09, 7.3 + 0.13, 0.35, 0.18, 2.95, 0x6b5344);
+  // Колонны крыльца — сближены и касаются ступеней (ступени u5,45..7,15).
+  for (const u of [5.50, 7.10]) v2box(u - 0.15, 15.92, u + 0.15, 16.22, 0.16, 2.85, 0x6b5344);
   const stepN = 3;
   const stepGround = 0.05;
   const stepTop = V2_PLINTH + 0.18;
@@ -3151,12 +3152,12 @@ function addVariant2() {
   spout(u1 + gMid, v1 + gMid, 18.22 + 0.05, 13.96 + 0.05);
   const pv = pFront + gutterW / 2;
   const porchClear = 0.12;
-  spout(pL + pipe / 2, pv, 4.93 - porchClear, 16.22 + porchClear);
-  spout(pR - pipe / 2, pv, 9.65 + porchClear, 16.22 + porchClear);
-  // Углы кровли террасы: от кромки крыши к наружным столбам, без жёлоба по их линии.
+  spout(pL + pipe / 2, pv, 5.34, 16.22);
+  spout(pR - pipe / 2, pv, 7.26, 16.22);
+  // Углы кровли террасы: водосточную трубу заводим в наружные столбы (скрытый водосток).
   const terraceTop = fasciaLo - pipe / 2 + 0.02;
-  spout(gL - pipe / 2, gf - pipe / 2, 7.16 - 0.06, 0.05 - 0.06, terraceTop);
-  spout(gR + pipe / 2, gf - pipe / 2, 14.19 + 0.06, 0.05 - 0.06, terraceTop);
+  spout(gL - pipe / 2, gf - pipe / 2, gL - pipe / 2, -0.05, terraceTop);
+  spout(gR + pipe / 2, gf - pipe / 2, gR + pipe / 2, -0.05, terraceTop);
 
   // Подписи и пунктир границ на полу. Прямоугольник — чистый размер между гранями стен.
   addFloorNotes([
@@ -3194,7 +3195,6 @@ function addVariant2() {
   const [westX, westY] = footOn(gWest, gSouth, -18, 22.877, -12.963, -4.345);
   const hatch = [29.823 - 0.3586313514065793, 19.178 - 0.06642232612109211];
   const [septicX, septicY] = footOn(hatch[0], hatch[1], 32.835, 22.877, 39.044, -10.647);
-  addSiteDim(gEast, 11.5, houseWest, 11.5, "6,00 м", 1);
   addSiteDim(porchX, porchNorth, porchX, fenceY, "4,00 м", -1);
   addSiteDim(gWest - 0.35, gNorth, gWest - 0.35, fenceY, "7,00 м", 1);
   addSiteDim(driveWest, 24, driveEast, 24, "9,93 м", 1);
@@ -3204,6 +3204,7 @@ function addVariant2() {
   addSiteDim(hatch[0], hatch[1], hatch[0], fenceY, metres(fenceY - hatch[1]), 1, 0.7);
   addSiteDim(gWest, gSouth, westX, westY, metres(Math.hypot(gWest - westX, gSouth - westY)), 1, 0.7);
   bucket = v2House;
+  addSiteDim(gEast, 11.5, houseWest, 11.5, "6,00 м", 1);
   const southWall = [V2_XE - 14.23, V2_YS];
   const [southFx, southFy] = footOn(southWall[0], southWall[1], 39.044, -10.647, -12.963, -4.345);
   addSiteDim(
@@ -3211,21 +3212,10 @@ function addVariant2() {
     metres(Math.hypot(southFx - southWall[0], southFy - southWall[1])),
     -1, 0.7
   );
+  bucket = v2House;
+  // Размер терраса → баня (вариант А).
+  addSiteDim(13.05, 2.66, 27.86, 0.92, "14,91 м", -1, 0.7);
   bucket = variant2Group;
-  const bathNE = [V2_XE - -14.7, V2_YS - 1.74];
-  const [bathEx, bathEy] = footOn(bathNE[0], bathNE[1], 32.835, 22.877, 39.044, -10.647);
-  addSiteDim(
-    bathNE[0], bathNE[1], bathEx, bathEy,
-    metres(Math.hypot(bathEx - bathNE[0], bathEy - bathNE[1])),
-    1, 0.55
-  );
-  const bathSW = [V2_XE - -7.7, V2_YS - 9.74];
-  const [bathSx, bathSy] = footOn(bathSW[0], bathSW[1], 39.044, -10.647, -12.963, -4.345);
-  addSiteDim(
-    bathSW[0], bathSW[1], bathSx, bathSy,
-    metres(Math.hypot(bathSx - bathSW[0], bathSy - bathSW[1])),
-    -1, 0.55
-  );
   addBath();
 }
 
@@ -3266,8 +3256,14 @@ function addDreamHouse(group, site) {
   const board = 0.12;
   const gutterW = 0.14;
   const pL = stairL + board;
-  const pR = stairR - board;
   const pFront = vFace - board;
+  // Площадка по центру козырька и не дальше наружной грани западной стены.
+  const uWestEave = 18.82;
+  const roofEast = pL - board;
+  const roofWest = uWestEave + board;
+  const canopyMid = (roofEast + roofWest) / 2;
+  const porchR = uWallW;
+  const porchL = canopyMid - (porchR - canopyMid);
   const box = (u0, v0, u1, v1, z0, z1, color, cast = true) => {
     let pts = [site(u0, v0), site(u1, v0), site(u1, v1), site(u0, v1)];
     const area = pts[0][0] * (pts[1][1] - pts[3][1])
@@ -3359,10 +3355,9 @@ function addDreamHouse(group, site) {
     site(uWallE, vWallS),
     site(uWallW, vWallS),
     site(uWallW, vWallN),
-    site(stairR, vWallN),
-    site(stairR, vFace),
-    site(stairL, vFace),
-    site(stairL, vWallN),
+    site(porchR, vFace),
+    site(porchL, vFace),
+    site(porchL, vWallN),
     site(uWallE, vWallN),
   ];
   const blindMesh = addSlabHole(blindOuter, blindHole, 0.02, 0.045, 0xd4cfc4);
@@ -3394,6 +3389,8 @@ function addDreamHouse(group, site) {
     winLiveU(6.38, 7.88),
     holeU(9.89, 10.49, bathSill, head),
     doorU(12.24, 13.24),
+    // Маленькое окно постирочной по центру её наружной стены.
+    holeU(14.02, 14.82, bathSill, head),
   ], wallTop, V2_BRICK);
   wallV(vS, uT - extHalf, uW + extHalf, ext, [winLiveU(10.89, 12.39)], wallTop, V2_BRICK);
   wallU(uT, vS - extHalf, vT + extHalf, ext, [], wallTop, V2_BRICK);
@@ -3437,7 +3434,7 @@ function addDreamHouse(group, site) {
   ceil(uBear + extHalf, open1, uWallW, vWallN);
 
   const u0 = 4.25;
-  const u1 = 18.82;
+  const u1 = uWestEave;
   const rv0 = -1.53;
   const rv1 = 16.82;
   const eave = wallTop;
@@ -3499,6 +3496,9 @@ function addDreamHouse(group, site) {
     return mesh;
   };
 
+  // Западный край козырька совпадает с западным карнизом дома: тот же скат 22°,
+  // конек поднимается до этой плоскости и боковые грани сливаются.
+  const pR = u1;
   const pu = (pL + pR) / 2;
   const drop = 0.45;
   const fasciaLo = eave - drop;
@@ -3560,7 +3560,7 @@ function addDreamHouse(group, site) {
     ...gableQuad(R1, K1, K0, R0),
     ...gableQuad(L0, R0, R1, L1),
   ], V2_ROOF);
-  asRoof(box(stairL + 0.5, vWallN, stairR - 0.5, g0, zSoffit, zSoffit + ceilT, 0xe4ddd0, false));
+  asRoof(box(porchL, vWallN, porchR, g0, zSoffit, zSoffit + ceilT, 0xe4ddd0, false));
 
   const gutterC = 0x2a2826;
   const gutterLo = fasciaLo - 0.1;
@@ -3569,25 +3569,20 @@ function addDreamHouse(group, site) {
   const gutter = (ua, va, ub, vb) => asRoof(box(ua, va, ub, vb, gutterLo, gutterHi, gutterC));
   fascia(u0, rv0 - board, u1, rv0);
   fascia(u0, rv1, pL - board, rv1 + board);
-  fascia(pR + board, rv1, u1, rv1 + board);
   fascia(u0 - board, rv0, u0, rv1);
-  fascia(u1, rv0, u1 + board, rv1);
+  // Западный карниз дома продолжается карнизом козырька: одна кромка до фронта.
+  fascia(u1, rv0, u1 + board, pFront);
   fascia(pL - board, rv1, pL, pFront);
-  fascia(pR, rv1, pR + board, pFront);
   const gout = board + gutterW;
+  // Жёлоб только по наружному контуру. Внутренний угол у северного ската — без трубы.
   gutter(u0, rv0 - board - gutterW, u1, rv0 - board);
   gutter(u0 - board - gutterW, rv0, u0 - board, rv1);
-  gutter(u1 + board, rv0, u1 + board + gutterW, rv1);
-  gutter(u0, rv1 + board, pL - board, rv1 + board + gutterW);
-  gutter(pR + board, rv1 + board, u1, rv1 + board + gutterW);
-  gutter(pL - gout, rv1 + board, pL - board, pFront + board);
-  gutter(pR + board, rv1 + board, pR + gout, pFront + board);
+  gutter(u1 + board, rv0, u1 + gout, pFront + gout);
+  gutter(u0, rv1 + board, pL - board, rv1 + gout);
+  gutter(pL - gout, rv1 + board, pL - board, pFront + gout);
   gutter(u0 - gout, rv0 - gout, u0 - board, rv0 - board);
   gutter(u1 + board, rv0 - gout, u1 + gout, rv0 - board);
   gutter(u0 - gout, rv1 + board, u0 - board, rv1 + gout);
-  gutter(u1 + board, rv1 + board, u1 + gout, rv1 + gout);
-  gutter(pL - gout, pFront + board, pL - board, pFront + gout);
-  gutter(pR + board, pFront + board, pR + gout, pFront + gout);
 
   const pipe = 0.07;
   const spout = (gu, gv, wu, wv) => {
@@ -3614,44 +3609,33 @@ function addDreamHouse(group, site) {
   spout(u0 - gMid, rv0 - gMid, uWallE - gap, vWallS - gap);
   spout(u1 + gMid, rv0 - gMid, uWallW + gap, vWallS - gap);
   spout(u0 - gMid, rv1 + gMid, uWallE - gap, vWallN + gap);
-  spout(u1 + gMid, rv1 + gMid, uWallW + gap, vWallN + gap);
-  spout(pL - gMid, vFace + gutterW / 2, stairL + 0.1, vFace - 0.1);
-  spout(pR + gMid, vFace + gutterW / 2, stairR - 0.1, vFace - 0.1);
+  const col = 0.34;
+  const sideClear = 0.10;
+  // Колонны крыльца — вплотную к ступеням (porchL..porchR).
+  const cL1 = porchL;
+  const cL0 = cL1 - col;
+  const cR0 = porchR;
+  const cR1 = cR0 + col;
+  const cV1 = vFace - 0.1;
+  const cV0 = cV1 - col;
+  const colTop = (u) => eave + Math.min(Math.abs(u - pL), Math.abs(u - pR)) * slope - drop;
+  spout(pL - gMid, pFront + gMid, cL0 - 0.04, cV1 + 0.04);
+  spout(pR + gMid, pFront + gMid, cR1 + 0.04, cV1 + 0.04);
 
-  for (const [u, v] of [[4.95, -0.85], [7.2, -0.85], [4.95, 1.3]]) {
-    box(u - 0.2, v - 0.2, u + 0.2, v + 0.2, P, eave - 0.05, 0x6b5344);
-  }
+  // Терраса: одна угловая колонна.
+  box(5.0 - 0.13, -0.80 - 0.13, 5.0 + 0.13, -0.80 + 0.13, P, eave - 0.05, 0x6b5344);
 
   const stepRise = (P - 0.02) / 3;
   const tread = 0.3;
-  const inset = 0.1;
-  const col = 0.4;
-  const cL0 = stairL + inset;
-  const cL1 = cL0 + col;
-  const cR1 = stairR - inset;
-  const cR0 = cR1 - col;
-  const cV1 = vFace - inset;
-  const cV0 = cV1 - col;
   const treadC = 0xcfc6b8;
   for (let i = 0; i < 3; i++) {
     const z0 = 0.02 + i * stepRise;
     const z1 = i === 2 ? P : z0 + stepRise;
     const v1 = vFace - i * tread;
-    if (v1 <= cV0) {
-      box(stairL, vWallN, stairR, v1, z0, z1, treadC);
-    } else {
-      box(stairL, vWallN, stairR, cV0, z0, z1, treadC);
-      box(stairL, cV0, cL0, v1, z0, z1, treadC);
-      box(cL1, cV0, cR0, v1, z0, z1, treadC);
-      box(cR1, cV0, stairR, v1, z0, z1, treadC);
-      if (v1 > cV1) {
-        box(cL0, cV1, cL1, v1, z0, z1, treadC);
-        box(cR0, cV1, cR1, v1, z0, z1, treadC);
-      }
-    }
+    box(porchL, vWallN, porchR, v1, z0, z1, treadC);
   }
-  box(cL0, cV0, cL1, cV1, 0, fasciaLo, 0x6b5344);
-  box(cR0, cV0, cR1, cV1, 0, fasciaLo, 0x6b5344);
+  box(cL0, cV0, cL1, cV1, 0, colTop((cL0 + cL1) / 2), 0x6b5344);
+  box(cR0, cV0, cR1, cV1, 0, colTop((cR0 + cR1) / 2), 0x6b5344);
 
   const rooms = [
     ["Терраса", 4.85, -0.93, 9.34, 3.38],
@@ -3742,6 +3726,9 @@ function addVariantB() {
   const site = (u, v) => [V2_XE - u, V2_YS + v - shift];
   addDreamHouse(variantBGroup, site);
   bucket = variantBGroup;
+  addSiteDim(V2_XE - 18.22 - 6, 11.5, V2_XE - 18.22, 11.5, "6,00 м", 1);
+  // Размер терраса → баня (вариант Б).
+  addSiteDim(15.31, 0.75, 27.86, 0.75, "12,55 м", -1, 0.7);
   addSlab([
     [16.31, 21.38], [16.31, 18.74], [0.94, 18.74], [0.94, 6.42],
     [-3.08, 6.42], [-3.08, 16.86], [-10.04, 16.86], [-10.04, 22.63],
@@ -3759,7 +3746,9 @@ function addVariantC() {
   const y1 = 18.88;
   const cx = (x0 + x1) / 2;
   const cy = (1.73 + y1) / 2;
-  const shiftX = (-4.06 + 6) - (cx - (y1 - cy));
+  const garageEast = -4.06;
+  const houseGap = 7;
+  const shiftX = (garageEast + houseGap) - (cx - (y1 - cy));
   const site = (u, v) => {
     const sx = V2_XE - u;
     const sy = V2_YS + v;
@@ -3768,19 +3757,23 @@ function addVariantC() {
   };
   addDreamHouse(variantCGroup, site);
   bucket = variantCGroup;
+  // Южнее крыльца: линия 7 м от гаража до стены дома, не под козырьком.
+  addSiteDim(garageEast, 9, garageEast + houseGap, 9, "7,00 м", -1);
+  // Размер терраса → баня (вариант В).
+  addSiteDim(19.09, 3.62, 27.86, 0.92, "9,18 м", -1, 0.7);
   // Южная кромка отмостки гаража. Дальше вглубь участка, до торца дома, плитки нет.
   const yFar = 22.877 - 7 - 0.18 - 6 - 0.12 - 0.18 - 2 - 1;
   addSlab([
-    [-0.11, 22.63], [-0.11, 21.38], [20.09, 21.38], [20.09, 17.99],
-    [0.94, 17.99], [0.94, 14.40], [-1.06, 14.40], [-1.06, 8.40],
-    [0.94, 8.40], [0.94, yFar], [-3.08, yFar], [-3.08, 16.86],
+    [-0.11, 22.63], [-0.11, 21.38], [21.09, 21.38], [21.09, 17.99],
+    [1.94, 17.99], [1.94, 14.40], [-0.06, 14.40], [-0.06, 8.40],
+    [1.94, 8.40], [1.94, yFar], [-3.08, yFar], [-3.08, 16.86],
     [-10.04, 16.86], [-10.04, 22.63],
   ], 0.03, 0.035, 0xe6d3b0, false);
   addSlab([
-    [-3.08, 16.86], [-0.11, 22.63], [0.93, 9.07], [0.94, yFar], [-3.08, yFar],
+    [-3.08, 16.86], [-0.11, 22.63], [1.93, 9.07], [1.94, yFar], [-3.08, yFar],
   ], 0.03, 0.035, 0xe6d3b0, false);
   addSlab([
-    [-5.24, 15.96], [-0.97, 18.00], [0.93, 9.07], [0.93, yFar], [-3.70, yFar], [-5.24, 7.66],
+    [-5.24, 15.96], [0.03, 18.00], [1.93, 9.07], [1.93, yFar], [-3.70, yFar], [-5.24, 7.66],
   ], 0.03, 0.035, 0xe6d3b0, false);
   addSouthSetback(site(4.85, 16.22));
 }

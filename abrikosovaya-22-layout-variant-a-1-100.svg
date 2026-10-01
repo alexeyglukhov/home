@@ -524,6 +524,10 @@
 <polyline points="832.84,521.50 814.95,469.71 787.17,479.31 805.06,531.10 832.84,521.50" fill="none" stroke="#8d8982" stroke-width="0.16" stroke-dasharray="1.6 1.0"/>
 <text x="810.00" y="500.40" font-size="1.55" font-weight="700" fill="#2c2824" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, Liberation Sans, sans-serif" stroke="none" transform="rotate(-19.06 810.00 500.40)"><tspan x="810.00" dy="-1.7">Комната отдыха</tspan><tspan x="810.00" dy="1.7" font-size="1.35" font-weight="500" fill="#4e4842">3,06 × 5,60</tspan><tspan x="810.00" dy="1.55" font-size="1.35" font-weight="500" fill="#4e4842">17,14 м²</tspan></text>
 <text x="801.39" y="452.80" font-size="1.7" font-weight="700" fill="#2c2824" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, Liberation Sans, sans-serif" stroke="none" transform="rotate(-19.06 801.39 452.80)">Баня · 7,00 × 8,00 м</text>
+<line x1="635.86" y1="508.53" x2="781.54" y2="476.68"/>
+<line x1="635.22" y1="505.60" x2="636.50" y2="511.46"/>
+<line x1="780.90" y1="473.75" x2="782.18" y2="479.61"/>
+<text x="708.70" y="492.61" font-size="1.55" font-weight="700" fill="#2c2824" stroke="none" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, Liberation Sans, sans-serif" transform="rotate(-12.33 708.70 492.61)">14,91 м</text>
 </g>
 <line x1="568.56" y1="531.75" x2="587.94" y2="621.96"/>
 <line x1="571.69" y1="531.08" x2="565.43" y2="532.42"/>

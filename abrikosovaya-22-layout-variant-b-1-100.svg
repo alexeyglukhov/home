@@ -208,6 +208,7 @@
     <rect style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.195624;stroke-dasharray:none;stop-color:#000000" id="b-rect11222" width="3.1668584" height="14.804376" x="-155.12334" y="-208.45253" transform="scale(-1)" opacity="0.5"/>
     <rect style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.195624;stroke-dasharray:none;stop-color:#000000" id="b-rect11224" width="3.1668584" height="14.804376" x="-155.25131" y="-180.02025" transform="scale(-1)" opacity="0.5"/>
     <rect style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.124603;stroke-dasharray:none;stop-color:#000000" id="b-rect11226" width="3.2373967" height="5.8753967" x="222.69902" y="-105.70346" transform="rotate(90)" opacity="0.5"/>
+    <rect style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.124603;stroke-dasharray:none;stop-color:#000000" id="b-rect99001" width="8" height="3.16" x="56.17" y="222.66" opacity="0.5"/>
     <g id="b-g11234" transform="matrix(0,1.2490906,-1.2490906,0,280.29306,139.15998)" opacity="0.5">
       <rect style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.0999405;stroke-dasharray:none;stop-color:#000000" id="b-rect11228" width="1.5489309" height="7.9000597" x="67.223305" y="158.31491"/>
       <rect style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.08;stroke-dasharray:none;stop-color:#000000" id="b-rect11230" width="0.25396478" height="7.9593801" x="-126.92404" y="116.95448" transform="rotate(-70.63424)"/>
@@ -873,25 +874,15 @@
 <polyline points="832.84,521.50 814.95,469.71 787.17,479.31 805.06,531.10 832.84,521.50" fill="none" stroke="#8d8982" stroke-width="0.16" stroke-dasharray="1.6 1.0"/>
 <text x="810.00" y="500.40" font-size="1.55" font-weight="700" fill="#2c2824" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, Liberation Sans, sans-serif" stroke="none" transform="rotate(-19.06 810.00 500.40)"><tspan x="810.00" dy="-1.7">Комната отдыха</tspan><tspan x="810.00" dy="1.7" font-size="1.35" font-weight="500" fill="#4e4842">3,06 × 5,60</tspan><tspan x="810.00" dy="1.55" font-size="1.35" font-weight="500" fill="#4e4842">17,14 м²</tspan></text>
 <text x="801.39" y="452.80" font-size="1.7" font-weight="700" fill="#2c2824" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, Liberation Sans, sans-serif" stroke="none" transform="rotate(-19.06 801.39 452.80)">Баня · 7,00 × 8,00 м</text>
-<line x1="662.91" y1="517.61" x2="665.52" y2="525.17" stroke="#b5aea6" stroke-width="0.25"/>
-<line x1="781.54" y1="476.68" x2="784.15" y2="484.24" stroke="#b5aea6" stroke-width="0.25"/>
-<line x1="665.52" y1="525.17" x2="784.15" y2="484.24"/>
-<line x1="663.28" y1="523.30" x2="666.12" y2="522.32"/>
-<line x1="781.92" y1="482.37" x2="784.75" y2="481.39"/>
-<text x="724.83" y="504.71" font-size="1.55" font-weight="700" fill="#2c2824" stroke="none" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, Liberation Sans, sans-serif" transform="rotate(-19.03 724.83 504.71)">12,55 м</text>
+<line x1="664.00" y1="520.76" x2="781.54" y2="476.68"/>
+<line x1="662.95" y1="517.95" x2="665.05" y2="523.57"/>
+<line x1="780.49" y1="473.87" x2="782.59" y2="479.49"/>
+<text x="722.77" y="498.72" font-size="1.55" font-weight="700" fill="#2c2824" stroke="none" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, Liberation Sans, sans-serif" transform="rotate(-20.56 722.77 498.72)">12,55 м</text>
 </g>
 <line x1="537.60" y1="564.36" x2="551.65" y2="629.76"/>
 <line x1="540.73" y1="563.69" x2="534.47" y2="565.03"/>
 <line x1="554.78" y1="629.09" x2="548.52" y2="630.43"/>
 <text x="550.98" y="595.69" font-size="1.55" font-weight="700" fill="#2c2824" stroke="none" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, Liberation Sans, sans-serif" transform="rotate(-19.04 550.98 595.69)">6,69 м</text>
-<line x1="847.72" y1="453.85" x2="865.19" y2="443.95"/>
-<line x1="849.29" y1="456.63" x2="846.14" y2="451.06"/>
-<line x1="866.76" y1="446.74" x2="863.61" y2="441.17"/>
-<text x="853.74" y="444.12" font-size="1.55" font-weight="700" fill="#2c2824" stroke="none" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, Liberation Sans, sans-serif" transform="rotate(-19.04 853.74 444.12)">2,01 м</text>
-<line x1="807.64" y1="552.30" x2="812.25" y2="573.77"/>
-<line x1="810.76" y1="551.63" x2="804.51" y2="552.98"/>
-<line x1="815.38" y1="573.10" x2="809.12" y2="574.44"/>
-<text x="804.56" y="564.19" font-size="1.55" font-weight="700" fill="#2c2824" stroke="none" text-anchor="middle" dominant-baseline="central" font-family="DejaVu Sans, Liberation Sans, sans-serif" transform="rotate(-19.04 804.56 564.19)">2,20 м</text>
 <line x1="737.38" y1="299.48" x2="725.10" y2="263.88"/>
 <line x1="740.41" y1="298.43" x2="734.36" y2="300.52"/>
 <line x1="728.13" y1="262.84" x2="722.08" y2="264.92"/>
