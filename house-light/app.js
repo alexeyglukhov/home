@@ -2,7 +2,8 @@ import * as THREE from "three";
 import { OrbitControls } from "./vendor/OrbitControls.js";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
 import geo from "./geometry.js?v=21";
-import { FURNITURE_LINES } from "./furniture-sketch.js?v=1";
+import { FURNITURE_LINES } from "./furniture-sketch.js?v=2";
+import { WALL_LINES } from "./wall-sketch.js?v=1";
 
 const panel = document.getElementById("panel");
 const dateInput = document.getElementById("date");
@@ -853,7 +854,36 @@ function addGarage(spec = {}) {
   const d1b = d1a + 2.4;
   const d2a = d1b + 0.16;
   const d2b = d2a + 2.4;
-  planBox([[gx0, gy0], [gx1, gy0], [gx1, gy0 + t], [gx0, gy0 + t]], 0, PLINTH + gTop, 0xf4f0e8);
+  // Три маленьких окна как в доме (0,60 × 0,70 м, подоконник 1,50 м): равные промежутки от краёв и между собой.
+  {
+    const wallTopZ = PLINTH + gTop;
+    const winW = 0.6;
+    const winSill = 0.065 + 1.5;
+    const winHead = 0.065 + 2.2;
+    const gap = (gx1 - gx0 - 3 * winW) / 4;
+    const southWall = (x0, x1, z0, z1) => planBox(
+      [[x0, gy0], [x1, gy0], [x1, gy0 + t], [x0, gy0 + t]], z0, z1, 0xf4f0e8
+    );
+    let x = gx0;
+    for (let i = 0; i < 3; i++) {
+      const a = gx0 + gap + i * (winW + gap);
+      const b = a + winW;
+      if (a > x + 0.02) southWall(x, a, 0, wallTopZ);
+      southWall(a, b, 0, winSill);
+      if (wallTopZ > winHead + 0.02) southWall(a, b, winHead, wallTopZ);
+      addOpeningFrame(a, b, gy0, gy0 + t, winSill, winHead, true);
+      const glass = planBox(
+        [[a, gy0 + t / 2 - 0.01], [b, gy0 + t / 2 - 0.01], [b, gy0 + t / 2 + 0.01], [a, gy0 + t / 2 + 0.01]],
+        winSill, winHead, 0xb7d4e4, false
+      );
+      glass.material.transparent = true;
+      glass.material.opacity = 0.28;
+      glass.material.depthWrite = false;
+      glass.castShadow = false;
+      x = b;
+    }
+    if (gx1 > x + 0.02) southWall(x, gx1, 0, wallTopZ);
+  }
   planBox([[gx0, gy0], [gx0 + t, gy0], [gx0 + t, gy1], [gx0, gy1]], 0, PLINTH + gTop, 0xf4f0e8);
   const sideDoor0 = gy0 + t + 0.45;
   const sideDoor1 = sideDoor0 + 0.9;
@@ -3201,18 +3231,18 @@ function addVariant2() {
 
 function addDreamHouse(group, site) {
   // Одноэтажный дом 13,37 × 17,15. Терраса на юго-востоке под общей вальмой.
-  // Цоколь 0,45 м. Стены 3,00 м от пола. Окна жилых 0,80–2,20 м, ванных 1,50–2,20 м.
-  // Конёк вдоль север–юг, уклон 22°, свес 0,60 м. Крыльцо 4 × 2 м, двускатный козырёк.
+  // Цоколь 0,45 м. Стены 3,00 м от пола.
+  // Большие окна и двери: верх 2,20 м от пола, подоконник больших 0,80 м.
+  // Маленькие окна: 1,50–2,20 м, тот же верх.
+  // Конёк вдоль север–юг, уклон 22°, свес 0,60 м. Крыльцо-веранда 6,7 × 2 м, двускатный козырёк на всю ширину.
   bucket = group;
   const P = 0.45;
   const wallTop = P + 3.0;
   const partTop = P + 2.7;
-  const doorTop = P + 2.1;
   const sill = P + 0.8;
   const head = P + 2.2;
-  const lowSill = P + 0.4;
+  const doorTop = head;
   const bathSill = P + 1.5;
-  const masterSill = P + 0.7;
   const ext = 0.38;
   const part = 0.16;
   const uE = 5.04;
@@ -3225,11 +3255,13 @@ function addDreamHouse(group, site) {
   const uWallW = uW + ext / 2;
   const vWallS = vS - ext / 2;
   const vWallN = vN + ext / 2;
-  const porchW = 4;
   const porchOut = 2;
   const doorC = (12.13 + 13.13) / 2;
-  const stairL = doorC - porchW / 2;
-  const stairR = doorC + porchW / 2;
+  // Новое крыльцо: широкая веранда ~6,7 × 2 м от западного угла до прихожей,
+  // двускатный козырёк на всю ширину. Плановые x 25,07…91,77 → u 11,31…17,88.
+  const stairL = 11.31;
+  const stairR = 17.88;
+  const porchW = stairR - stairL;
   const vFace = vWallN + porchOut;
   const board = 0.12;
   const gutterW = 0.14;
@@ -3313,13 +3345,13 @@ function addDreamHouse(group, site) {
   const winLiveU = (u0, u1, z0 = sill) => holeU(u0, u1, z0, head);
 
   const quad = (u0, v0, u1, v1) => [site(u0, v0), site(u1, v0), site(u1, v1), site(u0, v1)];
+  // Отмостка как на схеме: с запада без ступеньки, выступ крыльца до u = stairL − 1 м.
+  const vBlindFront = 19.13;
   const blindOuter = [
     site(uWallE - 1, vWallS - 1),
     site(uWallW + 1, vWallS - 1),
-    site(uWallW + 1, vWallN + 1),
-    site(stairR + 1, vWallN + 1),
-    site(stairR + 1, vFace + 1),
-    site(stairL - 1, vFace + 1),
+    site(uWallW + 1, vBlindFront),
+    site(stairL - 1, vBlindFront),
     site(stairL - 1, vWallN + 1),
     site(uWallE - 1, vWallN + 1),
   ];
@@ -3333,7 +3365,10 @@ function addDreamHouse(group, site) {
     site(stairL, vWallN),
     site(uWallE, vWallN),
   ];
-  addSlabHole(blindOuter, blindHole, 0.02, 0.045, 0xd4cfc4);
+  const blindMesh = addSlabHole(blindOuter, blindHole, 0.02, 0.045, 0xd4cfc4);
+  blindMesh.material.polygonOffset = true;
+  blindMesh.material.polygonOffsetFactor = -2;
+  blindMesh.material.polygonOffsetUnits = -2;
   addSlab(quad(uWallE, vWallS, uWallW, vWallN), 0.06, 0.39, 0xb7b2a8, true);
   addSlab(quad(uWallE, vWallS, uWallW, vWallN), 0.45, 0.02, 0xf7f4ee, false);
   addSlab(quad(uWallE, vWallS, uT, vT), 0.47, 0.035, 0xd7c4a3, false);
@@ -3348,7 +3383,7 @@ function addDreamHouse(group, site) {
     winLiveV(12.94, 14.44),
   ], wallTop, V2_BRICK);
   wallU(uW, vS - extHalf, vN + extHalf, ext, [
-    holeV(0.22, 0.81, P + 1.4, P + 2.0),
+    holeV(0.22, 0.81, bathSill, head),
     holeV(2.18, 3.17, bathSill, head),
     winLiveV(4.48, 5.98),
     winLiveV(8.84, 9.84),
@@ -3358,39 +3393,41 @@ function addDreamHouse(group, site) {
   wallV(vN, uE - extHalf, uW + extHalf, ext, [
     winLiveU(6.38, 7.88),
     holeU(9.89, 10.49, bathSill, head),
-    doorU(12.13, 13.13),
+    doorU(12.24, 13.24),
   ], wallTop, V2_BRICK);
-  wallV(vS, uT - extHalf, uW + extHalf, ext, [winLiveU(10.89, 12.39, masterSill)], wallTop, V2_BRICK);
+  wallV(vS, uT - extHalf, uW + extHalf, ext, [winLiveU(10.89, 12.39)], wallTop, V2_BRICK);
   wallU(uT, vS - extHalf, vT + extHalf, ext, [], wallTop, V2_BRICK);
   // Поперечная несущая продолжается внутрь дома до продольной стены.
   wallV(vT, uE - extHalf, uBear + extHalf, ext, [
-    holeU(5.2, 6.7, lowSill, head),
+    winLiveU(5.2, 6.7),
     doorU(6.88, 7.87),
-    holeU(8.05, 8.9, lowSill, head),
+    winLiveU(8.05, 8.9),
   ], wallTop, V2_BRICK);
-  // Продольная несущая внутри дома, проход между залом и прихожей.
-  wallU(uBear, vT - extHalf, 9.13, ext, [], wallTop, V2_BRICK);
-  wallU(uBear, 10.61, vN + extHalf, ext, [], wallTop, V2_BRICK);
+  // Продольная несущая: проход у зала и сдвижная дверь в тамбур — обычная коробка.
+  wallU(uBear, vT - extHalf, 9.01, ext, [], wallTop, V2_BRICK);
+  wallU(uBear, 10.61, vN + extHalf, ext, [doorV(14.15, 14.95)], wallTop, V2_BRICK);
 
-  wallU(9.16, 10.7, 15.9, part, [doorV(10.85, 11.65)], partTop, V2_PART);
-  wallV(10.66, 9.08, 11.47, part, [], partTop, V2_PART);
-  wallV(3.5, uBear + extHalf, 13.21, part, [doorU(11.74, 12.54)], partTop, V2_PART);
-  wallV(3.5, 13.21, 18.03, part, [], partTop, V2_PART);
-  wallU(13.21, 3.5, 9.23, part, [doorV(6.05, 6.85)], partTop, V2_PART);
-  wallV(9.235, 13.13, 13.8, part, [], partTop, V2_PART);
-  wallV(7.12, 13.21, 17.9, part, [], partTop, V2_PART);
-  wallU(13.72, 9.23, 15.9, part, [
-    doorV(9.44, 10.24),
+  wallU(9.16, 10.64, 16.05, part, [doorV(10.79, 11.59)], partTop, V2_PART);
+  wallV(10.66, 9.12, 11.52, part, [], partTop, V2_PART);
+  wallV(3.45, uBear + extHalf, 13.21, part, [doorU(11.74, 12.54)], partTop, V2_PART);
+  wallV(3.45, 13.21, 17.89, part, [], partTop, V2_PART);
+  wallU(13.21, 3.48, 8.81, part, [doorV(6.05, 6.85)], partTop, V2_PART);
+  wallV(8.865, 13.15, 13.75, part, [], partTop, V2_PART);
+  wallV(7.115, 13.21, 17.98, part, [], partTop, V2_PART);
+  wallU(13.71, 8.79, 15.96, part, [
+    doorV(9.03, 9.83),
     doorV(11.76, 12.56),
-    doorV(13.89, 14.69),
+    doorV(13.62, 14.42),
   ], partTop, V2_PART);
-  wallU(13.75, -0.6, 3.4, part, [doorV(0.08, 0.88), doorV(2.48, 3.28)], partTop, V2_PART);
-  wallV(1.35, 13.67, 18.03, part, [], partTop, V2_PART);
-  wallV(10.76, 13.8, 17.9, part, [], partTop, V2_PART);
-  wallV(12.8, 13.8, 17.9, part, [], partTop, V2_PART);
+  wallU(13.75, -0.63, 3.47, part, [doorV(-0.46, 0.34), doorV(2.48, 3.28)], partTop, V2_PART);
+  wallV(13.195, 9.14, 11.36, part, [], partTop, V2_PART);
+  wallV(12.745, 11.44, 17.92, part, [doorU(12.05, 12.85)], partTop, V2_PART);
+  wallU(15.30, 12.74, 15.99, part, [doorV(13.63, 14.43)], partTop, V2_PART);
+  wallV(1.19, 13.73, 18.10, part, [], partTop, V2_PART);
+  wallV(10.76, 13.76, 17.92, part, [], partTop, V2_PART);
 
   const ceil = (ua, va, ub, vb) => asRoof(addSlab(quad(ua, va, ub, vb), partTop, 0.1, 0xe4ddd0, false));
-  const open0 = 9.13;
+  const open0 = 9.01;
   const open1 = 10.61;
   ceil(uT, vWallS, uWallW, vT - extHalf);
   ceil(uWallE, vT + extHalf, uBear - extHalf, open0);
@@ -3617,18 +3654,22 @@ function addDreamHouse(group, site) {
   box(cR0, cV0, cR1, cV1, 0, fasciaLo, 0x6b5344);
 
   const rooms = [
-    ["Терраса", 4.93, -0.84, 9.46, 3.32],
-    ["Мастер-спальня", 9.72, -0.64, 13.69, 3.33],
-    ["Гардеробная", 13.87, -0.67, 17.84, 1.28],
-    ["Ванная-1", 13.88, 1.43, 17.85, 3.38],
-    ["Детская", 13.31, 3.51, 17.79, 6.98],
-    ["Кабинет", 13.32, 7.16, 17.82, 10.6],
-    ["Зал", 5.19, 3.53, 11.17, 10.53],
-    ["Кухня", 5.15, 10.71, 9.12, 15.88],
-    ["Кладовая", 9.33, 10.72, 11.28, 15.91],
-    ["Прихожая", 11.69, 9.22, 13.64, 15.95],
-    ["Ванная-2", 13.8, 10.83, 17.77, 12.78],
-    ["Котельная", 13.81, 12.91, 17.78, 15.84],
+    ["Терраса", 4.85, -0.93, 9.34, 3.38],
+    ["Мастер-спальня", 9.72, -0.56, 13.67, 3.39],
+    ["Ванная-1", 13.83, -0.56, 17.86, 1.13],
+    ["Гардеробная", 13.83, 1.25, 17.86, 3.39],
+    ["Детская", 13.29, 3.50, 17.86, 7.03],
+    ["Кабинет", 13.29, 7.19, 17.86, 10.68],
+    ["Корридор", 11.61, 3.50, 13.13, 8.78],
+    ["Зал", 5.21, 3.76, 11.24, 10.58],
+    ["Кухня", 5.21, 10.74, 9.10, 15.86],
+    ["Кладовая", 9.23, 10.74, 11.20, 13.12],
+    ["Гардероб", 9.23, 13.27, 11.20, 15.86],
+    ["Прихожая", 11.58, 8.95, 13.63, 12.67],
+    ["Тамбур", 11.58, 12.82, 13.63, 15.86],
+    ["Ванная-2", 13.79, 10.84, 17.86, 12.67],
+    ["Постирочная", 13.79, 12.82, 15.22, 15.86],
+    ["Котельная", 15.38, 12.82, 17.86, 15.86],
   ].map(([name, ua, va, ub, vb]) => {
     const corners = [site(ua, va), site(ub, va), site(ub, vb), site(ua, vb)];
     const xs = corners.map((p) => p[0]);
@@ -3636,15 +3677,15 @@ function addDreamHouse(group, site) {
     return [name, Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys), P + 0.08];
   });
   addFloorNotes(rooms);
-  addFurnitureSketch(site, P + 0.08);
+  addFloorLines(site, FURNITURE_LINES, P + 0.08, 0x2a2622, 0.5, 0.03);
+  addFloorLines(site, WALL_LINES, P + 0.09, 0x1a1814, 0.55, 0.02);
 }
 
-function addFurnitureSketch(site, z) {
-  const w = 0.03;
+function addFloorLines(site, lines, z, color, opacity, w) {
   const pos = [];
-  for (let i = 0; i < FURNITURE_LINES.length; i += 4) {
-    const [x0, y0] = site(FURNITURE_LINES[i], FURNITURE_LINES[i + 1]);
-    const [x1, y1] = site(FURNITURE_LINES[i + 2], FURNITURE_LINES[i + 3]);
+  for (let i = 0; i < lines.length; i += 4) {
+    const [x0, y0] = site(lines[i], lines[i + 1]);
+    const [x1, y1] = site(lines[i + 2], lines[i + 3]);
     const [e0, n0] = planToWorld(x0, y0);
     const [e1, n1] = planToWorld(x1, y1);
     let dx = e1 - e0;
@@ -3668,9 +3709,9 @@ function addFurnitureSketch(site, z) {
   const geom = new THREE.BufferGeometry();
   geom.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
   const mesh = new THREE.Mesh(geom, new THREE.MeshBasicMaterial({
-    color: 0x2a2622,
+    color,
     transparent: true,
-    opacity: 0.5,
+    opacity,
     depthWrite: false,
     side: THREE.DoubleSide,
     polygonOffset: true,
@@ -3701,15 +3742,13 @@ function addVariantB() {
   const site = (u, v) => [V2_XE - u, V2_YS + v - shift];
   addDreamHouse(variantBGroup, site);
   bucket = variantBGroup;
-  const yBlind = site(4.85, 17.22)[1];
-  const yPorch = site(12.63, 19.22)[1];
-  const xPorchE = site(9.63, 17.22)[0];
-  const xPorchW = site(15.63, 17.22)[0];
   addSlab([
-    [16.31, 21.38], [16.31, yBlind], [xPorchE, yBlind], [xPorchE, yPorch],
-    [xPorchW, yPorch], [xPorchW, yBlind], [0.94, yBlind], [0.94, 6.42],
+    [16.31, 21.38], [16.31, 18.74], [0.94, 18.74], [0.94, 6.42],
     [-3.08, 6.42], [-3.08, 16.86], [-10.04, 16.86], [-10.04, 22.63],
     [-0.11, 22.63], [-0.11, 21.38],
+  ], 0.03, 0.035, 0xe6d3b0, false);
+  addSlab([
+    [0.93, 20.65], [4.53, 20.74], [10.53, 20.73], [16.32, 18.75], [0.94, 18.73],
   ], 0.03, 0.035, 0xe6d3b0, false);
   addSouthSetback(site(18.22, -0.93));
 }
@@ -3729,18 +3768,19 @@ function addVariantC() {
   };
   addDreamHouse(variantCGroup, site);
   bucket = variantCGroup;
-  const northY = site(19.22, 17.22)[1];
-  const southY = site(3.85, 17.22)[1];
-  const eastX = site(3.85, -1.93)[0];
-  const westX = site(19.22, 17.22)[0];
-  const porchX = site(12.63, 19.22)[0];
-  const porchY0 = Math.min(site(9.63, 19.22)[1], site(15.63, 19.22)[1]);
-  const porchY1 = Math.max(site(9.63, 19.22)[1], site(15.63, 19.22)[1]);
+  // Южная кромка отмостки гаража. Дальше вглубь участка, до торца дома, плитки нет.
+  const yFar = 22.877 - 7 - 0.18 - 6 - 0.12 - 0.18 - 2 - 1;
   addSlab([
-    [-0.11, 22.63], [-0.11, 21.38], [eastX, 21.38], [eastX, northY],
-    [westX, northY], [westX, porchY1], [porchX, porchY1], [porchX, porchY0],
-    [westX, porchY0], [westX, southY], [-3.08, southY], [-3.08, 16.86],
+    [-0.11, 22.63], [-0.11, 21.38], [20.09, 21.38], [20.09, 17.99],
+    [0.94, 17.99], [0.94, 14.40], [-1.06, 14.40], [-1.06, 8.40],
+    [0.94, 8.40], [0.94, yFar], [-3.08, yFar], [-3.08, 16.86],
     [-10.04, 16.86], [-10.04, 22.63],
+  ], 0.03, 0.035, 0xe6d3b0, false);
+  addSlab([
+    [-3.08, 16.86], [-0.11, 22.63], [0.93, 9.07], [0.94, yFar], [-3.08, yFar],
+  ], 0.03, 0.035, 0xe6d3b0, false);
+  addSlab([
+    [-5.24, 15.96], [-0.97, 18.00], [0.93, 9.07], [0.93, yFar], [-3.70, yFar], [-5.24, 7.66],
   ], 0.03, 0.035, 0xe6d3b0, false);
   addSouthSetback(site(4.85, 16.22));
 }
@@ -3759,7 +3799,7 @@ const VIEW_KEY = "house-light-view";
 let viewVariant = "v2";
 let pendingVariant = "v2";
 const BLURB_2 = "Вариант А. Терраса и гостиная на юг, вход на север, детские на восток. Гараж в 6 м от дома и в 7 м от ворот. Баня на юго-востоке, вход на запад.";
-const BLURB_B = "Вариант Б. Терраса и мастер-спальня на юг, вход на север. Крыльцо 4 × 2 м, двускатный козырёк в 3 м от забора.";
+const BLURB_B = "Вариант Б. Терраса и мастер-спальня на юг, вход на север. Крыльцо-веранда 6,7 × 2 м, двускатный козырёк на всю ширину.";
 const BLURB_C = "Вариант В. Тот же дом отзеркален, вход на запад к гаражу. Отмостка и плитка ведут от ворот к крыльцу.";
 
 function saveView() {
