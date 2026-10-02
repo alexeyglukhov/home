@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2900 -600 22200 20200" width="22200" height="20200">
+<style>
+  .geom { fill: #1a1a1a; stroke: none; }
+  .dim, .ext { fill: none; stroke: #222; stroke-width: 16; }
+  .ext { stroke: #8a8a8a; stroke-width: 10; }
+  .axis { fill: none; stroke: #222; stroke-width: 16; }
+  text { font-family: "DejaVu Sans", sans-serif; fill: #1a1a1a; text-anchor: middle; dominant-baseline: middle; }
+  .dimnum { font-size: 220px; }
+  .axisnum { font-size: 240px; }
+  .rname { font-size: 250px; }
+  .rarea { font-size: 220px; }
+  .rsize { font-size: 150px; fill: #333; }
+  #house.mirror { transform: translate(18030px, 0) scaleX(-1); }
+  #house.mirror .upright { transform: scaleX(-1); transform-box: fill-box; transform-origin: center; }
+</style>
+<rect x="-2900" y="-600" width="22200" height="20200" fill="#ffffff"/>
+<g id="house">
+  <g id="walls" fill="#1a1a1a" stroke="none">
+  <rect x="-190" y="3400" width="380" height="10560"/>
+  <rect x="17840" y="3400" width="380" height="10560"/>
+  <rect x="7310" y="2500" width="280" height="11410"/>
+  <rect x="13800" y="2500" width="280" height="11410"/>
+  <rect x="3800" y="3500" width="180" height="4690"/>
+  <rect x="2490" y="8010" width="180" height="2090"/>
+  <rect x="3510" y="9920" width="180" height="3940"/>
+  <rect x="5230" y="9920" width="180" height="3940"/>
+  <rect x="9510" y="9920" width="180" height="3940"/>
+  <rect x="7450" y="2450" width="6490" height="380"/>
+  <rect x="-190" y="3400" width="7640" height="380"/>
+  <rect x="13940" y="3400" width="4280" height="380"/>
+  <rect x="-190" y="8010" width="7640" height="180"/>
+  <rect x="-190" y="9900" width="2790" height="220"/>
+  <rect x="3445" y="9900" width="2145" height="220"/>
+  <rect x="7320" y="9900" width="3035" height="220"/>
+  <rect x="13940" y="9900" width="4280" height="220"/>
+  <rect x="13940" y="7660" width="4280" height="180"/>
+  <rect x="13940" y="11940" width="4280" height="180"/>
+  <rect x="-190" y="13580" width="18410" height="380"/>
+  </g><g id="columns" fill="#1a1a1a" stroke="none">
+  <rect x="7150" y="10" width="300" height="300"/>
+  <rect x="10545" y="10" width="300" height="300"/>
+  <rect x="13750" y="10" width="300" height="300"/>
+  <rect x="4935" y="15920" width="300" height="300"/>
+  <rect x="9385" y="15920" width="300" height="300"/>
+  </g><g id="openings" fill="#ffffff" stroke="none">
+  <rect x="1155" y="3400" width="1795" height="380"/>
+  <rect x="4655" y="3400" width="1865" height="380"/>
+  <rect x="14885" y="3400" width="2035" height="380"/>
+  <rect x="8140" y="2450" width="2045" height="380"/>
+  <rect x="11200" y="2450" width="1995" height="380"/>
+  <rect x="1005" y="13580" width="1945" height="380"/>
+  <rect x="11005" y="13580" width="1590" height="380"/>
+  <rect x="14885" y="13580" width="930" height="380"/>
+  <rect x="5770" y="13580" width="1095" height="380"/>
+  <rect x="7710" y="13580" width="1135" height="380"/>
+  <rect x="-190" y="8580" width="380" height="940"/>
+  <rect x="17840" y="8375" width="380" height="780"/>
+  <rect x="7310" y="8300" width="280" height="900"/>
+  <rect x="13800" y="4100" width="280" height="1000"/>
+  <rect x="2600" y="8010" width="900" height="180"/>
+  <rect x="6300" y="8010" width="900" height="180"/>
+  <rect x="2490" y="8600" width="180" height="900"/>
+  <rect x="3510" y="11500" width="180" height="900"/>
+  <rect x="5230" y="11500" width="180" height="900"/>
+  <rect x="9510" y="11500" width="180" height="900"/>
+  <rect x="15000" y="7660" width="900" height="180"/>
+  <rect x="15000" y="11940" width="900" height="180"/>
+  </g><g id="windows" fill="#ffffff" stroke="#1a1a1a" stroke-width="18">
+  <rect x="1155" y="3400" width="1795" height="380"/>
+  <line x1="1155" y1="3522" x2="2950" y2="3522" stroke-width="14"/>
+  <line x1="1155" y1="3658" x2="2950" y2="3658" stroke-width="14"/>
+  <rect x="4655" y="3400" width="1865" height="380"/>
+  <line x1="4655" y1="3522" x2="6520" y2="3522" stroke-width="14"/>
+  <line x1="4655" y1="3658" x2="6520" y2="3658" stroke-width="14"/>
+  <rect x="14885" y="3400" width="2035" height="380"/>
+  <line x1="14885" y1="3522" x2="16920" y2="3522" stroke-width="14"/>
+  <line x1="14885" y1="3658" x2="16920" y2="3658" stroke-width="14"/>
+  <rect x="8140" y="2450" width="2045" height="380"/>
+  <line x1="8140" y1="2572" x2="10185" y2="2572" stroke-width="14"/>
+  <line x1="8140" y1="2708" x2="10185" y2="2708" stroke-width="14"/>
+  <rect x="11200" y="2450" width="1995" height="380"/>
+  <line x1="11200" y1="2572" x2="13195" y2="2572" stroke-width="14"/>
+  <line x1="11200" y1="2708" x2="13195" y2="2708" stroke-width="14"/>
+  <rect x="1005" y="13580" width="1945" height="380"/>
+  <line x1="1005" y1="13702" x2="2950" y2="13702" stroke-width="14"/>
+  <line x1="1005" y1="13838" x2="2950" y2="13838" stroke-width="14"/>
+  <rect x="11005" y="13580" width="1590" height="380"/>
+  <line x1="11005" y1="13702" x2="12595" y2="13702" stroke-width="14"/>
+  <line x1="11005" y1="13838" x2="12595" y2="13838" stroke-width="14"/>
+  <rect x="14885" y="13580" width="930" height="380"/>
+  <line x1="14885" y1="13702" x2="15815" y2="13702" stroke-width="14"/>
+  <line x1="14885" y1="13838" x2="15815" y2="13838" stroke-width="14"/>
+  <rect x="-190" y="8580" width="380" height="940"/>
+  <line x1="-68" y1="8580" x2="-68" y2="9520" stroke-width="14"/>
+  <line x1="68" y1="8580" x2="68" y2="9520" stroke-width="14"/>
+  <rect x="17840" y="8375" width="380" height="780"/>
+  <line x1="17962" y1="8375" x2="17962" y2="9155" stroke-width="14"/>
+  <line x1="18098" y1="8375" x2="18098" y2="9155" stroke-width="14"/>
+  </g><g id="doors" fill="none" stroke="#1a1a1a" stroke-width="18">
+  <line x1="6865" y1="13580" x2="6865" y2="14675"/>
+  <path d="M 5770 13580 A 1095 1095 0 0 1 6865 14675"/>
+  <line x1="8845" y1="13580" x2="8845" y2="14715"/>
+  <path d="M 7710 13580 A 1135 1135 0 0 1 8845 14715"/>
+  </g><g id="in_doors" fill="none" stroke="#1a1a1a" stroke-width="16">
+  <line x1="13800" y1="4100" x2="14800" y2="4100"/>
+  <path d="M 13800 5100 A 1000 1000 0 0 1 14800 4100"/>
+  <line x1="2600" y1="8010" x2="2600" y2="7110"/>
+  <path d="M 3500 8010 A 900 900 0 0 0 2600 7110"/>
+  <line x1="6300" y1="8010" x2="6300" y2="7110"/>
+  <path d="M 7200 8010 A 900 900 0 0 0 6300 7110"/>
+  <line x1="2490" y1="8600" x2="3390" y2="8600"/>
+  <path d="M 2490 9500 A 900 900 0 0 1 3390 8600"/>
+  <line x1="3510" y1="11500" x2="4410" y2="11500"/>
+  <path d="M 3510 12400 A 900 900 0 0 1 4410 11500"/>
+  <line x1="5230" y1="11500" x2="6130" y2="11500"/>
+  <path d="M 5230 12400 A 900 900 0 0 1 6130 11500"/>
+  <line x1="9510" y1="11500" x2="10410" y2="11500"/>
+  <path d="M 9510 12400 A 900 900 0 0 1 10410 11500"/>
+  <line x1="15000" y1="7660" x2="15000" y2="6760"/>
+  <path d="M 15900 7660 A 900 900 0 0 0 15000 6760"/>
+  <line x1="15000" y1="11940" x2="15000" y2="11040"/>
+  <path d="M 15900 11940 A 900 900 0 0 0 15000 11040"/>
+  </g>
+  <g id="terraces" fill="none" stroke="#1a1a1a" stroke-width="16"><rect x="7450" y="0" width="6490" height="2640"/><rect x="4935" y="13770" width="4750" height="2450"/></g>
+<g id="dimensions">
+    <line class="ext" x1="0" y1="0" x2="-1020" y2="0"/><line class="ext" x1="0" y1="2640" x2="-1020" y2="2640"/><line class="ext" x1="0" y1="3590" x2="-1020" y2="3590"/><line class="ext" x1="0" y1="10010" x2="-1020" y2="10010"/><line class="ext" x1="0" y1="13770" x2="-1020" y2="13770"/><line class="ext" x1="0" y1="16220" x2="-1020" y2="16220"/><g class="dim">
+      <line x1="-980" y1="0" x2="-980" y2="2640"/>
+      <line x1="-1050" y1="0" x2="-910" y2="0"/>
+      <line x1="-1050" y1="2640" x2="-910" y2="2640"/>
+      <g transform="translate(-1140,1320) rotate(-90)">
+        <g class="upright"><text class="dimnum">2640</text></g>
+      </g>
+    </g><g class="dim">
+      <line x1="-980" y1="2640" x2="-980" y2="3590"/>
+      <line x1="-1050" y1="2640" x2="-910" y2="2640"/>
+      <line x1="-1050" y1="3590" x2="-910" y2="3590"/>
+      <g transform="translate(-1140,3115) rotate(-90)">
+        <g class="upright"><text class="dimnum">950</text></g>
+      </g>
+    </g><g class="dim">
+      <line x1="-980" y1="3590" x2="-980" y2="10010"/>
+      <line x1="-1050" y1="3590" x2="-910" y2="3590"/>
+      <line x1="-1050" y1="10010" x2="-910" y2="10010"/>
+      <g transform="translate(-1140,6800) rotate(-90)">
+        <g class="upright"><text class="dimnum">6420</text></g>
+      </g>
+    </g><g class="dim">
+      <line x1="-980" y1="10010" x2="-980" y2="13770"/>
+      <line x1="-1050" y1="10010" x2="-910" y2="10010"/>
+      <line x1="-1050" y1="13770" x2="-910" y2="13770"/>
+      <g transform="translate(-1140,11890) rotate(-90)">
+        <g class="upright"><text class="dimnum">3760</text></g>
+      </g>
+    </g><g class="dim">
+      <line x1="-980" y1="13770" x2="-980" y2="16220"/>
+      <line x1="-1050" y1="13770" x2="-910" y2="13770"/>
+      <line x1="-1050" y1="16220" x2="-910" y2="16220"/>
+      <g transform="translate(-1140,14995) rotate(-90)">
+        <g class="upright"><text class="dimnum">2450</text></g>
+      </g>
+    </g><line class="ext" x1="0" y1="0" x2="-1800" y2="0"/><line class="ext" x1="0" y1="16220" x2="-1800" y2="16220"/><g class="dim">
+      <line x1="-1760" y1="0" x2="-1760" y2="16220"/>
+      <line x1="-1830" y1="0" x2="-1690" y2="0"/>
+      <line x1="-1830" y1="16220" x2="-1690" y2="16220"/>
+      <g transform="translate(-1940,8110) rotate(-90)">
+        <g class="upright"><text class="dimnum">16220</text></g>
+      </g>
+    </g><line class="ext" x1="0" y1="16220" x2="0" y2="17180"/><line class="ext" x1="7450" y1="16220" x2="7450" y2="17180"/><line class="ext" x1="13940" y1="16220" x2="13940" y2="17180"/><line class="ext" x1="18030" y1="16220" x2="18030" y2="17180"/><g class="dim">
+      <line x1="0" y1="17140" x2="7450" y2="17140"/>
+      <line x1="0" y1="17070" x2="0" y2="17210"/>
+      <line x1="7450" y1="17070" x2="7450" y2="17210"/>
+      <g transform="translate(3725,17140)">
+        <g class="upright"><text class="dimnum" y="-90">7450</text></g>
+      </g>
+    </g><g class="dim">
+      <line x1="7450" y1="17140" x2="13940" y2="17140"/>
+      <line x1="7450" y1="17070" x2="7450" y2="17210"/>
+      <line x1="13940" y1="17070" x2="13940" y2="17210"/>
+      <g transform="translate(10695,17140)">
+        <g class="upright"><text class="dimnum" y="-90">6490</text></g>
+      </g>
+    </g><g class="dim">
+      <line x1="13940" y1="17140" x2="18030" y2="17140"/>
+      <line x1="13940" y1="17070" x2="13940" y2="17210"/>
+      <line x1="18030" y1="17070" x2="18030" y2="17210"/>
+      <g transform="translate(15985,17140)">
+        <g class="upright"><text class="dimnum" y="-90">4090</text></g>
+      </g>
+    </g><line class="ext" x1="0" y1="16220" x2="0" y2="18060"/><line class="ext" x1="18030" y1="16220" x2="18030" y2="18060"/><g class="dim">
+      <line x1="0" y1="18020" x2="18030" y2="18020"/>
+      <line x1="0" y1="17950" x2="0" y2="18090"/>
+      <line x1="18030" y1="17950" x2="18030" y2="18090"/>
+      <g transform="translate(9015,18020)">
+        <g class="upright"><text class="dimnum" y="-90">18030</text></g>
+      </g>
+    </g><line class="ext" x1="0" y1="18020" x2="0" y2="18880"/><g transform="translate(0,18880)">
+      <circle class="axis" r="210"/>
+      <g class="upright"><text class="axisnum">А</text></g>
+    </g><line class="ext" x1="7450" y1="18020" x2="7450" y2="18880"/><g transform="translate(7450,18880)">
+      <circle class="axis" r="210"/>
+      <g class="upright"><text class="axisnum">Б</text></g>
+    </g><line class="ext" x1="13940" y1="18020" x2="13940" y2="18880"/><g transform="translate(13940,18880)">
+      <circle class="axis" r="210"/>
+      <g class="upright"><text class="axisnum">В</text></g>
+    </g><line class="ext" x1="18030" y1="18020" x2="18030" y2="18880"/><g transform="translate(18030,18880)">
+      <circle class="axis" r="210"/>
+      <g class="upright"><text class="axisnum">Г</text></g>
+    </g><line class="ext" x1="-1760" y1="0" x2="-2480" y2="0"/><g transform="translate(-2480,0)">
+      <circle class="axis" r="210"/>
+      <g class="upright"><text class="axisnum">6</text></g>
+    </g><line class="ext" x1="-1760" y1="2640" x2="-2480" y2="2640"/><g transform="translate(-2480,2640)">
+      <circle class="axis" r="210"/>
+      <g class="upright"><text class="axisnum">5</text></g>
+    </g><line class="ext" x1="-1760" y1="3590" x2="-2480" y2="3590"/><g transform="translate(-2480,3590)">
+      <circle class="axis" r="210"/>
+      <g class="upright"><text class="axisnum">4</text></g>
+    </g><line class="ext" x1="-1760" y1="10010" x2="-2480" y2="10010"/><g transform="translate(-2480,10010)">
+      <circle class="axis" r="210"/>
+      <g class="upright"><text class="axisnum">3</text></g>
+    </g><line class="ext" x1="-1760" y1="13770" x2="-2480" y2="13770"/><g transform="translate(-2480,13770)">
+      <circle class="axis" r="210"/>
+      <g class="upright"><text class="axisnum">2</text></g>
+    </g><line class="ext" x1="-1760" y1="16220" x2="-2480" y2="16220"/><g transform="translate(-2480,16220)">
+      <circle class="axis" r="210"/>
+      <g class="upright"><text class="axisnum">1</text></g>
+    </g>
+  </g>
+  <g id="labels">
+    <g transform="translate(1960,5920)">
+      <g class="upright">
+        <text class="rname" y="-150">Детская-1</text>
+        <text class="rarea" y="90">14,26<tspan class="rsize" dx="90">3,42×4,17</tspan></text>
+      </g>
+    </g><g transform="translate(5570,5920)">
+      <g class="upright">
+        <text class="rname" y="-150">Детская-2</text>
+        <text class="rarea" y="90">14,38<tspan class="rsize" dx="90">3,45×4,17</tspan></text>
+      </g>
+    </g><g transform="translate(1400,9150)">
+      <g class="upright">
+        <text class="rname" y="-150">Ванная</text>
+        <text class="rarea" y="90">4,40<tspan class="rsize" dx="90">2,30×1,91</tspan></text>
+      </g>
+    </g><g transform="translate(5010,9150)">
+      <g class="upright">
+        <text class="rname" y="-150">Холл</text>
+        <text class="rarea" y="90">8,75<tspan class="rsize" dx="90">4,57×1,91</tspan></text>
+      </g>
+    </g><g transform="translate(1860,12090)">
+      <g class="upright">
+        <text class="rname" y="-150">Кабинет</text>
+        <text class="rarea" y="90">11,63<tspan class="rsize" dx="90">3,22×3,62</tspan></text>
+      </g>
+    </g><g transform="translate(4920,12400)">
+      <g class="upright">
+        <text class="rname" style="font-size:190px" y="-200">Гардероб</text>
+        <text class="rarea" style="font-size:170px" y="10">5,88</text>
+        <text class="rsize" y="190">1,63×3,62</text>
+      </g>
+    </g><g transform="translate(6380,11850)">
+      <g class="upright">
+        <text class="rname" y="-150">Прихожая</text>
+        <text class="rarea" y="90">6,68<tspan class="rsize" dx="90">1,85×3,62</tspan></text>
+      </g>
+    </g><g transform="translate(8540,12090)">
+      <g class="upright">
+        <text class="rname" y="-150">Котельная</text>
+        <text class="rarea" y="90">6,77<tspan class="rsize" dx="90">1,87×3,62</tspan></text>
+      </g>
+    </g><g transform="translate(12350,1320)">
+      <g class="upright">
+        <text class="rname" y="-150">Терраса</text>
+        <text class="rarea" y="90">18,77<tspan class="rsize" dx="90">7,11×2,64</tspan></text>
+      </g>
+    </g><g transform="translate(10700,7800)">
+      <g class="upright">
+        <text class="rname" y="-150">Гостиная</text>
+        <text class="rarea" y="90">43,97<tspan class="rsize" dx="90">6,19×7,10</tspan></text>
+      </g>
+    </g><g transform="translate(11720,12200)">
+      <g class="upright">
+        <text class="rname" y="-150">Кухня</text>
+        <text class="rarea" y="90">14,97<tspan class="rsize" dx="90">4,14×3,62</tspan></text>
+      </g>
+    </g><g transform="translate(15940,6800)">
+      <g class="upright">
+        <text class="rname" y="-150">Мастер-спальня</text>
+        <text class="rarea" y="90">14,33<tspan class="rsize" dx="90">3,69×3,88</tspan></text>
+      </g>
+    </g><g transform="translate(15940,9000)">
+      <g class="upright">
+        <text class="rname" y="-150">Гардероб</text>
+        <text class="rarea" y="90">7,98<tspan class="rsize" dx="90">3,69×2,16</tspan></text>
+      </g>
+    </g><g transform="translate(16650,10950)">
+      <g class="upright">
+        <text class="rname" y="-150">С/у</text>
+        <text class="rarea" y="90">7,11<tspan class="rsize" dx="90">3,69×1,93</tspan></text>
+      </g>
+    </g><g transform="translate(15940,13200)">
+      <g class="upright">
+        <text class="rname" y="-150">Кладовая</text>
+        <text class="rarea" y="90">6,23<tspan class="rsize" dx="90">3,69×1,69</tspan></text>
+      </g>
+    </g><g transform="translate(7290,15920)">
+      <g class="upright">
+        <text class="rname" y="-150">Крыльцо</text>
+        <text class="rarea" y="90">11,31<tspan class="rsize" dx="90">4,72×2,40</tspan></text>
+      </g>
+    </g>
+  </g>
+</g>
+</svg>

@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "./vendor/OrbitControls.js";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
 import geo from "./geometry.js?v=21";
-import { FURNITURE_LINES } from "./furniture-sketch.js?v=3";
+import { FURNITURE_LINES } from "./furniture-sketch.js?v=4";
 import { WALL_LINES } from "./wall-sketch.js?v=2";
 
 const panel = document.getElementById("panel");
@@ -1039,6 +1039,12 @@ function addSite() {
   // Западная дорога в 5 м от границы, на кадастре её нет.
   addSlab([[-25.49, roadNear], [-17.88, -5.255], [-22.796, -6.164], [-30.575, roadNear]], 0.0, 0.02, 0xe3e3e0, false);
   addSlab(plot, 0.0, 0.02, 0xb7d48c, false);
+  // Зона подъезда от дороги к воротам и калитке — мощение тротуарной плиткой.
+  // В sharedGroup, чтобы была видна на всех вариантах.
+  addSlab(
+    [[gateX0 - 1, fenceY - 0.25], [kalX1 + 1, fenceY - 0.25], [kalX1 + 1, roadNear], [gateX0 - 1, roadNear]],
+    0.03, 0.035, 0xe6d3b0, false
+  );
   bucket = northGroup;
 
   // Напротив ворот и на 1,5 м глубже прежнего места: перед воротами гаража
@@ -3376,11 +3382,10 @@ function addDreamHouse(group, site) {
     winLiveV(12.94, 14.44),
   ], wallTop, V2_BRICK);
   wallU(uW, vS - extHalf, vN + extHalf, ext, [
-    holeV(0.22, 0.81, bathSill, head),
-    holeV(2.18, 3.17, bathSill, head),
+    holeV(-0.19, 0.81, bathSill, head),
     winLiveV(4.48, 5.98),
     winLiveV(8.84, 9.84),
-    holeV(11.52, 12.52, bathSill, head),
+    holeV(11.27, 12.27, bathSill, head),
     holeV(13.09, 14.08, bathSill, head),
   ], wallTop, V2_BRICK);
   wallV(vN, uE - extHalf, uW + extHalf, ext, [
@@ -3390,7 +3395,10 @@ function addDreamHouse(group, site) {
     // Маленькое окно постирочной по центру её наружной стены.
     holeU(14.02, 14.82, bathSill, head),
   ], wallTop, V2_BRICK);
-  wallV(vS, uT - extHalf, uW + extHalf, ext, [winLiveU(10.89, 12.39)], wallTop, V2_BRICK);
+  wallV(vS, uT - extHalf, uW + extHalf, ext, [
+    winLiveU(10.89, 12.39),
+    winLiveU(15.08, 16.58),
+  ], wallTop, V2_BRICK);
   wallU(uT, vS - extHalf, vT + extHalf, ext, [], wallTop, V2_BRICK);
   // Поперечная несущая продолжается внутрь дома до продольной стены.
   wallV(vT, uE - extHalf, uBear + extHalf, ext, [
