@@ -2959,10 +2959,9 @@ function addVariant2() {
   v2wallV(10.02, 14.13, 17.86, 0.12, [door(14.23, 15.03)], 2.7, V2_PART);
   v2wallV(12.06, 14.13, 17.86, 0.12, [], 2.7, V2_PART);
 
-  // Терраса: одна угловая колонна — точно в углу террасы (u7,11; v0).
-  v2box(7.11, 0.00, 7.37, 0.26, 0.18, 2.95, 0x6b5344);
-  // Колонны крыльца — сближены и касаются ступеней (ступени u5,45..7,15).
-  for (const u of [5.50, 7.10]) v2box(u - 0.15, 15.92, u + 0.15, 16.22, 0.16, 2.85, 0x6b5344);
+  for (const u of [7.3, 14.05]) v2box(u - 0.14, 0.05, u + 0.14, 0.33, 0.18, 2.95, 0x6b5344);
+  v2box(10.56, 0.05, 10.84, 0.33, 0.18, 5.05, 0x6b5344);
+  for (const u of [5.25, 9.35]) v2box(u - 0.16, 15.7, u + 0.16, 16.05, 0.16, 2.85, 0x6b5344);
   const stepN = 3;
   const stepGround = 0.05;
   const stepTop = V2_PLINTH + 0.18;
@@ -3127,9 +3126,8 @@ function addVariant2() {
     return [e, z + V2_PLINTH, n];
   };
   // С угла карниза по биссектрисе к углу стены, вниз по углу и отлив наружу по той же биссектрисе.
-  const spout = (gu, gv, wu, wv, zTop = gutterLo + 0.03) => {
+  const spout = (gu, gv, wu, wv, zTop = gutterLo + 0.03, zWallBot = 0.12, zEnd = 0.02, zOut = -0.1) => {
     const zBend = fasciaLo - 0.22;
-    const zWallBot = 0.12;
     const beam = (ua, va, za, ub, vb, zb) => asRoof(addBeam(
       uvWorld(ua, va, za), uvWorld(ub, vb, zb), pipe, gutterC
     ));
@@ -3142,8 +3140,8 @@ function addVariant2() {
     const kick = 0.2;
     const ku = wu + (ox / len) * kick;
     const kv = wv + (oy / len) * kick;
-    beam(wu, wv, zWallBot, ku, kv, 0.02);
-    beam(ku, kv, -0.1, ku, kv, 0.08);
+    beam(wu, wv, zWallBot, ku, kv, zEnd);
+    beam(ku, kv, zOut, ku, kv, zEnd + 0.06);
   };
   const gMid = board + gutterW / 2;
   spout(u0 - gMid, v0 - gMid, -0.19 - 0.05, 3.4 - 0.05);
@@ -3152,12 +3150,12 @@ function addVariant2() {
   spout(u1 + gMid, v1 + gMid, 18.22 + 0.05, 13.96 + 0.05);
   const pv = pFront + gutterW / 2;
   const porchClear = 0.12;
-  spout(pL + pipe / 2, pv, 5.34, 16.22);
-  spout(pR - pipe / 2, pv, 7.26, 16.22);
-  // Углы кровли террасы: водосточную трубу заводим в наружные столбы (скрытый водосток).
+  spout(pL + pipe / 2, pv, 5.06, 16.08, gutterLo + 0.03, 0.22, 0.20, 0.18);
+  spout(pR - pipe / 2, pv, 9.55, 16.08, gutterLo + 0.03, 0.22, 0.20, 0.18);
+  // Углы кровли террасы: от кромки крыши к наружным столбам, без жёлоба по их линии.
   const terraceTop = fasciaLo - pipe / 2 + 0.02;
-  spout(gL - pipe / 2, gf - pipe / 2, gL - pipe / 2, -0.05, terraceTop);
-  spout(gR + pipe / 2, gf - pipe / 2, gR + pipe / 2, -0.05, terraceTop);
+  spout(gL - pipe / 2, gf - pipe / 2, 7.16 - 0.06, 0.05 - 0.06, terraceTop);
+  spout(gR + pipe / 2, gf - pipe / 2, 14.19 + 0.06, 0.05 - 0.06, terraceTop);
 
   // Подписи и пунктир границ на полу. Прямоугольник — чистый размер между гранями стен.
   addFloorNotes([
