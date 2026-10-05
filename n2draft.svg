@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="330.27mm"
-   height="163.28mm"
-   viewBox="0 0 330.27 163.28"
+   width="360mm"
+   height="230mm"
+   viewBox="-8 -14 360 230"
    version="1.1"
    id="svg5"
    inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
@@ -62,36 +62,36 @@
      inkscape:groupmode="layer"
      id="layer1"><rect
        id="page-floor"
-       x="0.48584104"
-       y="0.18554039"
-       width="330.26999"
-       height="163.28"
+       x="-8"
+       y="-14"
+       width="360"
+       height="230"
        fill="#ffffff"
        stroke="none" /><text
        id="scale-note"
        x="8"
        y="8"
-       style="font-family:sans-serif;font-weight:bold;font-size:3.2px;fill:#222222;stroke:none">М 1:100. 1 м = 10 мм. Габариты 21,99 × 11,58 м</text><rect
+       style="font-family:sans-serif;font-weight:bold;font-size:3.2px;fill:#222222;stroke:none">М 1:100. 1 м = 10 мм. Габариты 22,00 × 12,00 м</text><g id="site-extras"><path id="otmostka" fill="#e4e4e4" stroke="#8d8d8d" stroke-width="0.25" fill-rule="evenodd" d="M 20.12,11.36 L 120.12,11.36 L 120.12,-3.64 L 160.12,-3.64 L 160.12,11.36 L 260.12,11.36 L 260.12,151.36 L 181.81,151.36 L 181.81,168.61 L 98.56,168.61 L 98.56,151.36 L 20.12,151.36 Z M 30.12,141.36 L 108.56,141.36 L 108.56,158.61 L 171.81,158.61 L 171.81,141.36 L 250.12,141.36 L 250.12,21.36 L 150.12,21.36 L 150.12,6.36 L 130.12,6.36 L 130.12,21.36 L 30.12,21.36 Z"/><path id="roof" fill="#c5daf6" fill-opacity="0.85" stroke="#1a56c4" stroke-width="0.4" fill-rule="evenodd" d="M 24.12,15.36 L 127.12,15.36 L 127.12,3.36 L 153.12,3.36 L 153.12,15.36 L 256.12,15.36 L 256.12,147.36 L 174.81,147.36 L 174.81,161.61 L 105.56,161.61 L 105.56,147.36 L 24.12,147.36 Z M 30.12,141.36 L 108.56,141.36 L 108.56,158.61 L 171.81,158.61 L 171.81,141.36 L 250.12,141.36 L 250.12,21.36 L 150.12,21.36 L 150.12,6.36 L 130.12,6.36 L 130.12,21.36 L 30.12,21.36 Z"/><rect id="terrace-slab" x="108.56" y="141.36" width="63.25" height="14.25" fill="#f4f1ea" stroke="none"/><rect id="porch" x="130.12" y="6.36" width="20" height="15" fill="#f7f4ee" stroke="none"/></g><rect id="porch-w" x="130.12" y="6.36" width="1.5" height="15" fill="#000000"/><rect id="porch-e" x="148.62" y="6.36" width="1.5" height="15" fill="#000000"/><rect id="porch-n" x="130.12" y="6.36" width="20" height="1.5" fill="#000000"/><rect id="col-w" x="108.56" y="155.61" width="3" height="3" fill="#000000"/><rect id="col-c" x="138.685" y="155.61" width="3" height="3" fill="#000000"/><rect id="col-e" x="168.81" y="155.61" width="3" height="3" fill="#000000"/><text id="text-porch" x="140.12" y="12.2" text-anchor="middle" style="font-family:sans-serif;font-weight:bold;font-size:2.6px;fill:#000000"><tspan x="140.12" y="12.2">крыльцо</tspan><tspan x="140.12" y="15.0" style="font-size:2px;font-weight:bold">2,00×1,50 м</tspan></text><text id="text-blind" x="8" y="168" style="font-family:sans-serif;font-weight:bold;font-size:2.4px;fill:#555555">отмостка 1 м</text><text id="text-roof" x="8" y="172" style="font-family:sans-serif;font-weight:bold;font-size:2.4px;fill:#1a56c4">свес крыши 0,60 м, над крыльцом и террассой 0,30 м</text><rect
        style="fill:#000000;stroke:none;stroke-width:0.97408;stroke-dasharray:none"
        id="rect4516"
-       width="2.9971943"
-       height="219.88019"
+       width="2.997194"
+       height="220.003270"
        x="-24.361158"
-       y="-249.99692"
+       y="-250.120000"
        transform="matrix(0,-1,-1,0,0,0)" /><rect
        style="fill:#000000;stroke:none;stroke-width:0.637996;stroke-dasharray:none"
        id="rect4718"
-       width="3.03"
-       height="93.304901"
+       width="3.030000"
+       height="117.679231"
        x="30.285297"
-       y="-116.98567"
+       y="-141.360000"
        transform="scale(1,-1)" /><rect
        style="fill:#000000;stroke:none;stroke-width:0.649714;stroke-dasharray:none"
        id="rect4720"
-       width="3.03"
-       height="96.76387"
-       x="247.08235"
-       y="-119.05836"
+       width="3.030000"
+       height="119.065510"
+       x="247.090000"
+       y="-141.360000"
        transform="scale(1,-1)" /><rect
        style="fill:#000000;stroke:none;stroke-width:0.586091;stroke-dasharray:none"
        id="rect4722"
@@ -99,13 +99,13 @@
        height="79.602615"
        x="-119.86821"
        y="-109.83726"
-       transform="matrix(0,-1,-1,0,0,0)" /><rect
+       transform="translate(0.000000,21.490000) matrix(0,-1,-1,0,0,0)" /><rect
        style="fill:#000000;stroke:none;stroke-width:0.58472;stroke-dasharray:none"
        id="rect4724"
-       width="2.9971943"
-       height="79.230583"
-       x="-119.86821"
-       y="-249.96922"
+       width="2.997194"
+       height="79.381363"
+       x="-141.358210"
+       y="-250.120000"
        transform="matrix(0,-1,-1,0,0,0)" /><rect
        style="fill:#000000;stroke:none;stroke-width:0.512606;stroke-dasharray:none"
        id="rect4726"
@@ -113,20 +113,20 @@
        height="60.233158"
        x="95.84523"
        y="109.95277"
-       transform="matrix(0,1,1,0,0,0)" /><rect
+       transform="translate(0.000000,21.490000) matrix(0,1,1,0,0,0)" /><rect
        style="fill:#000000;stroke:none;stroke-width:0.478488;stroke-dasharray:none"
        id="rect4728"
-       width="3.03"
-       height="52.482269"
-       x="108.56242"
-       y="-137.04137"
+       width="3.030000"
+       height="35.310899"
+       x="108.562420"
+       y="-141.360000"
        transform="scale(1,-1)" /><rect
        style="fill:#000000;stroke:none;stroke-width:0.422148;stroke-dasharray:none"
        id="rect4730"
-       width="3.03"
-       height="40.850628"
-       x="168.78177"
-       y="-137.12613"
+       width="3.030000"
+       height="23.594498"
+       x="168.781770"
+       y="-141.360000"
        transform="scale(1,-1)" /><rect
        style="fill:#000000;stroke:none;stroke-width:0.606494;stroke-dasharray:none"
        id="rect4734"
@@ -134,14 +134,14 @@
        height="84.318565"
        x="-62.602009"
        y="-249.88564"
-       transform="matrix(0,-1,-1,0,0,0)" /><rect
+       transform="translate(0.000000,21.490000) matrix(0,-1,-1,0,0,0)" /><rect
        style="fill:#000000;stroke:none;stroke-width:0.471232;stroke-dasharray:none"
        id="rect4736"
        width="3.03"
        height="50.902676"
        x="-87.32856"
        y="-111.45483"
-       transform="matrix(0,-1,-1,0,0,0)" /><rect
+       transform="translate(0.000000,21.490000) matrix(0,-1,-1,0,0,0)" /><rect
        style="fill:#000000;stroke:none;stroke-width:0.762017;stroke-dasharray:none"
        id="rect4744"
        width="3"
@@ -151,38 +151,38 @@
        transform="matrix(0,-1,-1,0,0,0)" /><rect
        style="fill:#000000;stroke:none;stroke-width:0.290355;stroke-dasharray:none"
        id="rect4746"
-       width="1.5"
-       height="39.037655"
-       x="227.51044"
-       y="-61.936214"
+       width="1.500000"
+       height="60.527655"
+       x="227.510440"
+       y="-83.426214"
        transform="scale(1,-1)" /><rect
        style="fill:#000000;stroke:none;stroke-width:0.454599;stroke-dasharray:none"
        id="rect4748"
-       width="1.5"
-       height="95.693665"
-       x="208.6969"
-       y="-118.47812"
+       width="1.500000"
+       height="117.183665"
+       x="208.696900"
+       y="-139.968120"
        transform="scale(1,-1)" /><rect
        style="fill:#000000;stroke:none;stroke-width:0.286784;stroke-dasharray:none"
        id="rect4754"
-       width="1.5"
-       height="38.083241"
-       x="165.07164"
-       y="-61.890148"
+       width="1.500000"
+       height="59.573241"
+       x="165.071640"
+       y="-83.380148"
        transform="scale(1,-1)" /><rect
        style="fill:#000000;stroke:none;stroke-width:0.282821;stroke-dasharray:none"
        id="rect4756"
-       width="1.5"
-       height="37.038113"
-       x="132.28777"
-       y="-60.565533"
+       width="1.500000"
+       height="58.528113"
+       x="132.287770"
+       y="-82.055533"
        transform="scale(1,-1)" /><rect
        style="fill:#000000;stroke:none;stroke-width:0.210143;stroke-dasharray:none"
        id="rect4758"
-       width="1.5058028"
-       height="20.369715"
-       x="112.27909"
-       y="-62.058163"
+       width="1.505803"
+       height="41.859715"
+       x="112.279090"
+       y="-83.548163"
        transform="scale(1,-1)" /><rect
        style="fill:#000000;stroke:none;stroke-width:0.212612;stroke-dasharray:none"
        id="rect4760"
@@ -190,35 +190,28 @@
        height="20.931517"
        x="-62.027401"
        y="-133.86026"
-       transform="matrix(0,-1,-1,0,0,0)" /><rect
+       transform="translate(0.000000,21.490000) matrix(0,-1,-1,0,0,0)" /><rect
        style="fill:#000000;stroke:none;stroke-width:0.254499;stroke-dasharray:none"
        id="rect4766"
-       width="1.5"
-       height="29.991489"
+       width="1.500000"
+       height="51.481489"
        x="75.263092"
-       y="-71.903046"
+       y="-93.393046"
        transform="scale(1,-1)" /><rect
        style="fill:#000000;stroke:none;stroke-width:0.251371;stroke-dasharray:none"
        id="rect4768"
-       width="1.5"
-       height="29.25877"
+       width="1.500000"
+       height="50.748770"
        x="51.759678"
-       y="-71.399048"
+       y="-92.889048"
        transform="scale(1,-1)" /><rect
-       style="fill:#000000;stroke:none;stroke-width:0.363779;stroke-dasharray:none"
-       id="rect4944"
-       width="1.5"
-       height="61.277176"
-       x="-137.11583"
-       y="-171.00665"
-       transform="matrix(0,-1,-1,0,0,0)" /><rect
        style="fill:#000000;stroke:none;stroke-width:0.306941;stroke-dasharray:none"
        id="rect5456"
        width="1.5"
        height="43.624901"
        x="-72.508362"
        y="-76.651985"
-       transform="matrix(0,-1,-1,0,0,0)" /><text xml:space="preserve" x="67.740" y="29.990" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text36"><tspan x="67.740" y="29.990" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan30">котельная-хозблок</tspan><tspan x="67.740" y="33.390" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan32">6,88×1,71 м</tspan><tspan x="67.740" y="35.790" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan32b">11,7 м²</tspan></text><g
+       transform="translate(0.000000,21.490000) matrix(0,-1,-1,0,0,0)" /><text xml:space="preserve" x="67.740" y="29.990" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text36"><tspan x="67.740" y="29.990" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan30">котельная-хозблок</tspan><tspan x="67.740" y="33.390" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan32">6,88×1,71 м</tspan><tspan x="67.740" y="35.790" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan32b">11,7 м²</tspan></text><g
        id="g884"
        style="opacity:0.3"
        transform="matrix(0,9.8392112,-15.709732,0,1604.4993,-572.79654)"><rect
@@ -319,7 +312,7 @@
          height="0.48062748"
          x="83.709579"
          y="-76.454895"
-         transform="rotate(99.078583)" /></g><text xml:space="preserve" x="117.980" y="28.290" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text46"><tspan x="117.980" y="28.290" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan38">входной</tspan><tspan x="117.980" y="31.690" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan40">гардероб</tspan><tspan x="117.980" y="35.090" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan42">2,86×1,71 м</tspan><tspan x="117.980" y="37.490" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan44">4,9 м²</tspan></text><text xml:space="preserve" x="149.430" y="29.990" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text54"><tspan x="149.430" y="29.990" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan48">тамбур</tspan><tspan x="149.430" y="33.390" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan50">3,13×1,71 м</tspan><tspan x="149.430" y="35.790" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan52">5,3 м²</tspan></text><text xml:space="preserve" x="46.515" y="91.790" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text70"><tspan x="46.515" y="91.790" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan64">кабинет</tspan><tspan x="46.515" y="95.190" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan66">2,64×4,44 м</tspan><tspan x="46.515" y="97.590" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan68">11,7 м²</tspan></text><text xml:space="preserve" x="64.260" y="54.815" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text78"><tspan x="64.260" y="54.815" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan72">с/у 2</tspan><tspan x="64.260" y="58.215" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan74">2,20×2,66 м</tspan><tspan x="64.260" y="60.615" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan76">5,8 м²</tspan></text><g
+         transform="rotate(99.078583)" /></g><text xml:space="preserve" x="117.980" y="28.290" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text46"><tspan x="117.980" y="28.290" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan38">входной</tspan><tspan x="117.980" y="31.690" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan40">гардероб</tspan><tspan x="117.980" y="35.090" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan42">2,86×1,71 м</tspan><tspan x="117.980" y="37.490" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan44">4,9 м²</tspan></text><text xml:space="preserve" x="149.430" y="29.990" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text54"><tspan x="149.430" y="29.990" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan48">тамбур</tspan><tspan x="149.430" y="33.390" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan50">3,13×1,71 м</tspan><tspan x="149.430" y="35.790" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan52">5,3 м²</tspan></text><text xml:space="preserve" x="46.515" y="113.280" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text70"><tspan x="46.515" y="113.280" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan64">кабинет</tspan><tspan x="46.515" y="116.680" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan66">2,64×4,44 м</tspan><tspan x="46.515" y="119.080" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan68">11,7 м²</tspan></text><text xml:space="preserve" x="64.260" y="65.560" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text78"><tspan x="64.260" y="65.560" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan72">с/у 2</tspan><tspan x="64.260" y="68.960" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan74">2,20×4,81 м</tspan><tspan x="64.260" y="71.360" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan76">10,6 м²</tspan></text><g
        id="g833"
        transform="matrix(0,10.008765,-9.749703,0,1141.4066,-592.57578)"
        style="opacity:0.3"><rect
@@ -420,7 +413,7 @@
          height="0.48062748"
          x="83.709579"
          y="-76.454895"
-         transform="rotate(99.078583)" /></g><text xml:space="preserve" x="84.885" y="99.200" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text118"><tspan x="84.885" y="99.200" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan112">спальня 2</tspan><tspan x="84.885" y="102.600" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan114">4,74×2,95 м</tspan><tspan x="84.885" y="105.000" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan116">14,0 м²</tspan></text><text xml:space="preserve" x="187.635" y="39.065" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text126"><tspan x="187.635" y="39.065" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan120">спальня 1</tspan><tspan x="187.635" y="42.465" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan122">4,21×3,52 м</tspan><tspan x="187.635" y="44.865" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan124">14,8 м²</tspan></text><text xml:space="preserve" x="228.640" y="86.835" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text134"><tspan x="228.640" y="86.835" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan128">мастер-спальня</tspan><tspan x="228.640" y="90.235" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan130">3,69×5,43 м</tspan><tspan x="228.640" y="92.635" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan132">20,0 м²</tspan></text><text xml:space="preserve" x="140.185" y="114.350" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text142"><tspan x="140.185" y="114.350" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan136">террасса</tspan><tspan x="140.185" y="117.750" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan138">5,72×3,67 м</tspan><tspan x="140.185" y="120.150" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan140">21,0 м²</tspan></text><text xml:space="preserve" x="94.520" y="61.460" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text150"><tspan x="94.520" y="61.460" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan144">зал</tspan><tspan x="94.520" y="64.860" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan146">3,55×3,99 м</tspan><tspan x="94.520" y="67.260" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan148">16,0 м²</tspan></text><text xml:space="preserve" x="140.185" y="76.255" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text166"><tspan x="140.185" y="76.255" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan160">столовая</tspan><tspan x="140.185" y="79.655" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan162">5,72×3,34 м</tspan><tspan x="140.185" y="82.055" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan164">21,3 м²</tspan></text><g
+         transform="rotate(99.078583)" /></g><text xml:space="preserve" x="84.885" y="120.690" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text118"><tspan x="84.885" y="120.690" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan112">спальня 2</tspan><tspan x="84.885" y="124.090" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan114">4,74×2,95 м</tspan><tspan x="84.885" y="126.490" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan116">14,0 м²</tspan></text><text xml:space="preserve" x="187.635" y="49.810" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text126"><tspan x="187.635" y="49.810" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan120">спальня 1</tspan><tspan x="187.635" y="53.210" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan122">4,21×5,67 м</tspan><tspan x="187.635" y="55.610" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan124">23,9 м²</tspan></text><text xml:space="preserve" x="228.640" y="108.325" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text134"><tspan x="228.640" y="108.325" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan128">мастер-спальня</tspan><tspan x="228.640" y="111.725" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan130">3,69×5,43 м</tspan><tspan x="228.640" y="114.125" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan132">20,0 м²</tspan></text><text xml:space="preserve" x="140.185" y="135.090" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text142"><tspan x="140.185" y="135.090" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan136">террасса</tspan><tspan x="140.185" y="138.490" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan138">5,72×3,52 м</tspan><tspan x="140.185" y="140.890" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan140">20,2 м²</tspan></text><text xml:space="preserve" x="94.520" y="72.205" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text150"><tspan x="94.520" y="72.205" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan144">зал</tspan><tspan x="94.520" y="75.605" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan146">3,55×6,14 м</tspan><tspan x="94.520" y="78.005" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan148">23,6 м²</tspan></text><text xml:space="preserve" x="140.185" y="97.745" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text166"><tspan x="140.185" y="97.745" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan160">столовая</tspan><tspan x="140.185" y="101.145" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan162">5,72×3,34 м</tspan><tspan x="140.185" y="103.545" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan164">23,9 м²</tspan></text><g
        id="g1229"
        transform="matrix(10,0,0,10,-474.32066,-913.12292)"><rect
          style="fill:#ffffff;stroke:#000000;stroke-width:0.019057;stroke-dasharray:none"
@@ -552,7 +545,7 @@
        y="44.926891"
        style="opacity:1" /><g
        id="g5764"
-       transform="matrix(0,7.9044838,7.9044838,0,-606.87154,-431.52986)"><rect
+       transform="translate(0.000000,21.490000) matrix(0,7.9044838,7.9044838,0,-606.87154,-431.52986)"><rect
          style="fill:#ffffff;stroke:#000000;stroke-width:0.019057;stroke-dasharray:none"
          id="rect5758"
          width="0.98094302"
@@ -571,110 +564,20 @@
          style="fill:#ffffff;stroke:#000000;stroke-width:0.03;stroke-dasharray:0.06, 0.03;stroke-dashoffset:0"
          d="m 61.292596,93.479969 c 0.03156,-0.377529 0.154149,-0.509787 0.458551,-0.669102"
          id="path5762"
-         sodipodi:nodetypes="cc" /></g><text xml:space="preserve" x="123.035" y="49.575" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text86"><tspan x="123.035" y="49.575" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan80">с/у 3</tspan><tspan x="123.035" y="52.975" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan82">1,85×1,61 м</tspan><tspan x="123.035" y="55.375" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan84">3,0 м²</tspan></text><rect
-   id="area1"
-   x="34.120"
-   y="25.160"
-   width="67.240"
-   height="15.460"
-   style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect
-   id="area2"
-   x="104.470"
-   y="25.160"
-   width="27.020"
-   height="15.460"
-   style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect
-   id="area3"
-   x="134.590"
-   y="25.160"
-   width="29.680"
-   height="15.460"
-   style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect
-   id="area4"
-   x="167.370"
-   y="25.160"
-   width="40.530"
-   height="33.610"
-   style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect
-   id="area5"
-   x="34.120"
-   y="73.310"
-   width="24.790"
-   height="42.760"
-   style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect
-   id="area6"
-   x="54.060"
-   y="45.220"
-   width="20.400"
-   height="24.990"
-   style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect
-   id="area7"
-   x="114.580"
-   y="45.220"
-   width="16.910"
-   height="14.510"
-   style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect
-   id="area8"
-   x="211.000"
-   y="25.160"
-   width="15.710"
-   height="33.610"
-   style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect
-   id="area11"
-   x="62.010"
-   y="88.130"
-   width="45.750"
-   height="27.940"
-   style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect
-   id="area12"
-   x="148.150"
-   y="45.220"
-   width="16.120"
-   height="14.940"
-   style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect
-   id="area16"
-   x="172.610"
-   y="63.400"
-   width="35.290"
-   height="52.670"
-   style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect
-   id="area14"
-   x="112.390"
-   y="99.680"
-   width="55.590"
-   height="35.140"
-   style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect
+         sodipodi:nodetypes="cc" /></g><text xml:space="preserve" x="123.035" y="60.320" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text86"><tspan x="123.035" y="60.320" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan80">с/у 3</tspan><tspan x="123.035" y="63.720" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan82">1,85×3,76 м</tspan><tspan x="123.035" y="66.120" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan84">7,0 м²</tspan></text><rect id="area1" x="34.120" y="25.160" width="67.240" height="15.460" style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect id="area2" x="104.470" y="25.160" width="27.020" height="15.460" style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect id="area3" x="134.590" y="25.160" width="29.680" height="15.460" style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect id="area4" x="167.370" y="25.160" width="40.530" height="55.100" style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect id="area5" x="34.120" y="94.800" width="24.790" height="42.760" style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect id="area6" x="54.060" y="45.220" width="20.400" height="46.480" style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect id="area7" x="114.580" y="45.220" width="16.910" height="36.000" style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect id="area8" x="211.000" y="25.160" width="15.710" height="55.100" style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect id="area11" x="62.010" y="109.620" width="45.750" height="27.940" style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect id="area12" x="148.150" y="45.220" width="16.120" height="36.430" style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect id="area16" x="172.610" y="84.890" width="35.290" height="52.670" style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect id="area14" x="112.390" y="121.170" width="55.590" height="33.640" style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect
        style="opacity:0.3;fill:#ffffff;stroke:#000000;stroke-width:0.570891;stroke-dasharray:none"
        id="rect1869"
        width="9.4291086"
        height="19.42911"
        x="183.45581"
-       y="73.925919" /><path
-   id="area17"
-   d="m 112.390,63.260 h 20.600 v -18.040 h 12.060 v 18.040 h 22.930 v 31.790 h -55.590 z"
-   style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><path
-   id="area15"
-   d="m 77.560,45.220 h 33.920 v 38.280 h -49.470 v -10.190 h 15.550 z"
-   style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect
-   id="area19"
-   x="34.120"
-   y="45.220"
-   width="16.840"
-   height="24.990"
-   style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect
-   id="area13"
-   x="211.000"
-   y="63.400"
-   width="35.280"
-   height="52.670"
-   style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><g id="dim-lines" inkscape:label="размеры"><line id="d1" x1="30.120" y1="120.670" x2="30.120" y2="155.800" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d2" x1="108.560" y1="137.920" x2="108.560" y2="146.800" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d3" x1="171.810" y1="137.920" x2="171.810" y2="146.800" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d4" x1="250.000" y1="120.670" x2="250.000" y2="155.800" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d5" x1="30.120" y1="146.000" x2="108.560" y2="146.000" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d6" x1="108.560" y1="146.000" x2="171.810" y2="146.000" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d7" x1="171.810" y1="146.000" x2="250.000" y2="146.000" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d8" x1="30.120" y1="155.000" x2="250.000" y2="155.000" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d9" x1="29.420" y1="145.300" x2="30.820" y2="146.700" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d10" x1="107.860" y1="145.300" x2="109.260" y2="146.700" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d11" x1="171.110" y1="145.300" x2="172.510" y2="146.700" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d12" x1="249.300" y1="145.300" x2="250.700" y2="146.700" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d13" x1="29.420" y1="154.300" x2="30.820" y2="155.700" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d14" x1="249.300" y1="154.300" x2="250.700" y2="155.700" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><text id="tW1" x="69.340" y="145.000" text-anchor="middle" style="font-family:sans-serif;font-weight:bold;font-size:2.6px;fill:#000000;stroke:none">7,84 м</text><text id="tW2" x="140.185" y="145.000" text-anchor="middle" style="font-family:sans-serif;font-weight:bold;font-size:2.6px;fill:#000000;stroke:none">6,33 м</text><text id="tW3" x="210.905" y="145.000" text-anchor="middle" style="font-family:sans-serif;font-weight:bold;font-size:2.6px;fill:#000000;stroke:none">7,82 м</text><text id="tW0" x="140.060" y="154.000" text-anchor="middle" style="font-family:sans-serif;font-weight:bold;font-size:2.6px;fill:#000000;stroke:none">21,99 м</text><line id="d20" x1="29.320" y1="21.360" x2="11.200" y2="21.360" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d21" x1="29.320" y1="119.870" x2="19.200" y2="119.870" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d22" x1="108.560" y1="137.120" x2="19.200" y2="137.120" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d23" x1="20.000" y1="21.360" x2="20.000" y2="119.870" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d24" x1="20.000" y1="119.870" x2="20.000" y2="137.120" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d25" x1="12.000" y1="21.360" x2="12.000" y2="137.120" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d26" x1="19.300" y1="20.660" x2="20.700" y2="22.060" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d27" x1="19.300" y1="119.170" x2="20.700" y2="120.570" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d28" x1="19.300" y1="136.420" x2="20.700" y2="137.820" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d29" x1="11.300" y1="20.660" x2="12.700" y2="22.060" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d30" x1="11.300" y1="136.420" x2="12.700" y2="137.820" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><text id="tD1" x="18.400" y="70.615" text-anchor="middle" transform="rotate(-90 18.400 70.615)" style="font-family:sans-serif;font-weight:bold;font-size:2.6px;fill:#000000;stroke:none">9,85 м</text><text id="tD2" x="18.400" y="128.495" text-anchor="middle" transform="rotate(-90 18.400 128.495)" style="font-family:sans-serif;font-weight:bold;font-size:2.6px;fill:#000000;stroke:none">1,73 м</text><text id="tD0" x="10.400" y="79.240" text-anchor="middle" transform="rotate(-90 10.400 79.240)" style="font-family:sans-serif;font-weight:bold;font-size:2.6px;fill:#000000;stroke:none">11,58 м</text><text id="text259" x="256" y="26" style="font-family:sans-serif;font-weight:bold;fill:#000000;stroke:none;font-size:3.6px">
-<tspan id="tspan245" x="256" y="26">163,6 м²</tspan>
-<tspan id="tspan247" x="256" y="30.2" style="font-size:2.4px;font-weight:bold;font-family:sans-serif;fill:#000000">общая площадь жилого помещения</tspan>
-<tspan id="tspan249" x="256" y="33.2" style="font-size:2px;font-weight:bold;font-family:sans-serif;fill:#000000">СН 3.02.01-2019, прил. Б.4</tspan>
-<tspan id="tspan251" x="256" y="37.4" style="font-size:2.4px;font-weight:bold;font-family:sans-serif;fill:#000000">жилая площадь 97,8 м²</tspan>
-<tspan id="tspan253" x="256" y="40.4" style="font-size:2px;font-weight:bold;font-family:sans-serif;fill:#000000">прил. Б.2: зал, столовая, кабинет, спальни</tspan>
-<tspan id="tspan255" x="256" y="44.6" style="font-size:2.4px;font-weight:bold;font-family:sans-serif;fill:#000000">общая площадь дома 175,2 м²</tspan>
-<tspan id="tspan257" x="256" y="47.6" style="font-size:2px;font-weight:bold;font-family:sans-serif;fill:#000000">прил. Б.5, террасса × 0,3</tspan>
+       y="73.925919"  transform="translate(0.000000,21.490000)"/><path id="area17" d="m 112.390,84.750 h 20.600 v -39.530 h 12.060 v 39.530 h 22.930 v 31.790 h -55.590 z" style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><path id="area15" d="m 77.560,45.220 h 33.920 v 59.770 h -49.470 v -10.190 h 15.550 z" style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect id="area19" x="34.120" y="45.220" width="16.840" height="46.480" style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><rect id="area13" x="211.000" y="84.890" width="35.280" height="52.670" style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><g id="dim-lines" inkscape:label="размеры"><line id="d1" x1="30.12" y1="142.16" x2="30.12" y2="188.80" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d2" x1="108.56" y1="159.41" x2="108.56" y2="178.80" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d3" x1="171.81" y1="159.41" x2="171.81" y2="178.80" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d4" x1="250.12" y1="142.16" x2="250.12" y2="188.80" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d5" x1="30.12" y1="178.00" x2="108.56" y2="178.00" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d6" x1="108.56" y1="178.00" x2="171.81" y2="178.00" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d7" x1="171.81" y1="178.00" x2="250.12" y2="178.00" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d8" x1="30.12" y1="188.00" x2="250.12" y2="188.00" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d9" x1="29.42" y1="177.30" x2="30.82" y2="178.70" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d10" x1="107.86" y1="177.30" x2="109.26" y2="178.70" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d11" x1="171.11" y1="177.30" x2="172.51" y2="178.70" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d12" x1="249.42" y1="177.30" x2="250.82" y2="178.70" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d13" x1="29.42" y1="187.30" x2="30.82" y2="188.70" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d14" x1="249.42" y1="187.30" x2="250.82" y2="188.70" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><text id="tW1" x="69.34" y="177.00" text-anchor="middle" style="font-family:sans-serif;font-weight:bold;font-size:2.6px;fill:#000000;stroke:none">7,84 м</text><text id="tW2" x="140.19" y="177.00" text-anchor="middle" style="font-family:sans-serif;font-weight:bold;font-size:2.6px;fill:#000000;stroke:none">6,33 м</text><text id="tW3" x="210.97" y="177.00" text-anchor="middle" style="font-family:sans-serif;font-weight:bold;font-size:2.6px;fill:#000000;stroke:none">7,83 м</text><text id="tW0" x="140.12" y="187.00" text-anchor="middle" style="font-family:sans-serif;font-weight:bold;font-size:2.6px;fill:#000000;stroke:none">22,00 м</text><line id="d20" x1="29.32" y1="21.36" x2="1.20" y2="21.36" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d21" x1="29.32" y1="141.36" x2="9.20" y2="141.36" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d22" x1="108.56" y1="158.61" x2="9.20" y2="158.61" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d23" x1="10.00" y1="21.36" x2="10.00" y2="141.36" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d24" x1="10.00" y1="141.36" x2="10.00" y2="158.61" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d25" x1="2.00" y1="21.36" x2="2.00" y2="158.61" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d26" x1="9.30" y1="20.66" x2="10.70" y2="22.06" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d27" x1="9.30" y1="140.66" x2="10.70" y2="142.06" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d28" x1="9.30" y1="157.91" x2="10.70" y2="159.31" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d29" x1="1.30" y1="20.66" x2="2.70" y2="22.06" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d30" x1="1.30" y1="157.91" x2="2.70" y2="159.31" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><text id="tD1" x="8.40" y="81.36" text-anchor="middle" transform="rotate(-90 8.40 81.36)" style="font-family:sans-serif;font-weight:bold;font-size:2.6px;fill:#000000;stroke:none">12,00 м</text><text id="tD2" x="8.40" y="149.99" text-anchor="middle" transform="rotate(-90 8.40 149.99)" style="font-family:sans-serif;font-weight:bold;font-size:2.6px;fill:#000000;stroke:none">1,73 м</text><text id="tD0" x="0.40" y="89.99" text-anchor="middle" transform="rotate(-90 0.40 89.99)" style="font-family:sans-serif;font-weight:bold;font-size:2.6px;fill:#000000;stroke:none">13,73 м</text><line id="d40" x1="130.12" y1="2.36" x2="150.12" y2="2.36" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d41" x1="129.42" y1="1.66" x2="130.82" y2="3.06" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d42" x1="149.42" y1="1.66" x2="150.82" y2="3.06" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d43" x1="130.12" y1="5.56" x2="130.12" y2="1.56" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d44" x1="150.12" y1="5.56" x2="150.12" y2="1.56" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><text id="tP" x="140.12" y="1.16" text-anchor="middle" style="font-family:sans-serif;font-weight:bold;font-size:2.6px;fill:#000000;stroke:none">2,00 м</text><line id="d45" x1="126.12" y1="6.36" x2="126.12" y2="21.36" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d46" x1="125.42" y1="5.66" x2="126.82" y2="7.06" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d47" x1="125.42" y1="20.66" x2="126.82" y2="22.06" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d48" x1="129.32" y1="6.36" x2="125.32" y2="6.36" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><line id="d49" x1="129.32" y1="21.36" x2="125.32" y2="21.36" style="fill:none;stroke:#000000;stroke-width:0.22;stroke-linecap:square"/><text id="tPd" x="124.52" y="13.86" text-anchor="middle" transform="rotate(-90 124.52 13.86)" style="font-family:sans-serif;font-weight:bold;font-size:2.6px;fill:#000000;stroke:none">1,50 м</text><text id="text259" x="272" y="28" style="font-family:sans-serif;font-weight:bold;fill:#000000;stroke:none;font-size:3.6px">
+<tspan id="tspan245" x="272" y="28">206,9 м²</tspan>
+<tspan id="tspan247" x="272" y="32.2" style="font-size:2.4px;font-weight:bold;font-family:sans-serif;fill:#000000">общая площадь жилого помещения</tspan>
+<tspan id="tspan249" x="272" y="35.2" style="font-size:2px;font-weight:bold;font-family:sans-serif;fill:#000000">СН 3.02.01-2019, прил. Б.4</tspan>
+<tspan id="tspan251" x="272" y="39.4" style="font-size:2.4px;font-weight:bold;font-family:sans-serif;fill:#000000">жилая площадь 117,1 м²</tspan>
+<tspan id="tspan253" x="272" y="42.4" style="font-size:2px;font-weight:bold;font-family:sans-serif;fill:#000000">прил. Б.2: зал, столовая, кабинет, спальни</tspan>
+<tspan id="tspan255" x="272" y="46.6" style="font-size:2.4px;font-weight:bold;font-family:sans-serif;fill:#000000">общая площадь дома 218,3 м²</tspan>
+<tspan id="tspan257" x="272" y="49.6" style="font-size:2px;font-weight:bold;font-family:sans-serif;fill:#000000">прил. Б.5, террасса × 0,3</tspan>
 </text></g><rect
        style="fill:#000000;stroke:none;stroke-width:0.311364;stroke-dasharray:none"
        id="rect496"
@@ -682,7 +585,7 @@
        height="44.891262"
        x="59.710117"
        y="-117.29131"
-       transform="scale(1,-1)" /><text
+       transform="translate(0.000000,21.490000) scale(1,-1)" /><text
        xml:space="preserve"
        style="font-size:7.05556px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';fill:#ffffff;stroke:#000000;stroke-width:0.1"
        x="41.725803"
@@ -692,9 +595,9 @@
          id="tspan600"
          style="stroke-width:0.1"
          x="41.725803"
-         y="56.687359" /></text><text xml:space="preserve" x="42.540" y="54.815" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text630"><tspan x="42.540" y="54.815" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan624">стирка</tspan><tspan x="42.540" y="58.215" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan626">1,84×2,66 м</tspan><tspan x="42.540" y="60.615" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan628">4,9 м²</tspan></text><g
+         y="56.687359" /></text><text xml:space="preserve" x="42.540" y="65.560" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text630"><tspan x="42.540" y="65.560" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan624">стирка</tspan><tspan x="42.540" y="68.960" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan626">1,84×4,81 м</tspan><tspan x="42.540" y="71.360" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan628">8,9 м²</tspan></text><g
        id="g638"
-       transform="matrix(-7.9044838,0,0,-7.9044838,553.94937,825.89945)"><rect
+       transform="translate(0.000000,21.490000) matrix(-7.9044838,0,0,-7.9044838,553.94937,825.89945)"><rect
          style="fill:#ffffff;stroke:#000000;stroke-width:0.019057;stroke-dasharray:none"
          id="rect632"
          width="0.98094302"
@@ -715,7 +618,7 @@
          id="path636"
          sodipodi:nodetypes="cc" /></g><g
        id="g646"
-       transform="matrix(7.9044838,0,0,7.9044838,-417.22365,-668.09463)"><rect
+       transform="translate(0.000000,21.490000) matrix(7.9044838,0,0,7.9044838,-417.22365,-668.09463)"><rect
          style="fill:#ffffff;stroke:#000000;stroke-width:0.019057;stroke-dasharray:none"
          id="rect640"
          width="0.98094302"
@@ -736,7 +639,7 @@
          id="path644"
          sodipodi:nodetypes="cc" /></g><g
        id="g654"
-       transform="matrix(0,-7.9044838,7.9044838,0,-679.42032,564.9229)"><rect
+       transform="translate(0.000000,21.490000) matrix(0,-7.9044838,7.9044838,0,-679.42032,564.9229)"><rect
          style="fill:#ffffff;stroke:#000000;stroke-width:0.019057;stroke-dasharray:none"
          id="rect648"
          width="0.98094302"
@@ -757,7 +660,7 @@
          id="path652"
          sodipodi:nodetypes="cc" /></g><g
        id="g670"
-       transform="matrix(0,7.9044838,7.9044838,0,-687.36829,-421.66421)"><rect
+       transform="translate(0.000000,21.490000) matrix(0,7.9044838,7.9044838,0,-687.36829,-421.66421)"><rect
          style="fill:#ffffff;stroke:#000000;stroke-width:0.019057;stroke-dasharray:none"
          id="rect664"
          width="0.98094302"
@@ -799,7 +702,7 @@
          id="path906"
          sodipodi:nodetypes="cc" /></g><g
        id="g779"
-       transform="matrix(7.9044838,0,0,7.9044838,-264.78783,-679.00885)"><rect
+       transform="translate(0.000000,21.490000) matrix(7.9044838,0,0,7.9044838,-264.78783,-679.00885)"><rect
          style="fill:#ffffff;stroke:#000000;stroke-width:0.019057;stroke-dasharray:none"
          id="rect773"
          width="0.98094302"
@@ -820,7 +723,7 @@
          id="path777"
          sodipodi:nodetypes="cc" /></g><g
        id="g787"
-       transform="matrix(7.9044838,0,0,7.9044838,-245.39434,-678.96495)"><rect
+       transform="translate(0.000000,21.490000) matrix(7.9044838,0,0,7.9044838,-245.39434,-678.96495)"><rect
          style="fill:#ffffff;stroke:#000000;stroke-width:0.019057;stroke-dasharray:none"
          id="rect781"
          width="0.98094302"
@@ -913,7 +816,7 @@
          cx="129.43848"
          cy="46.374886"
          rx="0.47190744"
-         ry="0.46554849" /></g><text xml:space="preserve" x="238.045" y="39.065" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text102"><tspan x="238.045" y="39.065" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan96">с/у</tspan><tspan x="238.045" y="42.465" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan98">1,81×3,52 м</tspan><tspan x="238.045" y="44.865" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan100">6,4 м²</tspan></text><rect
+         ry="0.46554849" /></g><text xml:space="preserve" x="238.045" y="49.810" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text102"><tspan x="238.045" y="49.810" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan96">с/у</tspan><tspan x="238.045" y="53.210" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan98">1,81×5,67 м</tspan><tspan x="238.045" y="55.610" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan100">10,2 м²</tspan></text><rect
        style="fill:#000000;stroke:none;stroke-width:0.210143;stroke-dasharray:none"
        id="rect1783"
        width="1.5058028"
@@ -1048,16 +951,16 @@
        width="5.4103169"
        height="36.126923"
        x="203.00388"
-       y="73.970886" /><rect
+       y="73.970886"  transform="translate(0.000000,21.490000)"/><rect
        style="opacity:0.3;fill:#ffffff;stroke:#000000;stroke-width:0.588402;stroke-dasharray:none"
        id="rect1867"
        width="5.4115968"
        height="35.961868"
        x="110.22206"
        y="-208.92226"
-       transform="rotate(90)" /><g
+       transform="translate(0.000000,21.490000) rotate(90)" /><g
        id="g5898"
-       transform="matrix(0,-7.9044838,-7.9044838,0,949.12936,555.61827)"><rect
+       transform="translate(0.000000,21.490000) matrix(0,-7.9044838,-7.9044838,0,949.12936,555.61827)"><rect
          style="fill:#ffffff;stroke:#000000;stroke-width:0.019057;stroke-dasharray:none"
          id="rect5892"
          width="0.98094302"
@@ -1076,15 +979,9 @@
          style="fill:#ffffff;stroke:#000000;stroke-width:0.03;stroke-dasharray:0.06, 0.03;stroke-dashoffset:0"
          d="m 61.292596,93.479969 c 0.03156,-0.377529 0.154149,-0.509787 0.458551,-0.669102"
          id="path5896"
-         sodipodi:nodetypes="cc" /></g><rect
-   id="area9"
-   x="229.810"
-   y="25.160"
-   width="16.470"
-   height="33.610"
-   style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><text xml:space="preserve" x="218.855" y="39.065" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text94"><tspan x="218.855" y="39.065" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan88">гардероб</tspan><tspan x="218.855" y="42.465" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan90">1,73×3,52 м</tspan><tspan x="218.855" y="44.865" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan92">6,1 м²</tspan></text><g
+         sodipodi:nodetypes="cc" /></g><rect id="area9" x="229.810" y="25.160" width="16.470" height="55.100" style="fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:1.8, 1.1" /><text xml:space="preserve" x="218.855" y="49.810" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text94"><tspan x="218.855" y="49.810" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan88">гардероб</tspan><tspan x="218.855" y="53.210" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan90">1,73×5,67 м</tspan><tspan x="218.855" y="55.610" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan92">9,8 м²</tspan></text><g
        id="g4808"
-       transform="matrix(7.9044838,0,0,7.9044838,-283.85006,-679.13892)"><rect
+       transform="translate(0.000000,21.490000) matrix(7.9044838,0,0,7.9044838,-283.85006,-679.13892)"><rect
          style="fill:#ffffff;stroke:#000000;stroke-width:0.019057;stroke-dasharray:none"
          id="rect4802"
          width="0.98094302"
@@ -1106,10 +1003,10 @@
          sodipodi:nodetypes="cc" /></g><rect
        style="fill:#000000;stroke:none;stroke-width:0.210143;stroke-dasharray:none"
        id="rect4810"
-       width="1.5058028"
-       height="20.369715"
-       x="145.84511"
-       y="-62.277569"
+       width="1.505803"
+       height="41.859715"
+       x="145.845110"
+       y="-83.767569"
        transform="scale(1,-1)" /><rect
        style="fill:#000000;stroke:none;stroke-width:0.24226;stroke-dasharray:none"
        id="rect4812"
@@ -1117,9 +1014,9 @@
        height="27.176273"
        x="-62.462551"
        y="-174.16667"
-       transform="matrix(0,-1,-1,0,0,0)" /><g
+       transform="translate(0.000000,21.490000) matrix(0,-1,-1,0,0,0)" /><g
        id="g4820"
-       transform="matrix(7.9044838,0,0,7.9044838,-326.97829,-678.65918)"><rect
+       transform="translate(0.000000,21.490000) matrix(7.9044838,0,0,7.9044838,-326.97829,-678.65918)"><rect
          style="fill:#ffffff;stroke:#000000;stroke-width:0.019057;stroke-dasharray:none"
          id="rect4814"
          width="0.98094302"
@@ -1138,4 +1035,4 @@
          style="fill:#ffffff;stroke:#000000;stroke-width:0.03;stroke-dasharray:0.06, 0.03;stroke-dashoffset:0"
          d="m 61.292596,93.479969 c 0.03156,-0.377529 0.154149,-0.509787 0.458551,-0.669102"
          id="path4818"
-         sodipodi:nodetypes="cc" /></g><text xml:space="preserve" x="156.210" y="49.790" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text4828"><tspan x="156.210" y="49.790" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan4822">кладовая 3</tspan><tspan x="156.210" y="53.190" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan4824">1,77×1,65 м</tspan><tspan x="156.210" y="55.590" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan4826">2,9 м²</tspan></text><text xml:space="preserve" x="190.255" y="86.835" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text62"><tspan x="190.255" y="86.835" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan56">кухня</tspan><tspan x="190.255" y="90.235" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan58">3,69×5,43 м</tspan><tspan x="190.255" y="92.635" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan60">20,0 м²</tspan></text></g></svg>
+         sodipodi:nodetypes="cc" /></g><text xml:space="preserve" x="156.210" y="60.535" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text4828"><tspan x="156.210" y="60.535" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan4822">кладовая</tspan><tspan x="156.210" y="63.935" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan4824">1,77×3,80 м</tspan><tspan x="156.210" y="66.335" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan4826">6,7 м²</tspan></text><text xml:space="preserve" x="190.255" y="108.325" text-anchor="middle" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="text62"><tspan x="190.255" y="108.325" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:3px" id="tspan56">кухня</tspan><tspan x="190.255" y="111.725" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan58">3,69×5,43 м</tspan><tspan x="190.255" y="114.125" style="font-style:normal;font-weight:bold;font-family:sans-serif;fill:#000000;stroke:none;font-size:2px" id="tspan60">20,0 м²</tspan></text></g></svg>
