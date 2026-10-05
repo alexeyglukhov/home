@@ -3,6 +3,7 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
 import geo from "./geometry.js?v=21";
 import { FURNITURE_LINES } from "./furniture-sketch.js?v=4";
+import { FURNITURE_D } from "./furniture-d.js?v=1";
 import { WALL_LINES } from "./wall-sketch.js?v=2";
 
 const panel = document.getElementById("panel");
@@ -705,7 +706,7 @@ function addFloorNotes(rooms) {
     northAxis.clone().negate(),
     new THREE.Vector3(0, 1, 0)
   );
-  for (const [name, x0, y0, x1, y1, floorY] of rooms) {
+  for (const [name, x0, y0, x1, y1, floorY, lx, ly] of rooms) {
     const w = x1 - x0;
     const d = y1 - y0;
     const canvas = document.createElement("canvas");
@@ -734,7 +735,7 @@ function addFloorNotes(rooms) {
         depthWrite: false,
       })
     );
-    const [e, n] = planToWorld((x0 + x1) / 2, (y0 + y1) / 2);
+    const [e, n] = planToWorld(lx ?? (x0 + x1) / 2, ly ?? (y0 + y1) / 2);
     label.position.set(e, floorY + 0.012, n);
     label.quaternion.setFromRotationMatrix(labelBasis);
     label.castShadow = false;
@@ -783,26 +784,46 @@ function addGroundLabel(text, east, north, y) {
   label.quaternion.setFromRotationMatrix(basis);
   label.castShadow = false;
   label.receiveShadow = false;
+  label.material.depthTest = true;
+  label.renderOrder = 2;
   bucket.add(label);
+  return label;
 }
 
-function addSiteDim(x0, y0, x1, y1, text, side = 1, gap = 0.55) {
-  const yLine = 0.14;
+function addSiteDim(x0, y0, x1, y1, text, side = 1, gap = 0.55, shift = 0) {
+  const yLine = 0.28;
   const dx = x1 - x0;
   const dy = y1 - y0;
   const len = Math.hypot(dx, dy) || 1;
-  const px = (-dy / len) * side;
-  const py = (dx / len) * side;
+  const nx = -dy / len;
+  const ny = dx / len;
+  const px = nx * side;
+  const py = ny * side;
+  const ox = nx * shift;
+  const oy = ny * shift;
+  const ax = x0 + ox;
+  const ay = y0 + oy;
+  const bx = x1 + ox;
+  const by = y1 + oy;
   const world = (x, y) => {
     const [e, n] = planToWorld(x, y);
     return [e, yLine, n];
   };
-  const stroke = (ax, ay, bx, by) => addBeam(world(ax, ay), world(bx, by), 0.035, 0x3a342e, false);
-  stroke(x0, y0, x1, y1);
-  const tick = 0.32;
-  stroke(x0 - px * tick, y0 - py * tick, x0 + px * tick, y0 + py * tick);
-  stroke(x1 - px * tick, y1 - py * tick, x1 + px * tick, y1 + py * tick);
-  addGroundLabel(text, (x0 + x1) / 2 + px * gap, (y0 + y1) / 2 + py * gap, 0.17);
+  const stroke = (sx, sy, tx, ty) => {
+    const mesh = addBeam(world(sx, sy), world(tx, ty), 0.045, 0x3a342e, false);
+    if (!mesh) return;
+    mesh.material.depthTest = true;
+    mesh.renderOrder = 2;
+  };
+  if (shift) {
+    stroke(x0, y0, ax, ay);
+    stroke(x1, y1, bx, by);
+  }
+  stroke(ax, ay, bx, by);
+  const tick = 0.38;
+  stroke(ax - px * tick, ay - py * tick, ax + px * tick, ay + py * tick);
+  stroke(bx - px * tick, by - py * tick, bx + px * tick, by + py * tick);
+  addGroundLabel(text, (ax + bx) / 2 + px * gap, (ay + by) / 2 + py * gap, 0.4);
 }
 
 function addGarage(spec = {}) {
@@ -2219,13 +2240,16 @@ greenhouseGroup.visible = false;
 // Вариант А: дом. u — от оси А на восток к оси Г на запад, v — от оси 6 (юг) к оси 1 (север).
 const V2_XE = 20.16;
 const V2_YS = 2.66;
+// Северный край крыши крыльца (свес и лобовая доска) — не ближе 4 м к забору.
+const V2_HOUSE_SHIFT = (V2_YS + 16.22 + 0.3 + 0.12) - (22.877 - 4);
+let v2Ys = V2_YS;
 const V2_PLINTH = 0.3;
 const V2_BRICK = 0xc4a484;
 const V2_PART = 0xd9d3c8;
 const V2_ROOF = 0x3a332c;
 
 function v2p(u, v) {
-  return [V2_XE - u, V2_YS + v];
+  return [V2_XE - u, v2Ys + v];
 }
 
 function v2box(u0, v0, u1, v1, z0, z1, color) {
@@ -2247,25 +2271,38 @@ function v2wallU(u, v0, v1, thick, holes, zTop, color) {
   if (v1 > v + 0.02) v2box(a, v, b, v1, -0.05, zTop, color);
 }
 
-function v2wallV(v, u0, u1, thick, holes, zTop, color) {
+function v2wallV(v, u0, u1, thick, holes, zTop, color, lower) {
   const a = v - thick / 2;
   const b = v + thick / 2;
   const list = holes.slice().sort((p, q) => p.u0 - q.u0);
+  const span = (ua, ub, z0, z1) => {
+    if (ub <= ua + 0.001 || z1 <= z0 + 0.001) return;
+    if (!lower) {
+      v2box(ua, a, ub, b, z0, z1, color);
+      return;
+    }
+    const zCut = Number.isFinite(lower.zTop) ? Math.min(z1, Math.max(z0, lower.zTop)) : z1;
+    if (zCut > z0 + 0.001) v2box(ua, a, ub, b, z0, zCut, lower.color);
+    if (z1 > zCut + 0.001) v2box(ua, a, ub, b, zCut, z1, color);
+  };
   let u = u0;
   for (const h of list) {
-    if (h.u0 > u + 0.02) v2box(u, a, h.u0, b, -0.05, zTop, color);
-    if (h.z0 > 0.02) v2box(h.u0, a, h.u1, b, -0.05, h.z0, color);
-    if (zTop > h.z1 + 0.02) v2box(h.u0, a, h.u1, b, h.z1, zTop, color);
-    if (!h.open) v2winY(v, h.u0, h.u1, h.z0, h.z1);
+    span(u, h.u0, -0.05, zTop);
+    span(h.u0, h.u1, -0.05, h.z0);
+    span(h.u0, h.u1, h.z1, zTop);
+    if (!h.open) {
+      if (h.leaf) v2doorY(v, h.u0, h.u1, h.z0, h.z1, h.leaf);
+      else v2winY(v, h.u0, h.u1, h.z0, h.z1, h.noSill ? false : undefined);
+    }
     u = Math.max(u, h.u1);
   }
-  if (u1 > u + 0.02) v2box(u, a, u1, b, -0.05, zTop, color);
+  span(u, u1, -0.05, zTop);
 }
 
 function v2winX(u, v0, v1, z0, z1) {
   const x = V2_XE - u;
-  const y0 = V2_YS + Math.min(v0, v1);
-  const y1 = V2_YS + Math.max(v0, v1);
+  const y0 = v2Ys + Math.min(v0, v1);
+  const y1 = v2Ys + Math.max(v0, v1);
   addOpeningFrame(x - 0.1, x + 0.1, y0, y1, z0 + V2_PLINTH, z1 + V2_PLINTH, z0 > 0.2);
   const glass = v2box(u - 0.02, v0, u + 0.02, v1, z0, z1, 0xb7d4e4);
   glass.material.transparent = true;
@@ -2274,8 +2311,33 @@ function v2winX(u, v0, v1, z0, z1) {
   glass.castShadow = false;
 }
 
+function v2doorY(v, u0, u1, z0, z1, leaf) {
+  const jamb = 0.08;
+  const half = 0.19;
+  const proud = 0.025;
+  const outward = leaf === "glass" ? -1 : 1;
+  v2box(u0, v - half, u0 + jamb, v + half, z0, z1, FRAME);
+  v2box(u1 - jamb, v - half, u1, v + half, z0, z1, FRAME);
+  v2box(u0, v - half, u1, v + half, z1 - jamb, z1, FRAME);
+  const face = v + outward * half;
+  const vLo = Math.min(face, face + outward * proud);
+  const vHi = Math.max(face, face + outward * proud);
+  v2box(u0, vLo, u0 + jamb, vHi, z0, z1, FRAME);
+  v2box(u1 - jamb, vLo, u1, vHi, z0, z1, FRAME);
+  v2box(u0, vLo, u1, vHi, z1 - jamb, z1, FRAME);
+  if (leaf === "glass") {
+    const pane = v2box(u0 + jamb, v - 0.12, u1 - jamb, v + 0.12, z0 + 0.05, z1 - jamb, 0xd7ebf3);
+    pane.material.transparent = true;
+    pane.material.opacity = 0.55;
+    pane.material.depthWrite = false;
+    pane.castShadow = false;
+  } else {
+    asRoof(v2box(u0 + jamb, v - half + 0.02, u1 - jamb, v + half - 0.01, z0 + 0.02, z1 - jamb, 0xe8d4b8));
+  }
+}
+
 function v2winY(v, u0, u1, z0, z1, withSill = z0 > 0.2) {
-  const y = V2_YS + v;
+  const y = v2Ys + v;
   const x0 = V2_XE - Math.max(u0, u1);
   const x1 = V2_XE - Math.min(u0, u1);
   addOpeningFrame(x0, x1, y - 0.1, y + 0.1, z0 + V2_PLINTH, z1 + V2_PLINTH, withSill);
@@ -2288,7 +2350,7 @@ function v2winY(v, u0, u1, z0, z1, withSill = z0 > 0.2) {
 
 function v2roof(tris) {
   const lift = ([u, v, z]) => {
-    const [e, n] = planToWorld(V2_XE - u, V2_YS + v);
+    const [e, n] = planToWorld(V2_XE - u, v2Ys + v);
     return [e, z + V2_PLINTH, n];
   };
   const out = tris.map(([a, b, c]) => {
@@ -2305,7 +2367,7 @@ function v2roof(tris) {
 
 function v2solid(tris, color) {
   const lift = ([u, v, z]) => {
-    const [e, n] = planToWorld(V2_XE - u, V2_YS + v);
+    const [e, n] = planToWorld(V2_XE - u, v2Ys + v);
     return [e, z + V2_PLINTH, n];
   };
   const out = tris.map(([a, b, c]) => {
@@ -2378,7 +2440,7 @@ function addBath() {
     return m;
   };
   const uvW = (u, v, z) => {
-    const [e, n] = planToWorld(V2_XE - u, V2_YS + v);
+    const [e, n] = planToWorld(V2_XE - u, v2Ys + v);
     return [e, z, n];
   };
   const surf = (tris, color) => {
@@ -2846,15 +2908,34 @@ function addVariant2() {
   v2House = new THREE.Group();
   variant2Group.add(v2House);
   bucket = v2House;
+  v2Ys = V2_YS - V2_HOUSE_SHIFT;
 
   const ext = 0.38;
-  const door = (u0, u1) => ({ u0, u1, z0: 0, z1: 2.15 });
-  const doorV = (v0, v1) => ({ v0, v1, z0: 0, z1: 2.15 });
-  const win = (u0, u1, z0 = 0.25, z1 = 2.15) => ({ u0, u1, z0, z1 });
-  const winV = (v0, v1, z0 = 0.25, z1 = 2.15) => ({ v0, v1, z0, z1 });
+  const partTop = 3.5;
+  const eave = 3.94;
+  const doorHead = 2.15;
+  const ySill = 0.8;
+  const yHead = doorHead;
+  const pSill = 0.28;
+  const pHead = doorHead;
+  const door = (u0, u1, leaf) => ({ u0, u1, z0: 0, z1: doorHead, leaf });
+  const doorV = (v0, v1) => ({ v0, v1, z0: 0, z1: doorHead });
+  const win = (u0, u1, z0 = ySill, z1 = yHead) => ({ u0, u1, z0, z1 });
+  const winV = (v0, v1, z0 = ySill, z1 = yHead) => ({ v0, v1, z0, z1 });
+  const yel = (u0, u1) => win(u0, u1);
+  const yelV = (v0, v1) => winV(v0, v1);
+  const pan = (u0, u1) => ({ u0, u1, z0: pSill, z1: pHead, noSill: true });
+  const uE = -1.5;
+  const uW = 18.03;
+  const vS = 3.59;
+  const vN = 13.77;
+  const uOutE = -1.69;
+  const uOutW = 18.22;
+  const vOutS = 3.4;
+  const vOutN = 13.96;
   const footUV = [
-    [-0.19, 3.4], [-0.19, 13.96], [4.93, 13.96], [4.93, 16.22], [9.65, 16.22], [9.65, 13.96],
-    [18.22, 13.96], [18.22, 3.4], [14.23, 3.4], [14.23, 0], [7.11, 0], [7.11, 3.4],
+    [uOutE, vOutS], [uOutE, vOutN], [3.435, vOutN], [3.435, 16.22], [9.685, 16.22], [9.685, vOutN],
+    [uOutW, vOutN], [uOutW, vOutS], [13.939, vOutS], [13.939, 0], [6.451, 0], [6.451, vOutS],
   ];
   const foot = footUV.map((p, i) => {
     const prev = footUV[(i + footUV.length - 1) % footUV.length];
@@ -2872,8 +2953,8 @@ function addVariant2() {
   });
   addSlab(foot, 0.07, V2_PLINTH - 0.07, plinthColor, true);
   const blind = [
-    [-1.19, 2.4], [-1.19, 14.96], [3.93, 14.96], [3.93, 17.22], [10.65, 17.22], [10.65, 14.96],
-    [19.22, 14.96], [19.22, 2.4], [15.23, 2.4], [15.23, -1], [6.11, -1], [6.11, 2.4],
+    [-2.69, 2.4], [-2.69, 14.96], [2.435, 14.96], [2.435, 17.22], [10.685, 17.22], [10.685, 14.96],
+    [19.22, 14.96], [19.22, 2.4], [14.939, 2.4], [14.939, -1], [5.451, -1], [5.451, 2.4],
   ].map(([u, v]) => v2p(u, v));
   const holeUV = footUV.map((p, i) => {
     const prev = footUV[(i + footUV.length - 1) % footUV.length];
@@ -2896,78 +2977,78 @@ function addVariant2() {
     0.03, 0.035, 0xe6d3b0, false
   );
   const { gx0, gx1, gy0 } = garageBox;
-  // Плитка доходит до наружного края серой отмостки гаража (1 м по периметру).
   const yard = [
-    [21.37, 17.64], [16.25, 17.64], [16.25, 19.9], [9.49, 19.9], [9.49, 17.64], [0.92, 17.64],
+    [22.85, 17.62 - V2_HOUSE_SHIFT], [17.73, 17.62 - V2_HOUSE_SHIFT], [17.73, 19.88 - V2_HOUSE_SHIFT], [9.48, 19.88 - V2_HOUSE_SHIFT], [9.48, 17.62 - V2_HOUSE_SHIFT], [0.92, 17.62 - V2_HOUSE_SHIFT],
     [0.92, gy0 - 1 + 0.02], [gx1 + 1 - 0.02, gy0 - 1 + 0.02], [gx1 + 1 - 0.02, gy1 + 1 - 0.02], [driveWest, gy1 + 1 - 0.02],
     [driveWest, fenceY - 0.25], [driveEast, fenceY - 0.25],
-    [driveEast, fenceY - grass], [21.37, fenceY - grass],
+    [driveEast, fenceY - grass], [22.85, fenceY - grass],
   ];
   addSlab(yard, 0.03, 0.035, 0xe6d3b0, false);
   addSlab([
-    v2p(-0.13, 13.9), v2p(18.16, 13.9), v2p(18.16, 3.46), v2p(14.07, 3.46),
-    v2p(14.07, 2.51), v2p(7.32, 2.51), v2p(7.32, 3.46), v2p(-0.13, 3.46),
+    v2p(uOutE + 0.06, vOutN - 0.06), v2p(uOutW - 0.06, vOutN - 0.06),
+    v2p(uOutW - 0.06, vOutS + 0.06), v2p(13.8, vOutS + 0.06),
+    v2p(13.8, 2.4), v2p(6.6, 2.4), v2p(6.6, vOutS + 0.06), v2p(uOutE + 0.06, vOutS + 0.06),
   ], V2_PLINTH + 0.02, 0.08, 0xf3efe6, false);
-  addSlab([v2p(4.93, 16.22), v2p(9.65, 16.22), v2p(9.65, 13.9), v2p(4.93, 13.9)], V2_PLINTH + 0.02, 0.16, 0xcfc6b8, false);
-  addSlab([v2p(14.23, 2.52), v2p(7.11, 2.52), v2p(7.11, 0), v2p(14.23, 0)], V2_PLINTH + 0.08, 0.1, 0xd7c4a3, false);
+  addSlab([v2p(3.435, 16.22), v2p(9.685, 16.22), v2p(9.685, vOutN - 0.06), v2p(3.435, vOutN - 0.06)], V2_PLINTH + 0.02, 0.16, 0xcfc6b8, false);
+  addSlab([v2p(13.939, vOutS + 0.02), v2p(6.451, vOutS + 0.02), v2p(6.451, 0), v2p(13.939, 0)], V2_PLINTH + 0.08, 0.1, 0xd7c4a3, false);
 
-  v2wallU(0, 3.59, 13.77, ext, [
-    winV(5.15, 6.55),
-    winV(8.55, 9.35, 1.35, 2.15),
-    winV(11.15, 12.45),
-  ], 3.14, V2_BRICK);
-  v2wallU(18.03, 3.59, 13.77, ext, [winV(8.55, 9.35, 1.35, 2.15)], 3.14, V2_BRICK);
-  v2wallV(3.59, -0.19, 7.26, ext, [win(1.2, 2.85), win(4.7, 6.35)], 3.14, V2_BRICK);
-  v2wallV(3.59, 13.75, 18.22, ext, [win(15.05, 16.85)], 3.14, V2_BRICK);
-  v2wallV(2.64, 7.26, 14.13, ext, [
-    { u0: 8.15, u1: 10.05, z0: 0, z1: 3.14, open: true },
-    { u0: 11.2, u1: 13.15, z0: 0, z1: 3.14, open: true },
-  ], 3.14, V2_BRICK);
-  // Двери до верха обычных рам, кирпичная перемычка, выше неё окно до второго света.
-  const doorHead = 2.15;
-  const lintelTop = 2.31;
-  for (const [a, b, c, d] of [[8.15, 9.08, 9.12, 10.05], [11.2, 12.15, 12.19, 13.15]]) {
-    v2winY(2.64, a, b, 0, doorHead);
-    v2winY(2.64, c, d, 0, doorHead);
-    v2box(b, 2.45, c, 2.83, -0.05, doorHead, V2_BRICK);
-    v2box(a, 2.45, d, 2.83, doorHead, lintelTop, V2_BRICK);
-  }
-  v2wallV(13.77, -0.19, 18.22, ext, [
-    win(1.1, 2.9),
-    door(5.75, 6.85),
-    door(7.985, 9.085),
-    win(11.05, 12.45),
-    win(14.85, 15.9),
-  ], 3.14, V2_BRICK);
+  v2wallU(uE, vS, vN, ext, [
+    yelV(4.35, 5.33),
+    yelV(8.01, 9.0),
+    yelV(12.0, 12.98),
+  ], eave, V2_BRICK);
+  v2wallU(uW, vS, vN, ext, [yelV(10.54, 11.52)], eave, V2_BRICK);
+  const bay = 0x8a7360;
+  const bayLower = { color: V2_BRICK, zTop: partTop };
+  const terraceHoles = [
+    pan(7.67, 8.65),
+    pan(8.71, 9.69),
+    pan(10.84, 11.83),
+    door(11.87, 12.85, "glass"),
+  ];
+  const porchHoles = [
+    door(4.64, 5.63, "gray"),
+    door(6.84, 7.82, "gray"),
+    yel(8.2, 9.18),
+  ];
+  v2wallV(vS, uOutE, 6.451, ext, [
+    yel(-0.43, 1.54),
+    yel(3.45, 5.43),
+  ], eave, V2_BRICK);
+  v2wallV(vS, 6.451, 13.939, ext, terraceHoles, eave, bay, bayLower);
+  v2wallV(vS, 13.939, uOutW, ext, [
+    yel(15.08, 17.05),
+  ], eave, V2_BRICK);
+  v2wallV(vN, uOutE, 3.435, ext, [
+    yel(-0.27, 0.71),
+  ], eave, V2_BRICK);
+  v2wallV(vN, 3.435, 9.685, ext, porchHoles, eave, bay, bayLower);
+  v2wallV(vN, 9.685, uOutW, ext, [
+    yel(10.82, 12.79),
+    yel(15.97, 16.95),
+  ], eave, V2_BRICK);
 
-  // Ванная 2,30×1,91: восточная грань 0,19, западная 2,49, южная 8,02, северная 9,93.
-  // Дверь только в западной стене, в холл. Юг в детскую и север в кабинет глухие.
-  v2wallU(3.69, 3.76, 7.95, 0.16, [], 2.7, V2_PART);
-  v2wallV(7.95, 0.17, 7.45, 0.14, [door(2.75, 3.51), door(3.872, 4.672)], 2.7, V2_PART);
-  v2wallU(2.57, 7.95, 10.01, 0.16, [doorV(9.13, 9.83)], 2.7, V2_PART);
-  const gap = (u0, u1) => ({ u0, u1, z0: 0, z1: 2.7, open: true });
-  // Юг прихожей открыт в зал: по прямой от входной двери стены нет.
-  v2wallV(10.01, 0.17, 5.42, 0.16, [door(2.70, 3.33)], 2.7, V2_PART);
-  v2wallV(10.01, 7.26, 9.63, 0.16, [], 2.7, V2_PART);
-  v2wallU(3.51, 10.01, 13.60, 0.16, [], 2.7, V2_PART);
-  v2wallU(5.34, 10.01, 13.60, 0.16, [doorV(11.40, 12.20)], 2.7, V2_PART);
-  v2wallU(7.45, 2.45, 3.59, ext, [], 3.14, V2_BRICK);
-  v2wallU(7.45, 3.59, 13.60, ext, [
-    { v0: 8.02, v1: 9.93, z0: 0, z1: 2.7, open: true },
-    doorV(11.34, 12.14),
-  ], 2.7, V2_PART);
-  v2wallU(9.55, 9.93, 13.60, 0.16, [], 2.7, V2_PART);
-  // Западный гардероб: у входа проёмы в спальню и санузел, окно отделено стеной.
-  v2wallU(13.94, 2.45, 3.59, ext, [], 3.14, V2_BRICK);
-  v2wallU(13.94, 3.59, 13.60, ext, [doorV(8.28, 9.12), doorV(12.22, 13.02)], 2.7, V2_PART);
-  v2wallU(15.35, 7.73, 10.02, 0.16, [], 2.7, V2_PART);
-  v2wallV(7.73, 14.13, 17.86, 0.12, [gap(14.13, 15.27), door(16.11, 17.01)], 2.7, V2_PART);
-  v2wallV(10.02, 14.13, 17.86, 0.12, [door(14.23, 15.03)], 2.7, V2_PART);
-  v2wallV(12.06, 14.13, 17.86, 0.12, [], 2.7, V2_PART);
+  v2wallU(13.94, 3.78, 13.58, 0.28, [doorV(12.16, 12.94)], partTop, V2_PART);
+  v2wallU(6.45, 3.78, 8.18, 0.28, [], partTop, V2_PART);
+  v2wallU(2.5, 3.78, 8.19, 0.18, [], partTop, V2_PART);
+  v2wallU(0.8, 7.14, 9.75, 0.18, [doorV(8.29, 9.07)], partTop, V2_PART);
+  v2wallU(1.85, 9.78, 13.58, 0.18, [], partTop, V2_PART);
+  v2wallU(3.82, 9.74, 13.58, 0.18, [doorV(12.67, 13.45)], partTop, V2_PART);
+  v2wallU(9.6, 9.69, 13.58, 0.18, [], partTop, V2_PART);
+  v2wallU(6.39, 9.74, 13.58, 0.18, [doorV(10.4, 11.17), doorV(12.72, 13.49)], partTop, V2_PART);
+  v2wallV(9.77, -1.31, 3.88, 0.22, [door(0.93, 1.71)], partTop, V2_PART);
+  v2wallV(8.1, 0.84, 6.45, 0.18, [door(1.55, 2.33), door(2.68, 3.45)], partTop, V2_PART);
+  v2wallV(9.78, 6.3, 10.28, 0.24, [], partTop, V2_PART);
+  v2wallV(10.01, 13.94, 17.84, 0.22, [door(14.22, 14.99)], partTop, V2_PART);
+  v2wallV(7.75, 13.94, 17.84, 0.18, [door(14.19, 14.96)], partTop, V2_PART);
+  v2wallV(12.03, 13.94, 17.84, 0.18, [], partTop, V2_PART);
+  v2wallV(11.7, 6.39, 9.65, 0.22, [], partTop, V2_PART);
+  v2wallV(11.34, 3.76, 6.4, 0.22, [door(4.72, 5.5)], partTop, V2_PART);
+  v2wallV(7.24, -1.31, 0.83, 0.18, [], partTop, V2_PART);
+  v2wallU(15.31, 7.79, 9.97, 0.18, [], partTop, V2_PART);
 
-  for (const u of [7.3, 14.05]) v2box(u - 0.14, 0.05, u + 0.14, 0.33, 0.18, 2.95, 0x6b5344);
-  v2box(10.56, 0.05, 10.84, 0.33, 0.18, 5.05, 0x6b5344);
-  for (const u of [5.25, 9.35]) v2box(u - 0.16, 15.7, u + 0.16, 16.05, 0.16, 2.85, 0x6b5344);
+  const terraceCols = [[6.46, 6.76], [13.64, 13.94]];
+  const porchCols = [[3.44, 3.74], [9.39, 9.69]];
   const stepN = 3;
   const stepGround = 0.05;
   const stepTop = V2_PLINTH + 0.18;
@@ -2975,38 +3056,36 @@ function addVariant2() {
   const tread = 0.3;
   for (let i = 0; i < stepN; i++) {
     const top = stepGround + (i + 1) * stepRise;
-    const vNear = 16.2 + (stepN - 1 - i) * tread;
+    const vNear = 16.22 + (stepN - 1 - i) * tread;
     const vFar = vNear + tread;
-    v2box(5.45, vNear, 7.15, vFar, stepGround - V2_PLINTH, top - V2_PLINTH, 0xcfc6b8);
+    v2box(5.76, vNear, 7.36, vFar, stepGround - V2_PLINTH, top - V2_PLINTH, 0xcfc6b8);
   }
 
-  const eave = 3.14;
-  const ridge = 5.703;
-  const bite = 0.08;
-  asRoof(v2box(-0.19 + ext - bite, 3.4 + ext - bite, 18.22 - ext + bite, 13.96 - ext + bite, 2.7, 2.88, 0xe4ddd0));
-  const u0 = -0.69;
-  const u1 = 18.53;
-  const v0 = 3.04;
-  const v1 = 14.27;
+  asRoof(v2box(uOutE + ext, vOutS + ext, uOutW - ext, vOutN - ext, partTop, partTop + 0.18, 0xe4ddd0));
+  const u0 = -2.09;
+  const u1 = 18.67;
+  const v0 = 3.0;
+  const v1 = 14.41;
   const half = (v1 - v0) / 2;
   const ru0 = u0 + half;
   const ru1 = u1 - half;
   const rv = (v0 + v1) / 2;
-  // Вальма: скаты — трапеции на весь карниз, иначе по углам остаются дыры.
-  v2roof([
-    [[u0, v0, eave], [u1, v0, eave], [ru1, rv, ridge]],
-    [[u0, v0, eave], [ru1, rv, ridge], [ru0, rv, ridge]],
-    [[u0, v1, eave], [ru0, rv, ridge], [ru1, rv, ridge]],
-    [[u0, v1, eave], [ru1, rv, ridge], [u1, v1, eave]],
-    [[u0, v0, eave], [ru0, rv, ridge], [u0, v1, eave]],
-    [[u1, v1, eave], [ru1, rv, ridge], [u1, v0, eave]],
-  ]);
-  // Южный фронтон. Конёк 5,499 доведён до наружных столбов террасы, задняя кромка лежит на южном скате.
-  const gp = 5.499;
-  const gu = 10.7;
-  const gf = -0.45;
-  const gL = 7.15;
-  const gR = 14.25;
+  const pitch = 2.563 / 5.615;
+  const ridge = eave + half * pitch;
+  const roofDrop = 0.45;
+  const gablePitch = 2.359 / 3.55;
+  const over = 0.3;
+  const tEast = 6.451;
+  const tWest = 13.939;
+  const tFront = 0;
+  const pEast = 3.435;
+  const pWest = 9.685;
+  const pTip = 16.22;
+  const gL = tEast - over;
+  const gR = tWest + over;
+  const gu = (tEast + tWest) / 2;
+  const gf = tFront - over;
+  const gp = eave + ((tWest - tEast) / 2) * gablePitch;
   const vMeet = v0 + ((gp - eave) / (ridge - eave)) * (rv - v0);
   const gableTris = [
     [[gL, gf, eave], [gu, gf, gp], [gu, vMeet, gp]],
@@ -3014,87 +3093,87 @@ function addVariant2() {
     [[gR, gf, eave], [gu, vMeet, gp], [gu, gf, gp]],
     [[gR, gf, eave], [gR, v0, eave], [gu, vMeet, gp]],
   ];
-  const roofDrop = 0.45;
   v2shell(gableTris, roofDrop);
-  const soffitAt = (u) => {
+  const pL = pEast - over;
+  const pR = pWest + over;
+  const pu = (pEast + pWest) / 2;
+  const pFront = pTip + over;
+  const pp = eave + ((pWest - pEast) / 2) * gablePitch;
+  const zMainN = (v) => eave + (ridge - eave) * ((v1 - v) / (v1 - rv));
+  const vMeetN = v1 - ((pp - eave) / (ridge - eave)) * (v1 - rv);
+  const vJoin = vMeetN + 0.08;
+  const zJoin = zMainN(vJoin);
+  const eavePt = (u, v) => [u, v, eave];
+  const ridgeE = [ru0, rv, ridge];
+  const ridgeW = [ru1, rv, ridge];
+  v2roof([
+    [eavePt(u0, v0), eavePt(gL, v0), ridgeE],
+    [eavePt(gL, v0), [gu, vMeet, gp], ridgeE],
+    [[gu, vMeet, gp], eavePt(gR, v0), ridgeW],
+    [[gu, vMeet, gp], ridgeW, ridgeE],
+    [eavePt(gR, v0), eavePt(u1, v0), ridgeW],
+    [eavePt(u0, v1), eavePt(pL, v1), ridgeE],
+    [eavePt(pL, v1), [pu, vJoin, zJoin], ridgeE],
+    [[pu, vJoin, zJoin], eavePt(pR, v1), ridgeW],
+    [[pu, vJoin, zJoin], ridgeW, ridgeE],
+    [eavePt(pR, v1), eavePt(u1, v1), ridgeW],
+    [eavePt(u0, v0), ridgeE, eavePt(u0, v1)],
+    [eavePt(u1, v1), ridgeW, eavePt(u1, v0)],
+  ]);
+  v2shell([
+    [[pL, pFront, eave], [pu, pFront, pp], [pu, vJoin, zJoin]],
+    [[pL, pFront, eave], [pu, vJoin, zJoin], [pL, v1, eave]],
+    [[pR, pFront, eave], [pu, vJoin, zJoin], [pu, pFront, pp]],
+    [[pR, pFront, eave], [pR, v1, eave], [pu, vJoin, zJoin]],
+  ], roofDrop);
+  const terraceSoffit = (u) => {
     const rise = gp - eave;
     const zTop = u <= gu
       ? eave + rise * ((u - gL) / (gu - gL))
       : eave + rise * ((gR - u) / (gR - gu));
     return zTop - roofDrop;
   };
-  const bayV = 2.64;
-  const bayT = ext;
-  const head = 3.14;
-  const slopeWall = (u0, u1) => {
-    const z0 = soffitAt(u0);
-    const z1 = soffitAt(u1);
-    if (z0 < head + 0.04 && z1 < head + 0.04) return;
-    const a = Math.max(z0, head);
-    const b = Math.max(z1, head);
-    const va = bayV - bayT / 2;
-    const vb = bayV + bayT / 2;
+  const porchSoffit = (u) => {
+    const rise = pp - eave;
+    const zTop = u <= pu
+      ? eave + rise * ((u - pL) / (pu - pL))
+      : eave + rise * ((pR - u) / (pR - pu));
+    return zTop - roofDrop;
+  };
+  const fillGable = (vFace, sign, uA, uB, zAt, color) => {
+    const va = vFace + sign * 0.045;
+    const vb = vFace - sign * 0.01;
+    const za = Math.max(zAt(uA), eave);
+    const zb = Math.max(zAt(uB), eave);
     const quad = (p, q, r, s) => [[p, q, r], [p, r, s]];
     v2solid([
-      ...quad([u0, va, head], [u1, va, head], [u1, va, b], [u0, va, a]),
-      ...quad([u0, vb, head], [u1, vb, b], [u1, vb, head], [u0, vb, a]),
-      ...quad([u0, va, head], [u0, vb, head], [u0, vb, a], [u0, va, a]),
-      ...quad([u1, va, head], [u1, va, b], [u1, vb, b], [u1, vb, head]),
-      ...quad([u0, va, a], [u0, vb, a], [u1, vb, b], [u1, va, b]),
-    ], V2_BRICK);
+      ...quad([uA, va, partTop], [uB, va, partTop], [uB, va, zb], [uA, va, za]),
+      ...quad([uA, vb, partTop], [uB, vb, zb], [uB, vb, partTop], [uA, vb, za]),
+      ...quad([uA, va, partTop], [uA, vb, partTop], [uA, vb, za], [uA, va, za]),
+      ...quad([uB, va, partTop], [uB, va, zb], [uB, vb, zb], [uB, vb, partTop]),
+      ...quad([uA, va, za], [uA, vb, za], [uB, vb, zb], [uB, va, zb]),
+    ], color);
   };
-  const slopeFrame = (u0, u1) => {
-    const fw = 0.07;
-    const va = bayV - 0.112;
-    const vb = bayV + 0.112;
-    const zL = soffitAt(u0);
-    const zR = soffitAt(u1);
-    const quad = (p, q, r, s) => [[p, q, r], [p, r, s]];
-    // Боковые стойки идут от перемычки до ската: прямоугольник и треугольник — одна рама.
-    if (zL > lintelTop + 0.02) v2box(u0, va, u0 + fw, vb, lintelTop, zL, 0x6b3e24);
-    if (zR > lintelTop + 0.02) v2box(u1 - fw, va, u1, vb, lintelTop, zR, 0x6b3e24);
-    v2solid([
-      ...quad([u0, va, zL], [u1, va, zR], [u1, va, zR - fw], [u0, va, zL - fw]),
-      ...quad([u0, vb, zL], [u0, vb, zL - fw], [u1, vb, zR - fw], [u1, vb, zR]),
-      ...quad([u0, va, zL], [u0, vb, zL], [u1, vb, zR], [u1, va, zR]),
-      ...quad([u0, va, zL - fw], [u1, va, zR - fw], [u1, vb, zR - fw], [u0, vb, zL - fw]),
-      ...quad([u0, va, zL], [u0, va, zL - fw], [u0, vb, zL - fw], [u0, vb, zL]),
-      ...quad([u1, va, zR], [u1, vb, zR], [u1, vb, zR - fw], [u1, va, zR - fw]),
-    ], 0x6b3e24);
-    const g0 = u0 + fw + 0.015;
-    const g1 = u1 - fw - 0.015;
-    const gv = bayV - 0.03;
-    const gBot = lintelTop + 0.02;
-    v2glass([
-      [[g0, gv, gBot], [g1, gv, gBot], [g1, gv, soffitAt(g1) - fw - 0.01]],
-      [[g0, gv, gBot], [g1, gv, soffitAt(g1) - fw - 0.01], [g0, gv, soffitAt(g0) - fw - 0.01]],
-    ]);
+  fillGable(vS - ext / 2, -1, tEast, gu, terraceSoffit, bay);
+  fillGable(vS - ext / 2, -1, gu, tWest, terraceSoffit, bay);
+  fillGable(vN + ext / 2, 1, pEast, pu, porchSoffit, bay);
+  fillGable(vN + ext / 2, 1, pu, pWest, porchSoffit, bay);
+  const underSoffit = (u0, u1, zAt) => {
+    let z = Infinity;
+    for (let i = 0; i <= 8; i++) z = Math.min(z, zAt(u0 + (u1 - u0) * (i / 8)));
+    return z - 0.12;
   };
-  slopeWall(7.83, 8.15);
-  slopeFrame(8.15, 10.05);
-  slopeWall(10.05, 10.7);
-  slopeWall(10.7, 11.2);
-  slopeFrame(11.2, 13.15);
-  slopeWall(13.15, 13.57);
-  // Крыльцо: скат от карниза у улицы до пересечения с северным скатом основной крыши.
-  const pp = 4.596;
-  const pu = 7.3;
-  const pL = 4.7;
-  const pR = 9.9;
-  const pFront = 16.5;
-  const zMain = (v) => eave + (ridge - eave) * ((v1 - v) / (v1 - rv));
-  const vMeetN = v1 - ((pp - eave) / (ridge - eave)) * (v1 - rv);
-  const vJoin = vMeetN - 0.08;
-  const zJoin = zMain(vJoin);
-  v2shell([
-    [[pL, pFront, eave], [pu, pFront, eave], [pu, vJoin, zJoin]],
-    [[pL, pFront, eave], [pu, vJoin, zJoin], [pL, v1, eave]],
-    [[pR, pFront, eave], [pu, vJoin, zJoin], [pu, pFront, eave]],
-    [[pR, pFront, eave], [pR, v1, eave], [pu, vJoin, zJoin]],
-  ], roofDrop);
+  const wood = 0x6b5344;
+  for (const [c0, c1] of terraceCols) {
+    v2box(c0, 0.02, c1, 0.32, 0.18, underSoffit(c0, c1, terraceSoffit), wood);
+  }
+  v2box(10.05, 0.02, 10.35, 0.32, 0.18, underSoffit(10.05, 10.35, terraceSoffit), wood);
+  for (const [c0, c1] of porchCols) {
+    v2box(c0, 15.92, c1, 16.22, 0.16, underSoffit(c0, c1, porchSoffit), wood);
+  }
+  v2box(6.41, 15.92, 6.71, 16.22, 0.16, underSoffit(6.41, 6.71, porchSoffit), wood);
 
-  // Карниз по периметру: доска от 2,69 до 3,14, жёлоб снаружи и водостоки по углам.
-  const fasciaLo = 2.69;
+  const fasciaLo = eave - roofDrop;
   const board = 0.12;
   const gutterW = 0.14;
   const gutterC = 0x2a2826;
@@ -3108,19 +3187,26 @@ function addVariant2() {
   eaveBand(u1, v0, u1 + board, v1, fasciaLo, eave, V2_ROOF);
   eaveBand(u0, v1, pL, v1 + board, fasciaLo, eave, V2_ROOF);
   eaveBand(pR, v1, u1, v1 + board, fasciaLo, eave, V2_ROOF);
-  eaveBand(u0, v0, gL, 3.4, fasciaLo, soffitHi, V2_ROOF);
-  eaveBand(gR, v0, u1, 3.4, fasciaLo, soffitHi, V2_ROOF);
-  eaveBand(u0, v0, -0.19, v1, fasciaLo, soffitHi, V2_ROOF);
-  eaveBand(18.22, v0, u1, v1, fasciaLo, soffitHi, V2_ROOF);
-  eaveBand(u0, 13.96, pL, v1, fasciaLo, soffitHi, V2_ROOF);
-  eaveBand(pR, 13.96, u1, v1, fasciaLo, soffitHi, V2_ROOF);
+  eaveBand(u0, v0, tEast, vOutS, fasciaLo, soffitHi, V2_ROOF);
+  eaveBand(tWest, v0, u1, vOutS, fasciaLo, soffitHi, V2_ROOF);
+  eaveBand(u0, v0, uOutE, v1, fasciaLo, soffitHi, V2_ROOF);
+  eaveBand(uOutW, v0, u1, v1, fasciaLo, soffitHi, V2_ROOF);
+  eaveBand(u0, vOutN, pEast, v1, fasciaLo, soffitHi, V2_ROOF);
+  eaveBand(pWest, vOutN, u1, v1, fasciaLo, soffitHi, V2_ROOF);
+  eaveBand(gL - board, gf, gL, v0, fasciaLo, eave, V2_ROOF);
+  eaveBand(gR, gf, gR + board, v0, fasciaLo, eave, V2_ROOF);
+  eaveBand(pL - board, v1, pL, pFront, fasciaLo, eave, V2_ROOF);
+  eaveBand(pR, v1, pR + board, pFront, fasciaLo, eave, V2_ROOF);
   eaveBand(u0, v0 - board - gutterW, gL, v0 - board, gutterLo, gutterHi, gutterC);
   eaveBand(gR, v0 - board - gutterW, u1, v0 - board, gutterLo, gutterHi, gutterC);
   eaveBand(u0 - board - gutterW, v0, u0 - board, v1, gutterLo, gutterHi, gutterC);
   eaveBand(u1 + board, v0, u1 + board + gutterW, v1, gutterLo, gutterHi, gutterC);
   eaveBand(u0, v1 + board, pL, v1 + board + gutterW, gutterLo, gutterHi, gutterC);
   eaveBand(pR, v1 + board, u1, v1 + board + gutterW, gutterLo, gutterHi, gutterC);
-  eaveBand(pL, pFront, pR, pFront + gutterW, gutterLo, gutterHi, gutterC);
+  eaveBand(gL - board - gutterW, gf, gL - board, v0, gutterLo, gutterHi, gutterC);
+  eaveBand(gR + board, gf, gR + board + gutterW, v0, gutterLo, gutterHi, gutterC);
+  eaveBand(pL - board - gutterW, v1, pL - board, pFront, gutterLo, gutterHi, gutterC);
+  eaveBand(pR + board, v1, pR + board + gutterW, pFront, gutterLo, gutterHi, gutterC);
   const gout = board + gutterW;
   eaveBand(u0 - gout, v0 - gout, u0 - board, v0 - board, gutterLo, gutterHi, gutterC);
   eaveBand(u1 + board, v0 - gout, u1 + gout, v0 - board, gutterLo, gutterHi, gutterC);
@@ -3128,10 +3214,9 @@ function addVariant2() {
   eaveBand(u1 + board, v1 + board, u1 + gout, v1 + gout, gutterLo, gutterHi, gutterC);
   const pipe = 0.07;
   const uvWorld = (u, v, z) => {
-    const [e, n] = planToWorld(V2_XE - u, V2_YS + v);
+    const [e, n] = planToWorld(V2_XE - u, v2Ys + v);
     return [e, z + V2_PLINTH, n];
   };
-  // С угла карниза по биссектрисе к углу стены, вниз по углу и отлив наружу по той же биссектрисе.
   const spout = (gu, gv, wu, wv, zTop = gutterLo + 0.03, zWallBot = 0.12, zEnd = 0.02, zOut = -0.1) => {
     const zBend = fasciaLo - 0.22;
     const beam = (ua, va, za, ub, vb, zb) => asRoof(addBeam(
@@ -3150,44 +3235,70 @@ function addVariant2() {
     beam(ku, kv, zOut, ku, kv, zEnd + 0.06);
   };
   const gMid = board + gutterW / 2;
-  spout(u0 - gMid, v0 - gMid, -0.19 - 0.05, 3.4 - 0.05);
-  spout(u1 + gMid, v0 - gMid, 18.22 + 0.05, 3.4 - 0.05);
-  spout(u0 - gMid, v1 + gMid, -0.19 - 0.05, 13.96 + 0.05);
-  spout(u1 + gMid, v1 + gMid, 18.22 + 0.05, 13.96 + 0.05);
-  const pv = pFront + gutterW / 2;
-  const porchClear = 0.12;
-  spout(pL + pipe / 2, pv, 5.06, 16.08, gutterLo + 0.03, 0.22, 0.20, 0.18);
-  spout(pR - pipe / 2, pv, 9.55, 16.08, gutterLo + 0.03, 0.22, 0.20, 0.18);
-  // Углы кровли террасы: от кромки крыши к наружным столбам, без жёлоба по их линии.
-  const terraceTop = fasciaLo - pipe / 2 + 0.02;
-  spout(gL - pipe / 2, gf - pipe / 2, 7.16 - 0.06, 0.05 - 0.06, terraceTop);
-  spout(gR + pipe / 2, gf - pipe / 2, 14.19 + 0.06, 0.05 - 0.06, terraceTop);
+  spout(u0 - gMid, v0 - gMid, uOutE - 0.05, vOutS - 0.05);
+  spout(u1 + gMid, v0 - gMid, uOutW + 0.05, vOutS - 0.05);
+  spout(u0 - gMid, v1 + gMid, uOutE - 0.05, vOutN + 0.05);
+  spout(u1 + gMid, v1 + gMid, uOutW + 0.05, vOutN + 0.05);
+  const out = 0.05 + pipe / 2;
+  const zTop = gutterLo + 0.03;
+  const zBend = fasciaLo - 0.22;
+  const around = (gu, gv, mu, mv, wu, wv) => {
+    const beam = (ua, va, za, ub, vb, zb) => asRoof(addBeam(
+      uvWorld(ua, va, za), uvWorld(ub, vb, zb), pipe, gutterC
+    ));
+    beam(gu, gv, zBend, gu, gv, zTop);
+    beam(gu, gv, zBend, mu, mv, zBend);
+    beam(mu, mv, zBend, wu, wv, zBend);
+    beam(wu, wv, 0.12, wu, wv, zBend);
+    const ox = mu - wu;
+    const oy = mv - wv;
+    const len = Math.hypot(ox, oy) || 1;
+    const kick = 0.2;
+    const ku = wu + (ox / len) * kick;
+    const kv = wv + (oy / len) * kick;
+    beam(wu, wv, 0.12, ku, kv, 0.02);
+    beam(ku, kv, -0.1, ku, kv, 0.08);
+  };
+  around(gL - gMid, gf, 6.46 - out, gf, 6.46 - out, 0.14);
+  around(gR + gMid, gf, 13.94 + out, gf, 13.94 + out, 0.14);
+  around(pL - gMid, pFront, 3.44 - out, pFront, 3.44 - out, 16.1);
+  around(pR + gMid, pFront, 9.69 + out, pFront, 9.69 + out, 16.1);
 
-  // Подписи и пунктир границ на полу. Прямоугольник — чистый размер между гранями стен.
   addFloorNotes([
-    ["Детская-1", 0.19, 3.78, 3.61, 7.88, 0.4],
-    ["Детская-2", 3.77, 3.78, 7.3, 7.88, 0.4],
-    ["Ванная", 0.19, 8.02, 2.49, 9.93, 0.4],
-    ["Холл", 2.65, 8.02, 7.3, 9.93, 0.4],
-    ["Кабинет", 0.19, 10.09, 3.43, 13.58, 0.4],
-    ["Гардероб", 3.59, 10.09, 5.26, 13.58, 0.4],
-    ["Прихожая", 5.42, 10.09, 7.3, 13.58, 0.4],
-    ["Котельная", 7.6, 10.09, 9.47, 13.58, 0.4],
-    ["Кухня", 9.63, 10.09, 13.79, 13.58, 0.4],
-    ["Гостиная", 7.6, 2.83, 13.79, 9.93, 0.4],
-    ["Терраса", 7.11, 0, 14.23, 2.45, 0.48],
-    ["Мастер-спальня", 14.09, 3.78, 17.84, 7.67, 0.4],
-    ["Гардероб", 14.09, 7.79, 15.27, 9.96, 0.4],
-    ["Гардероб", 15.43, 7.79, 17.84, 9.96, 0.4],
-    ["С/у", 14.09, 10.08, 17.84, 12, 0.4],
-    ["Кладовая", 14.09, 12.12, 17.84, 13.58, 0.4],
-    ["Крыльцо", 4.93, 13.96, 9.65, 16.22, 0.48],
-  ].map(([name, u0, v0, u1, v1, floorY]) => [name, V2_XE - u1, V2_YS + v0, V2_XE - u0, V2_YS + v1, floorY]));
-
+    ["Детская-1", -1.31, 3.78, 2.4, 8.19, 0.4],
+    ["Детская-2", 2.58, 3.78, 6.31, 8.02, 0.4],
+    ["Ванная", -1.31, 7.31, 0.71, 9.64, 0.4],
+    ["Холл", 0.89, 8.22, 6.31, 11.24, 0.4, 5.05, 9.9],
+    ["Кабинет", -1.31, 9.89, 1.76, 13.58, 0.4],
+    ["Гардероб", 1.94, 9.89, 3.73, 13.58, 0.4],
+    ["Прихожая", 3.91, 11.43, 6.3, 13.58, 0.4],
+    ["Прачечная", 6.48, 9.9, 9.51, 11.57, 0.4],
+    ["Котельная", 6.48, 11.8, 9.51, 13.58, 0.4],
+    ["Кухня", 9.69, 9.9, 13.8, 13.58, 0.4],
+    ["Гостиная", 6.48, 3.78, 13.8, 9.9, 0.4],
+    ["Терраса", 6.45, 0, 13.94, 3.4, 0.48],
+    ["Мастер-спальня", 14.08, 3.78, 17.84, 7.66, 0.4],
+    ["Гардероб", 15.4, 7.84, 17.84, 9.9, 0.4],
+    ["Коридор", 14.08, 7.84, 15.22, 9.9, 0.4],
+    ["С/у", 14.08, 10.12, 17.84, 12.0, 0.4],
+    ["Кладовая", 14.08, 12.12, 17.84, 13.58, 0.4],
+    ["Крыльцо", 3.43, 13.96, 9.69, 16.22, 0.48],
+  ].map(([name, ua, va, ub, vb, floorY, lu, lv]) => [
+    name, V2_XE - ub, v2Ys + va, V2_XE - ua, v2Ys + vb, floorY,
+    lu == null ? null : V2_XE - lu, lv == null ? null : v2Ys + lv,
+  ]));
+  const siteD = (u, v) => [V2_XE - u, v2Ys + v];
+  const furnLow = [];
+  const furnHigh = [];
+  for (let i = 0; i < FURNITURE_D.length; i += 4) {
+    const vm = (FURNITURE_D[i + 1] + FURNITURE_D[i + 3]) / 2;
+    const dest = vm < vOutS + 0.02 || vm > vOutN - 0.06 ? furnHigh : furnLow;
+    dest.push(FURNITURE_D[i], FURNITURE_D[i + 1], FURNITURE_D[i + 2], FURNITURE_D[i + 3]);
+  }
+  addFloorLines(siteD, furnLow, 0.43, 0x2a2622, 0.92, 0.028);
+  addFloorLines(siteD, furnHigh, 0.51, 0x2a2622, 0.92, 0.028);
   bucket = variant2Group;
   const houseWest = V2_XE - 18.22;
-  const porchNorth = V2_YS + 16.22;
-  const porchX = V2_XE - (4.93 + 9.65) / 2;
   const { gx0: gWest, gx1: gEast, gy0: gSouth, gy1: gNorth } = garageBox;
   const metres = (n) => `${n.toFixed(2).replace(".", ",")} м`;
   const footOn = (px, py, ax, ay, bx, by) => {
@@ -3199,7 +3310,6 @@ function addVariant2() {
   const [westX, westY] = footOn(gWest, gSouth, -18, 22.877, -12.963, -4.345);
   const hatch = [29.823 - 0.3586313514065793, 19.178 - 0.06642232612109211];
   const [septicX, septicY] = footOn(hatch[0], hatch[1], 32.835, 22.877, 39.044, -10.647);
-  addSiteDim(porchX, porchNorth, porchX, fenceY, "4,00 м", -1);
   addSiteDim(gWest - 0.35, gNorth, gWest - 0.35, fenceY, "7,00 м", 1);
   addSiteDim(driveWest, 24, driveEast, 24, "9,93 м", 1);
   addSiteDim(wellE, wellN, wellE, fenceY, "3,00 м", -1, 1.05);
@@ -3208,18 +3318,38 @@ function addVariant2() {
   addSiteDim(hatch[0], hatch[1], hatch[0], fenceY, metres(fenceY - hatch[1]), 1, 0.7);
   addSiteDim(gWest, gSouth, westX, westY, metres(Math.hypot(gWest - westX, gSouth - westY)), 1, 0.7);
   bucket = v2House;
-  addSiteDim(gEast, 11.5, houseWest, 11.5, "6,00 м", 1);
-  const southWall = [V2_XE - 14.23, V2_YS];
-  const [southFx, southFy] = footOn(southWall[0], southWall[1], 39.044, -10.647, -12.963, -4.345);
+  const rx = (u) => V2_XE - u;
+  const ry = (v) => v2Ys + v;
+  const eastRoof = rx(u0 - board);
+  const westRoof = rx(u1 + board);
+  const northEave = ry(v1 + board);
+  const southEave = ry(v0 - board);
+  const porchRoofN = ry(pFront + board);
+  const porchRoofW = rx(pR + board);
+  const terrRoofS = ry(gf - board);
+  const terrRoofW = rx(gR + board);
+  const toFence = (x, y, ax, ay, bx, by) => {
+    const [fx, fy] = footOn(x, y, ax, ay, bx, by);
+    return [fx, fy, Math.hypot(fx - x, fy - y)];
+  };
+  addSiteDim(porchRoofW, porchRoofN, porchRoofW, fenceY, metres(fenceY - porchRoofN), 1, 0.9);
+  const [eastFx, eastFy, eastD] = toFence(eastRoof, northEave, 32.835, fenceY, 39.044, -10.647);
+  addSiteDim(eastRoof, northEave, eastFx, eastFy, metres(eastD), -1, 0.9);
+  const [southFx, southFy, southD] = toFence(terrRoofW, terrRoofS, 39.044, -10.647, -12.963, -4.345);
+  addSiteDim(terrRoofW, terrRoofS, southFx, southFy, metres(southD), -1, 0.9);
+  const [westFx, westFy, westD] = toFence(westRoof, southEave, -18, fenceY, -12.963, -4.345);
+  addSiteDim(westRoof, southEave, westFx, westFy, metres(westD), 1, 0.9, 4.5);
+  const gapY = Math.max(gNorth, ry(vOutN));
+  addSiteDim(gEast, gapY, houseWest, gapY, "6,00 м", 1, 0.8, 18.5 - gapY);
+  const houseSE = [rx(uOutE), ry(vOutS)];
+  const bathNW = [rx(-7.7), ry(-1.74)];
   addSiteDim(
-    southWall[0], southWall[1], southFx, southFy,
-    metres(Math.hypot(southFx - southWall[0], southFy - southWall[1])),
-    -1, 0.7
+    houseSE[0], houseSE[1], bathNW[0], bathNW[1],
+    metres(Math.hypot(bathNW[0] - houseSE[0], bathNW[1] - houseSE[1])),
+    1, 0.85, 0.9
   );
-  bucket = v2House;
-  // Размер терраса → баня (вариант А).
-  addSiteDim(13.05, 2.66, 27.86, 0.92, "14,91 м", -1, 0.7);
   bucket = variant2Group;
+  v2Ys = V2_YS;
   addBath();
 }
 
@@ -3797,7 +3927,7 @@ function showRoofs(on) {
 const VIEW_KEY = "house-light-view";
 let viewVariant = "v2";
 let pendingVariant = "v2";
-const BLURB_2 = "Вариант А. Терраса и гостиная на юг, вход на север, детские на восток. Гараж в 6 м от дома и в 7 м от ворот. Баня на юго-востоке, вход на запад.";
+const BLURB_2 = "Вариант D. Терраса и гостиная на юг, вход на север, детские на восток. Потолок 3,5 м. Жёлтые окна от 0,80 м, белые панорамные от 0,10 м. Крыша над крыльцом как над террасой.";
 const BLURB_B = "Вариант Б. Терраса и мастер-спальня на юг, вход на север. Крыльцо-веранда 6,7 × 2 м, двускатный козырёк на всю ширину.";
 const BLURB_C = "Вариант В. Тот же дом отзеркален, вход на запад к гаражу. Отмостка и плитка ведут от ворот к крыльцу.";
 
