@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="223.75mm" height="116.0mm" viewBox="0 0 223.75 116.0">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="8" y="6.2" font-family="sans-serif" font-size="3.3" font-weight="700" fill="#222">4. Камень террасы, сайдинг крыльев</text>
+<text x="8" y="10.2" font-family="sans-serif" font-size="2.4" fill="#333">Терраса и щипец камнем, крылья горизонтальным сайдингом, по низу тёмный цоколь. Кровля фальцевая.</text>
+<defs>
+
+<pattern id="stone" width="13.6" height="3.5" patternUnits="userSpaceOnUse">
+  <rect width="13.6" height="3.5" fill="#8F877C"/>
+  <rect x="0.12" y="0.12" width="4.3" height="1.5" fill="#D2C4B2"/>
+  <rect x="4.58" y="0.12" width="5.1" height="1.5" fill="#C3B39F"/>
+  <rect x="9.84" y="0.12" width="3.6" height="1.5" fill="#DDD0BE"/>
+  <rect x="-1.6" y="1.84" width="3.8" height="1.5" fill="#C9B9A6"/>
+  <rect x="2.36" y="1.84" width="4.7" height="1.5" fill="#B7A690"/>
+  <rect x="7.22" y="1.84" width="4.0" height="1.5" fill="#D7CBB8"/>
+  <rect x="11.38" y="1.84" width="3.4" height="1.5" fill="#C0B09C"/>
+</pattern>
+<pattern id="stoneDark" width="13.6" height="3.5" patternUnits="userSpaceOnUse">
+  <rect width="13.6" height="3.5" fill="#5E5954"/>
+  <rect x="0.12" y="0.12" width="4.3" height="1.5" fill="#8A8178"/>
+  <rect x="4.58" y="0.12" width="5.1" height="1.5" fill="#756C64"/>
+  <rect x="9.84" y="0.12" width="3.6" height="1.5" fill="#948B82"/>
+  <rect x="-1.6" y="1.84" width="3.8" height="1.5" fill="#7A7168"/>
+  <rect x="2.36" y="1.84" width="4.7" height="1.5" fill="#6A625A"/>
+  <rect x="7.22" y="1.84" width="4.0" height="1.5" fill="#857C74"/>
+</pattern>
+<pattern id="brick" width="5.6" height="1.7" patternUnits="userSpaceOnUse">
+  <rect width="5.6" height="1.7" fill="#CDB8A6"/>
+  <rect x="0.08" y="0.08" width="2.55" height="0.7" fill="#8E4A38"/>
+  <rect x="2.78" y="0.08" width="2.55" height="0.7" fill="#7A4032"/>
+  <rect x="-1.25" y="0.92" width="2.55" height="0.7" fill="#964E3C"/>
+  <rect x="1.45" y="0.92" width="2.55" height="0.7" fill="#7A4032"/>
+  <rect x="4.15" y="0.92" width="2.55" height="0.7" fill="#8E4A38"/>
+</pattern>
+<pattern id="brickDark" width="5.6" height="1.7" patternUnits="userSpaceOnUse">
+  <rect width="5.6" height="1.7" fill="#B59A8C"/>
+  <rect x="0.08" y="0.08" width="2.55" height="0.7" fill="#6E382C"/>
+  <rect x="2.78" y="0.08" width="2.55" height="0.7" fill="#5C2E24"/>
+  <rect x="-1.25" y="0.92" width="2.55" height="0.7" fill="#743C30"/>
+  <rect x="1.45" y="0.92" width="2.55" height="0.7" fill="#5C2E24"/>
+  <rect x="4.15" y="0.92" width="2.55" height="0.7" fill="#6E382C"/>
+</pattern>
+<pattern id="bavaria" width="5.6" height="1.7" patternUnits="userSpaceOnUse">
+  <rect width="5.6" height="1.7" fill="#CDB8A6"/>
+  <rect x="0.08" y="0.08" width="2.55" height="0.7" fill="#8E4A38"/>
+  <rect x="2.78" y="0.08" width="2.55" height="0.7" fill="#C47858"/>
+  <rect x="-1.25" y="0.92" width="2.55" height="0.7" fill="#5C342C"/>
+  <rect x="1.45" y="0.92" width="2.55" height="0.7" fill="#A85A40"/>
+  <rect x="4.15" y="0.92" width="2.55" height="0.7" fill="#7A4032"/>
+</pattern>
+<pattern id="silicate" width="5.6" height="1.7" patternUnits="userSpaceOnUse">
+  <rect width="5.6" height="1.7" fill="#C5C3BC"/>
+  <rect x="0.08" y="0.08" width="2.55" height="0.7" fill="#E7E4DC"/>
+  <rect x="2.78" y="0.08" width="2.55" height="0.7" fill="#D9D6CE"/>
+  <rect x="-1.25" y="0.92" width="2.55" height="0.7" fill="#F2EFE8"/>
+  <rect x="1.45" y="0.92" width="2.55" height="0.7" fill="#E0DDD4"/>
+  <rect x="4.15" y="0.92" width="2.55" height="0.7" fill="#E7E4DC"/>
+</pattern>
+<pattern id="siding" width="6" height="1.65" patternUnits="userSpaceOnUse">
+  <rect width="6" height="1.65" fill="#B7B1A6"/>
+  <rect width="6" height="1.38" fill="#E3DED4"/>
+</pattern>
+<pattern id="vsiding" width="2.05" height="8" patternUnits="userSpaceOnUse">
+  <rect width="2.05" height="8" fill="#B7B3AA"/>
+  <rect width="1.88" height="8" fill="#E4E1DA"/>
+</pattern>
+<pattern id="ashlar" width="9.2" height="4.6" patternUnits="userSpaceOnUse">
+  <rect width="9.2" height="4.6" fill="#C8BEB0"/>
+  <rect x="0.12" y="0.12" width="4.3" height="2.05" fill="#E7DDD0"/>
+  <rect x="4.58" y="0.12" width="4.45" height="2.05" fill="#F3EBE0"/>
+  <rect x="-2.1" y="2.35" width="4.3" height="2.05" fill="#EFE6D8"/>
+  <rect x="2.36" y="2.35" width="4.5" height="2.05" fill="#E4D9C8"/>
+  <rect x="7.02" y="2.35" width="4.2" height="2.05" fill="#F7F1E8"/>
+</pattern>
+<pattern id="tile" width="7.2" height="2.6" patternUnits="userSpaceOnUse">
+  <rect width="7.2" height="2.6" fill="#6A3024"/>
+  <rect x="0.06" y="0.06" width="3.4" height="2.15" fill="#8C4638"/>
+  <rect x="3.6" y="0.06" width="3.4" height="2.15" fill="#7A3C30"/>
+  <rect x="-1.6" y="1.35" width="3.4" height="2.15" fill="#7A3C30"/>
+  <rect x="1.95" y="1.35" width="3.4" height="2.15" fill="#8C4638"/>
+  <rect x="5.5" y="1.35" width="3.4" height="2.15" fill="#7A3C30"/>
+</pattern>
+<pattern id="tileDark" width="7.2" height="2.15" patternUnits="userSpaceOnUse">
+  <rect width="7.2" height="2.15" fill="#2E3236"/>
+  <rect x="0.06" y="0.06" width="3.4" height="1.75" fill="#4E5256"/>
+  <rect x="3.6" y="0.06" width="3.4" height="1.75" fill="#3E4246"/>
+  <rect x="-1.6" y="1.1" width="3.4" height="1.75" fill="#3E4246"/>
+  <rect x="1.95" y="1.1" width="3.4" height="1.75" fill="#4E5256"/>
+</pattern>
+<pattern id="seam" width="4.4" height="8" patternUnits="userSpaceOnUse">
+  <rect width="4.4" height="8" fill="#32353A"/>
+  <rect width="0.2" height="8" fill="#1C1E20"/>
+</pattern>
+<pattern id="barrel" width="2.2" height="2.4" patternUnits="userSpaceOnUse">
+  <rect width="2.2" height="2.4" fill="#A84E32"/>
+  <path d="M0,2.15 Q1.1,1.35 2.2,2.15 L2.2,2.4 L0,2.4 Z" fill="#E8C4AE"/>
+  <path d="M0.15,0.15 Q1.1,1.05 2.05,0.15" fill="none" stroke="#7A3424" stroke-width="0.12"/>
+</pattern>
+
+<clipPath id="roof"><path d="M64.75,18.00 L158.75,18.00 L215.63,44.00 L215.75,48.63 L133.13,48.50 L92.88,23.63 L52.38,48.50 L8.00,48.50 L8.00,43.88 Z"/></clipPath>
+<clipPath id="gable"><path d="M92.63,23.63 L133.25,48.63 L52.25,48.63 Z"/></clipPath>
+<clipPath id="wall"><rect x="12.5" y="48.5" width="199.13" height="37.50"/></clipPath>
+<clipPath id="wings"><path d="M12.5,48.5 H52.25 V86.0 H12.5 Z M133.25,48.5 H211.63 V86.0 H133.25 Z"/></clipPath>
+<clipPath id="center"><path d="M52.25,48.5 H133.25 V81.45 H52.25 Z M92.63,23.63 L133.25,48.63 L52.25,48.63 Z"/></clipPath>
+<clipPath id="ten-below"><path d="M4.00,48.50 L12.50,48.50 L52.38,48.50 L92.88,23.63 L133.13,48.50 L211.63,48.62 L220.00,48.62 L220.00,81.45 L4.00,81.45 Z"/></clipPath><filter id="ten-blur" filterUnits="userSpaceOnUse" x="0" y="16" width="224" height="84"><feGaussianBlur stdDeviation="0.6"/></filter></defs>
+<rect x="0.00" y="14.00" width="230.00" height="80.00" fill="#C4B6A4" clip-path="url(#wall)"/><rect x="0.00" y="14.00" width="230.00" height="80.00" fill="#C4B6A4" clip-path="url(#gable)"/><rect x="0.00" y="14.00" width="230.00" height="80.00" fill="url(#siding)" clip-path="url(#wings)"/><rect x="0.00" y="14.00" width="230.00" height="80.00" fill="url(#stone)" clip-path="url(#center)"/><rect x="12.50" y="79.10" width="199.13" height="6.90" fill="#3A4048" clip-path="url(#wall)"/><rect x="0.00" y="14.00" width="230.00" height="80.00" fill="url(#seam)" clip-path="url(#roof)"/><rect x="51.20" y="81.45" width="83.00" height="4.55" fill="#9C968C"/><rect x="51.26" y="81.57" width="3.67" height="1.85" fill="#D0CBC3"/><rect x="55.05" y="81.57" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="58.90" y="81.57" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="62.75" y="81.57" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="66.60" y="81.57" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="70.45" y="81.57" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="74.30" y="81.57" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="78.15" y="81.57" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="82.00" y="81.57" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="85.85" y="81.57" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="89.70" y="81.57" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="93.55" y="81.57" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="97.40" y="81.57" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="101.25" y="81.57" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="105.10" y="81.57" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="108.95" y="81.57" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="112.80" y="81.57" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="116.65" y="81.57" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="120.50" y="81.57" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="124.35" y="81.57" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="128.20" y="81.57" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="132.05" y="81.57" width="2.09" height="1.85" fill="#D0CBC3"/><rect x="51.26" y="83.58" width="1.75" height="1.85" fill="#D0CBC3"/><rect x="53.13" y="83.58" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="56.98" y="83.58" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="60.83" y="83.58" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="64.68" y="83.58" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="68.53" y="83.58" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="72.38" y="83.58" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="76.22" y="83.58" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="80.07" y="83.58" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="83.92" y="83.58" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="87.77" y="83.58" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="91.62" y="83.58" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="95.47" y="83.58" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="99.32" y="83.58" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="103.17" y="83.58" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="107.02" y="83.58" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="110.87" y="83.58" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="114.72" y="83.58" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="118.57" y="83.58" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="122.42" y="83.58" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="126.27" y="83.58" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="130.12" y="83.58" width="3.73" height="1.85" fill="#D0CBC3"/><rect x="51.26" y="85.59" width="3.67" height="0.31" fill="#D0CBC3"/><rect x="55.05" y="85.59" width="3.73" height="0.31" fill="#D0CBC3"/><rect x="58.90" y="85.59" width="3.73" height="0.31" fill="#D0CBC3"/><rect x="62.75" y="85.59" width="3.73" height="0.31" fill="#D0CBC3"/><rect x="66.60" y="85.59" width="3.73" height="0.31" fill="#D0CBC3"/><rect x="70.45" y="85.59" width="3.73" height="0.31" fill="#D0CBC3"/><rect x="74.30" y="85.59" width="3.73" height="0.31" fill="#D0CBC3"/><rect x="78.15" y="85.59" width="3.73" height="0.31" fill="#D0CBC3"/><rect x="82.00" y="85.59" width="3.73" height="0.31" fill="#D0CBC3"/><rect x="85.85" y="85.59" width="3.73" height="0.31" fill="#D0CBC3"/><rect x="89.70" y="85.59" width="3.73" height="0.31" fill="#D0CBC3"/><rect x="93.55" y="85.59" width="3.73" height="0.31" fill="#D0CBC3"/><rect x="97.40" y="85.59" width="3.73" height="0.31" fill="#D0CBC3"/><rect x="101.25" y="85.59" width="3.73" height="0.31" fill="#D0CBC3"/><rect x="105.10" y="85.59" width="3.73" height="0.31" fill="#D0CBC3"/><rect x="108.95" y="85.59" width="3.73" height="0.31" fill="#D0CBC3"/><rect x="112.80" y="85.59" width="3.73" height="0.31" fill="#D0CBC3"/><rect x="116.65" y="85.59" width="3.73" height="0.31" fill="#D0CBC3"/><rect x="120.50" y="85.59" width="3.73" height="0.31" fill="#D0CBC3"/><rect x="124.35" y="85.59" width="3.73" height="0.31" fill="#D0CBC3"/><rect x="128.20" y="85.59" width="3.73" height="0.31" fill="#D0CBC3"/><rect x="132.05" y="85.59" width="2.09" height="0.31" fill="#D0CBC3"/><rect x="55.25" y="48.63" width="3.00" height="33.37" fill="#C4B6A4" stroke="#B7A898" stroke-width="0.12"/><rect x="91.25" y="30.27" width="3.00" height="51.73" fill="#C4B6A4" stroke="#B7A898" stroke-width="0.12"/><rect x="127.13" y="48.63" width="3.00" height="33.37" fill="#C4B6A4" stroke="#B7A898" stroke-width="0.12"/><rect x="24.00" y="61.88" width="20.13" height="13.62" fill="#3A322C" /><rect x="24.62" y="62.50" width="18.89" height="12.38" fill="#D7E6EE" /><rect x="33.89" y="61.88" width="0.34" height="13.62" fill="#3A322C" /><rect x="24.00" y="67.60" width="20.13" height="0.34" fill="#3A322C" /><rect x="140.25" y="61.88" width="20.13" height="13.62" fill="#3A322C" /><rect x="140.87" y="62.50" width="18.89" height="12.38" fill="#D7E6EE" /><rect x="150.15" y="61.88" width="0.34" height="13.62" fill="#3A322C" /><rect x="140.25" y="67.60" width="20.13" height="0.34" fill="#3A322C" /><rect x="179.13" y="61.88" width="20.00" height="13.62" fill="#3A322C" /><rect x="179.75" y="62.50" width="18.76" height="12.38" fill="#D7E6EE" /><rect x="188.96" y="61.88" width="0.34" height="13.62" fill="#3A322C" /><rect x="179.13" y="67.60" width="20.00" height="0.34" fill="#3A322C" /><rect x="76.25" y="61.88" width="10.25" height="18.75" fill="#3A322C" /><rect x="76.87" y="62.50" width="9.01" height="17.51" fill="#D7E6EE" /><rect x="76.25" y="68.63" width="10.25" height="0.34" fill="#3A322C" /><rect x="81.20" y="61.88" width="0.34" height="18.75" fill="#3A322C" /><rect x="97.63" y="61.88" width="10.12" height="18.75" fill="#3A322C" /><rect x="98.25" y="62.50" width="8.88" height="17.51" fill="#D7E6EE" /><rect x="97.63" y="68.63" width="10.12" height="0.34" fill="#3A322C" /><rect x="102.52" y="61.88" width="0.34" height="18.75" fill="#3A322C" /><rect x="108.00" y="61.88" width="10.13" height="18.75" fill="#3A322C" /><rect x="108.62" y="62.50" width="8.89" height="17.51" fill="#D7E6EE" /><rect x="108.00" y="68.63" width="10.13" height="0.34" fill="#3A322C" /><rect x="112.89" y="61.88" width="0.34" height="18.75" fill="#3A322C" /><rect x="66.25" y="61.88" width="9.75" height="19.67" fill="#3A322C" /><rect x="66.87" y="62.50" width="8.51" height="18.43" fill="#D7E6EE" /><rect x="66.25" y="68.96" width="9.75" height="0.34" fill="#3A322C" /><rect x="70.95" y="61.88" width="0.34" height="19.67" fill="#3A322C" /><rect x="6.00" y="91.20" width="211.50" height="20.50" fill="#F7F6F3" stroke="#DDD8D0" stroke-width="0.2"/><rect x="9.00" y="94.20" width="7.20" height="4.20" fill="url(#stone)" stroke="#222" stroke-width="0.1"/><text x="9.0" y="102.2" font-family="sans-serif" font-size="2.1" fill="#222">камень</text><rect x="43.60" y="94.20" width="7.20" height="4.20" fill="url(#siding)" stroke="#222" stroke-width="0.1"/><text x="43.6" y="102.2" font-family="sans-serif" font-size="2.1" fill="#222">сайдинг</text><rect x="78.20" y="94.20" width="7.20" height="4.20" fill="url(#seam)" stroke="#222" stroke-width="0.1"/><text x="78.2" y="102.2" font-family="sans-serif" font-size="2.1" fill="#222">кровля</text><rect x="112.80" y="94.20" width="7.20" height="4.20" fill="#D0CBC3" stroke="#222" stroke-width="0.1"/><text x="112.8" y="102.2" font-family="sans-serif" font-size="2.1" fill="#222">основание</text><rect x="147.40" y="94.20" width="7.20" height="4.20" fill="#3A322C" stroke="#222" stroke-width="0.1"/><text x="147.4" y="102.2" font-family="sans-serif" font-size="2.1" fill="#222">переплёт</text><text x="9" y="108.6" font-family="sans-serif" font-size="2.05" fill="#555">Стены из блоков. Показана отделка. Колонны стоят на основании террасы. В больших окнах переплёт.</text><g id="ten-mask" opacity="0.40" style="mix-blend-mode:multiply"><g clip-path="url(#ten-below)"><path id="ten-soft" filter="url(#ten-blur)" fill="#000000" d="M50.40,78.85 L133.20,78.85 L133.70,81.45 L49.90,81.45 ZM211.50,48.17 L133.27,48.00 L122.78,41.58 L93.12,23.25 L93.08,23.23 L93.04,23.21 L92.99,23.19 L92.95,23.19 L92.90,23.18 L92.86,23.18 L92.81,23.18 L92.77,23.19 L92.74,23.20 L92.66,23.15 L56.04,45.73 L52.43,47.94 L12.64,48.00 L12.64,48.05 L11.04,48.05 L11.03,48.95 L12.63,48.95 L12.60,54.66 L52.88,54.75 L55.23,59.22 L55.23,48.61 L58.27,48.61 L58.27,64.87 L60.19,64.32 L60.20,80.87 L58.27,80.87 L58.27,81.45 L91.23,81.45 L91.23,80.87 L63.85,80.87 L63.56,61.79 L91.23,44.92 L91.23,30.25 L94.27,30.25 L94.27,43.07 L96.01,42.01 L96.20,80.87 L94.27,80.87 L94.27,81.45 L127.11,81.45 L127.11,80.87 L99.86,80.87 L99.90,41.31 L99.50,40.99 L100.00,40.76 L127.11,57.43 L127.11,48.61 L130.15,48.61 L130.15,59.31 L134.14,61.76 L134.02,62.24 L132.20,62.30 L132.20,80.87 L130.15,80.87 L130.15,81.45 L134.45,81.45 L134.45,81.33 L135.84,81.35 L135.92,63.29 L139.50,64.81 L139.50,60.29 L138.73,59.62 L136.45,54.73 L211.45,54.71 L211.49,49.07 L213.09,49.08 L213.10,48.18 L213.10,48.18 L211.50,48.17 L211.50,48.17 ZM55.23,81.45 L55.23,80.87 L51.45,80.87 L51.45,81.45 L55.23,81.45 Z"/></g><path id="ten" fill="#000000" d="M50.40,78.85 L133.20,78.85 L133.70,81.45 L49.90,81.45 ZM211.50,48.17 L133.27,48.00 L122.78,41.58 L93.12,23.25 L93.08,23.23 L93.04,23.21 L92.99,23.19 L92.95,23.19 L92.90,23.18 L92.86,23.18 L92.81,23.18 L92.77,23.19 L92.74,23.20 L92.66,23.15 L56.04,45.73 L52.43,47.94 L12.64,48.00 L12.64,48.05 L11.04,48.05 L11.03,48.95 L12.63,48.95 L12.60,54.66 L52.88,54.75 L55.23,59.22 L55.23,48.61 L58.27,48.61 L58.27,64.87 L60.19,64.32 L60.20,80.87 L58.27,80.87 L58.27,81.45 L91.23,81.45 L91.23,80.87 L63.85,80.87 L63.56,61.79 L91.23,44.92 L91.23,30.25 L94.27,30.25 L94.27,43.07 L96.01,42.01 L96.20,80.87 L94.27,80.87 L94.27,81.45 L127.11,81.45 L127.11,80.87 L99.86,80.87 L99.90,41.31 L99.50,40.99 L100.00,40.76 L127.11,57.43 L127.11,48.61 L130.15,48.61 L130.15,59.31 L134.14,61.76 L134.02,62.24 L132.20,62.30 L132.20,80.87 L130.15,80.87 L130.15,81.45 L134.45,81.45 L134.45,81.33 L135.84,81.35 L135.92,63.29 L139.50,64.81 L139.50,60.29 L138.73,59.62 L136.45,54.73 L211.45,54.71 L211.49,49.07 L213.09,49.08 L213.10,48.18 L213.10,48.18 L211.50,48.17 L211.50,48.17 ZM55.23,81.45 L55.23,80.87 L51.45,80.87 L51.45,81.45 L55.23,81.45 Z"/></g></svg>
