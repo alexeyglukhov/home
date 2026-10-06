@@ -5,8 +5,8 @@ import geo from "./geometry.js?v=21";
 import { FURNITURE_LINES } from "./furniture-sketch.js?v=4";
 import { FURNITURE_D } from "./furniture-d.js?v=1";
 import { WALL_LINES } from "./wall-sketch.js?v=2";
-import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=14";
-import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=13";
+import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=16";
+import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=15";
 
 const panel = document.getElementById("panel");
 const dateInput = document.getElementById("date");
@@ -57,6 +57,8 @@ const variantCGroup = new THREE.Group();
 const greenhouseGroup = new THREE.Group();
 const houseRig = new THREE.Group();
 let v2House = null;
+let v2HouseD2 = null;
+let roofDims = null;
 scene.add(sharedGroup, variant2Group, variantBGroup, variantCGroup);
 variant2Group.visible = true;
 variantBGroup.visible = false;
@@ -2416,7 +2418,10 @@ function v2wallU(u, v0, v1, thick, holes, zTop, color) {
     if (h.v0 > v + 0.02) v2wallBox(a, v, b, h.v0, -0.05, zTop, color);
     if (h.z0 > 0.02) v2wallBox(a, h.v0, b, h.v1, -0.05, h.z0, color);
     if (zTop > h.z1 + 0.02) v2wallBox(a, h.v0, b, h.v1, h.z1, zTop, color);
-    if (!h.open) v2winX(u, h.v0, h.v1, h.z0, h.z1);
+    if (!h.open) {
+      if (h.slide) v2slideX(u, h.v0, h.v1, h.z0, h.z1);
+      else v2winX(u, h.v0, h.v1, h.z0, h.z1);
+    }
     v = Math.max(v, h.v1);
   }
   if (v1 > v + 0.02) v2wallBox(a, v, b, v1, -0.05, zTop, color);
@@ -2442,12 +2447,39 @@ function v2wallV(v, u0, u1, thick, holes, zTop, color, lower) {
     span(h.u0, h.u1, -0.05, h.z0);
     span(h.u0, h.u1, h.z1, zTop);
     if (!h.open) {
-      if (h.leaf) v2doorY(v, h.u0, h.u1, h.z0, h.z1, h.leaf);
+      if (h.slide) v2slideY(v, h.u0, h.u1, h.z0, h.z1);
+      else if (h.leaf) v2doorY(v, h.u0, h.u1, h.z0, h.z1, h.leaf);
       else v2winY(v, h.u0, h.u1, h.z0, h.z1, h.noSill ? false : undefined);
     }
     u = Math.max(u, h.u1);
   }
   span(u, u1, -0.05, zTop);
+}
+
+function v2slideX(u, v0, v1, z0, z1) {
+  const lo = Math.min(v0, v1);
+  const hi = Math.max(v0, v1);
+  const panel = (hi - lo) * 0.62;
+  const jamb = 0.04;
+  finishRole = "door";
+  v2box(u - 0.1, lo, u + 0.1, lo + jamb, z0, z1, FRAME);
+  v2box(u - 0.1, hi - jamb, u + 0.1, hi, z0, z1, FRAME);
+  v2box(u - 0.1, lo, u + 0.1, hi, z1 - jamb, z1, FRAME);
+  v2box(u - 0.025, hi - panel, u + 0.025, hi - 0.02, z0 + 0.02, z1 - jamb, 0xe8d4b8);
+  finishRole = null;
+}
+
+function v2slideY(v, u0, u1, z0, z1) {
+  const lo = Math.min(u0, u1);
+  const hi = Math.max(u0, u1);
+  const panel = (hi - lo) * 0.62;
+  const jamb = 0.04;
+  finishRole = "door";
+  v2box(lo, v - 0.1, lo + jamb, v + 0.1, z0, z1, FRAME);
+  v2box(hi - jamb, v - 0.1, hi, v + 0.1, z0, z1, FRAME);
+  v2box(lo, v - 0.1, hi, v + 0.1, z1 - jamb, z1, FRAME);
+  v2box(hi - panel, v - 0.025, hi - 0.02, v + 0.025, z0 + 0.02, z1 - jamb, 0xe8d4b8);
+  finishRole = null;
 }
 
 function v2winX(u, v0, v1, z0, z1) {
@@ -3101,9 +3133,13 @@ function addVariant2() {
     for (const [x, y, height, radius, kind] of behindBath) addThuja(x, y, height, radius, kind);
   }
 
-  v2House = new THREE.Group();
-  variant2Group.add(v2House);
-  bucket = v2House;
+  function buildVariantD(trap) {
+  const houseGroup = new THREE.Group();
+  variant2Group.add(houseGroup);
+  bucket = houseGroup;
+  const overlayHost = v2House;
+  v2House = houseGroup;
+  if (trap) v2HouseD2 = houseGroup;
   v2Ys = V2_YS - V2_HOUSE_SHIFT;
 
   const ext = 0.38;
@@ -3224,7 +3260,7 @@ function addVariant2() {
     yel(15.97, 16.95),
   ], eave, V2_BRICK);
 
-  v2wallU(13.94, 3.78, 13.58, 0.28, [doorV(12.16, 12.94)], partTop, V2_PART);
+  v2wallU(13.94, 3.78, 13.58, 0.28, [doorV(12.16, 12.94), { ...doorV(8.4, 9.17), slide: true }], partTop, V2_PART);
   v2wallU(6.45, 3.78, 8.18, 0.28, [], partTop, V2_PART);
   v2wallU(2.5, 3.78, 8.19, 0.18, [], partTop, V2_PART);
   v2wallU(0.8, 7.14, 9.75, 0.18, [doorV(8.29, 9.07)], partTop, V2_PART);
@@ -3236,7 +3272,7 @@ function addVariant2() {
   v2wallV(8.1, 0.84, 6.45, 0.18, [door(1.55, 2.33), door(2.68, 3.45)], partTop, V2_PART);
   v2wallV(9.78, 6.3, 10.28, 0.24, [], partTop, V2_PART);
   v2wallV(10.01, 13.94, 17.84, 0.22, [door(14.22, 14.99)], partTop, V2_PART);
-  v2wallV(7.75, 13.94, 17.84, 0.18, [door(14.19, 14.96)], partTop, V2_PART);
+  v2wallV(7.75, 13.94, 17.84, 0.18, [door(14.19, 14.96), { ...door(16.11, 17.1), slide: true }], partTop, V2_PART);
   v2wallV(12.03, 13.94, 17.84, 0.18, [], partTop, V2_PART);
   v2wallV(11.7, 6.39, 9.65, 0.22, [], partTop, V2_PART);
   v2wallV(11.34, 3.76, 6.4, 0.22, [door(4.72, 5.5)], partTop, V2_PART);
@@ -3283,7 +3319,15 @@ function addVariant2() {
   const gf = tFront - over;
   const gp = eave + ((tWest - tEast) / 2) * gablePitch;
   const vMeet = v0 + ((gp - eave) / (ridge - eave)) * (rv - v0);
-  const gableTris = [
+  const hipT = 1.7;
+  const hiE = gL + hipT;
+  const hiW = gR - hipT;
+  const gableTris = trap ? [
+    [[gL, gf, eave], [gR, gf, eave], [hiW, vMeet, gp]],
+    [[gL, gf, eave], [hiW, vMeet, gp], [hiE, vMeet, gp]],
+    [[gL, gf, eave], [hiE, vMeet, gp], [gL, v0, eave]],
+    [[gR, gf, eave], [gR, v0, eave], [hiW, vMeet, gp]],
+  ] : [
     [[gL, gf, eave], [gu, gf, gp], [gu, vMeet, gp]],
     [[gL, gf, eave], [gu, vMeet, gp], [gL, v0, eave]],
     [[gR, gf, eave], [gu, vMeet, gp], [gu, gf, gp]],
@@ -3302,40 +3346,90 @@ function addVariant2() {
   const eavePt = (u, v) => [u, v, eave];
   const ridgeE = [ru0, rv, ridge];
   const ridgeW = [ru1, rv, ridge];
+  const hipP = 1.35;
+  const phE = pL + hipP;
+  const phW = pR - hipP;
+  const southJoin = trap
+    ? [
+      [eavePt(gL, v0), [hiE, vMeet, gp], ridgeE],
+      [[hiE, vMeet, gp], [hiW, vMeet, gp], ridgeW],
+      [[hiE, vMeet, gp], ridgeW, ridgeE],
+      [[hiW, vMeet, gp], eavePt(gR, v0), ridgeW],
+    ]
+    : [
+      [eavePt(gL, v0), [gu, vMeet, gp], ridgeE],
+      [[gu, vMeet, gp], eavePt(gR, v0), ridgeW],
+      [[gu, vMeet, gp], ridgeW, ridgeE],
+    ];
+  const northJoin = trap
+    ? [
+      [eavePt(pL, v1), [phE, vJoin, zJoin], ridgeE],
+      [[phE, vJoin, zJoin], [phW, vJoin, zJoin], ridgeW],
+      [[phE, vJoin, zJoin], ridgeW, ridgeE],
+      [[phW, vJoin, zJoin], eavePt(pR, v1), ridgeW],
+    ]
+    : [
+      [eavePt(pL, v1), [pu, vJoin, zJoin], ridgeE],
+      [[pu, vJoin, zJoin], eavePt(pR, v1), ridgeW],
+      [[pu, vJoin, zJoin], ridgeW, ridgeE],
+    ];
   v2roof([
     [eavePt(u0, v0), eavePt(gL, v0), ridgeE],
-    [eavePt(gL, v0), [gu, vMeet, gp], ridgeE],
-    [[gu, vMeet, gp], eavePt(gR, v0), ridgeW],
-    [[gu, vMeet, gp], ridgeW, ridgeE],
+    ...southJoin,
     [eavePt(gR, v0), eavePt(u1, v0), ridgeW],
     [eavePt(u0, v1), eavePt(pL, v1), ridgeE],
-    [eavePt(pL, v1), [pu, vJoin, zJoin], ridgeE],
-    [[pu, vJoin, zJoin], eavePt(pR, v1), ridgeW],
-    [[pu, vJoin, zJoin], ridgeW, ridgeE],
+    ...northJoin,
     [eavePt(pR, v1), eavePt(u1, v1), ridgeW],
     [eavePt(u0, v0), ridgeE, eavePt(u0, v1)],
     [eavePt(u1, v1), ridgeW, eavePt(u1, v0)],
   ]);
-  v2shell([
+  v2shell(trap ? [
+    [[pL, pFront, eave], [pR, pFront, eave], [phW, vJoin, zJoin]],
+    [[pL, pFront, eave], [phW, vJoin, zJoin], [phE, vJoin, zJoin]],
+    [[pL, pFront, eave], [phE, vJoin, zJoin], [pL, v1, eave]],
+    [[pR, pFront, eave], [pR, v1, eave], [phW, vJoin, zJoin]],
+  ] : [
     [[pL, pFront, eave], [pu, pFront, pp], [pu, vJoin, zJoin]],
     [[pL, pFront, eave], [pu, vJoin, zJoin], [pL, v1, eave]],
     [[pR, pFront, eave], [pu, vJoin, zJoin], [pu, pFront, pp]],
     [[pR, pFront, eave], [pR, v1, eave], [pu, vJoin, zJoin]],
   ], roofDrop);
-  const terraceSoffit = (u) => {
-    const rise = gp - eave;
-    const zTop = u <= gu
-      ? eave + rise * ((u - gL) / (gu - gL))
-      : eave + rise * ((gR - u) / (gR - gu));
-    return zTop - roofDrop;
+  const terraceTop = (u, v) => {
+    if (!trap) {
+      const rise = gp - eave;
+      return u <= gu
+        ? eave + rise * ((u - gL) / (gu - gL))
+        : eave + rise * ((gR - u) / (gR - gu));
+    }
+    const t = Math.min(1, Math.max(0, (v - gf) / (vMeet - gf)));
+    const z = eave + (gp - eave) * t;
+    const uE = gL + (hiE - gL) * t;
+    const uW = gR + (hiW - gR) * t;
+    if (u <= gL || u >= gR) return eave;
+    if (u < uE) return eave + (z - eave) * ((u - gL) / Math.max(uE - gL, 0.001));
+    if (u > uW) return eave + (z - eave) * ((gR - u) / Math.max(gR - uW, 0.001));
+    return z;
   };
-  const porchSoffit = (u) => {
-    const rise = pp - eave;
-    const zTop = u <= pu
-      ? eave + rise * ((u - pL) / (pu - pL))
-      : eave + rise * ((pR - u) / (pR - pu));
-    return zTop - roofDrop;
+  const porchTop = (u, v) => {
+    if (!trap) {
+      const rise = pp - eave;
+      return u <= pu
+        ? eave + rise * ((u - pL) / (pu - pL))
+        : eave + rise * ((pR - u) / (pR - pu));
+    }
+    const t = Math.min(1, Math.max(0, (pFront - v) / (pFront - vJoin)));
+    const z = eave + (zJoin - eave) * t;
+    const uE = pL + (phE - pL) * t;
+    const uW = pR + (phW - pR) * t;
+    if (u <= pL || u >= pR) return eave;
+    if (u < uE) return eave + (z - eave) * ((u - pL) / Math.max(uE - pL, 0.001));
+    if (u > uW) return eave + (z - eave) * ((pR - u) / Math.max(pR - uW, 0.001));
+    return z;
   };
+  const terraceSoffit = (u) => terraceTop(u, vS - ext / 2) - roofDrop;
+  const porchSoffit = (u) => porchTop(u, vN + ext / 2) - roofDrop;
+  const terraceFrontSoffit = (u) => terraceTop(u, 0.16) - roofDrop;
+  const porchFrontSoffit = (u) => porchTop(u, pFront - 0.2) - roofDrop;
   const fillGable = (vFace, sign, uA, uB, zAt, color) => {
     const va = vFace + sign * 0.045;
     const vb = vFace - sign * 0.01;
@@ -3350,10 +3444,27 @@ function addVariant2() {
       ...quad([uA, va, za], [uA, vb, za], [uB, vb, zb], [uB, va, zb]),
     ], color));
   };
-  fillGable(vS - ext / 2, -1, tEast, gu, terraceSoffit, bay);
-  fillGable(vS - ext / 2, -1, gu, tWest, terraceSoffit, bay);
-  fillGable(vN + ext / 2, 1, pEast, pu, porchSoffit, bay);
-  fillGable(vN + ext / 2, 1, pu, pWest, porchSoffit, bay);
+  if (trap) {
+    const vFaceS = vS - ext / 2;
+    const tS = Math.min(1, Math.max(0, (vFaceS - gf) / (vMeet - gf)));
+    const sE = gL + (hiE - gL) * tS;
+    const sW = gR + (hiW - gR) * tS;
+    fillGable(vFaceS, -1, tEast, sE, terraceSoffit, bay);
+    fillGable(vFaceS, -1, sE, sW, terraceSoffit, bay);
+    fillGable(vFaceS, -1, sW, tWest, terraceSoffit, bay);
+    const vFaceN = vN + ext / 2;
+    const tN = Math.min(1, Math.max(0, (pFront - vFaceN) / (pFront - vJoin)));
+    const nE = pL + (phE - pL) * tN;
+    const nW = pR + (phW - pR) * tN;
+    fillGable(vFaceN, 1, pEast, nE, porchSoffit, bay);
+    fillGable(vFaceN, 1, nE, nW, porchSoffit, bay);
+    fillGable(vFaceN, 1, nW, pWest, porchSoffit, bay);
+  } else {
+    fillGable(vS - ext / 2, -1, tEast, gu, terraceSoffit, bay);
+    fillGable(vS - ext / 2, -1, gu, tWest, terraceSoffit, bay);
+    fillGable(vN + ext / 2, 1, pEast, pu, porchSoffit, bay);
+    fillGable(vN + ext / 2, 1, pu, pWest, porchSoffit, bay);
+  }
   const underSoffit = (u0, u1, zAt) => {
     let z = Infinity;
     for (let i = 0; i <= 8; i++) z = Math.min(z, zAt(u0 + (u1 - u0) * (i / 8)));
@@ -3361,14 +3472,17 @@ function addVariant2() {
   };
   const wood = 0x6b5344;
   const column = (u0, v0, u1, v1, z0, z1) => withFinish("column", () => v2box(u0, v0, u1, v1, z0, z1, wood));
+  const neighborTop = (cols, soffit) => Math.min(...cols.map(([c0, c1]) => underSoffit(c0, c1, soffit)));
+  const terraceSide = neighborTop(terraceCols, terraceFrontSoffit);
+  const porchSide = neighborTop(porchCols, porchFrontSoffit);
   for (const [c0, c1] of terraceCols) {
-    column(c0, 0.02, c1, 0.32, 0.18, underSoffit(c0, c1, terraceSoffit));
+    column(c0, 0.02, c1, 0.32, 0.18, underSoffit(c0, c1, terraceFrontSoffit));
   }
-  column(10.05, 0.02, 10.35, 0.32, 0.18, underSoffit(10.05, 10.35, terraceSoffit));
+  column(10.05, 0.02, 10.35, 0.32, 0.18, trap ? terraceSide : underSoffit(10.05, 10.35, terraceFrontSoffit));
   for (const [c0, c1] of porchCols) {
-    column(c0, 15.92, c1, 16.22, 0.16, underSoffit(c0, c1, porchSoffit));
+    column(c0, 15.92, c1, 16.22, 0.16, underSoffit(c0, c1, porchFrontSoffit));
   }
-  column(6.41, 15.92, 6.71, 16.22, 0.16, underSoffit(6.41, 6.71, porchSoffit));
+  column(6.41, 15.92, 6.71, 16.22, 0.16, trap ? porchSide : underSoffit(6.41, 6.71, porchFrontSoffit));
 
   const fasciaLo = eave - roofDrop;
   const board = 0.12;
@@ -3394,6 +3508,10 @@ function addVariant2() {
   eaveBand(gR, gf, gR + board, v0, fasciaLo, eave, V2_ROOF);
   eaveBand(pL - board, v1, pL, pFront, fasciaLo, eave, V2_ROOF);
   eaveBand(pR, v1, pR + board, pFront, fasciaLo, eave, V2_ROOF);
+  if (trap) {
+    eaveBand(gL, gf - board, gR, gf, fasciaLo, eave, V2_ROOF);
+    eaveBand(pL, pFront, pR, pFront + board, fasciaLo, eave, V2_ROOF);
+  }
   eaveBand(u0, v0 - board - gutterW, gL, v0 - board, gutterLo, gutterHi, gutterC);
   eaveBand(gR, v0 - board - gutterW, u1, v0 - board, gutterLo, gutterHi, gutterC);
   eaveBand(u0 - board - gutterW, v0, u0 - board, v1, gutterLo, gutterHi, gutterC);
@@ -3404,6 +3522,10 @@ function addVariant2() {
   eaveBand(gR + board, gf, gR + board + gutterW, v0, gutterLo, gutterHi, gutterC);
   eaveBand(pL - board - gutterW, v1, pL - board, pFront, gutterLo, gutterHi, gutterC);
   eaveBand(pR + board, v1, pR + board + gutterW, pFront, gutterLo, gutterHi, gutterC);
+  if (trap) {
+    eaveBand(gL, gf - board - gutterW, gR, gf - board, gutterLo, gutterHi, gutterC);
+    eaveBand(pL, pFront + board, pR, pFront + board + gutterW, gutterLo, gutterHi, gutterC);
+  }
   const gout = board + gutterW;
   eaveBand(u0 - gout, v0 - gout, u0 - board, v0 - board, gutterLo, gutterHi, gutterC);
   eaveBand(u1 + board, v0 - gout, u1 + gout, v0 - board, gutterLo, gutterHi, gutterC);
@@ -3489,6 +3611,18 @@ function addVariant2() {
     west: [
       { u0: 10.54, u1: 11.52, z0: 0.8, z1: 2.15, kind: "win" },
     ],
+    southGable: trap ? {
+      peakZ: terraceSoffit(gu),
+      over: 0.15,
+      drop: 0.05,
+      soffit: terraceSoffit,
+    } : null,
+    northGable: trap ? {
+      peakZ: porchSoffit(pu),
+      over: 0.15,
+      drop: 0.05,
+      soffit: porchSoffit,
+    } : null,
   });
 
   addFloorNotes([
@@ -3524,6 +3658,13 @@ function addVariant2() {
   }
   addFloorLines(siteD, furnLow, 0.43, 0x2a2622, 0.92, 0.028);
   addFloorLines(siteD, furnHigh, 0.51, 0x2a2622, 0.92, 0.028);
+  v2House = trap ? overlayHost : houseGroup;
+  if (trap) v2HouseD2.visible = false;
+  return { u0, u1, v0, v1, board, pFront, pR, gf, gR, vOutN, uOutE, vOutS };
+  }
+  const footD = buildVariantD(false);
+  buildVariantD(true);
+  const { u0, u1, v0, v1, board, pFront, pR, gf, gR, vOutN, uOutE, vOutS } = footD;
   bucket = variant2Group;
   const houseWest = V2_XE - 18.22;
   const { gx0: gWest, gx1: gEast, gy0: gSouth, gy1: gNorth } = garageBox;
@@ -3544,7 +3685,9 @@ function addVariant2() {
   addSiteDim(hatch[0], hatch[1], septicX, septicY, "4,00 м", -1, 0.7);
   addSiteDim(hatch[0], hatch[1], hatch[0], fenceY, metres(fenceY - hatch[1]), 1, 0.7);
   addSiteDim(gWest, gSouth, westX, westY, metres(Math.hypot(gWest - westX, gSouth - westY)), 1, 0.7);
-  bucket = v2House;
+  roofDims = new THREE.Group();
+  variant2Group.add(roofDims);
+  bucket = roofDims;
   const rx = (u) => V2_XE - u;
   const ry = (v) => v2Ys + v;
   const eastRoof = rx(u0 - board);
@@ -4033,6 +4176,58 @@ function addDreamHouse(group, site) {
   addFloorNotes(rooms);
   addFloorLines(site, FURNITURE_LINES, P + 0.08, 0x2a2622, 0.5, 0.03);
   addFloorLines(site, WALL_LINES, P + 0.09, 0x1a1814, 0.55, 0.02);
+
+  const op = (a, b, z0, z1) => ({ u0: a, u1: b, z0, z1, kind: z0 <= P + 0.02 ? "door" : "win" });
+  const live = (a, b) => op(a, b, sill, head);
+  const bath = (a, b) => op(a, b, bathSill, head);
+  const porchGable = {
+    u0: pL, u1: pR, peakU: pu, peakZ: zPeak, eave, over: 0, drop,
+  };
+  mountAnyOverlays(
+    group,
+    (u, v, z) => {
+      const [x, y] = site(u, v);
+      const [e, n] = planToWorld(x, y);
+      return [e, z, n];
+    },
+    (u0, v0, u1, v1, z0, z1, color) => {
+      let pts = [site(u0, v0), site(u1, v0), site(u1, v1), site(u0, v1)];
+      const area = pts[0][0] * (pts[1][1] - pts[3][1])
+        + pts[1][0] * (pts[2][1] - pts[0][1])
+        + pts[2][0] * (pts[3][1] - pts[1][1])
+        + pts[3][0] * (pts[0][1] - pts[2][1]);
+      if (area > 0) pts = [pts[0], pts[3], pts[2], pts[1]];
+      return planBox(pts, z0, z1, color);
+    },
+    (api) => [
+      wallFace(api, {
+        name: "dE", along: "y", outer: uWallE, sign: -1, span0: vT, span1: vN, eave,
+        openings: [live(5.06, 6.56), live(8.21, 9.71), live(10.04, 11.54), live(12.94, 14.44)],
+      }),
+      wallFace(api, {
+        name: "dW", along: "y", outer: uWallW, sign: 1, span0: vS, span1: vN, eave,
+        openings: [bath(-0.19, 0.81), live(4.48, 5.98), live(8.84, 9.84), bath(11.27, 12.27), bath(13.09, 14.08)],
+      }),
+      wallFace(api, {
+        name: "dN", along: "x", outer: vWallN, sign: 1, span0: uE, span1: uW, eave,
+        gable: porchGable,
+        openings: [live(6.38, 7.88), bath(9.89, 10.49), op(12.24, 13.24, P, doorTop), bath(14.02, 14.82)],
+      }),
+      wallFace(api, {
+        name: "dS", along: "x", outer: vWallS, sign: -1, span0: uT, span1: uW, eave,
+        openings: [live(10.89, 12.39), live(15.08, 16.58)],
+      }),
+      wallFace(api, {
+        name: "dT", along: "x", outer: vT - ext / 2, sign: -1, span0: uE, span1: uBear, eave,
+        openings: [live(5.2, 6.7), op(6.88, 7.87, P, doorTop), live(8.05, 8.9)],
+      }),
+      wallFace(api, {
+        name: "dP", along: "x", outer: pFront - 0.07, sign: 1, span0: pL, span1: pR, eave,
+        gable: porchGable,
+        openings: [],
+      }),
+    ]
+  );
 }
 
 function addFloorLines(site, lines, z, color, opacity, w) {
@@ -4169,6 +4364,7 @@ for (const choice of FACADE_CHOICES) {
 let viewVariant = "v2";
 let pendingVariant = "v2";
 const BLURB_2 = "Вариант D. Терраса и гостиная на юг, вход на север, детские на восток. Потолок 3,5 м. Жёлтые окна от 0,80 м, белые панорамные от 0,10 м. Крыша над крыльцом как над террасой.";
+const BLURB_D2 = "Вариант D2. Тот же дом: крыша над террасой и крыльцом — скатная трапеция с прямым передним краем. Средние столбы террасы и крыльца одной высоты с соседними.";
 const BLURB_B = "Вариант Б. Терраса и мастер-спальня на юг, вход на север. Крыльцо-веранда 6,7 × 2 м, двускатный козырёк на всю ширину.";
 const BLURB_C = "Вариант В. Тот же дом отзеркален, вход на запад к гаражу. Отмостка и плитка ведут от ворот к крыльцу.";
 
@@ -4197,7 +4393,7 @@ function loadView() {
     const saved = JSON.parse(localStorage.getItem(VIEW_KEY) || "null");
     if (!saved) return false;
     const nums = [saved.px, saved.py, saved.pz, saved.tx, saved.ty, saved.tz];
-    const known = saved.variant === "v2" || saved.variant === "vb" || saved.variant === "vc";
+    const known = saved.variant === "v2" || saved.variant === "d2" || saved.variant === "vb" || saved.variant === "vc";
     const cameraOk = known && nums.every((n) => Number.isFinite(n));
     if (known) pendingVariant = saved.variant;
     if (cameraOk) {
@@ -4249,12 +4445,18 @@ greenhouseGroup.visible = false;
 if (location.hash) history.replaceState(null, "", location.pathname + location.search);
 
 function setVariant(id) {
-  viewVariant = id === "vb" || id === "vc" ? id : "v2";
+  viewVariant = id === "vb" || id === "vc" || id === "d2" ? id : "v2";
   if (v2House) v2House.visible = viewVariant === "v2";
+  if (v2HouseD2) v2HouseD2.visible = viewVariant === "d2";
+  if (roofDims) roofDims.visible = viewVariant === "v2" || viewVariant === "d2";
   variantBGroup.visible = viewVariant === "vb";
   variantCGroup.visible = viewVariant === "vc";
-  blurb.textContent = viewVariant === "vb" ? BLURB_B : viewVariant === "vc" ? BLURB_C : BLURB_2;
+  blurb.textContent = viewVariant === "vb" ? BLURB_B
+    : viewVariant === "vc" ? BLURB_C
+      : viewVariant === "d2" ? BLURB_D2
+        : BLURB_2;
   document.getElementById("var-v2").classList.toggle("active", viewVariant === "v2");
+  document.getElementById("var-d2").classList.toggle("active", viewVariant === "d2");
   document.getElementById("var-b").classList.toggle("active", viewVariant === "vb");
   document.getElementById("var-c").classList.toggle("active", viewVariant === "vc");
   showRoofs(roofToggle.checked);
@@ -4262,6 +4464,7 @@ function setVariant(id) {
 }
 
 document.getElementById("var-v2").addEventListener("click", () => setVariant("v2"));
+document.getElementById("var-d2").addEventListener("click", () => setVariant("d2"));
 document.getElementById("var-b").addEventListener("click", () => setVariant("vb"));
 document.getElementById("var-c").addEventListener("click", () => setVariant("vc"));
 setVariant(pendingVariant);

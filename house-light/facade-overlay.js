@@ -153,6 +153,44 @@ function joinBeam(face, u0, z0, u1, z1, size, color, proud = 0) {
   face.beam(u0 - (du / len) * e, z0 - (dz / len) * e, u1 + (du / len) * e, z1 + (dz / len) * e, size, color, proud);
 }
 
+function gableCeiling(g, u) {
+  if (typeof g.soffit === "function") return g.soffit(u);
+  const over = g.over ?? 0.3;
+  const drop = g.drop ?? 0.45;
+  const half = (g.u1 - g.u0) / 2 + over;
+  const rise = g.peakZ - g.eave;
+  const dist = Math.min(Math.abs(u - g.peakU), half);
+  return g.eave + rise * (1 - dist / Math.max(half, 0.001)) - drop;
+}
+
+function placeBand(face, u0, u1, z0, z1, color, proud = 0) {
+  const lo = Math.min(u0, u1);
+  const hi = Math.max(u0, u1);
+  const put = (s0, s1, za, zb) => {
+    if (s1 - s0 > 0.03 && zb - za > 0.02) face.place(s0, s1, za, zb, color, proud);
+  };
+  const g = face.gable;
+  if (!g) {
+    put(lo, hi, z0, z1);
+    return;
+  }
+  const over = g.over ?? 0.3;
+  const a = g.u0 - over;
+  const b = g.u1 + over;
+  if (lo < a) put(lo, Math.min(hi, a), z0, z1);
+  if (hi > b) put(Math.max(lo, b), hi, z0, z1);
+  const m0 = Math.max(lo, a);
+  const m1 = Math.min(hi, b);
+  if (m1 - m0 < 0.03) return;
+  const step = 0.28;
+  for (let u = m0; u < m1 - 0.001; u += step) {
+    const u2 = Math.min(u + step, m1);
+    const cap = Math.min(gableCeiling(g, u), gableCeiling(g, u2), gableCeiling(g, (u + u2) / 2)) - 0.05;
+    const top = Math.min(z1, cap);
+    if (top - z0 > 0.03) put(u, u2, z0, top);
+  }
+}
+
 function underGable(face, op) {
   return face.gable && op.u1 > face.gable.u0 + 0.2 && op.u0 < face.gable.u1 - 0.2;
 }
@@ -160,7 +198,7 @@ function underGable(face, op) {
 function fachwerkPosts(face, color, southPosts, studs) {
   const pw = 0.128;
   if (face.name === "S" && southPosts) {
-    for (const [a, b] of southPosts) face.place(a, b, 0.16, face.eave, color, 0.01);
+    for (const [a, b] of southPosts) placeBand(face, a, b, 0.16, face.eave, color, 0.01);
     return;
   }
   const spots = [face.span0, face.span1 - pw];
@@ -180,7 +218,7 @@ function fachwerkPosts(face, color, southPosts, studs) {
     if (used.some((p) => Math.abs(p - a) < 0.09)) continue;
     if (face.openings.some((op) => a < op.u1 - 0.015 && b > op.u0 + 0.015)) continue;
     used.push(a);
-    face.place(a, b, 0.16, face.eave, color, 0.01);
+    placeBand(face, a, b, 0.16, face.eave, color, 0.01);
   }
 }
 
@@ -194,7 +232,7 @@ function sillOf(face) {
 
 function fachwerkRails(face, color, midRail) {
   const eave0 = Math.max(face.eave - 0.12, 0.2);
-  face.place(face.span0, face.span1, eave0, face.eave, color, 0.014);
+  placeBand(face, face.span0, face.span1, eave0, face.eave, color, 0.014);
   const wins = sorted(face).filter((op) => op.kind !== "door" && op.z1 < face.eave - 0.04);
   const head = wins.length ? Math.max(...wins.map((op) => op.z1)) : null;
   if (head != null && head + 0.16 < eave0) {
@@ -324,28 +362,37 @@ function fachwerkGable(face, color, fan) {
   const g = face.gable;
   if (!g) return;
   const over = g.over ?? 0.3;
-  const uEast = g.u0 - over;
-  const uWest = g.u1 + over;
-  const half = (uWest - uEast) / 2;
+  const half = (g.u1 - g.u0) / 2 + over;
   const scale = half / 4.05;
-  joinBeam(face, uWest, g.eave, g.peakU, g.peakZ, 0.22, color, 0.04);
-  joinBeam(face, uEast, g.eave, g.peakU, g.peakZ, 0.22, color, 0.04);
-  joinBeam(face, g.peakU, g.peakZ, g.peakU, g.peakZ - 0.74, 0.14, color, 0.04);
+  const gap = 0.06;
+  const ceil = (u, size) => gableCeiling(g, u) - size * 0.5 - gap;
+  const top = ceil(g.peakU, 0.14);
+  if (top < g.eave + 0.22) return;
+  face.beam(g.peakU, Math.max(g.eave + 0.06, top - 0.56), g.peakU, top, 0.14, color, 0.02);
   if (fan) {
     const d = 1.94 * scale;
-    joinBeam(face, g.peakU, g.peakZ, g.peakU + d, g.eave, 0.12, color, 0.04);
-    joinBeam(face, g.peakU, g.peakZ, g.peakU - d, g.eave, 0.12, color, 0.04);
+    const zFoot = g.eave + 0.04;
+    face.beam(g.peakU, top - 0.02, g.peakU + d, zFoot, 0.11, color, 0.02);
+    face.beam(g.peakU, top - 0.02, g.peakU - d, zFoot, 0.11, color, 0.02);
     return;
   }
-  const zc = g.eave + (g.peakZ - g.eave) * 0.808;
-  const t = (zc - g.eave) / (g.peakZ - g.eave);
-  const west = uWest + (g.peakU - uWest) * t;
-  const east = uEast + (g.peakU - uEast) * t;
-  joinBeam(face, west, zc, east, zc, 0.13, color, 0.04);
-  const foot = 2.54 * scale;
-  const top = 0.83 * scale;
-  joinBeam(face, g.peakU + foot, g.eave, g.peakU + top, zc, 0.12, color, 0.04);
-  joinBeam(face, g.peakU - foot, g.eave, g.peakU - top, zc, 0.12, color, 0.04);
+  const collar = 0.12;
+  const zc = g.eave + (top - g.eave) * 0.56;
+  let dist = 0;
+  for (let d = half * 0.82; d >= 0.28; d -= 0.04) {
+    if (ceil(g.peakU - d, collar) >= zc && ceil(g.peakU + d, collar) >= zc) {
+      dist = d;
+      break;
+    }
+  }
+  if (dist < 0.28) return;
+  face.beam(g.peakU - dist, zc, g.peakU + dist, zc, collar, color, 0.02);
+  const foot = Math.min(2.15 * scale, dist * 0.72);
+  const topIn = Math.min(0.65 * scale, dist * 0.26);
+  if (foot > topIn + 0.12) {
+    face.beam(g.peakU + foot, g.eave + 0.03, g.peakU + topIn, zc, 0.1, color, 0.02);
+    face.beam(g.peakU - foot, g.eave + 0.03, g.peakU - topIn, zc, 0.1, color, 0.02);
+  }
 }
 
 function paintZone(face, u0, u1, color, proud = 0) {
@@ -382,8 +429,8 @@ function each(faces, fn) {
 
 function makeFaces(api, house) {
   const t = 0.07;
-  const southGable = gableOf(house.tEast, house.tWest, house.eave, house.gablePitch);
-  const northGable = gableOf(house.pEast, house.pWest, house.eave, house.gablePitch);
+  const southGable = gableOf(house.tEast, house.tWest, house.eave, house.gablePitch, house.southGable);
+  const northGable = gableOf(house.pEast, house.pWest, house.eave, house.gablePitch, house.northGable);
   return [
     faceU(api, "S", house.south, house.uOutE, house.uOutW, house.vOutS, -1, house.eave, southGable, t),
     faceU(api, "N", house.north, house.uOutE, house.uOutW, house.vOutN, 1, house.eave, northGable, t),
@@ -392,10 +439,16 @@ function makeFaces(api, house) {
   ];
 }
 
-function gableOf(u0, u1, eave, pitch) {
+function gableOf(u0, u1, eave, pitch, extra = null) {
   const peakU = (u0 + u1) / 2;
-  const peakZ = eave + ((u1 - u0) / 2) * pitch;
-  return { u0, u1, peakU, peakZ, eave };
+  const peakZ = extra?.peakZ ?? eave + ((u1 - u0) / 2) * pitch;
+  const g = {
+    u0, u1, peakU, peakZ, eave,
+    over: extra?.over ?? 0.3,
+    drop: extra?.drop ?? 0.45,
+  };
+  if (typeof extra?.soffit === "function") g.soffit = extra.soffit;
+  return g;
 }
 
 function faceU(api, name, openings, span0, span1, vOuter, sign, eave, gable, t) {
