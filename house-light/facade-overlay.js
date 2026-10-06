@@ -431,9 +431,13 @@ function makeFaces(api, house) {
   const t = 0.07;
   const southGable = gableOf(house.tEast, house.tWest, house.eave, house.gablePitch, house.southGable);
   const northGable = gableOf(house.pEast, house.pWest, house.eave, house.gablePitch, house.northGable);
+  const south = faceU(api, "S", house.south, house.uOutE, house.uOutW, house.vOutS, -1, house.eave, southGable, t);
+  const north = faceU(api, "N", house.north, house.uOutE, house.uOutW, house.vOutN, 1, house.eave, northGable, t);
+  south.win = house.southWin || null;
+  north.win = house.northWin || null;
   return [
-    faceU(api, "S", house.south, house.uOutE, house.uOutW, house.vOutS, -1, house.eave, southGable, t),
-    faceU(api, "N", house.north, house.uOutE, house.uOutW, house.vOutN, 1, house.eave, northGable, t),
+    south,
+    north,
     faceV(api, "E", house.east, house.vS, house.vN, house.uOutE, -1, house.eave, t),
     faceV(api, "W", house.west, house.vS, house.vN, house.uOutW, 1, house.eave, t),
   ];
@@ -451,20 +455,76 @@ function gableOf(u0, u1, eave, pitch, extra = null) {
   return g;
 }
 
+function rectsOutside(u0, u1, z0, z1, win) {
+  if (!win || u1 <= win.u0 + 0.001 || u0 >= win.u1 - 0.001 || z1 <= win.zBase + 0.001) return [[u0, u1, z0, z1]];
+  const parts = [];
+  const push = (a, b, c, d) => {
+    if (b - a > 0.012 && d - c > 0.012) parts.push([a, b, c, d]);
+  };
+  if (u0 < win.u0) push(u0, Math.min(u1, win.u0), z0, z1);
+  const a = Math.max(u0, win.u0);
+  const b = Math.min(u1, win.u1);
+  if (b > a + 0.001) {
+    const steps = Math.max(1, Math.ceil((b - a) / 0.22));
+    for (let i = 0; i < steps; i++) {
+      const s0 = a + ((b - a) * i) / steps;
+      const s1 = a + ((b - a) * (i + 1)) / steps;
+      const zCut = Math.min(win.zTop(s0), win.zTop(s1));
+      if (z0 < win.zBase) push(s0, s1, z0, Math.min(z1, win.zBase));
+      if (z1 > zCut) push(s0, s1, Math.max(z0, zCut), z1);
+    }
+  }
+  if (u1 > win.u1) push(Math.max(u0, win.u1), u1, z0, z1);
+  return parts;
+}
+
+function segsOutside(u0, z0, u1, z1, win) {
+  const inside = (u, z) => u > win.u0 && u < win.u1 && z > win.zBase + 0.01 && z < win.zTop(u) - 0.01;
+  if (!inside(u0, z0) && !inside(u1, z1) && !inside((u0 + u1) / 2, (z0 + z1) / 2)) return [[u0, z0, u1, z1]];
+  const n = 16;
+  const pts = [];
+  for (let i = 0; i <= n; i++) {
+    const t = i / n;
+    const u = u0 + (u1 - u0) * t;
+    const z = z0 + (z1 - z0) * t;
+    pts.push([u, z, inside(u, z)]);
+  }
+  const segs = [];
+  let start = null;
+  for (let i = 0; i < pts.length; i++) {
+    if (!pts[i][2]) {
+      if (start == null) start = i;
+    } else if (start != null) {
+      segs.push([pts[start][0], pts[start][1], pts[i - 1][0], pts[i - 1][1]]);
+      start = null;
+    }
+  }
+  if (start != null) segs.push([pts[start][0], pts[start][1], pts[n][0], pts[n][1]]);
+  return segs.filter((s) => Math.hypot(s[2] - s[0], s[3] - s[1]) > 0.05);
+}
+
 function faceU(api, name, openings, span0, span1, vOuter, sign, eave, gable, t) {
   const v0 = sign < 0 ? vOuter - t : vOuter - 0.01;
   const v1 = sign < 0 ? vOuter + 0.01 : vOuter + t;
   const vBeam = sign < 0 ? vOuter - t * 0.45 : vOuter + t * 0.45;
   return {
-    name, openings, span0, span1, eave, gable,
+    name, openings, span0, span1, eave, gable, win: null,
     place(a, b, z0, z1, color, proud = 0) {
-      if (b - a < 0.02 || z1 - z0 < 0.015) return;
+      const u0 = Math.min(a, b);
+      const u1 = Math.max(a, b);
+      const za = Math.min(z0, z1);
+      const zb = Math.max(z0, z1);
+      const parts = this.win ? rectsOutside(u0, u1, za, zb, this.win) : [[u0, u1, za, zb]];
       const extra = sign * proud;
-      api.rect(Math.min(a, b), v0 + extra, Math.max(a, b), v1 + extra, Math.min(z0, z1), Math.max(z0, z1), color);
+      for (const [s0, s1, c0, c1] of parts) {
+        if (s1 - s0 < 0.02 || c1 - c0 < 0.015) continue;
+        api.rect(s0, v0 + extra, s1, v1 + extra, c0, c1, color);
+      }
     },
     beam(a, z0, b, z1, size, color, proud = 0) {
       const v = vBeam + sign * proud;
-      api.beam(a, v, z0, b, v, z1, size, color);
+      const segs = this.win ? segsOutside(a, z0, b, z1, this.win) : [[a, z0, b, z1]];
+      for (const [s0, c0, s1, c1] of segs) api.beam(s0, v, c0, s1, v, c1, size, color);
     },
     tri(color, proud = 0) {
       if (!gable) return;
@@ -472,18 +532,52 @@ function faceU(api, name, openings, span0, span1, vOuter, sign, eave, gable, t) 
       api.tri(gable.u0, v, gable.eave, gable.peakU, v, gable.peakZ, gable.u1, v, gable.eave, color);
     },
     roofFill(color) {
+      if (!gable) return;
       const drop = gable.drop ?? 0.45;
       const over = gable.over ?? 0.3;
       const rise = gable.peakZ - gable.eave;
       const half = (gable.u1 - gable.u0) / 2 + over;
       const dist = half * Math.max(0.08, (rise - drop) / rise);
       const outV = sign < 0 ? vOuter - t - 0.025 : vOuter + t + 0.025;
-      api.tri(
-        gable.peakU + dist, outV, gable.eave,
-        gable.peakU, outV, gable.peakZ - drop,
-        gable.peakU - dist, outV, gable.eave,
-        color
-      );
+      const zPeak = gable.peakZ - drop;
+      const uL = gable.peakU - dist;
+      const uR = gable.peakU + dist;
+      const win = this.win;
+      if (!win || rise < 0.15) {
+        api.tri(uR, outV, gable.eave, gable.peakU, outV, zPeak, uL, outV, gable.eave, color);
+        return;
+      }
+      const zOf = (u) => {
+        const k = Math.min(1, Math.abs(u - gable.peakU) / Math.max(dist, 0.001));
+        return gable.eave + (zPeak - gable.eave) * (1 - k);
+      };
+      const us = [uL, uR];
+      if (win.u0 > uL && win.u0 < uR) us.push(win.u0);
+      if (win.u1 > uL && win.u1 < uR) us.push(win.u1);
+      const n = 18;
+      for (let i = 1; i < n; i++) us.push(uL + ((uR - uL) * i) / n);
+      us.sort((p, q) => p - q);
+      const quad = (ua, za0, za1, ub, zb0, zb1) => {
+        if (za1 - za0 < 0.02 && zb1 - zb0 < 0.02) return;
+        api.tri(ua, outV, za0, ub, outV, zb0, ub, outV, zb1, color);
+        api.tri(ua, outV, za0, ub, outV, zb1, ua, outV, za1, color);
+      };
+      for (let i = 0; i < us.length - 1; i++) {
+        const a = us[i];
+        const b = us[i + 1];
+        if (b - a < 0.001) continue;
+        const topA = zOf(a);
+        const topB = zOf(b);
+        const mid = (a + b) / 2;
+        if (mid <= win.u0 || mid >= win.u1) {
+          quad(a, gable.eave, topA, b, gable.eave, topB);
+          continue;
+        }
+        const headA = Math.min(win.zTop(a), topA);
+        const headB = Math.min(win.zTop(b), topB);
+        quad(a, gable.eave, Math.min(win.zBase, topA), b, gable.eave, Math.min(win.zBase, topB));
+        quad(a, headA, topA, b, headB, topB);
+      }
     },
   };
 }

@@ -5,8 +5,8 @@ import geo from "./geometry.js?v=21";
 import { FURNITURE_LINES } from "./furniture-sketch.js?v=4";
 import { FURNITURE_D } from "./furniture-d.js?v=1";
 import { WALL_LINES } from "./wall-sketch.js?v=2";
-import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=16";
-import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=15";
+import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=17";
+import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=16";
 
 const panel = document.getElementById("panel");
 const dateInput = document.getElementById("date");
@@ -3247,14 +3247,14 @@ function addVariant2() {
     yel(-0.43, 1.54),
     yel(3.45, 5.43),
   ], eave, V2_BRICK);
-  v2wallV(vS, 6.451, 13.939, ext, terraceHoles, eave, bay, bayLower);
+  v2wallV(vS, 6.451, 13.939, ext, terraceHoles, partTop, bay, bayLower);
   v2wallV(vS, 13.939, uOutW, ext, [
     yel(15.08, 17.05),
   ], eave, V2_BRICK);
   v2wallV(vN, uOutE, 3.435, ext, [
     yel(-0.27, 0.71),
   ], eave, V2_BRICK);
-  v2wallV(vN, 3.435, 9.685, ext, porchHoles, eave, bay, bayLower);
+  v2wallV(vN, 3.435, 9.685, ext, porchHoles, partTop, bay, bayLower);
   v2wallV(vN, 9.685, uOutW, ext, [
     yel(10.82, 12.79),
     yel(15.97, 16.95),
@@ -3293,7 +3293,8 @@ function addVariant2() {
     withFinish("base", () => v2box(5.76, vNear, 7.36, vFar, stepGround - V2_PLINTH, top - V2_PLINTH, 0xcfc6b8));
   }
 
-  asRoof(v2box(uOutE + ext, vOutS + ext, uOutW - ext, vOutN - ext, partTop, partTop + 0.18, 0xe4ddd0));
+  const slabTuck = 0.03;
+  asRoof(v2box(uOutE + ext - slabTuck, vOutS + ext - slabTuck, uOutW - ext + slabTuck, vOutN - ext + slabTuck, partTop, partTop + 0.18, 0xe4ddd0));
   const u0 = -2.09;
   const u1 = 18.67;
   const v0 = 3.0;
@@ -3430,41 +3431,277 @@ function addVariant2() {
   const porchSoffit = (u) => porchTop(u, vN + ext / 2) - roofDrop;
   const terraceFrontSoffit = (u) => terraceTop(u, 0.16) - roofDrop;
   const porchFrontSoffit = (u) => porchTop(u, pFront - 0.2) - roofDrop;
-  const fillGable = (vFace, sign, uA, uB, zAt, color) => {
-    const va = vFace + sign * 0.045;
-    const vb = vFace - sign * 0.01;
-    const za = Math.max(zAt(uA), eave);
-    const zb = Math.max(zAt(uB), eave);
-    const quad = (p, q, r, s) => [[p, q, r], [p, r, s]];
-    withFinish("wall", () => v2solid([
-      ...quad([uA, va, partTop], [uB, va, partTop], [uB, va, zb], [uA, va, za]),
-      ...quad([uA, vb, partTop], [uB, vb, zb], [uB, vb, partTop], [uA, vb, za]),
-      ...quad([uA, va, partTop], [uA, vb, partTop], [uA, vb, za], [uA, va, za]),
-      ...quad([uB, va, partTop], [uB, va, zb], [uB, vb, zb], [uB, vb, partTop]),
-      ...quad([uA, va, za], [uA, vb, za], [uB, vb, zb], [uB, va, zb]),
-    ], color));
+  const insetPoly = (pts, d) => {
+    const n = pts.length;
+    let area = 0;
+    for (let i = 0; i < n; i++) {
+      const a = pts[i];
+      const b = pts[(i + 1) % n];
+      area += a[0] * b[1] - b[0] * a[1];
+    }
+    const sign = area >= 0 ? 1 : -1;
+    const edges = [];
+    for (let i = 0; i < n; i++) {
+      const a = pts[i];
+      const b = pts[(i + 1) % n];
+      const du = b[0] - a[0];
+      const dz = b[1] - a[1];
+      const len = Math.hypot(du, dz) || 1;
+      edges.push({
+        p: [a[0] + sign * (-dz / len) * d, a[1] + sign * (du / len) * d],
+        dir: [du / len, dz / len],
+      });
+    }
+    const out = [];
+    for (let i = 0; i < n; i++) {
+      const e0 = edges[(i + n - 1) % n];
+      const e1 = edges[i];
+      const det = e0.dir[0] * e1.dir[1] - e0.dir[1] * e1.dir[0];
+      if (Math.abs(det) < 1e-8) {
+        out.push(e1.p);
+        continue;
+      }
+      const t = ((e1.p[0] - e0.p[0]) * e1.dir[1] - (e1.p[1] - e0.p[1]) * e1.dir[0]) / det;
+      out.push([e0.p[0] + e0.dir[0] * t, e0.p[1] + e0.dir[1] * t]);
+    }
+    return out;
   };
-  if (trap) {
-    const vFaceS = vS - ext / 2;
-    const tS = Math.min(1, Math.max(0, (vFaceS - gf) / (vMeet - gf)));
-    const sE = gL + (hiE - gL) * tS;
-    const sW = gR + (hiW - gR) * tS;
-    fillGable(vFaceS, -1, tEast, sE, terraceSoffit, bay);
-    fillGable(vFaceS, -1, sE, sW, terraceSoffit, bay);
-    fillGable(vFaceS, -1, sW, tWest, terraceSoffit, bay);
-    const vFaceN = vN + ext / 2;
-    const tN = Math.min(1, Math.max(0, (pFront - vFaceN) / (pFront - vJoin)));
-    const nE = pL + (phE - pL) * tN;
-    const nW = pR + (phW - pR) * tN;
-    fillGable(vFaceN, 1, pEast, nE, porchSoffit, bay);
-    fillGable(vFaceN, 1, nE, nW, porchSoffit, bay);
-    fillGable(vFaceN, 1, nW, pWest, porchSoffit, bay);
-  } else {
-    fillGable(vS - ext / 2, -1, tEast, gu, terraceSoffit, bay);
-    fillGable(vS - ext / 2, -1, gu, tWest, terraceSoffit, bay);
-    fillGable(vN + ext / 2, 1, pEast, pu, porchSoffit, bay);
-    fillGable(vN + ext / 2, 1, pu, pWest, porchSoffit, bay);
-  }
+  const windowFromPoly = (pts) => {
+    const n = pts.length;
+    if (n < 3) return null;
+    let turn = 0;
+    for (let i = 0; i < n; i++) {
+      const a = pts[i];
+      const b = pts[(i + 1) % n];
+      const c = pts[(i + 2) % n];
+      const cross = (b[0] - a[0]) * (c[1] - b[1]) - (b[1] - a[1]) * (c[0] - b[0]);
+      if (Math.abs(cross) < 1e-5) continue;
+      const s = Math.sign(cross);
+      if (turn && s !== turn) return null;
+      turn = s;
+    }
+    if (!turn) return null;
+    const zBase = Math.min(...pts.map((p) => p[1]));
+    const zHi = Math.max(...pts.map((p) => p[1]));
+    if (zHi - zBase < 0.16) return null;
+    const basePts = pts.filter((p) => p[1] <= zBase + 0.035);
+    if (basePts.length < 2) return null;
+    const u0 = Math.min(...basePts.map((p) => p[0]));
+    const u1 = Math.max(...basePts.map((p) => p[0]));
+    if (u1 - u0 < 0.4) return null;
+    const zTop = (u) => {
+      let best = zBase;
+      for (let i = 0; i < n; i++) {
+        const a = pts[i];
+        const b = pts[(i + 1) % n];
+        const du = b[0] - a[0];
+        if (Math.abs(du) < 1e-8) continue;
+        const t = (u - a[0]) / du;
+        if (t < -0.002 || t > 1.002) continue;
+        best = Math.max(best, a[1] + t * (b[1] - a[1]));
+      }
+      return best;
+    };
+    if (zTop((u0 + u1) / 2) < zBase + 0.12) return null;
+    return { poly: pts, u0, u1, zBase, zTop };
+  };
+  const atticFloor = partTop + 0.18;
+  const sill = atticFloor + 0.2;
+  const windowUnderRoof = (outline, zFloor, gap, limit) => {
+    const n = outline.length;
+    let area = 0;
+    for (let i = 0; i < n; i++) {
+      const a = outline[i];
+      const b = outline[(i + 1) % n];
+      area += a[0] * b[1] - b[0] * a[1];
+    }
+    const sign = area >= 0 ? 1 : -1;
+    const roof = [];
+    for (let i = 0; i < n; i++) {
+      const a = outline[i];
+      const b = outline[(i + 1) % n];
+      if (Math.abs(a[1] - b[1]) < 0.03 && Math.max(a[1], b[1]) <= eave + 0.02) continue;
+      const du = b[0] - a[0];
+      const dz = b[1] - a[1];
+      const len = Math.hypot(du, dz) || 1;
+      roof.push({
+        p: [a[0] + sign * (-dz / len) * gap, a[1] + sign * (du / len) * gap],
+        dir: [du / len, dz / len],
+      });
+    }
+    if (roof.length < 2) return null;
+    const hitZ = (line, z) => {
+      if (Math.abs(line.dir[1]) < 1e-5) return null;
+      const t = (z - line.p[1]) / line.dir[1];
+      return [line.p[0] + line.dir[0] * t, z];
+    };
+    const meet = (l1, l2) => {
+      const det = l1.dir[0] * l2.dir[1] - l1.dir[1] * l2.dir[0];
+      if (Math.abs(det) < 1e-8) return [l2.p[0], l2.p[1]];
+      const t = ((l2.p[0] - l1.p[0]) * l2.dir[1] - (l2.p[1] - l1.p[1]) * l2.dir[0]) / det;
+      return [l1.p[0] + l1.dir[0] * t, l1.p[1] + l1.dir[1] * t];
+    };
+    const left = hitZ(roof[0], zFloor);
+    const right = hitZ(roof[roof.length - 1], zFloor);
+    if (!left || !right || right[0] - left[0] < 0.4) return null;
+    const pts = [left];
+    for (let i = 0; i < roof.length - 1; i++) pts.push(meet(roof[i], roof[i + 1]));
+    pts.push(right);
+    for (const p of pts) {
+      const cap = limit(p[0]) - 0.04;
+      if (p[1] > cap) p[1] = cap;
+    }
+    const win = windowFromPoly(pts);
+    if (!win || win.zTop((win.u0 + win.u1) / 2) < zFloor + 0.22) return null;
+    return win;
+  };
+  const fitUnderRoof = (outline, limit) => {
+    for (let gap = 1; gap >= 0.12; gap -= 0.02) {
+      const win = windowUnderRoof(outline, sill, gap, limit);
+      if (win) return win;
+    }
+    return null;
+  };
+  const vFaceS = vS - ext / 2;
+  const vFaceN = vN + ext / 2;
+  const tS = Math.min(1, Math.max(0, (vFaceS - gf) / (vMeet - gf)));
+  const sE = gL + (hiE - gL) * tS;
+  const sW = gR + (hiW - gR) * tS;
+  const tN = Math.min(1, Math.max(0, (pFront - vFaceN) / (pFront - vJoin)));
+  const nE = pL + (phE - pL) * tN;
+  const nW = pR + (phW - pR) * tN;
+  const aboveEave = (zAt, uMin, uMax, uMid) => {
+    const search = (a, b, aboveMovesLo) => {
+      let lo = a;
+      let hi = b;
+      for (let i = 0; i < 28; i++) {
+        const m = (lo + hi) / 2;
+        if ((zAt(m) > eave) === aboveMovesLo) lo = m;
+        else hi = m;
+      }
+      return (lo + hi) / 2;
+    };
+    return [search(uMin, uMid, false), search(uMid, uMax, true)];
+  };
+  const southOutline = trap
+    ? [[aboveEave(terraceSoffit, gL, gR, gu)[0], eave], [sE, terraceSoffit(sE)], [sW, terraceSoffit(sW)], [aboveEave(terraceSoffit, gL, gR, gu)[1], eave]]
+    : [[gL, eave], [gu, gp], [gR, eave]];
+  const northOutline = trap
+    ? [[aboveEave(porchSoffit, pL, pR, pu)[0], eave], [nE, porchSoffit(nE)], [nW, porchSoffit(nW)], [aboveEave(porchSoffit, pL, pR, pu)[1], eave]]
+    : [[pL, eave], [pu, pp], [pR, eave]];
+  const southWin = fitUnderRoof(southOutline, terraceSoffit);
+  const northWin = fitUnderRoof(northOutline, porchSoffit);
+  const gableWall = (v, u0, u1, zAt, hole, extraU = []) => {
+    const va = v - ext / 2;
+    const vb = v + ext / 2;
+    const zHi = (u) => Math.max(zAt(u), eave);
+    const knots = [u0, u1];
+    const pushU = (u) => {
+      if (u > u0 + 1e-4 && u < u1 - 1e-4) knots.push(u);
+    };
+    const mid = (u0 + u1) / 2;
+    const crossing = (a, b) => {
+      let lo = a;
+      let hi = b;
+      const up = zAt(b) > zAt(a);
+      for (let i = 0; i < 24; i++) {
+        const m = (lo + hi) / 2;
+        if ((zAt(m) > eave) === up) hi = m;
+        else lo = m;
+      }
+      return (lo + hi) / 2;
+    };
+    if (zAt(u0) < eave - 0.01 && zAt(mid) > eave) pushU(crossing(u0, mid));
+    if (zAt(u1) < eave - 0.01 && zAt(mid) > eave) pushU(crossing(mid, u1));
+    for (const u of extraU) pushU(u);
+    if (hole) {
+      pushU(hole.u0);
+      pushU(hole.u1);
+      for (const p of hole.poly) pushU(p[0]);
+    }
+    knots.sort((a, b) => a - b);
+    const us = [];
+    for (const u of knots) {
+      if (!us.length || u - us[us.length - 1] > 1e-4) us.push(u);
+    }
+    const tris = [];
+    const quad = (p, q, r, s) => {
+      tris.push([p, q, r], [p, r, s]);
+    };
+    const prism = (a, b, za0, za1, zb0, zb1, capLo, capHi) => {
+      quad([a, va, za0], [b, va, zb0], [b, va, zb1], [a, va, za1]);
+      quad([a, vb, za0], [a, vb, za1], [b, vb, zb1], [b, vb, zb0]);
+      if (capLo) quad([a, va, za0], [a, vb, za0], [b, vb, zb0], [b, va, zb0]);
+      if (capHi) quad([a, va, za1], [b, va, zb1], [b, vb, zb1], [a, vb, za1]);
+    };
+    for (let i = 0; i < us.length - 1; i++) {
+      const a = us[i];
+      const b = us[i + 1];
+      const inside = hole && (a + b) / 2 > hole.u0 + 1e-4 && (a + b) / 2 < hole.u1 - 1e-4;
+      if (!inside) {
+        prism(a, b, partTop, zHi(a), partTop, zHi(b), false, true);
+        continue;
+      }
+      const za = Math.min(hole.zTop(a), zHi(a) - 0.02);
+      const zb = Math.min(hole.zTop(b), zHi(b) - 0.02);
+      prism(a, b, partTop, hole.zBase, partTop, hole.zBase, false, true);
+      if (zHi(a) > za + 0.02 || zHi(b) > zb + 0.02) {
+        prism(a, b, za, zHi(a), zb, zHi(b), true, true);
+      }
+    }
+    const zA = zHi(u0);
+    const zB = zHi(u1);
+    quad([u0, va, partTop], [u0, vb, partTop], [u0, vb, zA], [u0, va, zA]);
+    quad([u1, va, partTop], [u1, va, zB], [u1, vb, zB], [u1, vb, partTop]);
+    withFinish("wall", () => v2solid(tris, bay));
+  };
+  const gableWindow = (v, outerSign, hole) => {
+    const va = v + outerSign * (ext / 2 + 0.012);
+    const vb = v - outerSign * (ext / 2);
+    const glassV = (va + vb) / 2;
+    const inner = windowFromPoly(insetPoly(hole.poly, 0.062)) || windowFromPoly(insetPoly(hole.poly, 0.04));
+    if (inner) {
+      const tris = [];
+      for (let i = 1; i < inner.poly.length - 1; i++) {
+        tris.push([
+          [inner.poly[0][0], glassV, inner.poly[0][1]],
+          [inner.poly[i][0], glassV, inner.poly[i][1]],
+          [inner.poly[i + 1][0], glassV, inner.poly[i + 1][1]],
+        ]);
+      }
+      const pane = v2glass(tris);
+      pane.material.opacity = 0.28;
+      const frame = [];
+      const quad = (p, q, r, s) => {
+        frame.push([p, q, r], [p, r, s]);
+      };
+      const outer = hole.poly;
+      const inn = inner.poly;
+      for (let i = 0; i < outer.length; i++) {
+        const o0 = outer[i];
+        const o1 = outer[(i + 1) % outer.length];
+        const i0 = inn[i];
+        const i1 = inn[(i + 1) % inn.length];
+        quad([o0[0], va, o0[1]], [o1[0], va, o1[1]], [i1[0], va, i1[1]], [i0[0], va, i0[1]]);
+        quad([o0[0], vb, o0[1]], [i0[0], vb, i0[1]], [i1[0], vb, i1[1]], [o1[0], vb, o1[1]]);
+        quad([i0[0], va, i0[1]], [i1[0], va, i1[1]], [i1[0], vb, i1[1]], [i0[0], vb, i0[1]]);
+        quad([o0[0], va, o0[1]], [o0[0], vb, o0[1]], [o1[0], vb, o1[1]], [o1[0], va, o1[1]]);
+      }
+      withFinish("frame", () => v2solid(frame, FRAME));
+    }
+    const bar = 0.017;
+    const vLo = Math.min(va, vb);
+    const vHi = Math.max(va, vb);
+    for (const k of [1 / 3, 2 / 3]) {
+      const u = hole.u0 + (hole.u1 - hole.u0) * k;
+      const z1 = hole.zTop(u);
+      withFinish("frame", () => v2box(u - bar, vLo, u + bar, vHi, hole.zBase, z1, FRAME));
+    }
+  };
+  gableWall(vS, tEast, tWest, terraceSoffit, southWin, southOutline.map((p) => p[0]));
+  gableWall(vN, pEast, pWest, porchSoffit, northWin, northOutline.map((p) => p[0]));
+  if (southWin) gableWindow(vS, -1, southWin);
+  if (northWin) gableWindow(vN, 1, northWin);
   const underSoffit = (u0, u1, zAt) => {
     let z = Infinity;
     for (let i = 0; i <= 8; i++) z = Math.min(z, zAt(u0 + (u1 - u0) * (i / 8)));
@@ -3623,6 +3860,8 @@ function addVariant2() {
       drop: 0.05,
       soffit: porchSoffit,
     } : null,
+    southWin,
+    northWin,
   });
 
   addFloorNotes([
