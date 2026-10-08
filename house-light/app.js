@@ -2577,14 +2577,16 @@ function v2doorY(v, u0, u1, z0, z1, leaf) {
   v2box(u1 - jamb, vLo, u1, vHi, z0, z1, FRAME);
   v2box(u0, vLo, u1, vHi, z1 - jamb, z1, FRAME);
   finishRole = null;
+  // Полотно прячется вместе с крышей: остаётся коробка и проём, как у внутренних дверей.
+  const leafMesh = leaf === "glass"
+    ? v2box(u0 + jamb, v - 0.12, u1 - jamb, v + 0.12, z0 + 0.05, z1 - jamb, 0xd7ebf3)
+    : v2box(u0 + jamb, v - half + 0.02, u1 - jamb, v + half - 0.01, z0 + 0.02, z1 - jamb, 0xe8d4b8);
+  leafMesh.userData.roof = true;
   if (leaf === "glass") {
-    const pane = v2box(u0 + jamb, v - 0.12, u1 - jamb, v + 0.12, z0 + 0.05, z1 - jamb, 0xd7ebf3);
-    pane.material.transparent = true;
-    pane.material.opacity = 0.55;
-    pane.material.depthWrite = false;
-    pane.castShadow = false;
-  } else {
-    v2box(u0 + jamb, v - half + 0.02, u1 - jamb, v + half - 0.01, z0 + 0.02, z1 - jamb, 0xe8d4b8);
+    leafMesh.material.transparent = true;
+    leafMesh.material.opacity = 0.55;
+    leafMesh.material.depthWrite = false;
+    leafMesh.castShadow = false;
   }
 }
 

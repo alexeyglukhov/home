@@ -3,8 +3,22 @@
 set -euo pipefail
 HOUSE="$(cd "$(dirname "$0")/../../../../house-light" && pwd)"
 URL="http://127.0.0.1:8766/"
+LOCK="${XDG_RUNTIME_DIR:-/tmp}/house-light-viewer.lock"
 
-if curl -sf -o /dev/null --max-time 2 "$URL"; then
+viewer_up() {
+  curl -sf -o /dev/null --max-time 2 "$URL"
+}
+
+if viewer_up; then
+  echo "already $URL"
+  exit 0
+fi
+
+mkdir -p "$(dirname "$LOCK")"
+exec 9>"$LOCK"
+flock 9
+
+if viewer_up; then
   echo "already $URL"
   exit 0
 fi
@@ -12,7 +26,7 @@ fi
 cd "$HOUSE"
 nohup python3 -m http.server 8766 --bind 127.0.0.1 >/dev/null 2>&1 &
 for _ in 1 2 3 4 5 6 7 8 9 10; do
-  if curl -sf -o /dev/null --max-time 1 "$URL"; then
+  if viewer_up; then
     echo "started $URL"
     exit 0
   fi
