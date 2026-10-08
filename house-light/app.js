@@ -3,7 +3,7 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
 import geo from "./geometry.js?v=21";
 import { FURNITURE_LINES } from "./furniture-sketch.js?v=4";
-import { FURNITURE_D } from "./furniture-d.js?v=1";
+import { FURNITURE_D } from "./furniture-d.js?v=5";
 import { WALL_LINES } from "./wall-sketch.js?v=2";
 import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=17";
 import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=16";
@@ -18,6 +18,7 @@ const roofToggle = document.getElementById("roof");
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.localClippingEnabled = true;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.setClearColor(0xd5e2ef);
@@ -147,6 +148,26 @@ function skirtGeometry(bottom, top) {
 }
 
 let finishRole = null;
+let sectionHeight = null;
+
+function stampSection(mesh, geom) {
+  if (sectionHeight == null || !mesh || mesh.userData.roof) return;
+  const role = mesh.userData.finish;
+  if (role === "roof" || role === "gutter" || role === "plinth" || role === "base") return;
+  if (!geom.boundingBox) geom.computeBoundingBox();
+  const box = geom.boundingBox;
+  if (!box) return;
+  mesh.updateWorldMatrix(true, false);
+  const world = box.clone().applyMatrix4(mesh.matrixWorld);
+  if (world.max.y <= sectionHeight * 0.5 + 0.02) return;
+  mesh.userData.section = sectionHeight;
+}
+
+function stampOverlay(mesh) {
+  if (!mesh) return;
+  mesh.userData.overlay = true;
+  if (sectionHeight != null) mesh.userData.section = sectionHeight;
+}
 
 function withFinish(role, fn) {
   const prev = finishRole;
@@ -170,6 +191,7 @@ function addMesh(geom, color, cast = true) {
     mesh.userData.baseColor = mesh.material.color.getHex();
   }
   bucket.add(mesh);
+  stampSection(mesh, geom);
   return mesh;
 }
 
@@ -258,6 +280,7 @@ const PLINTH = 0.3;
 const plinthColor = 0xcfc6b8;
 bucket = houseRig;
 addMesh(solidFromTris(geo.floor, 0, PLINTH), plinthColor);
+sectionHeight = geo.wallHeight + PLINTH;
 const houseWalls = addMesh(prismGeometry(geo.walls), 0xe7e1d6);
 const houseFloor = addMesh(geometryFromTriangles(geo.floor), 0xf4f0e6, false);
 houseWalls.position.y = PLINTH;
@@ -461,6 +484,7 @@ for (const [x0, x1, y0, y1] of houseWindows) {
 }
 addOpeningFrame(5.31, 6.19, 16.0, 16.5, PLINTH, headZ, false);
 addOpeningFrame(10.66, 11.56, 3.6, 4.1, PLINTH, headZ, false);
+sectionHeight = null;
 
 // Стол 1,0×1,5 м и 6 кресел на террасе. Длинная сторона вдоль стены зала,
 // проход к двери остаётся около 0,9 м.
@@ -666,14 +690,37 @@ function addFloorNotes(rooms) {
   const dash = 0.16;
   const dashGap = 0.1;
   const halfW = 0.012;
-  for (const [, x0, y0, x1, y1, floorY] of rooms) {
+  for (const room of rooms) {
+    const floorY = room[5];
+    const boxes = room[8] || [[room[1], room[2], room[3], room[4]]];
+    const rects = boxes.map(([x0, y0, x1, y1]) => [
+      Math.min(x0, x1), Math.min(y0, y1), Math.max(x0, x1), Math.max(y0, y1),
+    ]);
+    const xs = [...new Set(rects.flatMap((r) => [r[0], r[2]]))].sort((a, b) => a - b);
+    const ys = [...new Set(rects.flatMap((r) => [r[1], r[3]]))].sort((a, b) => a - b);
+    const covers = (x, y) => rects.some(([xa, ya, xb, yb]) => x > xa && x < xb && y > ya && y < yb);
+    const edges = [];
     const inset = 0.04;
-    const edges = [
-      [x0 + inset, y0 + inset, x1 - inset, y0 + inset],
-      [x1 - inset, y0 + inset, x1 - inset, y1 - inset],
-      [x1 - inset, y1 - inset, x0 + inset, y1 - inset],
-      [x0 + inset, y1 - inset, x0 + inset, y0 + inset],
-    ];
+    for (let i = 0; i < xs.length - 1; i++) {
+      const x0 = xs[i];
+      const x1 = xs[i + 1];
+      const xm = (x0 + x1) / 2;
+      for (const y of ys) {
+        if (covers(xm, y + 1e-4) === covers(xm, y - 1e-4)) continue;
+        const inward = covers(xm, y + 1e-4) ? 1 : -1;
+        edges.push([x0, y + inward * inset, x1, y + inward * inset]);
+      }
+    }
+    for (let j = 0; j < ys.length - 1; j++) {
+      const y0 = ys[j];
+      const y1 = ys[j + 1];
+      const ym = (y0 + y1) / 2;
+      for (const x of xs) {
+        if (covers(x + 1e-4, ym) === covers(x - 1e-4, ym)) continue;
+        const inward = covers(x + 1e-4, ym) ? 1 : -1;
+        edges.push([x + inward * inset, y0, x + inward * inset, y1]);
+      }
+    }
     const y = floorY + 0.006;
     for (const [eu0, ev0, eu1, ev1] of edges) {
       const len = Math.hypot(eu1 - eu0, ev1 - ev0);
@@ -729,9 +776,22 @@ function addFloorNotes(rooms) {
     northAxis.clone().negate(),
     new THREE.Vector3(0, 1, 0)
   );
-  for (const [name, x0, y0, x1, y1, floorY, lx, ly] of rooms) {
-    const w = x1 - x0;
-    const d = y1 - y0;
+  for (const [name, x0, y0, x1, y1, floorY, lx, ly, boxes] of rooms) {
+    const parts = boxes || [[x0, y0, x1, y1]];
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    let area = 0;
+    for (const [a, b, c, d0] of parts) {
+      minX = Math.min(minX, a, c);
+      maxX = Math.max(maxX, a, c);
+      minY = Math.min(minY, b, d0);
+      maxY = Math.max(maxY, b, d0);
+      area += Math.abs((c - a) * (d0 - b));
+    }
+    const w = maxX - minX;
+    const d = maxY - minY;
     const canvas = document.createElement("canvas");
     canvas.width = canvasW;
     canvas.height = canvasH;
@@ -740,9 +800,9 @@ function addFloorNotes(rooms) {
     g.textAlign = "center";
     g.textBaseline = "middle";
     g.font = `700 ${fontPx}px ${face}`;
-    const lines = [name, `${fmtM(w)} × ${fmtM(d)}`, `${fmtM(w * d)} м²`];
+    g.fillStyle = "#000000";
+    const lines = [name, `${fmtM(w)} × ${fmtM(d)}`, `${fmtM(area)} м²`];
     lines.forEach((line, i) => {
-      g.fillStyle = i === 0 ? "#2c2824" : "#4e4842";
       g.fillText(line, canvasW / 2, canvasH * (0.22 + i * 0.28));
     });
     const tex = new THREE.CanvasTexture(canvas);
@@ -759,7 +819,8 @@ function addFloorNotes(rooms) {
       })
     );
     const [e, n] = planToWorld(lx ?? (x0 + x1) / 2, ly ?? (y0 + y1) / 2);
-    label.position.set(e, floorY + 0.012, n);
+    label.renderOrder = 8;
+    label.position.set(e, floorY + 0.03, n);
     label.quaternion.setFromRotationMatrix(labelBasis);
     label.castShadow = false;
     label.receiveShadow = false;
@@ -893,6 +954,7 @@ function addGarage(spec = {}) {
     addSlab([[gx0 - 1, gy0], [gx0, gy0], [gx0, gy1], [gx0 - 1, gy1]], 0.07, 0.025, blindColor, false);
   }
   const gTop = 2.55;
+  sectionHeight = PLINTH + gTop;
   const doorH = 2.15;
   const d1a = gateX0 + 0.51 + doorShift;
   const d1b = d1a + 2.4;
@@ -1086,6 +1148,7 @@ function addGarage(spec = {}) {
     ["Хозблок", gx0 + t, gy0 + t, gx1 - t, shopY0, shopFloor],
     ["Гараж", gx0 + t, shopY1, gx1 - t, gy1 - t, shopFloor],
   ]);
+  sectionHeight = null;
   return { gx0, gx1, gy0, gy1 };
 }
 
@@ -1441,6 +1504,7 @@ function addSite() {
     [eS, rS, rN], [eS, rN, eN],
   ]), 0x5c4033));
 
+  sectionHeight = fenceH;
   addWallRun(plot[0], [gateX0, fenceY], fenceT, 0, fenceH, 0x7d6a52);
   addWallRun([gateX1, fenceY], [kalX0, fenceY], fenceT, 0, fenceH, 0x7d6a52);
   addWallRun([kalX1, fenceY], plot[1], fenceT, 0, fenceH, 0x7d6a52);
@@ -1468,6 +1532,7 @@ function addSite() {
       0, 1.68, 0x4a4036
     );
   }
+  sectionHeight = null;
 
   addSlab([[28.139, 18.478], [30.34, 18.478], [30.34, 19.877], [28.139, 19.877]], 0.07, 0.05, 0xefe6d4, false);
   for (const [sx, sy] of [[28.653, 19.178], [29.823, 19.178]]) {
@@ -2162,6 +2227,7 @@ function addWestVariant() {
   const g1 = gateS;
   const leaf0 = [gateN[0] + 0.22 * WEST_IN[0], gateN[1] + 0.22 * WEST_IN[1]];
   const leaf1 = [gateS[0] + 0.22 * WEST_IN[0], gateS[1] + 0.22 * WEST_IN[1]];
+  sectionHeight = fenceH;
   addWallRun(plot[0], plot[1], fenceT, 0, fenceH, 0x7d6a52);
   addWallRun(plot[1], plot[2], fenceT, 0, fenceH, 0x7d6a52);
   addWallRun(plot[2], plot[3], fenceT, 0, fenceH, 0x7d6a52);
@@ -2187,6 +2253,7 @@ function addWestVariant() {
       0, 1.68, 0x4a4036
     );
   }
+  sectionHeight = null;
 
   addSlab([[28.139, 18.478], [30.34, 18.478], [30.34, 19.877], [28.139, 19.877]], 0.07, 0.05, 0xefe6d4, false);
   for (const [sx, sy] of [[28.653, 19.178], [29.823, 19.178]]) {
@@ -2334,13 +2401,13 @@ function mountFacadeOverlays(house) {
       bucket = dest;
       finishRole = null;
       const mesh = v2box(u0, v0, u1, v1, z0, z1, color);
-      if (mesh) mesh.userData.overlay = true;
+      stampOverlay(mesh);
     },
     beam(u0, v0, z0, u1, v1, z1, size, color) {
       bucket = dest;
       finishRole = null;
       const mesh = addBeam(at(u0, v0, z0), at(u1, v1, z1), size, color, true);
-      if (mesh) mesh.userData.overlay = true;
+      stampOverlay(mesh);
     },
     tri(u0, v0, z0, u1, v1, z1, u2, v2, z2, color) {
       const geom = new THREE.BufferGeometry();
@@ -2352,7 +2419,7 @@ function mountFacadeOverlays(house) {
       bucket = dest;
       finishRole = null;
       const mesh = addMesh(geom, color, true);
-      if (mesh) mesh.userData.overlay = true;
+      stampOverlay(mesh);
     },
   };
   try {
@@ -2375,13 +2442,13 @@ function mountAnyOverlays(parent, at, rect, make) {
       bucket = dest;
       finishRole = null;
       const mesh = rect(x0, y0, x1, y1, z0, z1, color);
-      if (mesh) mesh.userData.overlay = true;
+      stampOverlay(mesh);
     },
     beam(x0, y0, z0, x1, y1, z1, size, color) {
       bucket = dest;
       finishRole = null;
       const mesh = addBeam(at(x0, y0, z0), at(x1, y1, z1), size, color, true);
-      if (mesh) mesh.userData.overlay = true;
+      stampOverlay(mesh);
     },
     tri(x0, y0, z0, x1, y1, z1, x2, y2, z2, color) {
       const geom = new THREE.BufferGeometry();
@@ -2393,7 +2460,7 @@ function mountAnyOverlays(parent, at, rect, make) {
       bucket = dest;
       finishRole = null;
       const mesh = addMesh(geom, color, true);
-      if (mesh) mesh.userData.overlay = true;
+      stampOverlay(mesh);
     },
   };
   try {
@@ -2517,7 +2584,7 @@ function v2doorY(v, u0, u1, z0, z1, leaf) {
     pane.material.depthWrite = false;
     pane.castShadow = false;
   } else {
-    asRoof(v2box(u0 + jamb, v - half + 0.02, u1 - jamb, v + half - 0.01, z0 + 0.02, z1 - jamb, 0xe8d4b8));
+    v2box(u0 + jamb, v - half + 0.02, u1 - jamb, v + half - 0.01, z0 + 0.02, z1 - jamb, 0xe8d4b8);
   }
 }
 
@@ -2609,6 +2676,7 @@ function addBath() {
   const gutterC = 0x3c4046;
   const plinth = 0.45;
   const wallTop = 3.05;
+  sectionHeight = wallTop;
   const winHead = 2.90;
   const frontSill = 0.55;
   const sideSill = 1.72;
@@ -2704,8 +2772,14 @@ function addBath() {
     glass(u0, v0, u1, v1, sideSill, winHead);
     box(u0, v0, u1, v1, sideSill, sideSill + 0.05, frameC);
     box(u0, v0, u1, v1, winHead - 0.05, winHead, frameC);
-    box(u0, v0, u0 + 0.05, v1, sideSill, winHead, frameC);
-    box(u1 - 0.05, v0, u1, v1, sideSill, winHead, frameC);
+    const alongU = Math.abs(u1 - u0) >= Math.abs(v1 - v0);
+    if (alongU) {
+      box(u0, v0, u0 + 0.05, v1, sideSill, winHead, frameC);
+      box(u1 - 0.05, v0, u1, v1, sideSill, winHead, frameC);
+    } else {
+      box(u0, v0, u1, v0 + 0.05, sideSill, winHead, frameC);
+      box(u0, v1 - 0.05, u1, v1, sideSill, winHead, frameC);
+    }
   };
   const sideW = 0.87;
   const saunaUc = uE + (t + 3.44) / 2;
@@ -2922,6 +2996,7 @@ function addBath() {
       }),
     ]
   );
+  sectionHeight = null;
 }
 
 function addVariant2() {
@@ -2948,6 +3023,7 @@ function addVariant2() {
   const kalX1 = kalX0 + 1.5;
   const fenceH = 1.5;
   const fenceT = 0.06;
+  sectionHeight = fenceH;
   addWallRun(plot[0], [gateX0, fenceY], fenceT, 0, fenceH, 0x7d6a52);
   addWallRun([gateX1, fenceY], [kalX0, fenceY], fenceT, 0, fenceH, 0x7d6a52);
   addWallRun([kalX1, fenceY], plot[1], fenceT, 0, fenceH, 0x7d6a52);
@@ -2972,6 +3048,7 @@ function addVariant2() {
       0, 1.68, 0x4a4036
     );
   }
+  sectionHeight = null;
   const gy1 = garageBox.gy1;
   const gateMid = (gateX0 + gateX1) / 2;
   const d1a = gateX0 + 0.51 + (garageBox.gx0 - (gateMid - 3.18));
@@ -3144,6 +3221,7 @@ function addVariant2() {
 
   const ext = 0.38;
   const partTop = 3.5;
+  sectionHeight = partTop;
   const eave = 3.94;
   const doorHead = 2.15;
   const ySill = 0.8;
@@ -3263,12 +3341,14 @@ function addVariant2() {
   v2wallU(13.94, 3.78, 13.58, 0.28, [doorV(12.16, 12.94), { ...doorV(8.4, 9.17), slide: true }], partTop, V2_PART);
   v2wallU(6.45, 3.78, 8.18, 0.28, [], partTop, V2_PART);
   v2wallU(2.5, 3.78, 8.19, 0.18, [], partTop, V2_PART);
-  v2wallU(0.8, 7.14, 9.75, 0.18, [doorV(8.29, 9.07)], partTop, V2_PART);
+  v2wallU(0.8, 7.41, 10.45, 0.18, [doorV(8.29, 9.07)], partTop, V2_PART);
   v2wallU(1.85, 9.78, 13.58, 0.18, [], partTop, V2_PART);
   v2wallU(3.82, 9.74, 13.58, 0.18, [doorV(12.67, 13.45)], partTop, V2_PART);
   v2wallU(9.6, 9.69, 13.58, 0.18, [], partTop, V2_PART);
   v2wallU(6.39, 9.74, 13.58, 0.18, [doorV(10.4, 11.17), doorV(12.72, 13.49)], partTop, V2_PART);
-  v2wallV(9.77, -1.31, 3.88, 0.22, [door(0.93, 1.71)], partTop, V2_PART);
+  v2wallV(11.73, 1.82, 3.85, 0.18, [], partTop, V2_PART);
+  v2wallV(10.36, -1.31, 0.89, 0.18, [], partTop, V2_PART);
+  v2wallV(9.77, 0.8, 3.88, 0.22, [door(0.93, 1.71), door(2.87, 3.64)], partTop, V2_PART);
   v2wallV(8.1, 0.84, 6.45, 0.18, [door(1.55, 2.33), door(2.68, 3.45)], partTop, V2_PART);
   v2wallV(9.78, 6.3, 10.28, 0.24, [], partTop, V2_PART);
   v2wallV(10.01, 13.94, 17.84, 0.22, [door(14.22, 14.99)], partTop, V2_PART);
@@ -3276,7 +3356,7 @@ function addVariant2() {
   v2wallV(12.03, 13.94, 17.84, 0.18, [], partTop, V2_PART);
   v2wallV(11.7, 6.39, 9.65, 0.22, [], partTop, V2_PART);
   v2wallV(11.34, 3.76, 6.4, 0.22, [door(4.72, 5.5)], partTop, V2_PART);
-  v2wallV(7.24, -1.31, 0.83, 0.18, [], partTop, V2_PART);
+  v2wallV(7.5, -1.31, 0.89, 0.18, [], partTop, V2_PART);
   v2wallU(15.31, 7.79, 9.97, 0.18, [], partTop, V2_PART);
 
   const terraceCols = [[6.46, 6.76], [13.64, 13.94]];
@@ -3865,12 +3945,13 @@ function addVariant2() {
   });
 
   addFloorNotes([
-    ["Детская-1", -1.31, 3.78, 2.4, 8.19, 0.4],
+    ["Детская-1", -1.31, 3.78, 0.888871, 7.405063, 0.4, 0.62, 5.73, [[0.888871, 3.78, 2.405832, 8.01]]],
     ["Детская-2", 2.58, 3.78, 6.31, 8.02, 0.4],
-    ["Ванная", -1.31, 7.31, 0.71, 9.64, 0.4],
+    ["Ванная", -1.31, 7.585063, 0.708871, 10.272578, 0.4],
     ["Холл", 0.89, 8.22, 6.31, 11.24, 0.4, 5.05, 9.9],
-    ["Кабинет", -1.31, 9.89, 1.76, 13.58, 0.4],
-    ["Гардероб", 1.94, 9.89, 3.73, 13.58, 0.4],
+    ["Кабинет", -1.31, 10.452578, 1.755156, 13.58, 0.4, null, null, [[0.888871, 9.883434, 1.755156, 10.452578]]],
+    ["Гардероб-1", 1.935156, 11.821717, 3.73, 13.58, 0.4],
+    ["Гардероб-2", 1.935156, 9.883434, 3.73, 11.641717, 0.4],
     ["Прихожая", 3.91, 11.43, 6.3, 13.58, 0.4],
     ["Прачечная", 6.48, 9.9, 9.51, 11.57, 0.4],
     ["Котельная", 6.48, 11.8, 9.51, 13.58, 0.4],
@@ -3883,10 +3964,15 @@ function addVariant2() {
     ["С/у", 14.08, 10.12, 17.84, 12.0, 0.4],
     ["Кладовая", 14.08, 12.12, 17.84, 13.58, 0.4],
     ["Крыльцо", 3.43, 13.96, 9.69, 16.22, 0.48],
-  ].map(([name, ua, va, ub, vb, floorY, lu, lv]) => [
-    name, V2_XE - ub, v2Ys + va, V2_XE - ua, v2Ys + vb, floorY,
-    lu == null ? null : V2_XE - lu, lv == null ? null : v2Ys + lv,
-  ]));
+  ].map(([name, ua, va, ub, vb, floorY, lu, lv, extra]) => {
+    const box = (a, b, c, d) => [V2_XE - c, v2Ys + b, V2_XE - a, v2Ys + d];
+    const boxes = [box(ua, va, ub, vb), ...(extra || []).map((p) => box(p[0], p[1], p[2], p[3]))];
+    return [
+      name, boxes[0][0], boxes[0][1], boxes[0][2], boxes[0][3], floorY,
+      lu == null ? null : V2_XE - lu, lv == null ? null : v2Ys + lv,
+      boxes,
+    ];
+  }));
   const siteD = (u, v) => [V2_XE - u, v2Ys + v];
   const furnLow = [];
   const furnHigh = [];
@@ -3895,10 +3981,11 @@ function addVariant2() {
     const dest = vm < vOutS + 0.02 || vm > vOutN - 0.06 ? furnHigh : furnLow;
     dest.push(FURNITURE_D[i], FURNITURE_D[i + 1], FURNITURE_D[i + 2], FURNITURE_D[i + 3]);
   }
-  addFloorLines(siteD, furnLow, 0.43, 0x2a2622, 0.92, 0.028);
-  addFloorLines(siteD, furnHigh, 0.51, 0x2a2622, 0.92, 0.028);
+  addFloorLines(siteD, furnLow, 0.43, 0x000000, 0.22, 0.02);
+  addFloorLines(siteD, furnHigh, 0.51, 0x000000, 0.22, 0.02);
   v2House = trap ? overlayHost : houseGroup;
   if (trap) v2HouseD2.visible = false;
+  sectionHeight = null;
   return { u0, u1, v0, v1, board, pFront, pR, gf, gR, vOutN, uOutE, vOutS };
   }
   const footD = buildVariantD(false);
@@ -3971,6 +4058,7 @@ function addDreamHouse(group, site) {
   bucket = group;
   const P = 0.45;
   const wallTop = P + 3.0;
+  sectionHeight = wallTop;
   const partTop = P + 2.7;
   const sill = P + 0.8;
   const head = P + 2.2;
@@ -4467,6 +4555,7 @@ function addDreamHouse(group, site) {
       }),
     ]
   );
+  sectionHeight = null;
 }
 
 function addFloorLines(site, lines, z, color, opacity, w) {
@@ -4508,6 +4597,7 @@ function addFloorLines(site, lines, z, color, opacity, w) {
   }));
   mesh.castShadow = false;
   mesh.receiveShadow = false;
+  mesh.renderOrder = 1;
   bucket.add(mesh);
 }
 
@@ -4586,10 +4676,179 @@ addVariant2();
 addVariantB();
 addVariantC();
 
+function buildSectionCap(mesh, worldY) {
+  const geom = mesh.geometry;
+  const pos = geom.getAttribute("position");
+  if (!pos) return null;
+  const index = geom.getIndex();
+  mesh.updateWorldMatrix(true, false);
+  const inv = new THREE.Matrix4().copy(mesh.matrixWorld).invert();
+  const plane = new THREE.Plane(new THREE.Vector3(0, -1, 0), worldY);
+  plane.applyMatrix4(inv);
+  const triCount = index ? index.count / 3 : pos.count / 3;
+  const vert = (i) => new THREE.Vector3().fromBufferAttribute(pos, index ? index.getX(i) : i);
+  const eps = 1e-5;
+  const points = [];
+  const weld = new Map();
+  const pointId = (v) => {
+    const key = `${Math.round(v.x * 2000)},${Math.round(v.y * 2000)},${Math.round(v.z * 2000)}`;
+    const hit = weld.get(key);
+    if (hit != null) return hit;
+    const id = points.length;
+    points.push(v);
+    weld.set(key, id);
+    return id;
+  };
+  const edgeCount = new Map();
+  const addEdge = (a, b) => {
+    if (a === b) return;
+    const key = a < b ? `${a}|${b}` : `${b}|${a}`;
+    edgeCount.set(key, (edgeCount.get(key) || 0) + 1);
+  };
+  const onPlane = (v) => Math.abs(plane.distanceToPoint(v)) <= eps;
+  const hitPoint = (a, b) => {
+    const da = plane.distanceToPoint(a);
+    const db = plane.distanceToPoint(b);
+    return a.clone().lerp(b, da / (da - db));
+  };
+  for (let t = 0; t < triCount; t++) {
+    const a = vert(t * 3);
+    const b = vert(t * 3 + 1);
+    const c = vert(t * 3 + 2);
+    const da = plane.distanceToPoint(a);
+    const db = plane.distanceToPoint(b);
+    const dc = plane.distanceToPoint(c);
+    const above = [da, db, dc].filter((d) => d > eps).length;
+    const below = [da, db, dc].filter((d) => d < -eps).length;
+    const ids = [a, b, c];
+    const dist = [da, db, dc];
+    if (above === 0 || below === 0) continue;
+    const hits = [];
+    for (let i = 0; i < 3; i++) {
+      const j = (i + 1) % 3;
+      if (Math.abs(dist[i]) <= eps) hits.push(ids[i]);
+      else if (dist[i] * dist[j] < -eps * eps) hits.push(hitPoint(ids[i], ids[j]));
+    }
+    if (hits.length >= 2) addEdge(pointId(hits[0]), pointId(hits[1]));
+  }
+  const adj = new Map();
+  const link = (a, b) => {
+    if (!adj.has(a)) adj.set(a, []);
+    adj.get(a).push(b);
+  };
+  for (const [key, count] of edgeCount) {
+    if (count !== 1) continue;
+    const [a, b] = key.split("|").map(Number);
+    link(a, b);
+    link(b, a);
+  }
+  const used = new Set();
+  const edgeKey = (a, b) => (a < b ? `${a}|${b}` : `${b}|${a}`);
+  const loops = [];
+  for (const [key, count] of edgeCount) {
+    if (count !== 1 || used.has(key)) continue;
+    const [start, next] = key.split("|").map(Number);
+    const loop = [start];
+    used.add(key);
+    let prev = start;
+    let cur = next;
+    let guard = 0;
+    while (cur !== start && guard++ < points.length + 2) {
+      loop.push(cur);
+      const nexts = adj.get(cur) || [];
+      let nxt = null;
+      for (const n of nexts) {
+        const ek = edgeKey(cur, n);
+        if (n !== prev && !used.has(ek)) {
+          nxt = n;
+          used.add(ek);
+          break;
+        }
+      }
+      if (nxt == null) break;
+      prev = cur;
+      cur = nxt;
+    }
+    if (cur === start && loop.length >= 3) loops.push(loop);
+  }
+  if (!loops.length) return null;
+  const toWorld = mesh.matrixWorld;
+  const sink = new THREE.Vector3(0, -0.0015, 0);
+  const out = [];
+  for (const loop of loops) {
+    const poly = loop.map((id) => points[id].clone().applyMatrix4(toWorld).add(sink).applyMatrix4(inv));
+    const c = new THREE.Vector3();
+    for (const p of poly) c.add(p);
+    c.multiplyScalar(1 / poly.length);
+    for (let i = 0; i < poly.length; i++) {
+      const p = poly[i];
+      const q = poly[(i + 1) % poly.length];
+      out.push(c.x, c.y, c.z, p.x, p.y, p.z, q.x, q.y, q.z);
+    }
+  }
+  if (!out.length) return null;
+  const capGeom = new THREE.BufferGeometry();
+  capGeom.setAttribute("position", new THREE.Float32BufferAttribute(out, 3));
+  const up = new THREE.Vector3(0, 1, 0).transformDirection(inv);
+  const normals = [];
+  for (let i = 0; i < out.length / 3; i++) normals.push(up.x, up.y, up.z);
+  capGeom.setAttribute("normal", new THREE.Float32BufferAttribute(normals, 3));
+  return capGeom;
+}
+
+function applySectionCut(on) {
+  const meshes = [];
+  scene.traverse((obj) => {
+    if (obj.isMesh && obj.userData.section != null && !obj.userData.sectionCap) meshes.push(obj);
+  });
+  for (const obj of meshes) {
+    const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+    for (const mat of mats) {
+      if (!on) {
+        if (mat.clippingPlanes) {
+          mat.clippingPlanes = null;
+          mat.needsUpdate = true;
+        }
+        continue;
+      }
+      const y = obj.userData.section * 0.5;
+      let plane = mat.userData.sectionPlane;
+      if (!plane) {
+        plane = new THREE.Plane(new THREE.Vector3(0, -1, 0), y);
+        mat.userData.sectionPlane = plane;
+      } else {
+        plane.constant = y;
+      }
+      mat.clippingPlanes = [plane];
+      mat.clipShadows = true;
+      mat.needsUpdate = true;
+    }
+    let cap = obj.userData.capMesh;
+    if (on) {
+      if (!obj.userData.capTried) {
+        obj.userData.capTried = true;
+        const capGeom = buildSectionCap(obj, obj.userData.section * 0.5);
+        if (capGeom && !Array.isArray(obj.material)) {
+          cap = new THREE.Mesh(capGeom, obj.material);
+          cap.userData.sectionCap = true;
+          cap.castShadow = false;
+          cap.receiveShadow = true;
+          obj.add(cap);
+          obj.userData.capMesh = cap;
+        }
+      }
+      if (cap) cap.visible = true;
+    } else if (cap) {
+      cap.visible = false;
+    }
+  }
+}
+
 function showRoofs(on) {
   scene.traverse((obj) => {
     if (obj.userData && obj.userData.roof) obj.visible = on;
   });
+  applySectionCut(!on);
 }
 
 const VIEW_KEY = "house-light-view";
