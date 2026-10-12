@@ -7,7 +7,7 @@ import { FURNITURE_D } from "./furniture-d.js?v=6";
 import { WALL_LINES } from "./wall-sketch.js?v=2";
 import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=17";
 import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=16";
-import { buildVariantD2 } from "./variant-d2.js?v=19";
+import { buildVariantD2 } from "./variant-d2.js?v=24";
 
 const panel = document.getElementById("panel");
 const dateInput = document.getElementById("date");
@@ -1744,6 +1744,8 @@ function addParkedModel({ url, length, centerE, centerN, heading = "west" }) {
     const box = new THREE.Box3().setFromObject(fit);
     const center = box.getCenter(new THREE.Vector3());
     fit.position.set(-center.x, ground - box.min.y, -center.z);
+    let mazdaBody = null;
+    let coolrayBody = null;
     model.traverse((obj) => {
       if (!obj.isMesh) return;
       if (url.includes("mazda")) {
@@ -1754,17 +1756,10 @@ function addParkedModel({ url, length, centerE, centerN, heading = "west" }) {
             obj.visible = false;
             return;
           }
-          // Задний значок: и пластина, и накладка. В тени общий хром читается чёрным, поэтому серебро без металла.
-          if (name.includes("Component_117") || name.includes("Component_118")) {
-            const src = obj.material;
-            const m = (Array.isArray(src) ? src[0] : src).clone();
-            m.name = "rear-badge";
-            m.map = null;
-            m.color.set(0xf4f5f7);
-            m.metalness = 0.05;
-            m.roughness = 0.22;
-            if (m.emissive) m.emissive.set(0x000000);
-            obj.material = m;
+          // Плоская пластина под задним значком. Сам значок — хромовая деталь Component_117, как спереди.
+          if (name.includes("Component_118")) {
+            obj.visible = false;
+            return;
           }
           // Левая задняя фара пришла со светлой текстурой и выглядит включённой.
           if (name.includes("Component_119")) {
@@ -1795,12 +1790,19 @@ function addParkedModel({ url, length, centerE, centerN, heading = "west" }) {
           mat.roughness = 0.16;
           if (mat.specular) mat.specular.set(0xffffff);
         }
-        // Кузов CX-5 был почти чёрной текстурой, капот и бампер — отдельным материалом.
+        // Кузов CX-5 одним металликом: лак ловит солнце, базы слева и справа совпадают.
         if (url.includes("mazda") && (paint.includes("Material_01") || paint.includes("Material_03"))) {
-          mat.color.set(0x6e675e);
-          mat.map = null;
-          mat.metalness = 0.22;
-          mat.roughness = 0.4;
+          if (!mazdaBody) {
+            mazdaBody = new THREE.MeshPhysicalMaterial({
+              name: "Mazda_Material_03",
+              color: 0x6e675e,
+              metalness: 0.62,
+              roughness: 0.22,
+              clearcoat: 1,
+              clearcoatRoughness: 0.06,
+            });
+          }
+          obj.material = mazdaBody;
         }
         // Решётка пришла оранжевой текстурой; значок — отдельный хром поверх неё.
         if (url.includes("mazda") && paint.includes("Material_11")) {
@@ -1823,12 +1825,54 @@ function addParkedModel({ url, length, centerE, centerN, heading = "west" }) {
           mat.roughness = 0.78;
         }
         if (url.includes("coolray") && paint.includes("carpaint") && !paint.includes("second")) {
-          mat.color.set(0x6a7078);
-          mat.metalness = 0.18;
-          mat.roughness = 0.46;
+          if (!coolrayBody) {
+            coolrayBody = new THREE.MeshPhysicalMaterial({
+              name: "CoolrayBody",
+              color: 0x6a7078,
+              metalness: 0.62,
+              roughness: 0.22,
+              clearcoat: 1,
+              clearcoatRoughness: 0.06,
+            });
+          }
+          obj.material = coolrayBody;
         }
       }
     });
+    if (url.includes("mazda") && mazdaBody) {
+      model.traverse((obj) => {
+        if (!obj.isMesh) return;
+        let node = obj;
+        while (node) {
+          if ((node.name || "").includes("Component_06")) {
+            obj.material = mazdaBody;
+            return;
+          }
+          node = node.parent;
+        }
+      });
+    }
+    if (url.includes("mazda")) {
+      // Правая половина собрана зеркалом. Нормали смотрят внутрь, и крыло с дверями читаются другим цветом.
+      model.updateWorldMatrix(true, true);
+      model.traverse((obj) => {
+        if (!obj.isMesh || !obj.geometry || !obj.geometry.attributes.normal) return;
+        const paint = (Array.isArray(obj.material) ? obj.material[0] : obj.material);
+        const paintName = (paint && paint.name) || "";
+        if (!paintName.includes("Material_01") && !paintName.includes("Material_03")) return;
+        const e = obj.matrixWorld.elements;
+        const det = e[0] * (e[5] * e[10] - e[6] * e[9]) - e[1] * (e[4] * e[10] - e[6] * e[8]) + e[2] * (e[4] * e[9] - e[5] * e[8]);
+        if (det >= 0) return;
+        const geom = obj.geometry.clone();
+        const nor = geom.attributes.normal;
+        for (let i = 0; i < nor.count; i++) nor.setXYZ(i, -nor.getX(i), -nor.getY(i), -nor.getZ(i));
+        nor.needsUpdate = true;
+        obj.geometry = geom;
+        const m = paint.clone();
+        m.side = THREE.FrontSide;
+        obj.material = m;
+      });
+    }
     if (url.includes("mazda")) {
       // Стекло люка убрано, в крыше остаётся проём. Заплатка тем же кузовом, вровень с кромкой.
       let bodyMat = null;
@@ -1837,9 +1881,15 @@ function addParkedModel({ url, length, centerE, centerN, heading = "west" }) {
         const mat = Array.isArray(obj.material) ? obj.material[0] : obj.material;
         if (mat && (mat.name || "").includes("Material_03")) bodyMat = mat;
       });
+      const skinMat = bodyMat ? bodyMat.clone() : new THREE.MeshLambertMaterial({ color: 0x6e675e });
+      if (skinMat.clearcoat !== undefined) {
+        skinMat.clearcoat = 0;
+        skinMat.roughness = 0.5;
+        skinMat.metalness = 0.15;
+      }
       const skin = new THREE.Mesh(
         new THREE.BoxGeometry(0.78, 0.016, 0.40),
-        bodyMat ? bodyMat.clone() : new THREE.MeshLambertMaterial({ color: 0x6e675e })
+        skinMat
       );
       skin.position.set(0, 1.658, -0.235);
       skin.castShadow = true;
