@@ -56,6 +56,37 @@ function stoneBlocks(g, w, h, fill, joint) {
   }
 }
 
+// Подоконник жёлтых окон в мире: 1,10 м. Цоколь закрывает стену до 0,30 м.
+// Кладка цокольного пояса — целые ряды между этими швами, без обрезанного камня.
+const SKIRT_SPAN = 4.2;
+const SILL_Y = 1.10;
+const PLINTH_Y = 0.30;
+
+function skirtCanvasY(worldY, h) {
+  return Math.round(h * (1 - worldY / SKIRT_SPAN));
+}
+
+function stoneCourses(g, w, yTop, yBot, rows, fill, joint) {
+  const band = yBot - yTop;
+  if (band < rows + 2) return;
+  g.fillStyle = joint;
+  g.fillRect(0, yTop, w, band);
+  for (let row = 0; row < rows; row++) {
+    const y1 = row === 0 ? yBot : Math.round(yBot - (band * row) / rows);
+    const y0 = row === rows - 1 ? yTop : Math.round(yBot - (band * (row + 1)) / rows);
+    const ch = y1 - y0;
+    let x = row % 2 ? -w * 0.18 : 0;
+    let i = 0;
+    while (x < w - 4) {
+      const bw = w * (0.28 + ((row * 5 + i * 3) % 4) * 0.08);
+      g.fillStyle = fill[(row + i) % fill.length];
+      g.fillRect(x + 1.5, y0 + 1.5, Math.min(bw, w - x) - 3, ch - 3);
+      x += bw;
+      i++;
+    }
+  }
+}
+
 function siding(g, w, h, fill, line, vertical) {
   g.fillStyle = fill;
   g.fillRect(0, 0, w, h);
@@ -434,37 +465,42 @@ const PATTERN = {
   skirtStone: () => canvas(128, 256, (g, w, h) => {
     g.fillStyle = "#e7e1d6";
     g.fillRect(0, 0, w, h);
-    const top = h - Math.round(h * (1.15 / 4.2));
-    g.save();
-    g.beginPath();
-    g.rect(0, top, w, h - top);
-    g.clip();
-    stoneBlocks(g, w, h, ["#cfc6b6", "#b7b0a2", "#ddd4c6"], "#8d877c");
-    g.restore();
+    stoneCourses(
+      g, w, skirtCanvasY(SILL_Y, h), skirtCanvasY(PLINTH_Y, h), 2,
+      ["#cfc6b6", "#b7b0a2", "#ddd4c6"], "#8d877c"
+    );
   }),
   skirtBrick: () => canvas(128, 256, (g, w, h) => {
     g.fillStyle = "#e6e2da";
     g.fillRect(0, 0, w, h);
-    const top = h - Math.round(h * (1.15 / 4.2));
-    g.save();
-    g.beginPath();
-    g.rect(0, top, w, h - top);
-    g.clip();
-    mortarBrick(g, w, h, "#a35a45", "#c4aaa0", 14);
-    g.restore();
+    const yTop = skirtCanvasY(SILL_Y, h);
+    const yBot = skirtCanvasY(PLINTH_Y, h);
+    const courses = 8;
+    const band = yBot - yTop;
+    const bw = w / 4;
+    g.fillStyle = "#c4aaa0";
+    g.fillRect(0, yTop, w, band);
+    for (let row = 0; row < courses; row++) {
+      const y1 = row === 0 ? yBot : Math.round(yBot - (band * row) / courses);
+      const y0 = row === courses - 1 ? yTop : Math.round(yBot - (band * (row + 1)) / courses);
+      const shift = row % 2 ? bw / 2 : 0;
+      for (let col = -1; col < 6; col++) {
+        g.fillStyle = "#a35a45";
+        g.fillRect(col * bw + shift + 1, y0 + 1, bw - 2, y1 - y0 - 2);
+      }
+    }
   }),
   skirtSwiss: () => canvas(128, 256, (g, w, h) => {
     g.fillStyle = "#f4f1ea";
     g.fillRect(0, 0, w, h);
-    const top = h - Math.round(h * (1.35 / 4.2));
-    g.save();
-    g.beginPath();
-    g.rect(0, top, w, h - top);
-    g.clip();
-    stoneBlocks(g, w, h, ["#b7b0a2", "#cfc6b6", "#a39c90"], "#6a655c");
-    g.restore();
+    const ySill = skirtCanvasY(SILL_Y, h);
+    stoneCourses(
+      g, w, ySill, skirtCanvasY(PLINTH_Y, h), 2,
+      ["#b7b0a2", "#cfc6b6", "#a39c90"], "#6a655c"
+    );
+    const yBelt = skirtCanvasY(SILL_Y + 0.05, h);
     g.fillStyle = "#5c5348";
-    g.fillRect(0, top - 4, w, 5);
+    g.fillRect(0, yBelt, w, ySill - yBelt);
   }),
   belts: () => canvas(32, 256, (g, w, h) => {
     g.fillStyle = "#f3efe6";
