@@ -2060,9 +2060,7 @@ export function buildVariantD2(api) {
         if (vertical) return { a: Math.max(y0, op[1]), b: Math.min(y1, op[3]), z0: sill, z1: head, kind: op[4] };
         return { a: Math.max(x0, op[0]), b: Math.min(x1, op[2]), z0: sill, z1: head, kind: op[4] };
       }).filter((h) => h.b - h.a > 0.2).sort((p, q) => p.a - q.a);
-      const gableEnd = (Math.abs(x0 + 4.33) < 0.02 && Math.abs(y0 - 2.46) < 0.02)
-        || (Math.abs(x0 - 13.02) < 0.02 && Math.abs(y0 - 9.12) < 0.02);
-      const zTop = gableEnd ? CEIL_TOP + 0.10 : WALL_TOP;
+      const zTop = WALL_TOP;
       const span = (a, b, z0, z1) => {
         if (b <= a + 0.02 || z1 <= z0 + 0.02) return;
         if (vertical) planBox([[x0, a], [x1, a], [x1, b], [x0, b]], z0, z1, WALL_C);
@@ -2344,18 +2342,74 @@ export function buildVariantD2(api) {
   spout(pX - GW / 2, pY0, -5.96, 9.28, outletZ(zP, dPorch, tanP), 0.32);
   spout(pX - GW / 2, pY1, -5.96, 12.78, outletZ(zP, dPorch, tanP), 0.32);
 
+  // Фронтон от верха стены до скатов. На коньке квадратное окно 80×80 см с перекрестием.
   const gableTris = [];
   const gpush = (a, b, c) => gableTris.push([world(...a), world(...b), world(...c)]);
-  const zOn = (zEdge) => WALL_TOP + (zEdge - WALL_TOP) * 0.96;
-  const pull = (pts, k) => {
-    const c = pts.reduce((s, p) => [s[0] + p[0], s[1] + p[1]], [0, 0]).map((v) => v / pts.length);
-    return pts.map((p) => [c[0] + (p[0] - c[0]) * k, c[1] + (p[1] - c[1]) * k]);
+  const zWest = (x) => Ze + (Zr - Ze) * (x - xW) / (cx - xW);
+  const zEast = (x) => Ze + (Zr - Ze) * (xStep - x) / (xStep - cx);
+  const zNorth = (y) => Ze + (Zr - Ze) * (yN - y) / (yN - cy);
+  const zWing = (y) => Ze + (Zr - Ze) * (y - yStep) / (cy - yStep);
+  const WIN = 0.80;
+  const halfWin = WIN / 2;
+  const zWinTop = Zr - halfWin * Math.tan(pitch) - roofDrop - 0.10 - 0.40;
+  const zWinBot = zWinTop - WIN;
+  const lerpEdge = (p, q, z) => {
+    const t = (z - p[1]) / (q[1] - p[1]);
+    return [p[0] + (q[0] - p[0]) * t, z];
   };
-  const atticPane = (to3, pts) => {
-    const tris = [];
-    const tp = (a, b, c) => tris.push([world(...a), world(...b), world(...c)]);
-    tp(to3(pts[0]), to3(pts[1]), to3(pts[2]));
-    const pane = addMesh(geometryFromTriangles(tris), GLASS, false);
+  const gableWithWindow = (to3, bottomL, roofL, peak, roofR, bottomR, uLo, uHi, outward) => {
+    const emit = (a, b, c) => {
+      const pa = to3(a);
+      const pb = to3(b);
+      const pc = to3(c);
+      const ux = pb[0] - pa[0];
+      const uy = pb[1] - pa[1];
+      const uz = pb[2] - pa[2];
+      const vx = pc[0] - pa[0];
+      const vy = pc[1] - pa[1];
+      const vz = pc[2] - pa[2];
+      const nx = uy * vz - uz * vy;
+      const ny = uz * vx - ux * vz;
+      const nz = ux * vy - uy * vx;
+      if (nx * nx + ny * ny + nz * nz < 1e-8) return;
+      if (nx * outward[0] + ny * outward[1] + nz * outward[2] >= 0) gpush(pa, pb, pc);
+      else gpush(pa, pc, pb);
+    };
+    const L0 = lerpEdge(roofL, peak, zWinBot);
+    const L1 = lerpEdge(roofL, peak, zWinTop);
+    const R0 = lerpEdge(roofR, peak, zWinBot);
+    const R1 = lerpEdge(roofR, peak, zWinTop);
+    emit(bottomL, roofL, roofR);
+    emit(bottomL, roofR, bottomR);
+    emit(roofL, L0, R0);
+    emit(roofL, R0, roofR);
+    emit(L0, L1, [uLo, zWinTop]);
+    emit(L0, [uLo, zWinTop], [uLo, zWinBot]);
+    emit([uHi, zWinBot], [uHi, zWinTop], R1);
+    emit([uHi, zWinBot], R1, R0);
+    emit(L1, peak, R1);
+  };
+  const squareWindow = (rect, depth0, depth1, alongY) => {
+    const [u0, u1, z0, z1] = rect;
+    const fw = 0.06;
+    const bar = 0.05;
+    const um = (u0 + u1) / 2;
+    const zm = (z0 + z1) / 2;
+    const corner = (u, d) => alongY ? [d, u] : [u, d];
+    const box = (a0, a1, za, zb) => withFinish("frame", () => planBox(
+      [corner(a0, depth0), corner(a1, depth0), corner(a1, depth1), corner(a0, depth1)],
+      za, zb, 0x6b3e24
+    ));
+    box(u0, u0 + fw, z0, z1);
+    box(u1 - fw, u1, z0, z1);
+    box(u0, u1, z1 - fw, z1);
+    box(u0, u1, z0, z0 + fw);
+    box(um - bar / 2, um + bar / 2, z0 + fw, z1 - fw);
+    box(u0 + fw, u1 - fw, zm - bar / 2, zm + bar / 2);
+    const pane = planBox(
+      [corner(u0 + fw, depth0), corner(u1 - fw, depth0), corner(u1 - fw, depth1), corner(u0 + fw, depth1)],
+      z0 + fw, z1 - fw, GLASS, false
+    );
     delete pane.userData.finish;
     pane.material.transparent = true;
     pane.material.opacity = 0.16;
@@ -2363,83 +2417,28 @@ export function buildVariantD2(api) {
     pane.castShadow = false;
     pane.userData.roof = true;
   };
-  const atticFrame = (to3, outer, inner) => {
-    const tris = [];
-    const tp = (a, b, c) => tris.push([world(...a), world(...b), world(...c)]);
-    for (let i = 0; i < 3; i++) {
-      const j = (i + 1) % 3;
-      tp(to3(outer[i]), to3(outer[j]), to3(inner[j]));
-      tp(to3(outer[i]), to3(inner[j]), to3(inner[i]));
-    }
-    withFinish("frame", () => addMesh(geometryFromTriangles(tris), 0x6b3e24));
-  };
-  const attic = (to3, hole, bar) => {
-    const glass = pull(hole, 0.82);
-    atticFrame(to3, hole, glass);
-    atticPane(to3, glass);
-    const base = hole[0][1] + hole[2][1] <= hole[0][1] + hole[1][1] && hole[0][1] + hole[2][1] <= hole[1][1] + hole[2][1]
-      ? [hole[0], hole[2], hole[1]]
-      : hole[1][1] + hole[2][1] < hole[0][1] + hole[1][1]
-        ? [hole[1], hole[2], hole[0]]
-        : [hole[0], hole[1], hole[2]];
-    const [b0, b1, peak] = base;
-    const onEdge = (p, q, u) => {
-      const du = q[0] - p[0];
-      if (Math.abs(du) < 1e-6) return null;
-      const t = (u - p[0]) / du;
-      if (t < -0.02 || t > 1.02) return null;
-      return p[1] + t * (q[1] - p[1]);
-    };
-    for (const k of [1 / 3, 2 / 3]) {
-      const u = b0[0] + (b1[0] - b0[0]) * k;
-      const z0 = b0[1] + (b1[1] - b0[1]) * k;
-      const hits = [onEdge(b0, peak, u), onEdge(b1, peak, u)].filter((z) => z != null && z > z0 + 0.05);
-      const zt = hits.length ? Math.max(...hits) : z0 + 0.2;
-      bar(u, z0, zt);
-    }
-  };
-  const zWest = (x) => Ze + (Zr - Ze) * (x - xW) / (cx - xW);
-  const zEast = (x) => Ze + (Zr - Ze) * (xStep - x) / (xStep - cx);
-  const yG = 2.50;
-  const atticSill = CEIL_TOP + 0.10;
-  const lowerHole = (tri) => {
-    const hole = pull(tri, 0.58);
-    const baseZ = Math.min(...hole.map((p) => p[1]));
-    return hole.map(([u, z]) => [u, z - (baseZ - atticSill)]);
-  };
-  const gableSolid = (to3, eaveL, peak, eaveR, hole) => {
-    const sillL = [eaveL[0], atticSill];
-    const sillR = [eaveR[0], atticSill];
-    const [P, Q, R] = hole;
-    const t = (a, b, c) => gpush(to3(a), to3(b), to3(c));
-    t(sillL, eaveL, P);
-    t(eaveL, P, Q);
-    t(eaveL, Q, peak);
-    t(peak, Q, eaveR);
-    t(Q, R, eaveR);
-    t(eaveR, R, sillR);
-  };
-  const south = [[-4.42, zOn(zWest(-4.42))], [cx, zOn(Zr)], [5.31, zOn(zEast(5.31))]];
-  const southHole = lowerHole(south);
+  const xL = -4.33;
+  const xR = 4.89;
+  const yG = 2.46;
   const toSouth = (p) => [p[0], yG, p[1]];
-  gableSolid(toSouth, south[0], south[1], south[2], southHole);
-  attic(toSouth, southHole, (u, z0, z1) => withFinish("frame", () => planBox(
-    [[u - 0.03, yG - 0.03], [u + 0.03, yG - 0.03], [u + 0.03, yG + 0.03], [u - 0.03, yG + 0.03]],
-    z0, z1, 0x6b3e24
-  )));
-  const zNorth = (y) => Ze + (Zr - Ze) * (yN - y) / (yN - cy);
-  const zWing = (y) => Ze + (Zr - Ze) * (y - yStep) / (cy - yStep);
-  const xg = 13.36;
-  const yTop = 18.88;
-  const yBot = 9.05;
-  const east = [[yTop, zOn(zNorth(yTop))], [cy, zOn(Zr)], [yBot, zOn(zWing(yBot))]];
-  const eastHole = lowerHole(east);
+  gableWithWindow(
+    toSouth,
+    [xL, WALL_TOP], [xL, zWest(xL)], [cx, Zr], [xR, zEast(xR)], [xR, WALL_TOP],
+    cx - halfWin, cx + halfWin,
+    [0, -1, 0]
+  );
+  squareWindow([cx - halfWin, cx + halfWin, zWinBot, zWinTop], yG - 0.02, yG + 0.06, false);
+  const yNWall = 18.81;
+  const ySWall = 9.12;
+  const xg = 13.40;
   const toEast = (p) => [xg, p[0], p[1]];
-  gableSolid(toEast, east[0], east[1], east[2], eastHole);
-  attic(toEast, eastHole, (u, z0, z1) => withFinish("frame", () => planBox(
-    [[xg - 0.03, u - 0.03], [xg + 0.03, u - 0.03], [xg + 0.03, u + 0.03], [xg - 0.03, u + 0.03]],
-    z0, z1, 0x6b3e24
-  )));
+  gableWithWindow(
+    toEast,
+    [yNWall, WALL_TOP], [yNWall, zNorth(yNWall)], [cy, Zr], [ySWall, zWing(ySWall)], [ySWall, WALL_TOP],
+    cy + halfWin, cy - halfWin,
+    [1, 0, 0]
+  );
+  squareWindow([cy - halfWin, cy + halfWin, zWinBot, zWinTop], xg - 0.06, xg + 0.02, true);
   if (gableTris.length) withFinish("wall", () => addMesh(geometryFromTriangles(gableTris), WALL_C));
 
   // Навес 6×5 домиком: конёк от стены к заезду, скаты на боковые края.
@@ -2572,5 +2571,55 @@ export function buildVariantD2(api) {
   addFloorNotes(ROOMS);
   addFloorLines((x, y) => [x, y], FURNITURE.flatMap((s) => s), 0.42, 0x1a1a1a, 0.9, 0.015);
   addFloorLines((x, y) => [x, y], DOOR_SWINGS.flatMap((s) => s), 0.43, 0x1a1a1a, 0.95, 0.012);
+
+  // Рисунок отделки садится на наружные стены. Внутренние перегородки остаются штукатуркой модели.
+  const opening = (u0, u1, kind) => ({
+    u0, u1,
+    z0: kind === "door" ? PLINTH : kind === "pan" ? PAN_SILL : YELL_SILL,
+    z1: HEAD,
+    kind: kind === "door" ? "door" : "win",
+  });
+  api.mountOverlays((overlayApi) => {
+    const face = (spec) => api.wallFace(overlayApi, spec);
+    return [
+      face({
+        name: "d2S", along: "x", outer: 2.46, sign: -1,
+        span0: -4.33, span1: 4.89, eave: WALL_TOP,
+        openings: [opening(-2.99, -1.02, "win"), opening(1.87, 3.85, "pan")],
+      }),
+      face({
+        name: "d2N", along: "x", outer: 18.88, sign: 1,
+        span0: -4.42, span1: 13.38, eave: WALL_TOP,
+        openings: [
+          opening(-1.18, -0.2, "win"), opening(2.01, 3.98, "win"),
+          opening(6.46, 7.04, "win"), opening(10.53, 11.51, "win"),
+        ],
+      }),
+      face({
+        name: "d2W", along: "y", outer: -4.42, sign: -1,
+        span0: 2.47, span1: 18.88, eave: WALL_TOP,
+        openings: [
+          opening(3.56, 5.54, "win"), opening(7.78, 8.36, "win"),
+          opening(9.376, 10.357, "door"), opening(11.729, 12.710, "door"),
+          opening(13.63, 14.21, "win"), opening(16.17, 18.15, "win"),
+        ],
+      }),
+      face({
+        name: "d2E", along: "y", outer: 13.40, sign: 1,
+        span0: 9.12, span1: 18.81, eave: WALL_TOP,
+        openings: [opening(10.84, 12.81, "win"), opening(15.62, 17.59, "win")],
+      }),
+      face({
+        name: "d2WingS", along: "x", outer: 9.05, sign: -1,
+        span0: 5.31, span1: 13.37, eave: WALL_TOP,
+        openings: [opening(6.45, 7.03, "win"), opening(8.2, 8.78, "win"), opening(10.53, 11.51, "win")],
+      }),
+      face({
+        name: "d2Recess", along: "y", outer: 5.31, sign: 1,
+        span0: 2.48, span1: 9.05, eave: WALL_TOP,
+        openings: [opening(3.52, 5.49, "pan")],
+      }),
+    ];
+  });
   api.sectionHeight(saved);
 }

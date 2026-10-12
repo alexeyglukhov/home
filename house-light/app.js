@@ -5,9 +5,9 @@ import geo from "./geometry.js?v=21";
 import { FURNITURE_LINES } from "./furniture-sketch.js?v=4";
 import { FURNITURE_D } from "./furniture-d.js?v=6";
 import { WALL_LINES } from "./wall-sketch.js?v=2";
-import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=17";
+import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=18";
 import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=16";
-import { buildVariantD2 } from "./variant-d2.js?v=26";
+import { buildVariantD2 } from "./variant-d2.js?v=33";
 
 const panel = document.getElementById("panel");
 const dateInput = document.getElementById("date");
@@ -4896,7 +4896,20 @@ function addVariantD2Scene() {
   buildVariantD2({
     planBox, addBeam, asRoof, withFinish, addFloorNotes, addFloorLines,
     planToWorld, geometryFromTriangles, addMesh, addSlab, addSlabHole, addWallRun,
-    addParkedModel,
+    addParkedModel, wallFace,
+    mountOverlays(make) {
+      mountAnyOverlays(
+        variantD2Group,
+        (x, y, z) => {
+          const [e, n] = planToWorld(x, y);
+          return [e, z, n];
+        },
+        (x0, y0, x1, y1, z0, z1, color) => planBox(
+          [[x0, y0], [x1, y0], [x1, y1], [x0, y1]], z0, z1, color
+        ),
+        make
+      );
+    },
     sectionHeight(value) {
       if (arguments.length === 0) return sectionHeight;
       sectionHeight = value;

@@ -517,7 +517,7 @@ function faceU(api, name, openings, span0, span1, vOuter, sign, eave, gable, t) 
       const parts = this.win ? rectsOutside(u0, u1, za, zb, this.win) : [[u0, u1, za, zb]];
       const extra = sign * proud;
       for (const [s0, s1, c0, c1] of parts) {
-        if (s1 - s0 < 0.02 || c1 - c0 < 0.015) continue;
+        if (s1 - s0 < 0.012 || c1 - c0 < 0.015) continue;
         api.rect(s0, v0 + extra, s1, v1 + extra, c0, c1, color);
       }
     },
@@ -589,7 +589,7 @@ function faceV(api, name, openings, span0, span1, uOuter, sign, eave, t) {
   return {
     name, openings, span0, span1, eave, gable: null,
     place(a, b, z0, z1, color, proud = 0) {
-      if (b - a < 0.02 || z1 - z0 < 0.015) return;
+      if (b - a < 0.012 || z1 - z0 < 0.015) return;
       const extra = sign * proud;
       api.rect(u0 + extra, Math.min(a, b), u1 + extra, Math.max(a, b), Math.min(z0, z1), Math.max(z0, z1), color);
     },
@@ -617,7 +617,7 @@ export function wallFace(api, o) {
     eave: o.eave,
     gable,
     place(a, b, z0, z1, color, proud = 0) {
-      if (Math.abs(b - a) < 0.02 || Math.abs(z1 - z0) < 0.015) return;
+      if (Math.abs(b - a) < 0.012 || Math.abs(z1 - z0) < 0.015) return;
       const extra = sign * proud;
       const n0 = (sign < 0 ? outer - t : outer - 0.008) + extra;
       const n1 = (sign < 0 ? outer + 0.008 : outer + t) + extra;
