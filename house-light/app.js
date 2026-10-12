@@ -7,6 +7,7 @@ import { FURNITURE_D } from "./furniture-d.js?v=6";
 import { WALL_LINES } from "./wall-sketch.js?v=2";
 import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=17";
 import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=16";
+import { buildVariantD2 } from "./variant-d2.js?v=19";
 
 const panel = document.getElementById("panel");
 const dateInput = document.getElementById("date");
@@ -55,15 +56,17 @@ const westGroup = new THREE.Group();
 const variant2Group = new THREE.Group();
 const variantBGroup = new THREE.Group();
 const variantCGroup = new THREE.Group();
+const variantD2Group = new THREE.Group();
 const greenhouseGroup = new THREE.Group();
 const houseRig = new THREE.Group();
 let v2House = null;
 let v2HouseD2 = null;
 let roofDims = null;
-scene.add(sharedGroup, variant2Group, variantBGroup, variantCGroup);
+scene.add(sharedGroup, variant2Group, variantBGroup, variantCGroup, variantD2Group);
 variant2Group.visible = true;
 variantBGroup.visible = false;
 variantCGroup.visible = false;
+variantD2Group.visible = false;
 let bucket = sharedGroup;
 
 const ground = new THREE.Mesh(
@@ -270,7 +273,7 @@ function applySun(geo) {
   const above = el > 0.4;
   sun.intensity = above ? 3.3 : 0;
   sun.castShadow = above;
-  const side = az < 180 ? "восточная половина" : "западная половина";
+  const side = az < 179.5 ? "восточная половина" : az > 180.5 ? "западная половина" : "юг";
   sunInfo.textContent = above
     ? `Солнце: высота ${el.toFixed(0)}°, азимут ${az.toFixed(0)}° от севера, ${side}.`
     : `Солнце под горизонтом (высота ${el.toFixed(0)}°).`;
@@ -376,8 +379,10 @@ function planDeltaToWorld(dx, dy) {
   return new THREE.Vector3(x, 0, z).normalize();
 }
 
-const cadastralNorth = planDeltaToWorld(Math.cos(AZ_X), Math.cos(AZ_Y));
-const cadastralEast = planDeltaToWorld(Math.sin(AZ_X), Math.sin(AZ_Y));
+// Мир уже в осях to_east_north: X — восток, Z — север.
+// Азимут солнца отсчитывается от севера по часовой стрелке.
+const cadastralEast = new THREE.Vector3(1, 0, 0);
+const cadastralNorth = new THREE.Vector3(0, 0, 1);
 
 addHouseHip();
 
@@ -1718,7 +1723,9 @@ function addParkedModel({ url, length, centerE, centerN, heading = "west" }) {
   const holder = new THREE.Group();
   const forward = heading === "north"
     ? new THREE.Vector3(Math.sin(AZ_Y), 0, Math.cos(AZ_Y))
-    : new THREE.Vector3(Math.sin(AZ_X), 0, Math.cos(AZ_X));
+    : heading === "east"
+      ? new THREE.Vector3(-Math.sin(AZ_X), 0, -Math.cos(AZ_X))
+      : new THREE.Vector3(Math.sin(AZ_X), 0, Math.cos(AZ_X));
   const up = new THREE.Vector3(0, 1, 0);
   const side = new THREE.Vector3().crossVectors(forward, up).normalize();
   holder.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(forward, up, side));
@@ -1739,6 +1746,40 @@ function addParkedModel({ url, length, centerE, centerN, heading = "west" }) {
     fit.position.set(-center.x, ground - box.min.y, -center.z);
     model.traverse((obj) => {
       if (!obj.isMesh) return;
+      if (url.includes("mazda")) {
+        let node = obj;
+        while (node) {
+          const name = node.name || "";
+          if (name.includes("Component_101") || name.includes("Component_102")) {
+            obj.visible = false;
+            return;
+          }
+          // Задний значок: и пластина, и накладка. В тени общий хром читается чёрным, поэтому серебро без металла.
+          if (name.includes("Component_117") || name.includes("Component_118")) {
+            const src = obj.material;
+            const m = (Array.isArray(src) ? src[0] : src).clone();
+            m.name = "rear-badge";
+            m.map = null;
+            m.color.set(0xf4f5f7);
+            m.metalness = 0.05;
+            m.roughness = 0.22;
+            if (m.emissive) m.emissive.set(0x000000);
+            obj.material = m;
+          }
+          // Левая задняя фара пришла со светлой текстурой и выглядит включённой.
+          if (name.includes("Component_119")) {
+            const src = obj.material;
+            const m = (Array.isArray(src) ? src[0] : src).clone();
+            m.map = null;
+            m.color.set(0x3a1816);
+            m.metalness = 0.08;
+            m.roughness = 0.62;
+            if (m.emissive) m.emissive.set(0x000000);
+            obj.material = m;
+          }
+          node = node.parent;
+        }
+      }
       obj.castShadow = true;
       obj.receiveShadow = true;
       const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
@@ -1768,6 +1809,19 @@ function addParkedModel({ url, length, centerE, centerN, heading = "west" }) {
           mat.metalness = 0.45;
           mat.roughness = 0.38;
         }
+        // Белая и красная соты внутри фонарей выглядят как включённая лампа.
+        if (url.includes("mazda") && (paint.includes("Material_10") || paint.includes("Material_12"))) {
+          mat.map = null;
+          mat.color.set(0x4a1e1c);
+          mat.metalness = 0;
+          mat.roughness = 0.8;
+          if (mat.emissive) mat.emissive.set(0x000000);
+        }
+        if (url.includes("mazda") && paint.includes("Material_07")) {
+          mat.color.set(0x6a2824);
+          mat.metalness = 0;
+          mat.roughness = 0.78;
+        }
         if (url.includes("coolray") && paint.includes("carpaint") && !paint.includes("second")) {
           mat.color.set(0x6a7078);
           mat.metalness = 0.18;
@@ -1775,6 +1829,23 @@ function addParkedModel({ url, length, centerE, centerN, heading = "west" }) {
         }
       }
     });
+    if (url.includes("mazda")) {
+      // Стекло люка убрано, в крыше остаётся проём. Заплатка тем же кузовом, вровень с кромкой.
+      let bodyMat = null;
+      model.traverse((obj) => {
+        if (bodyMat || !obj.isMesh) return;
+        const mat = Array.isArray(obj.material) ? obj.material[0] : obj.material;
+        if (mat && (mat.name || "").includes("Material_03")) bodyMat = mat;
+      });
+      const skin = new THREE.Mesh(
+        new THREE.BoxGeometry(0.78, 0.016, 0.40),
+        bodyMat ? bodyMat.clone() : new THREE.MeshLambertMaterial({ color: 0x6e675e })
+      );
+      skin.position.set(0, 1.658, -0.235);
+      skin.castShadow = true;
+      skin.receiveShadow = true;
+      model.add(skin);
+    }
     holder.add(fit);
   });
 }
@@ -4678,6 +4749,20 @@ addVariant2();
 addVariantB();
 addVariantC();
 
+function addVariantD2Scene() {
+  bucket = variantD2Group;
+  buildVariantD2({
+    planBox, addBeam, asRoof, withFinish, addFloorNotes, addFloorLines,
+    planToWorld, geometryFromTriangles, addMesh, addSlab, addSlabHole, addWallRun,
+    addParkedModel,
+    sectionHeight(value) {
+      if (arguments.length === 0) return sectionHeight;
+      sectionHeight = value;
+    },
+  });
+}
+addVariantD2Scene();
+
 function buildSectionCap(mesh, worldY) {
   const geom = mesh.geometry;
   const pos = geom.getAttribute("position");
@@ -4867,6 +4952,7 @@ const BLURB_2 = "Вариант A. Терраса и гостиная на юг,
 const BLURB_D2 = "Вариант A2. Тот же дом: крыша над террасой и крыльцом — скатная трапеция с прямым передним краем. Средние столбы террасы и крыльца одной высоты с соседними.";
 const BLURB_B = "Вариант Б. Терраса и мастер-спальня на юг, вход на север. Крыльцо-веранда 6,7 × 2 м, двускатный козырёк на всю ширину.";
 const BLURB_C = "Вариант В. Тот же дом отзеркален, вход на запад к гаражу. Отмостка и плитка ведут от ворот к крыльцу.";
+const BLURB_VD2 = "Вариант Д2. Детская на север, мастер-спальня на юг, вход с запада. До северного забора 4 м. Потолок 3,2 м до перекрытия. Жёлтые окна от 0,80 м, белые панорамные от 0,10 м. Двускатная крыша с поворотом конька, свесы и водостоки.";
 
 function saveView() {
   try {
@@ -4893,7 +4979,7 @@ function loadView() {
     const saved = JSON.parse(localStorage.getItem(VIEW_KEY) || "null");
     if (!saved) return false;
     const nums = [saved.px, saved.py, saved.pz, saved.tx, saved.ty, saved.tz];
-    const known = saved.variant === "v2" || saved.variant === "d2" || saved.variant === "vb" || saved.variant === "vc";
+    const known = saved.variant === "v2" || saved.variant === "d2" || saved.variant === "vb" || saved.variant === "vc" || saved.variant === "vd2";
     const cameraOk = known && nums.every((n) => Number.isFinite(n));
     if (known) pendingVariant = saved.variant;
     if (cameraOk) {
@@ -4935,9 +5021,27 @@ roofToggle.addEventListener("change", () => {
 
 const blurb = document.getElementById("blurb");
 
-function focusVariant2() {
-  controls.target.set(-3.69, 1.5, -3.45);
-  camera.position.set(10.86, 11, -20.94);
+function focusPoint(id) {
+  // Д2 стоит в другом месте плана, чем дом А. Крутить нужно вокруг него, а не вокруг пустой точки.
+  if (id === "vd2") return new THREE.Vector3(2.61, 1.5, -1.27);
+  return new THREE.Vector3(-3.69, 1.5, -3.45);
+}
+
+function retargetKeepOffset(id) {
+  const focus = focusPoint(id);
+  const offset = new THREE.Vector3().subVectors(camera.position, controls.target);
+  controls.target.copy(focus);
+  camera.position.copy(focus).add(offset);
+  controls.update();
+}
+
+function placeCamera(id, kind) {
+  const focus = focusPoint(id);
+  const offset = kind === "top"
+    ? new THREE.Vector3(0, 53.5, 0.31)
+    : new THREE.Vector3(14.55, 9.5, -17.49);
+  controls.target.copy(focus);
+  camera.position.copy(focus).add(offset);
   controls.update();
 }
 
@@ -4945,30 +5049,36 @@ greenhouseGroup.visible = false;
 if (location.hash) history.replaceState(null, "", location.pathname + location.search);
 
 function setVariant(id) {
-  viewVariant = id === "vb" || id === "vc" || id === "d2" ? id : "v2";
+  viewVariant = id === "vb" || id === "vc" || id === "d2" || id === "vd2" ? id : "v2";
+  variant2Group.visible = viewVariant !== "vd2";
   if (v2House) v2House.visible = viewVariant === "v2";
   if (v2HouseD2) v2HouseD2.visible = viewVariant === "d2";
   if (roofDims) roofDims.visible = viewVariant === "v2" || viewVariant === "d2";
   variantBGroup.visible = viewVariant === "vb";
   variantCGroup.visible = viewVariant === "vc";
+  variantD2Group.visible = viewVariant === "vd2";
   blurb.textContent = viewVariant === "vb" ? BLURB_B
     : viewVariant === "vc" ? BLURB_C
       : viewVariant === "d2" ? BLURB_D2
-        : BLURB_2;
+        : viewVariant === "vd2" ? BLURB_VD2
+          : BLURB_2;
   document.getElementById("var-v2").classList.toggle("active", viewVariant === "v2");
   document.getElementById("var-d2").classList.toggle("active", viewVariant === "d2");
   document.getElementById("var-b").classList.toggle("active", viewVariant === "vb");
   document.getElementById("var-c").classList.toggle("active", viewVariant === "vc");
+  document.getElementById("var-vd2").classList.toggle("active", viewVariant === "vd2");
   showRoofs(roofToggle.checked);
   saveView();
 }
 
-document.getElementById("var-v2").addEventListener("click", () => setVariant("v2"));
-document.getElementById("var-d2").addEventListener("click", () => setVariant("d2"));
-document.getElementById("var-b").addEventListener("click", () => setVariant("vb"));
-document.getElementById("var-c").addEventListener("click", () => setVariant("vc"));
+document.getElementById("var-v2").addEventListener("click", () => { setVariant("v2"); retargetKeepOffset("v2"); });
+document.getElementById("var-d2").addEventListener("click", () => { setVariant("d2"); retargetKeepOffset("v2"); });
+document.getElementById("var-b").addEventListener("click", () => { setVariant("vb"); retargetKeepOffset("v2"); });
+document.getElementById("var-c").addEventListener("click", () => { setVariant("vc"); retargetKeepOffset("v2"); });
+document.getElementById("var-vd2").addEventListener("click", () => { setVariant("vd2"); retargetKeepOffset("vd2"); });
 setVariant(pendingVariant);
-if (!restoredCamera) focusVariant2();
+if (!restoredCamera) placeCamera(viewVariant, "side");
+else if (viewVariant === "vd2" && controls.target.distanceTo(focusPoint("vd2")) > 4) retargetKeepOffset("vd2");
 dateInput.addEventListener("input", () => {
   applySun(geo);
   saveView();
@@ -4988,10 +5098,7 @@ panel.addEventListener("click", (event) => {
 });
 
 function setView(kind) {
-  if (kind === "top") camera.position.set(-3.69, 55, -3.14);
-  else camera.position.set(10.86, 11, -20.94);
-  controls.target.set(-3.69, 1.5, -3.45);
-  controls.update();
+  placeCamera(viewVariant, kind);
 }
 document.getElementById("view-side").addEventListener("click", () => setView("side"));
 document.getElementById("view-top").addEventListener("click", () => setView("top"));
