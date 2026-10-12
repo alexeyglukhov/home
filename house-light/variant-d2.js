@@ -2549,7 +2549,7 @@ export function buildVariantD2(api) {
   post(plot[1]); post(plot[2]);
 
   // Кулрей на южном месте: нос к воротам, половина длины под западным карнизом навеса.
-  // Мазда заехала в ворота, взяла правее и встала носом к крыльцу, в 2 м от его края, по центру.
+  // Мазда носом к дому, по центру крыльца, на метр ближе к воротам.
   const coolLen = 4.33;
   const mazdaLen = 4.55;
   const porchWest = -6.00;
@@ -2565,7 +2565,7 @@ export function buildVariantD2(api) {
     url: "./models/mazda-cx5.glb",
     length: mazdaLen,
     heading: "east",
-    centerE: porchWest - 2 - mazdaLen / 2,
+    centerE: porchWest - 3 - mazdaLen / 2,
     centerN: porchMid,
   });
 

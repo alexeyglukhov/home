@@ -7,7 +7,7 @@ import { FURNITURE_D } from "./furniture-d.js?v=6";
 import { WALL_LINES } from "./wall-sketch.js?v=2";
 import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=17";
 import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=16";
-import { buildVariantD2 } from "./variant-d2.js?v=24";
+import { buildVariantD2 } from "./variant-d2.js?v=26";
 
 const panel = document.getElementById("panel");
 const dateInput = document.getElementById("date");
@@ -1874,24 +1874,115 @@ function addParkedModel({ url, length, centerE, centerN, heading = "west" }) {
       });
     }
     if (url.includes("mazda")) {
-      // Стекло люка убрано, в крыше остаётся проём. Заплатка тем же кузовом, вровень с кромкой.
+      // Дыру люка затягиваем по высоте соседнего листа, с заходом на кромку.
       let bodyMat = null;
       model.traverse((obj) => {
         if (bodyMat || !obj.isMesh) return;
         const mat = Array.isArray(obj.material) ? obj.material[0] : obj.material;
         if (mat && (mat.name || "").includes("Material_03")) bodyMat = mat;
       });
-      const skinMat = bodyMat ? bodyMat.clone() : new THREE.MeshLambertMaterial({ color: 0x6e675e });
-      if (skinMat.clearcoat !== undefined) {
-        skinMat.clearcoat = 0;
-        skinMat.roughness = 0.5;
-        skinMat.metalness = 0.15;
+      model.updateWorldMatrix(true, true);
+      const inv = new THREE.Matrix4().copy(model.matrixWorld).invert();
+      const toLocal = new THREE.Matrix4();
+      const roof = [];
+      model.traverse((obj) => {
+        if (!obj.isMesh || !obj.visible || !obj.geometry || !obj.geometry.attributes.position) return;
+        const pos = obj.geometry.attributes.position;
+        toLocal.multiplyMatrices(inv, obj.matrixWorld);
+        const e = toLocal.elements;
+        const step = Math.max(1, Math.floor(pos.count / 2500));
+        for (let i = 0; i < pos.count; i += step) {
+          const vx = pos.getX(i);
+          const vy = pos.getY(i);
+          const vz = pos.getZ(i);
+          const x = e[0] * vx + e[4] * vy + e[8] * vz + e[12];
+          const y = e[1] * vx + e[5] * vy + e[9] * vz + e[13];
+          const z = e[2] * vx + e[6] * vy + e[10] * vz + e[14];
+          if (y < 1.58 || y > 1.76) continue;
+          if (Math.abs(x) > 0.62 || z < -0.72 || z > 0.12) continue;
+          if (Math.abs(x) < 0.34 && z > -0.40 && z < -0.07) continue;
+          roof.push(x, y, z);
+        }
+      });
+      const skinY = (x, z) => {
+        const near = [];
+        for (let i = 0; i < roof.length; i += 3) {
+          const dx = roof[i] - x;
+          const dz = roof[i + 2] - z;
+          const d2 = dx * dx + dz * dz;
+          if (d2 > 0.006) continue;
+          near.push(d2, roof[i + 1]);
+        }
+        if (!near.length) {
+          for (let i = 0; i < roof.length; i += 3) {
+            const dx = roof[i] - x;
+            const dz = roof[i + 2] - z;
+            const d2 = dx * dx + dz * dz;
+            if (d2 > 0.02) continue;
+            near.push(d2, roof[i + 1]);
+          }
+        }
+        if (!near.length) return 1.67;
+        let ymax = near[1];
+        for (let i = 3; i < near.length; i += 2) if (near[i] > ymax) ymax = near[i];
+        let wsum = 0;
+        let ysum = 0;
+        for (let i = 0; i < near.length; i += 2) {
+          if (near[i + 1] < ymax - 0.005) continue;
+          const w = 1 / (near[i] + 0.0002);
+          wsum += w;
+          ysum += w * near[i + 1];
+        }
+        return ysum / wsum;
+      };
+      const x0 = -0.43;
+      const x1 = 0.43;
+      const z0 = -0.47;
+      const z1 = -0.02;
+      const seg = 8;
+      const row = seg + 1;
+      const edgeY = [];
+      for (let iz = 0; iz <= seg; iz++) {
+        const z = z0 + ((z1 - z0) * iz) / seg;
+        edgeY.push(skinY(x0, z), skinY(x1, z));
       }
-      const skin = new THREE.Mesh(
-        new THREE.BoxGeometry(0.78, 0.016, 0.40),
-        skinMat
-      );
-      skin.position.set(0, 1.658, -0.235);
+      const endY = [];
+      for (let ix = 0; ix <= seg; ix++) {
+        const x = x0 + ((x1 - x0) * ix) / seg;
+        endY.push(skinY(x, z0), skinY(x, z1));
+      }
+      const y00 = edgeY[0];
+      const y10 = edgeY[1];
+      const y01 = edgeY[seg * 2];
+      const y11 = edgeY[seg * 2 + 1];
+      const positions = [];
+      const indices = [];
+      for (let iz = 0; iz <= seg; iz++) {
+        const v = iz / seg;
+        const z = z0 + ((z1 - z0) * iz) / seg;
+        const yL = edgeY[iz * 2];
+        const yR = edgeY[iz * 2 + 1];
+        for (let ix = 0; ix <= seg; ix++) {
+          const u = ix / seg;
+          const x = x0 + ((x1 - x0) * ix) / seg;
+          const yB = endY[ix * 2];
+          const yF = endY[ix * 2 + 1];
+          const y = yL * (1 - u) + yR * u + yB * (1 - v) + yF * v
+            - (y00 * (1 - u) * (1 - v) + y10 * u * (1 - v) + y01 * (1 - u) * v + y11 * u * v);
+          positions.push(x, y + 0.002, z);
+        }
+      }
+      for (let iz = 0; iz < seg; iz++) {
+        for (let ix = 0; ix < seg; ix++) {
+          const a = iz * row + ix;
+          indices.push(a, a + row, a + 1, a + 1, a + row, a + row + 1);
+        }
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+      geo.setIndex(indices);
+      geo.computeVertexNormals();
+      const skin = new THREE.Mesh(geo, bodyMat || new THREE.MeshLambertMaterial({ color: 0x6e675e }));
       skin.castShadow = true;
       skin.receiveShadow = true;
       model.add(skin);
