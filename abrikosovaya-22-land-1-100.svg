@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="1095.9mm"
+   height="861.4mm"
+   viewBox="0 0 1095.94 861.39"
+   version="1.1"
+   id="svg1423"
+   sodipodi:docname="abrikosovaya-22-land-1-100.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1425"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.22305556"
+     inkscape:cx="2057.7833"
+     inkscape:cy="2728.0199"
+     inkscape:window-width="2560"
+     inkscape:window-height="1362"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1423" />
+  <title
+     id="title2">Участок ул. Абрикосовая, 22. Кадастровая привязка, масштаб 1:100</title>
+  <defs
+     id="defs10">
+    <marker
+       id="arrG"
+       markerWidth="6"
+       markerHeight="6"
+       refX="5"
+       refY="3"
+       orient="auto">
+      <path
+         d="M0,0 L6,3 L0,6 Z"
+         fill="#e0a100"
+         id="path4" />
+    </marker>
+    <marker
+       id="arrS"
+       markerWidth="6"
+       markerHeight="6"
+       refX="5"
+       refY="3"
+       orient="auto">
+      <path
+         d="M0,0 L6,3 L0,6 Z"
+         fill="#6e675e"
+         id="path7" />
+    </marker>
+  </defs>
+  <g
+     id="g4440">
+    <path
+       id="rect4293"
+       style="opacity:1;fill:#ffffff;stroke:#000000;stroke-width:0.385095;stroke-dasharray:none;stop-color:#000000"
+       d="M 24.616449 14.331909 L 24.616449 853.63067 L 1074.0506 853.63067 L 1074.0506 14.331909 L 24.616449 14.331909 z M 807.23857 183.66108 L 933.66853 553.42151 L 365.94863 747.53818 L 239.51866 377.77776 L 807.23857 183.66108 z " />
+    <rect
+       style="opacity:1;fill:none;stroke:#000000;stroke-width:0.748381;stroke-dasharray:none;stop-color:#000000"
+       id="rect4356"
+       width="707.72302"
+       height="576.21021"
+       x="232.01952"
+       y="177.60794"
+       inkscape:export-filename="../../Downloads/rect4356.png"
+       inkscape:export-xdpi="100"
+       inkscape:export-ydpi="100" />
+  </g>
+  <rect
+     width="100%"
+     height="100%"
+     fill="#f7f6f2"
+     id="rect12" />
+  <polygon
+     points="32.00,291.44 714.40,56.00 1063.94,673.12 336.57,829.39"
+     fill="#d3ebc0"
+     stroke="#9bb58a"
+     stroke-width="0.45"
+     id="polygon14" />
+  <polygon
+     points="276.41,418.68 756.96,252.89 924.99,549.55 412.81,659.59"
+     fill="#b7d48c"
+     stroke="#c0392b"
+     stroke-width="0.7"
+     stroke-linejoin="miter"
+     id="polygon16" />
+  <path
+     id="polygon18"
+     d="M 709.26979 78.92983 L 665.9122 93.888118 L 665.89256 93.830755 L 125.70945 280.19465 L 117.074 264.94335 L 69.013682 281.5233 L 77.649129 296.77564 L 41.982305 309.08076 L 58.292498 356.35092 L 101.65061 341.39263 L 101.67024 341.44999 L 102.73482 341.08256 L 279.6638 653.58341 L 279.90721 653.44543 L 371.25432 814.78669 L 414.76436 790.14698 L 208.66451 426.14714 L 208.40044 426.23809 L 150.79617 324.50157 L 725.57998 126.19999 L 709.26979 78.92983 z "
+     transform="translate(12.201894,-4.7068857)"
+     style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#e3e3e0;fill-opacity:1;stroke:#bdbdb8;stroke-width:0.3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1" />
+  <line
+     x1="276.41"
+     y1="418.67999"
+     x2="359.03"
+     y2="390.17999"
+     stroke="#f7f4ee"
+     stroke-width="5.2"
+     stroke-linecap="butt"
+     id="line43" />
+  <line
+     x1="438.14999"
+     y1="362.88"
+     x2="756.96002"
+     y2="252.89"
+     stroke="#f7f4ee"
+     stroke-width="5.2"
+     stroke-linecap="butt"
+     id="line45" />
+  <line
+     x1="756.96002"
+     y1="252.89"
+     x2="924.98999"
+     y2="549.54999"
+     stroke="#f7f4ee"
+     stroke-width="5.2"
+     stroke-linecap="butt"
+     id="line47" />
+  <line
+     x1="924.98999"
+     y1="549.54999"
+     x2="412.81"
+     y2="659.59003"
+     stroke="#f7f4ee"
+     stroke-width="5.2"
+     stroke-linecap="butt"
+     id="line49" />
+  <line
+     x1="412.81"
+     y1="659.59003"
+     x2="276.41"
+     y2="418.67999"
+     stroke="#f7f4ee"
+     stroke-width="5.2"
+     stroke-linecap="butt"
+     id="line51" />
+  <line
+     x1="278.10187"
+     y1="418.1163"
+     x2="756.7785"
+     y2="252.97206"
+     stroke="#5c4634"
+     stroke-width="3.90376"
+     stroke-linecap="butt"
+     id="line55"
+     style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#000000;fill-opacity:1;stroke:#5c4634;stroke-width:2.6;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1" />
+  <line
+     x1="756.96002"
+     y1="252.89"
+     x2="924.98999"
+     y2="549.54999"
+     stroke="#5c4634"
+     stroke-width="2.6"
+     stroke-linecap="butt"
+     id="line57" />
+  <line
+     x1="924.98999"
+     y1="549.54999"
+     x2="412.81"
+     y2="659.59003"
+     stroke="#5c4634"
+     stroke-width="2.6"
+     stroke-linecap="butt"
+     id="line59" />
+  <line
+     x1="412.81"
+     y1="659.59003"
+     x2="276.41"
+     y2="418.67999"
+     stroke="#5c4634"
+     stroke-width="2.6"
+     stroke-linecap="butt"
+     id="line61" />
+  <polygon
+     points="277.77,415.88 273.61,417.32 275.05,421.48 279.21,420.04 "
+     fill="#3a3028"
+     stroke="#241c16"
+     stroke-width="0.2"
+     id="polygon63" />
+  <polygon
+     points="758.33,250.09 754.17,251.53 755.6,255.69 759.76,254.25 "
+     fill="#3a3028"
+     stroke="#241c16"
+     stroke-width="0.2"
+     id="polygon65" />
+  <polygon
+     points="926.36,546.75 922.2,548.19 923.63,552.35 927.79,550.91 "
+     fill="#3a3028"
+     stroke="#241c16"
+     stroke-width="0.2"
+     id="polygon67" />
+  <polygon
+     points="414.17,656.79 410.01,658.23 411.44,662.39 415.6,660.95 "
+     fill="#3a3028"
+     stroke="#241c16"
+     stroke-width="0.2"
+     id="polygon69" />
+  <g
+     fill="#222"
+     stroke="#222"
+     id="g1029">
+    <line
+       x1="1048"
+       y1="94"
+       x2="1048"
+       y2="78"
+       stroke-width="0.5"
+       id="line1023" />
+    <polygon
+       points="1048.00,76.00 1046.20,80.20 1049.80,80.20"
+       stroke="none"
+       id="polygon1025" />
+    <text
+       x="1048.00"
+       y="98.00"
+       font-size="3.6"
+       font-weight="700"
+       fill="#222"
+       text-anchor="middle"
+       dominant-baseline="central"
+       id="text1027">С</text>
+  </g>
+  <g
+     stroke="#222"
+     fill="#222"
+     id="g1062">
+    <line
+       x1="900"
+       y1="820"
+       x2="1000"
+       y2="820"
+       stroke-width="0.45"
+       id="line1031" />
+    <line
+       x1="900"
+       y1="817.8"
+       x2="900"
+       y2="822.2"
+       stroke-width="0.3"
+       id="line1033" />
+    <line
+       x1="910"
+       y1="818.8"
+       x2="910"
+       y2="821.2"
+       stroke-width="0.3"
+       id="line1035" />
+    <line
+       x1="920"
+       y1="818.8"
+       x2="920"
+       y2="821.2"
+       stroke-width="0.3"
+       id="line1037" />
+    <line
+       x1="930"
+       y1="818.8"
+       x2="930"
+       y2="821.2"
+       stroke-width="0.3"
+       id="line1039" />
+    <line
+       x1="940"
+       y1="818.8"
+       x2="940"
+       y2="821.2"
+       stroke-width="0.3"
+       id="line1041" />
+    <line
+       x1="950"
+       y1="817.8"
+       x2="950"
+       y2="822.2"
+       stroke-width="0.3"
+       id="line1043" />
+    <line
+       x1="960"
+       y1="818.8"
+       x2="960"
+       y2="821.2"
+       stroke-width="0.3"
+       id="line1045" />
+    <line
+       x1="970"
+       y1="818.8"
+       x2="970"
+       y2="821.2"
+       stroke-width="0.3"
+       id="line1047" />
+    <line
+       x1="980"
+       y1="818.8"
+       x2="980"
+       y2="821.2"
+       stroke-width="0.3"
+       id="line1049" />
+    <line
+       x1="990"
+       y1="818.8"
+       x2="990"
+       y2="821.2"
+       stroke-width="0.3"
+       id="line1051" />
+    <line
+       x1="1000"
+       y1="817.8"
+       x2="1000"
+       y2="822.2"
+       stroke-width="0.3"
+       id="line1054" />
+    <text
+       x="900.00"
+       y="825.00"
+       font-size="2.4"
+       font-weight="400"
+       fill="#1c1c1c"
+       text-anchor="middle"
+       dominant-baseline="central"
+       id="text1056">0</text>
+    <text
+       x="950.00"
+       y="825.00"
+       font-size="2.4"
+       font-weight="400"
+       fill="#1c1c1c"
+       text-anchor="middle"
+       dominant-baseline="central"
+       id="text1058">5 м</text>
+    <text
+       x="1000.00"
+       y="825.00"
+       font-size="2.4"
+       font-weight="400"
+       fill="#1c1c1c"
+       text-anchor="middle"
+       dominant-baseline="central"
+       id="text1060">10 м</text>
+  </g>
+  <text
+     x="40.00"
+     y="29.00"
+     font-size="3.05"
+     font-weight="700"
+     fill="#222"
+     text-anchor="start"
+     dominant-baseline="central"
+     font-family="DejaVu Sans, Liberation Sans, sans-serif"
+     id="text1411">д. Глебковичи, ул. Абрикосовая, 22</text>
+  <text
+     x="40.00"
+     y="39.60"
+     font-size="2.55"
+     fill="#222"
+     text-anchor="start"
+     dominant-baseline="central"
+     font-family="DejaVu Sans, Liberation Sans, sans-serif"
+     id="text1413">Кадастровый номер 623683401601000218 · 0,1545 га · масштаб 1:100.</text>
+  <text
+     x="40.00"
+     y="49.15"
+     font-size="2.55"
+     fill="#222"
+     text-anchor="start"
+     dominant-baseline="central"
+     font-family="DejaVu Sans, Liberation Sans, sans-serif"
+     id="text1415">Красный контур — участок. Стороны 50,83 · 34,09 · 52,39 · 27,68 м. Площадь по контуру 1544 м².</text>
+  <text
+     x="40.00"
+     y="58.70"
+     font-size="2.55"
+     fill="#222"
+     text-anchor="start"
+     dominant-baseline="central"
+     font-family="DejaVu Sans, Liberation Sans, sans-serif"
+     id="text1417">Светло-зелёная рамка — отступы до соседних контуров: север 20 м, восток 6 м, юг 15 м, запад 15 м.</text>
+  <text
+     x="40.00"
+     y="68.25"
+     font-size="2.55"
+     fill="#222"
+     text-anchor="start"
+     dominant-baseline="central"
+     font-family="DejaVu Sans, Liberation Sans, sans-serif"
+     id="text1419">Серая линия — неровный контур с карты, не параллелен рамке. Для границ брать красный контур.</text>
+  <text
+     x="40.00"
+     y="77.80"
+     font-size="2.55"
+     fill="#222"
+     text-anchor="start"
+     dominant-baseline="central"
+     font-family="DejaVu Sans, Liberation Sans, sans-serif"
+     id="text1421">Север на листе — вверх. Короткий западный торец 27,68 м — сторона въезда.</text>
+</svg>
