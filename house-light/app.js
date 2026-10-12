@@ -7,7 +7,7 @@ import { FURNITURE_D } from "./furniture-d.js?v=6";
 import { WALL_LINES } from "./wall-sketch.js?v=2";
 import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=18";
 import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=17";
-import { buildVariantD2 } from "./variant-d2.js?v=40";
+import { buildVariantD2 } from "./variant-d2.js?v=50";
 
 const panel = document.getElementById("panel");
 const dateInput = document.getElementById("date");
@@ -5107,7 +5107,7 @@ const BLURB_2 = "Вариант A. Терраса и гостиная на юг,
 const BLURB_D2 = "Вариант A2. Тот же дом: крыша над террасой и крыльцом — скатная трапеция с прямым передним краем. Средние столбы террасы и крыльца одной высоты с соседними.";
 const BLURB_B = "Вариант Б. Терраса и мастер-спальня на юг, вход на север. Крыльцо-веранда 6,7 × 2 м, двускатный козырёк на всю ширину.";
 const BLURB_C = "Вариант В. Тот же дом отзеркален, вход на запад к гаражу. Отмостка и плитка ведут от ворот к крыльцу.";
-const BLURB_VD2 = "Вариант Д2. Детская на север, мастер-спальня на юг, вход с запада. До северного забора 4 м. Потолок 3,2 м до перекрытия. Жёлтые окна от 0,80 м, белые панорамные от 0,10 м. Двускатная крыша с поворотом конька, свесы и водостоки.";
+const BLURB_VD2 = "Вариант Д2. Детская на север, мастер-спальня на юг, вход с запада. До северного забора 4 м. Потолок 3,2 м до перекрытия. Жёлтые окна от 0,80 м, белые панорамные от 0,10 м. Двускатная крыша с поворотом конька, свесы и водостоки. Южная терраса на цоколе, крыша удлинена до колонн.";
 
 function saveView() {
   try {

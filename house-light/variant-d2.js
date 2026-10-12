@@ -44,8 +44,12 @@ const OPENINGS = [
   [6.45, 9.14, 7.03, 9.34, 'y'],
   [10.53, 18.61, 11.51, 18.82, 'y'],
   [-2.99, 2.55, -1.02, 2.76, 'y'],
-  [1.87, 2.56, 3.85, 2.77, 'p'],
-  [5.02, 3.52, 5.23, 5.49, 'p'],
+  // Южный выход на террасу: дверь и глухая створка, простенок 5 см как на варианте А.
+  [2.281, 2.50, 3.243, 2.80, 'g'],
+  [3.293, 2.50, 4.254, 2.80, 'p'],
+  // Восточный выход на выступ террасы, дверь с юга.
+  [4.96, 3.462, 5.28, 4.424, 'g'],
+  [4.96, 4.474, 5.28, 5.436, 'p'],
   [10.53, 9.15, 11.51, 9.35, 'y'],
   [-4.34, 13.63, -4.13, 14.21, 'y'],
   [8.2, 9.14, 8.78, 9.34, 'y'],
@@ -1973,11 +1977,109 @@ const DOOR_SWINGS = [
   [-1.080, 5.868, -1.128, 5.813],
   [-1.128, 5.813, -1.187, 5.762],
   [-1.187, 5.762, -1.258, 5.715],
-  [-1.258, 5.715, -1.342, 5.669]
+  [-1.258, 5.715, -1.342, 5.669],
+  // Южная дверь на террасу: полотно внутрь гостиной и дуга.
+  [2.262, 2.723, 2.709, 3.529],
+  [3.163, 2.781, 3.146, 2.911],
+  [3.146, 2.911, 3.120, 3.022],
+  [3.120, 3.022, 3.084, 3.116],
+  [3.084, 3.116, 3.036, 3.197],
+  [3.036, 3.197, 2.975, 3.268],
+  [2.975, 3.268, 2.900, 3.331],
+  [2.900, 3.331, 2.810, 3.391],
+  [2.810, 3.391, 2.704, 3.450],
+  // Восточная дверь выступа террасы: полотно внутрь и дуга.
+  [5.046, 3.476, 4.240, 3.923],
+  [4.988, 4.376, 4.858, 4.360],
+  [4.858, 4.360, 4.747, 4.334],
+  [4.747, 4.334, 4.653, 4.298],
+  [4.653, 4.298, 4.572, 4.249],
+  [4.572, 4.249, 4.501, 4.188],
+  [4.501, 4.188, 4.438, 4.114],
+  [4.438, 4.114, 4.378, 4.024],
+  [4.378, 4.024, 4.319, 3.918]
+];
+
+const TERRACE_FURNITURE = [
+  [7.417, 1.862, 6.467, 1.862],
+  [6.467, 1.862, 6.467, 3.962],
+  [6.467, 3.962, 7.417, 3.962],
+  [7.417, 3.962, 7.417, 1.862],
+  [7.357, 1.922, 6.527, 1.922],
+  [6.527, 1.922, 6.527, 3.902],
+  [6.527, 3.902, 7.357, 3.902],
+  [7.357, 3.902, 7.357, 1.922],
+  [7.867, 2.412, 7.867, 2.012],
+  [7.867, 2.012, 7.467, 2.012],
+  [7.467, 2.012, 7.467, 2.412],
+  [7.467, 2.412, 7.867, 2.412],
+  [7.867, 2.412, 7.867, 2.012],
+  [7.867, 2.012, 7.772, 2.012],
+  [7.772, 2.012, 7.772, 2.412],
+  [7.772, 2.412, 7.867, 2.412],
+  [6.017, 2.012, 6.017, 2.412],
+  [6.017, 2.412, 6.417, 2.412],
+  [6.417, 2.412, 6.417, 2.012],
+  [6.417, 2.012, 6.017, 2.012],
+  [6.017, 2.012, 6.017, 2.412],
+  [6.017, 2.412, 6.112, 2.412],
+  [6.112, 2.412, 6.112, 2.012],
+  [6.112, 2.012, 6.017, 2.012],
+  [7.867, 3.212, 7.867, 2.812],
+  [7.867, 2.812, 7.467, 2.812],
+  [7.467, 2.812, 7.467, 3.212],
+  [7.467, 3.212, 7.867, 3.212],
+  [7.867, 3.212, 7.867, 2.812],
+  [7.867, 2.812, 7.772, 2.812],
+  [7.772, 2.812, 7.772, 3.212],
+  [7.772, 3.212, 7.867, 3.212],
+  [6.017, 2.812, 6.017, 3.212],
+  [6.017, 3.212, 6.417, 3.212],
+  [6.417, 3.212, 6.417, 2.812],
+  [6.417, 2.812, 6.017, 2.812],
+  [6.017, 2.812, 6.017, 3.212],
+  [6.017, 3.212, 6.112, 3.212],
+  [6.112, 3.212, 6.112, 2.812],
+  [6.112, 2.812, 6.017, 2.812],
+  [7.867, 3.962, 7.867, 3.562],
+  [7.867, 3.562, 7.467, 3.562],
+  [7.467, 3.562, 7.467, 3.962],
+  [7.467, 3.962, 7.867, 3.962],
+  [7.867, 3.962, 7.867, 3.562],
+  [7.867, 3.562, 7.772, 3.562],
+  [7.772, 3.562, 7.772, 3.962],
+  [7.772, 3.962, 7.867, 3.962],
+  [6.017, 3.562, 6.017, 3.962],
+  [6.017, 3.962, 6.417, 3.962],
+  [6.417, 3.962, 6.417, 3.562],
+  [6.417, 3.562, 6.017, 3.562],
+  [6.017, 3.562, 6.017, 3.962],
+  [6.017, 3.962, 6.112, 3.962],
+  [6.112, 3.962, 6.112, 3.562],
+  [6.112, 3.562, 6.017, 3.562],
+  [7.142, 1.422, 6.742, 1.422],
+  [6.742, 1.422, 6.742, 1.822],
+  [6.742, 1.822, 7.142, 1.822],
+  [7.142, 1.822, 7.142, 1.422],
+  [7.142, 1.422, 6.742, 1.422],
+  [6.742, 1.422, 6.742, 1.517],
+  [6.742, 1.517, 7.142, 1.517],
+  [7.142, 1.517, 7.142, 1.422],
+  [7.147, 4.508, 6.747, 4.508],
+  [6.747, 4.508, 6.747, 4.108],
+  [6.747, 4.108, 7.147, 4.108],
+  [7.147, 4.108, 7.147, 4.508],
+  [7.147, 4.508, 6.747, 4.508],
+  [6.747, 4.508, 6.747, 4.413],
+  [6.747, 4.413, 7.147, 4.413],
+  [7.147, 4.413, 7.147, 4.508]
 ];
 
 const ROOMS = [
   ["Крыльцо", -6.00, 9.24, -4.23, 12.86, 0.46],
+  // Правый прямоугольник выступа и полоса вдоль южной стены, без перекрытия.
+  ["Терраса-1", 5.302, 0.514, 8.291, 5.442, 0.46],
+  ["Терраса-2", -4.401, 0.514, 5.302, 2.439, 0.46],
   ["Прихожая", -4.04, 10.89, -0.28, 13.35, 0.46],
   ["Котельная", -4.04, 7.68, -2.04, 10.71, 0.46],
   ["Прачечная", -2.04, 7.68, -0.20, 10.71, 0.46],
@@ -2055,7 +2157,7 @@ export function buildVariantD2(api) {
       const [x0, y0, x1, y1] = wall;
       const vertical = (x1 - x0) < (y1 - y0);
       const holes = OPENINGS.filter((op) => hit(wall, op)).map((op) => {
-        const sill = op[4] === "p" ? PAN_SILL : op[4] === "d" || op[4] === "i" ? PLINTH : YELL_SILL;
+        const sill = op[4] === "p" ? PAN_SILL : op[4] === "d" || op[4] === "i" || op[4] === "g" ? PLINTH : YELL_SILL;
         const head = HEAD;
         if (vertical) return { a: Math.max(y0, op[1]), b: Math.min(y1, op[3]), z0: sill, z1: head, kind: op[4] };
         return { a: Math.max(x0, op[0]), b: Math.min(x1, op[2]), z0: sill, z1: head, kind: op[4] };
@@ -2078,6 +2180,51 @@ export function buildVariantD2(api) {
         const fw = 0.06;
         const t0 = t - half;
         const t1 = t + half;
+        if (h.kind === "g") {
+          // Коробка как у стеклянной двери варианта А: наружу на террасу. Полотно уходит вместе с крышей.
+          const jamb = 0.08;
+          const wallHalf = 0.19;
+          const proud = 0.025;
+          const outward = vertical ? 1 : -1;
+          const face = t + outward * wallHalf;
+          const n0 = Math.min(face, face + outward * proud);
+          const n1 = Math.max(face, face + outward * proud);
+          const a = h.a;
+          const b = h.b;
+          withFinish("door", () => {
+            const bar = (q, za, zb) => planBox(q, za, zb, 0x6b3e24);
+            if (vertical) {
+              const xa = t - wallHalf;
+              const xb = t + wallHalf;
+              bar([[xa, a], [xb, a], [xb, a + jamb], [xa, a + jamb]], h.z0, h.z1);
+              bar([[xa, b - jamb], [xb, b - jamb], [xb, b], [xa, b]], h.z0, h.z1);
+              bar([[xa, a], [xb, a], [xb, b], [xa, b]], h.z1 - jamb, h.z1);
+              bar([[n0, a], [n1, a], [n1, a + jamb], [n0, a + jamb]], h.z0, h.z1);
+              bar([[n0, b - jamb], [n1, b - jamb], [n1, b], [n0, b]], h.z0, h.z1);
+              bar([[n0, a], [n1, a], [n1, b], [n0, b]], h.z1 - jamb, h.z1);
+            } else {
+              const ya = t - wallHalf;
+              const yb = t + wallHalf;
+              bar([[a, ya], [a + jamb, ya], [a + jamb, yb], [a, yb]], h.z0, h.z1);
+              bar([[b - jamb, ya], [b, ya], [b, yb], [b - jamb, yb]], h.z0, h.z1);
+              bar([[a, ya], [b, ya], [b, yb], [a, yb]], h.z1 - jamb, h.z1);
+              bar([[a, n0], [a + jamb, n0], [a + jamb, n1], [a, n1]], h.z0, h.z1);
+              bar([[b - jamb, n0], [b, n0], [b, n1], [b - jamb, n1]], h.z0, h.z1);
+              bar([[a, n0], [b, n0], [b, n1], [a, n1]], h.z1 - jamb, h.z1);
+            }
+          });
+          const leaf = vertical
+            ? planBox([[t - 0.12, a + jamb], [t + 0.12, a + jamb], [t + 0.12, b - jamb], [t - 0.12, b - jamb]], h.z0 + 0.05, h.z1 - jamb, 0xd7ebf3, false)
+            : planBox([[a + jamb, t - 0.12], [b - jamb, t - 0.12], [b - jamb, t + 0.12], [a + jamb, t + 0.12]], h.z0 + 0.05, h.z1 - jamb, 0xd7ebf3, false);
+          delete leaf.userData.finish;
+          leaf.material.transparent = true;
+          leaf.material.opacity = 0.55;
+          leaf.material.depthWrite = false;
+          leaf.castShadow = false;
+          leaf.userData.roof = true;
+          cursor = Math.max(cursor, h.b);
+          continue;
+        }
         if (vertical) {
           frameBar(t0, h.a, t1, h.a + fw, h.z0, h.z1, color);
           frameBar(t0, h.b - fw, t1, h.b, h.z0, h.z1, color);
@@ -2108,9 +2255,19 @@ export function buildVariantD2(api) {
     }
   });
 
+  // Цоколь, терраса и площадка входа светлее отделки: тёмные линии мебели на них читаются.
+  const base = (quad, z0, z1) => {
+    const mesh = planBox(quad, z0, z1, 0xd8d3cb);
+    delete mesh.userData.finish;
+    return mesh;
+  };
   withFinish("plinth", () => {
-    planBox([[-4.80, 2.10], [5.55, 2.10], [5.55, 19.20], [-4.80, 19.20]], 0.02, PLINTH, 0x8a8178);
-    planBox([[5.10, 8.70], [13.75, 8.70], [13.75, 19.20], [5.10, 19.20]], 0.02, PLINTH, 0x8a8178);
+    // Выпуск цоколя за наружную грань стены 5 см. Терраса и крыльцо — отдельные площадки.
+    base([[-4.47, 2.41], [5.36, 2.41], [5.36, 18.93], [-4.47, 18.93]], 0.02, PLINTH);
+    base([[5.36, 9.00], [13.45, 9.00], [13.45, 18.93], [5.36, 18.93]], 0.02, PLINTH);
+    // Южная терраса: тот же цоколь, без ступеней. Полоса вдоль южной стены и выступ на восток.
+    base([[-4.47, 0.51], [8.29, 0.51], [8.29, 2.41], [-4.47, 2.41]], 0.02, PLINTH);
+    base([[5.36, 2.41], [8.29, 2.41], [8.29, 5.44], [5.36, 5.44]], 0.02, PLINTH);
     // Ступени вырезаны в западном крае крыльца. Марш 2,30 м: 1,50 м и по 40 см в стороны.
     const face = -6.15;
     const back = -4.20;
@@ -2124,14 +2281,14 @@ export function buildVariantD2(api) {
     const inner = face + stepN * tread;
     const stepRise = (PLINTH - 0.02) / stepN;
     const cap = 0.02;
-    planBox([[face, yS], [back, yS], [back, y0], [face, y0]], 0.02, PLINTH, 0x8a8178);
-    planBox([[face, y1], [back, y1], [back, yN], [face, yN]], 0.02, PLINTH, 0x8a8178);
-    planBox([[inner, y0], [back, y0], [back, y1], [inner, y1]], 0.02, PLINTH, 0x8a8178);
+    base([[face, yS], [back, yS], [back, y0], [face, y0]], 0.02, PLINTH);
+    base([[face, y1], [back, y1], [back, yN], [face, yN]], 0.02, PLINTH);
+    base([[inner, y0], [back, y0], [back, y1], [inner, y1]], 0.02, PLINTH);
     for (let i = 0; i < stepN; i++) {
       const x0 = face + i * tread;
       const x1 = x0 + tread;
       const z1 = i === stepN - 1 ? PLINTH : 0.02 + (i + 1) * stepRise;
-      planBox([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], 0.02, z1 - cap, 0x8a8178);
+      base([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], 0.02, z1 - cap);
       const mesh = planBox([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], z1 - cap, z1, 0xd4cfc4);
       delete mesh.userData.finish;
     }
@@ -2159,7 +2316,10 @@ export function buildVariantD2(api) {
   const xW = -4.92;
   const xStep = 5.81;
   const xE = 13.90;
-  const yS = 1.96;
+  // Южный свес выпущен на 0,63 м за внешнюю грань колонн террасы, как западный свес за колонны крыльца.
+  const yS = -0.08;
+  const xTe = 8.89;
+  const yTn = 5.81;
   const yStep = 8.55;
   const yN = 19.38;
   const cx = (-4.42 + 5.31) / 2;
@@ -2171,6 +2331,7 @@ export function buildVariantD2(api) {
   // карниз на свесе 0,5 м ниже по тому же уклону 22°.
   const Ze = WALL_TOP + 0.20 / Math.cos(pitch) + 0.03 - Math.tan(pitch) * 0.50;
   const Zr = Ze + rise;
+  const zTe = Ze + rise * (xStep - xTe) / (xStep - cx);
   const eaveSW = [xW, yS, Ze];
   const eaveNW = [xW, yN, Ze];
   const eaveNE = [xE, yN, Ze];
@@ -2197,6 +2358,8 @@ export function buildVariantD2(api) {
   quad(turn, eastPeak, eaveNE, northAtRidge);
   quad(southPeak, stepS, valley, turn);
   quad(turn, valley, wingSe, eastPeak);
+  // Над выступом террасы тот же восточный скат удлинён до колонн, отдельной крыши нет.
+  quad([xStep, yS, Ze], [xTe, yS, zTe], [xTe, yTn, zTe], [xStep, yTn, Ze]);
   const roofDrop = 0.45;
   const shellOf = (tris, lower) => {
     const out = [];
@@ -2222,12 +2385,25 @@ export function buildVariantD2(api) {
     if (Math.abs(x - xW) < 0.03 || Math.abs(x - pX) < 0.03) x += eaveInset;
     if (Math.abs(y - yN) < 0.03) y -= eaveInset;
     if (Math.abs(x - xStep) < 0.03 && y <= yStep + 0.05) x -= eaveInset;
+    if (Math.abs(x - xTe) < 0.03) x -= eaveInset;
     if (Math.abs(y - yStep) < 0.03 && x >= xStep - 0.05) y += eaveInset;
     return [x, y, p[2] - roofDrop];
   };
   withFinish("roof", () => asRoof(addMesh(geometryFromTriangles(shellOf(planTris, lowerRoof)), ROOF_C)));
   column(-5.92, 9.32, zWestPlane(-5.92) - roofDrop);
   column(-5.92, 12.52, zWestPlane(-5.92) - roofDrop);
+  const zRoofX = (x) => (x <= cx
+    ? Ze + rise * (x - xW) / (cx - xW)
+    : Ze + rise * (xStep - x) / (xStep - cx));
+  const terraceColumn = (x0, y0, x1, y1) => withFinish("column", () => planBox(
+    [[x0, y0], [x1, y0], [x1, y1], [x0, y1]],
+    PLINTH, zRoofX((x0 + x1) / 2) - roofDrop, WOOD
+  ));
+  terraceColumn(-4.348, 0.589, -4.008, 0.929);
+  terraceColumn(0.229, 0.598, 0.569, 0.938);
+  terraceColumn(4.914, 0.596, 5.254, 0.936);
+  terraceColumn(7.896, 0.598, 8.236, 0.938);
+  terraceColumn(7.896, 5.032, 8.236, 5.372);
 
   // Желоб 140 мм. Карнизная планка накрывает внутреннюю треть.
   // Носик на 25 мм ниже продолжения ската: при уклоне до 40° снег проходит над желобом.
@@ -2292,16 +2468,20 @@ export function buildVariantD2(api) {
   const dWestN = runDrop(xW, pY1, xW, yN);
   const xMid = (xW + xE) / 2;
   const dNorth = runDrop(xW, yN, xMid, yN);
-  const dStep = runDrop(xStep, yStep, xStep, yS);
+  const dStep = runDrop(xStep, yStep, xStep, yTn);
   const dWing = runDrop(xStep, yStep, xE, yStep);
   const yPm = (pY0 + pY1) / 2;
   const dPorch = runDrop(pX, pY0, pX, yPm);
+  const yTm = (yS + yTn) / 2;
+  const dTerr = runDrop(xTe, yS, xTe, yTm);
   eaveLine(xW, pY0, xW, yS, Ze, Ze, 1, 0, tanP, 0, dWestS);
   eaveLine(xW, pY1, xW, yN, Ze, Ze, 1, 0, tanP, 0, dWestN);
   eaveLine(xW, yN, xMid, yN, Ze, Ze, 0, -1, tanP, dNorth, 0);
   eaveLine(xMid, yN, xE, yN, Ze, Ze, 0, -1, tanP, 0, dNorth);
-  eaveLine(xStep, yStep, xStep, yS, Ze, Ze, -1, 0, tanP, 0, dStep);
+  eaveLine(xStep, yStep, xStep, yTn, Ze, Ze, -1, 0, tanP, 0, dStep);
   eaveLine(xStep, yStep, xE, yStep, Ze, Ze, 0, 1, tanP, 0, dWing);
+  eaveLine(xTe, yS, xTe, yTm, zTe, zTe, -1, 0, tanP, dTerr, 0);
+  eaveLine(xTe, yTm, xTe, yTn, zTe, zTe, -1, 0, tanP, 0, dTerr);
   eaveLine(pX, pY0, pX, yPm, zP, zP, 1, 0, tanP, dPorch, 0);
   eaveLine(pX, yPm, pX, pY1, zP, zP, 1, 0, tanP, 0, dPorch);
   // Трубчатый снегозадержатель: два прутка над несущей стеной, около 0,65 м от карниза по скату.
@@ -2332,15 +2512,18 @@ export function buildVariantD2(api) {
   const xHip = xW + (wIn / (yN - cy)) * (cx - xW);
   snow(xW, yS, xW, yHip, Ze, Ze, 1, 0, tanP, 0.65);
   snow(xHip, yN, xE, yN, Ze, Ze, 0, -1, tanP, 0.65);
+  // Та же первая линия продолжается над длинным южным свесом, а не обрывается у выступа.
   snow(xStep, yS, xStep, yStep, Ze, Ze, -1, 0, tanP, 0.65);
   snow(xStep, yStep, xE, yStep, Ze, Ze, 0, 1, tanP, 0.65);
+  snow(xTe, yS, xTe, yTn, zTe, zTe, -1, 0, tanP, 0.50);
   snow(pX, pY0, pX, pY1, zP, zP, 1, 0, tanP, 0.50);
 
   // Труба: от желоба к наружному углу стены или колонны, вниз и отлив наружу.
   // Во внутреннем углу ендовы трубы нет.
-  const spout = (gu, gv, wu, wv, zTop, zWallBot = PLINTH + 0.12) => {
+  const spout = (gu, gv, wu, wv, zTop, zWallBot = PLINTH + 0.30) => {
     const pipe = 0.07;
-    const zBend = zTop - 0.22;
+    // Колено ниже карниза, чтобы горизонтальный участок прошёл под подшивкой, а не сквозь кровлю.
+    const zBend = zTop - 0.36;
     const beam = (xa, ya, za, xb, yb, zb) => withFinish("gutter", () => asRoof(addBeam(
       world(xa, ya, za), world(xb, yb, zb), pipe, GUTTER_C
     )));
@@ -2357,13 +2540,15 @@ export function buildVariantD2(api) {
     beam(wu, wv, zWallBot, ku, kv, zEnd);
     beam(ku, kv, zEnd - 0.12, ku, kv, zEnd + 0.06);
   };
-  spout(xW - GW / 2, yS, -4.48, 2.40, outletZ(Ze, dWestS, tanP));
-  spout(xStep + GW / 2, yS, 5.37, 2.40, outletZ(Ze, dStep, tanP));
+  spout(xW - GW / 2, yS, -4.35, 0.76, outletZ(Ze, dWestS, tanP));
+  spout(xStep + GW / 2, yTn, 5.45, yTn, outletZ(Ze, dStep, tanP));
+  spout(xTe + GW / 2, yS, 8.24, 0.77, outletZ(zTe, dTerr, tanP));
+  spout(xTe + GW / 2, yTn, 8.24, 5.20, outletZ(zTe, dTerr, tanP));
   spout(xE, yStep - GW / 2, 13.46, 8.99, outletZ(Ze, dWing, tanP));
   spout(xE, yN + GW / 2, 13.46, 18.94, outletZ(Ze, dNorth, tanP));
   spout(xW - GW / 2, yN + GW / 2, -4.48, 18.94, outletZ(Ze, Math.max(dNorth, dWestN), tanP));
-  spout(pX - GW / 2, pY0, -5.96, 9.28, outletZ(zP, dPorch, tanP), 0.32);
-  spout(pX - GW / 2, pY1, -5.96, 12.78, outletZ(zP, dPorch, tanP), 0.32);
+  spout(pX - GW / 2, pY0, -5.96, 9.28, outletZ(zP, dPorch, tanP));
+  spout(pX - GW / 2, pY1, -5.96, 12.78, outletZ(zP, dPorch, tanP));
 
   // Фронтон от верха стены до скатов. На коньке квадратное окно 80×80 см с перекрестием.
   const gableTris = [];
@@ -2512,8 +2697,8 @@ export function buildVariantD2(api) {
   snow(cX0, cY1, cX1, cY1, cEave, cEave, 0, -1, tanC, 0.45);
 
   const blind = api.addSlabHole(
-    [[-5.42, 19.88], [14.40, 19.88], [14.40, 8.05], [6.31, 8.05], [6.31, 1.46], [-5.42, 1.46], [-5.42, 8.24], [-7.00, 8.24], [-7.00, 13.86], [-5.42, 13.86]],
-    [[-4.42, 18.88], [13.40, 18.88], [13.40, 9.05], [5.31, 9.05], [5.31, 2.46], [-4.42, 2.46], [-4.42, 9.24], [-6.00, 9.24], [-6.00, 12.86], [-4.42, 12.86]],
+    [[-5.42, 19.88], [14.40, 19.88], [14.40, 8.05], [9.29, 8.05], [9.29, -0.49], [-5.42, -0.49], [-5.42, 8.24], [-7.00, 8.24], [-7.00, 13.86], [-5.42, 13.86]],
+    [[-4.42, 18.88], [13.40, 18.88], [13.40, 9.05], [5.31, 9.05], [5.31, 5.44], [8.29, 5.44], [8.29, 0.51], [-4.40, 0.51], [-4.40, 2.46], [-4.42, 2.46], [-4.42, 9.24], [-6.00, 9.24], [-6.00, 12.86], [-4.42, 12.86]],
     0.02, 0.03, 0xd4cfc4
   );
   if (blind) {
@@ -2594,6 +2779,7 @@ export function buildVariantD2(api) {
 
   addFloorNotes(ROOMS);
   addFloorLines((x, y) => [x, y], FURNITURE.flatMap((s) => s), FLOOR + 0.08, 0x1a1a1a, 0.9, 0.015);
+  addFloorLines((x, y) => [x, y], TERRACE_FURNITURE.flatMap((s) => s), PLINTH + 0.03, 0x1a1a1a, 0.9, 0.015);
   addFloorLines((x, y) => [x, y], DOOR_SWINGS.flatMap((s) => s), FLOOR + 0.09, 0x1a1a1a, 0.95, 0.012);
 
   // Рисунок отделки садится на наружные стены. Внутренние перегородки остаются штукатуркой модели.
@@ -2609,7 +2795,11 @@ export function buildVariantD2(api) {
       face({
         name: "d2S", along: "x", outer: 2.46, sign: -1,
         span0: -4.33, span1: 4.89, eave: WALL_TOP,
-        openings: [opening(-2.99, -1.02, "win"), opening(1.87, 3.85, "pan")],
+        openings: [
+          opening(-2.99, -1.02, "win"),
+          opening(2.281, 3.243, "door"),
+          opening(3.293, 4.254, "pan"),
+        ],
       }),
       face({
         name: "d2N", along: "x", outer: 18.88, sign: 1,
@@ -2641,7 +2831,7 @@ export function buildVariantD2(api) {
       face({
         name: "d2Recess", along: "y", outer: 5.31, sign: 1,
         span0: 2.48, span1: 9.05, eave: WALL_TOP,
-        openings: [opening(3.52, 5.49, "pan")],
+        openings: [opening(3.462, 4.424, "door"), opening(4.474, 5.436, "pan")],
       }),
     ];
   });
