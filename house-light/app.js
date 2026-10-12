@@ -51,6 +51,7 @@ scene.add(sun);
 scene.add(sun.target);
 
 const sharedGroup = new THREE.Group();
+const northDriveGroup = new THREE.Group();
 const northGroup = new THREE.Group();
 const westGroup = new THREE.Group();
 const variant2Group = new THREE.Group();
@@ -62,7 +63,7 @@ const houseRig = new THREE.Group();
 let v2House = null;
 let v2HouseD2 = null;
 let roofDims = null;
-scene.add(sharedGroup, variant2Group, variantBGroup, variantCGroup, variantD2Group);
+scene.add(sharedGroup, northDriveGroup, variant2Group, variantBGroup, variantCGroup, variantD2Group);
 variant2Group.visible = true;
 variantBGroup.visible = false;
 variantCGroup.visible = false;
@@ -379,10 +380,10 @@ function planDeltaToWorld(dx, dy) {
   return new THREE.Vector3(x, 0, z).normalize();
 }
 
-// Мир уже в осях to_east_north: X — восток, Z — север.
-// Азимут солнца отсчитывается от севера по часовой стрелке.
-const cadastralEast = new THREE.Vector3(1, 0, 0);
-const cadastralNorth = new THREE.Vector3(0, 0, 1);
+// Стороны света листа на кадастре, в текущих осях модели.
+// Север — вверх листа, восток — вправо. Азимут солнца от севера по часовой.
+const cadastralEast = new THREE.Vector3(-0.7872695095567074, 0, -0.6166090490110745);
+const cadastralNorth = new THREE.Vector3(-0.6166090490110745, 0, 0.7872695095567074);
 
 addHouseHip();
 
@@ -1190,8 +1191,8 @@ function addSite() {
   // Западная дорога в 5 м от границы, на кадастре её нет.
   addSlab([[-25.49, roadNear], [-17.88, -5.255], [-22.796, -6.164], [-30.575, roadNear]], 0.0, 0.02, 0xe3e3e0, false);
   addSlab(plot, 0.0, 0.02, 0xb7d48c, false);
-  // Зона подъезда от дороги к воротам и калитке — мощение тротуарной плиткой.
-  // В sharedGroup, чтобы была видна на всех вариантах.
+  // Подъезд с севера к воротам вариантов A–В. У Д2 въезд только с запада.
+  bucket = northDriveGroup;
   addSlab(
     [[gateX0 - 1, fenceY - 0.25], [kalX1 + 1, fenceY - 0.25], [kalX1 + 1, roadNear], [gateX0 - 1, roadNear]],
     0.03, 0.035, 0xe6d3b0, false
@@ -5198,6 +5199,7 @@ function setVariant(id) {
   variantBGroup.visible = viewVariant === "vb";
   variantCGroup.visible = viewVariant === "vc";
   variantD2Group.visible = viewVariant === "vd2";
+  northDriveGroup.visible = viewVariant !== "vd2";
   blurb.textContent = viewVariant === "vb" ? BLURB_B
     : viewVariant === "vc" ? BLURB_C
       : viewVariant === "d2" ? BLURB_D2
