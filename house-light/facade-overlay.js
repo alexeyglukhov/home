@@ -68,8 +68,12 @@ function quoins(face, color, w = 0.4) {
   const last = ops[ops.length - 1];
   const left = first ? Math.min(w, Math.max(0.1, first.u0 - face.span0 - 0.04)) : w;
   const right = last ? Math.min(w, Math.max(0.1, face.span1 - last.u1 - 0.04)) : w;
-  face.place(face.span0, face.span0 + left, 0.04, face.eave, color);
-  face.place(face.span1 - right, face.span1, 0.04, face.eave, color);
+  const climb = (a, b) => {
+    if (face.gable) placeToRoof(face, a, b, 0.04, color);
+    else face.place(a, b, 0.04, face.eave, color);
+  };
+  climb(face.span0, face.span0 + left);
+  climb(face.span1 - right, face.span1);
 }
 
 function surround(face, op, color, band = 0.15) {
@@ -410,16 +414,26 @@ function paintZone(face, u0, u1, color, proud = 0) {
   }
 }
 
+function boardCap(face, u) {
+  const g = face.gable;
+  if (!g || u <= g.u0 || u >= g.u1) return face.eave - 0.06;
+  return Math.max(face.eave - 0.06, gableTop(g, u) - 0.04);
+}
+
 function boardsIn(face, u0, u1, color) {
+  const win = face.gable && face.gable.win;
   for (let u = u0 + 0.08; u < u1 - 0.04; u += 0.32) {
     const hits = face.openings.filter((op) => u > op.u0 + 0.02 && u < op.u1 - 0.02);
+    if (win && u > win.u0 + 0.02 && u < win.u1 - 0.02) hits.push(win);
     let z = 0.16;
     const ordered = hits.slice().sort((a, b) => a.z0 - b.z0);
+    const cap = boardCap(face, u + 0.009);
     for (const op of ordered) {
-      if (op.z0 - 0.02 > z + 0.05) face.place(u, u + 0.018, z, op.z0 - 0.02, color);
+      const z1 = Math.min(op.z0 - 0.02, cap);
+      if (z1 > z + 0.05) face.place(u, u + 0.018, z, z1, color);
       z = Math.max(z, op.z1 + 0.02);
     }
-    if (face.eave - 0.06 > z + 0.05) face.place(u, u + 0.018, z, face.eave - 0.06, color);
+    if (cap > z + 0.05) face.place(u, u + 0.018, z, cap, color);
   }
 }
 
@@ -677,6 +691,7 @@ export function paintFacadeFaces(api, faces) {
   draw("4", () => each(faces, (f) => {
     if (f.gable) {
       paintZone(f, f.gable.u0, f.gable.u1, STONE);
+      fillAbove(f, f.gable.u0, f.gable.u1, f.eave, STONE);
       f.roofFill(STONE);
     }
     for (const [a, b] of wings(f)) {
@@ -734,6 +749,7 @@ export function paintFacadeFaces(api, faces) {
   draw("10", () => each(faces, (f) => {
     if (!f.gable) return;
     paintZone(f, f.gable.u0 - 0.12, f.gable.u1 + 0.12, DARK);
+    fillAbove(f, f.gable.u0, f.gable.u1, f.eave, DARK);
     f.roofFill(DARK);
   }));
   draw("11", () => each(faces, (f) => {
@@ -746,7 +762,10 @@ export function paintFacadeFaces(api, faces) {
     for (const op of f.openings) surround(f, op, SURROUND, 0.22);
   }));
   draw("13", () => each(faces, (f) => {
-    for (const [a, b] of wings(f)) boardsIn(f, a, b, BOARD);
+    let spans = wings(f);
+    const g = f.gable;
+    if (g && g.u0 <= f.span0 + 0.08 && g.u1 >= f.span1 - 0.08) spans = [[f.span0, f.span1]];
+    for (const [a, b] of spans) boardsIn(f, a, b, BOARD);
   }));
   draw("14", () => each(faces, (f) => {
     timberPosts(f, BRICK, 0.04, f.eave, 0.22, true);
@@ -867,7 +886,7 @@ export function paintFacadeFaces(api, faces) {
     if (!g) return;
     for (let u = g.u0 + 0.25; u < g.u1 - 0.2; u += 0.16) {
       const top = gableTop(g, u + 0.03) - 0.06;
-      if (top > g.eave + 0.25) f.place(u, u + 0.045, g.eave, top, SLAT);
+      if (top > f.eave + 0.25) f.place(u, u + 0.045, f.eave, top, SLAT);
     }
   }));
   draw("25", () => each(faces, (f) => {

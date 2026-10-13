@@ -2124,7 +2124,35 @@ function hit(wall, op) {
 }
 
 export function buildVariantD2(api) {
-  const { planBox, addBeam, asRoof, withFinish, addFloorNotes, addFloorLines, planToWorld, geometryFromTriangles, addMesh } = api;
+  // Дом, крыша, терраса и отмостка на 1 м западнее исходного плана. Забор не едет.
+  // Плитка, навес и машины заданы уже в координатах схемы и HOUSE_DX не получают.
+  const HOUSE_DX = -1;
+  const shiftX = (x) => x + HOUSE_DX;
+  const { addBeam, asRoof, withFinish, geometryFromTriangles, addMesh } = api;
+  const planToWorld = (x, y) => api.planToWorld(shiftX(x), y);
+  const planBox = (quad, y0, y1, color, cast = true) => api.planBox(
+    quad.map(([x, y]) => [shiftX(x), y]), y0, y1, color, cast
+  );
+  const addFloorNotes = (rooms) => api.addFloorNotes(rooms.map((room) => {
+    const next = room.slice();
+    const boxes = next[8] || [[next[1], next[2], next[3], next[4]]];
+    next[8] = boxes.map(([x0, y0, x1, y1]) => [shiftX(x0), y0, shiftX(x1), y1]);
+    next[1] = shiftX(next[1]);
+    next[3] = shiftX(next[3]);
+    return next;
+  }));
+  const addFloorLines = (site, lines, z, color, opacity, w) => api.addFloorLines(
+    (x, y) => {
+      const p = site(x, y);
+      return [shiftX(p[0]), p[1]];
+    },
+    lines, z, color, opacity, w
+  );
+  const addSlabHole = (outer, hole, y0, h, color) => api.addSlabHole(
+    outer.map(([x, y]) => [shiftX(x), y]),
+    hole.map(([x, y]) => [shiftX(x), y]),
+    y0, h, color
+  );
   const saved = api.sectionHeight();
   api.sectionHeight(3.5);
 
@@ -2153,10 +2181,14 @@ export function buildVariantD2(api) {
         return { a: Math.max(x0, op[0]), b: Math.min(x1, op[2]), z0: sill, z1: head, kind: op[4] };
       }).filter((h) => h.b - h.a > 0.2).sort((p, q) => p.a - q.a);
       const zTop = WALL_TOP;
+      // Кольцо развёрнуто: у призмы внешняя грань иначе смотрит внутрь и стена
+      // затеняет сама себя, а фронтон с наружной нормалью остаётся светлым.
       const span = (a, b, z0, z1) => {
         if (b <= a + 0.02 || z1 <= z0 + 0.02) return;
-        if (vertical) planBox([[x0, a], [x1, a], [x1, b], [x0, b]], z0, z1, WALL_C);
-        else planBox([[a, y0], [b, y0], [b, y1], [a, y1]], z0, z1, WALL_C);
+        const quad = vertical
+          ? [[x1, a], [x0, a], [x0, b], [x1, b]]
+          : [[b, y0], [a, y0], [a, y1], [b, y1]];
+        planBox(quad, z0, z1, WALL_C);
       };
       let cursor = vertical ? y0 : x0;
       const limit = vertical ? y1 : x1;
@@ -2712,14 +2744,14 @@ export function buildVariantD2(api) {
   squareWindow([cy - halfWin, cy + halfWin, zWinBot, zWinTop], xg - 0.06, xg + 0.02, true);
   if (gableTris.length) withFinish("wall", () => addMesh(geometryFromTriangles(gableTris), WALL_C));
 
-  // Навес 6×5 домиком: конёк от стены к заезду, скаты на боковые края.
-  // Под коньком около 3,5 м, по карнизу 2,8 м — машина проходит по центру.
-  const cX0 = -10.70;
-  // Кромка у западной стены: 2 см в плоскость, чтобы касаться, а не входить в кладку.
-  const cX1 = -4.40;
-  const cY0 = 13.60;
-  const cY1 = 19.15;
-  const cYm = (cY0 + cY1) / 2;
+  // Навес со схемы: 6,31×7,31 м, конёк восток-запад, по четыре столба 30×30 см на скате.
+  // Числа — координаты схемы. planBox и world прибавляют HOUSE_DX, поэтому X возвращается в систему дома.
+  const lx = (x) => x - HOUSE_DX;
+  const cX0 = lx(-11.77);
+  const cX1 = lx(-5.46);
+  const cY0 = 13.33;
+  const cY1 = 20.64;
+  const cYm = 16.98;
   const cEave = 2.80;
   const cRise = Math.tan(15 * Math.PI / 180) * ((cY1 - cY0) / 2);
   const cRidge = cEave + cRise;
@@ -2728,15 +2760,16 @@ export function buildVariantD2(api) {
     const dy = Math.min(Math.abs(y - cY0), Math.abs(y - cY1));
     return cEave + cRise * dy / ((cY1 - cY0) / 2);
   };
-  withFinish("column", () => {
-    for (const [x, y] of [[-10.20, 18.66], [-10.20, 14.10], [-4.70, 18.66], [-4.70, 14.10]]) {
-      const yLow = y + 0.08 > cYm ? y + 0.16 : y;
-      planBox(
-        [[x, y], [x + 0.16, y], [x + 0.16, y + 0.16], [x, y + 0.16]],
-        0.05, canopyZ(yLow) - cDrop, WOOD
-      );
-    }
-  });
+  for (const [x, y] of [
+    [-11.572, 20.444], [-9.583, 20.449], [-7.649, 20.437], [-5.678, 20.435],
+    [-11.569, 13.531], [-9.540, 13.554], [-7.618, 13.552], [-5.673, 13.557],
+  ]) {
+    const cx = lx(x);
+    planBox(
+      [[cx - 0.15, y - 0.15], [cx + 0.15, y - 0.15], [cx + 0.15, y + 0.15], [cx - 0.15, y + 0.15]],
+      0.05, canopyZ(y) - cDrop, 0x6b3e24
+    );
+  }
   const canopyTris = [];
   const ct = (a, b, c) => canopyTris.push([a, b, c]);
   const cq = (a, b, c, d) => { ct(a, b, c); ct(a, c, d); };
@@ -2754,12 +2787,12 @@ export function buildVariantD2(api) {
   const dCan = runDrop(cX0, cY0, cX1, cY0);
   eaveLine(cX1, cY0, cX0, cY0, cEave, cEave, 0, 1, tanC, 0, dCan);
   eaveLine(cX1, cY1, cX0, cY1, cEave, cEave, 0, -1, tanC, 0, dCan);
-  spout(cX0, cY0 - GW / 2, -10.24, 14.06, outletZ(cEave, dCan, tanC), 0.20);
-  spout(cX0, cY1 + GW / 2, -10.24, 18.86, outletZ(cEave, dCan, tanC), 0.20);
+  spout(cX0, cY0 - GW / 2, cX0 - 0.04, cY0, outletZ(cEave, dCan, tanC), 0.20);
+  spout(cX0, cY1 + GW / 2, cX0 - 0.04, cY1, outletZ(cEave, dCan, tanC), 0.20);
   snow(cX0, cY0, cX1, cY0, cEave, cEave, 0, 1, tanC, 0.45);
   snow(cX0, cY1, cX1, cY1, cEave, cEave, 0, -1, tanC, 0.45);
 
-  const blind = api.addSlabHole(
+  const blind = addSlabHole(
     [[-5.42, 19.88], [14.40, 19.88], [14.40, 8.05], [9.50, 8.05], [9.50, 1.46], [-5.42, 1.46], [-5.42, 8.24], [-7.00, 8.24], [-7.00, 13.86], [-5.42, 13.86]],
     [[-4.42, 18.88], [13.40, 18.88], [13.40, 9.05], [8.495, 9.05], [8.495, 2.46], [-4.42, 2.46], [-4.42, 9.24], [-6.00, 9.24], [-6.00, 12.86], [-4.42, 12.86]],
     0.02, 0.03, 0xd4cfc4
@@ -2770,9 +2803,13 @@ export function buildVariantD2(api) {
     blind.material.polygonOffsetUnits = -2;
   }
 
-  // Плитка от дома до западной дороги, как на схеме.
+  // Плитка: от западной стены до забора, на 2 м севернее северной стены и на 1 м южнее крыльца.
   api.addSlab([
-    [-22.44, 18.86], [-4.42, 18.88], [-4.42, 9.24], [-20.66, 9.22],
+    [-17.6305, 20.88], [-5.42, 20.88], [-5.42, 8.24], [-15.2917, 8.24],
+  ], 0.03, 0.035, 0xe4ddd2, false);
+  // Въезд от линии дороги до ворот и калитки, перпендикулярно дороге.
+  api.addSlab([
+    [-17.032, 17.635], [-15.941, 11.736], [-20.858, 10.826], [-21.950, 16.725],
   ], 0.03, 0.035, 0xe4ddd2, false);
 
   // Забор по контуру, проём ворот и калитки на западной стороне.
@@ -2784,7 +2821,7 @@ export function buildVariantD2(api) {
   const dy = sw[1] - nw[1];
   const len = Math.hypot(dx, dy);
   const along = (s) => [nw[0] + dx / len * s, nw[1] + dy / len * s];
-  const post = (p) => planBox(
+  const post = (p) => api.planBox(
     [[p[0] - 0.08, p[1] - 0.08], [p[0] + 0.08, p[1] - 0.08], [p[0] + 0.08, p[1] + 0.08], [p[0] - 0.08, p[1] + 0.08]],
     0, 1.68, 0x4a4036
   );
@@ -2810,7 +2847,7 @@ export function buildVariantD2(api) {
   api.addWallRun(shift(along(4.90), 0.48), shift(along(5.40), 0.48), 0.16, 0, 0.045, 0xc8c4bc);
   api.addWallRun(shift(along(4.98), 0.46), shift(along(5.32), 0.46), 0.11, 0.045, 0.30, 0x2a2e34);
   const pin = shift(along(5.15), 0.30);
-  planBox(
+  api.planBox(
     [[pin[0] - 0.04, pin[1] - 0.04], [pin[0] + 0.04, pin[1] - 0.04], [pin[0] + 0.04, pin[1] + 0.04], [pin[0] - 0.04, pin[1] + 0.04]],
     0.10, 0.22, 0xc5c8cc
   );
@@ -2819,25 +2856,20 @@ export function buildVariantD2(api) {
   for (const s of [0, 5.334, 10.334, 11.334, len]) post(along(s));
   post(plot[1]); post(plot[2]);
 
-  // Кулрей на южном месте: нос к воротам, половина длины под западным карнизом навеса.
-  // Мазда носом к дому, по центру крыльца, на метр ближе к воротам.
-  const coolLen = 4.33;
-  const mazdaLen = 4.55;
-  const porchWest = -6.00;
-  const porchMid = (9.24 + 12.86) / 2;
+  // Как на схеме: носом к воротам, Кулрей на северном месте, Мазда на южном.
   api.addParkedModel({
     url: "./models/geely-coolray.glb",
-    length: coolLen,
+    length: 4.33,
     heading: "west",
-    centerE: -10.70,
-    centerN: 15.40,
+    centerE: -8.603,
+    centerN: 18.651,
   });
   api.addParkedModel({
     url: "./models/mazda-cx5.glb",
-    length: mazdaLen,
-    heading: "east",
-    centerE: porchWest - 3 - mazdaLen / 2,
-    centerN: porchMid,
+    length: 4.55,
+    heading: "west",
+    centerE: -8.541,
+    centerN: 15.117,
   });
 
   addFloorNotes(ROOMS);
@@ -2858,6 +2890,12 @@ export function buildVariantD2(api) {
       face({
         name: "d2S", along: "x", outer: 2.46, sign: -1,
         span0: -4.33, span1: 5.31, eave: WALL_TOP,
+        gable: {
+          u0: -4.33, u1: 5.31, peakU: cx, peakZ: Zr,
+          eave: Math.min(zWest(-4.33), zEast(5.31)),
+          over: 0, drop: 0,
+          win: { u0: cx - halfWin, u1: cx + halfWin, z0: zWinBot, z1: zWinTop },
+        },
         openings: [
           opening(-3.669, -1.696, "win"),
           opening(1.353, 2.344, "pan"),
@@ -2885,6 +2923,12 @@ export function buildVariantD2(api) {
       face({
         name: "d2E", along: "y", outer: 13.40, sign: 1,
         span0: 9.12, span1: 18.81, eave: WALL_TOP,
+        gable: {
+          u0: 9.12, u1: 18.81, peakU: cy, peakZ: Zr,
+          eave: Math.min(zNorth(18.81), zWing(9.12)),
+          over: 0, drop: 0,
+          win: { u0: cy - halfWin, u1: cy + halfWin, z0: zWinBot, z1: zWinTop },
+        },
         openings: [opening(10.84, 12.81, "win"), opening(15.62, 17.59, "win")],
       }),
       face({

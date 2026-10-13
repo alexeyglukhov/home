@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { OVERLAY_FIELD } from "./facade-overlay.js?v=17";
+import { OVERLAY_FIELD } from "./facade-overlay.js?v=19";
 
 const cache = new Map();
 

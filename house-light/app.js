@@ -5,9 +5,9 @@ import geo from "./geometry.js?v=21";
 import { FURNITURE_LINES } from "./furniture-sketch.js?v=4";
 import { FURNITURE_D } from "./furniture-d.js?v=6";
 import { WALL_LINES } from "./wall-sketch.js?v=2";
-import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=18";
-import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=17";
-import { buildVariantD2 } from "./variant-d2.js?v=65";
+import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=19";
+import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=18";
+import { buildVariantD2 } from "./variant-d2.js?v=73";
 
 const panel = document.getElementById("panel");
 const dateInput = document.getElementById("date");
@@ -4901,11 +4901,11 @@ function addVariantD2Scene() {
       mountAnyOverlays(
         variantD2Group,
         (x, y, z) => {
-          const [e, n] = planToWorld(x, y);
+          const [e, n] = planToWorld(x - 1, y);
           return [e, z, n];
         },
         (x0, y0, x1, y1, z0, z1, color) => planBox(
-          [[x0, y0], [x1, y0], [x1, y1], [x0, y1]], z0, z1, color
+          [[x0 - 1, y0], [x1 - 1, y0], [x1 - 1, y1], [x0 - 1, y1]], z0, z1, color
         ),
         make
       );
@@ -5107,7 +5107,7 @@ const BLURB_2 = "Вариант A. Терраса и гостиная на юг,
 const BLURB_D2 = "Вариант A2. Тот же дом: крыша над террасой и крыльцом — скатная трапеция с прямым передним краем. Средние столбы террасы и крыльца одной высоты с соседними.";
 const BLURB_B = "Вариант Б. Терраса и мастер-спальня на юг, вход на север. Крыльцо-веранда 6,7 × 2 м, двускатный козырёк на всю ширину.";
 const BLURB_C = "Вариант В. Тот же дом отзеркален, вход на запад к гаражу. Отмостка и плитка ведут от ворот к крыльцу.";
-const BLURB_VD2 = "Вариант Д2. Детская на север, мастер-спальня на юг, вход с запада. До северного забора 4 м. Потолок 3,2 м до перекрытия. Жёлтые окна от 0,80 м, белые панорамные от 0,10 м. Двускатная крыша с поворотом конька. Терраса 3,00×5,77 м во внутреннем углу, восточный свес удлинён до колонн, водосток на внешнем углу.";
+const BLURB_VD2 = "Вариант Д2. Детская на север, мастер-спальня на юг, вход с запада. Дом на 1 м ближе к воротам, навес 6,3×7,3 м. До северного забора 4 м. Потолок 3,2 м до перекрытия. Жёлтые окна от 0,80 м, белые панорамные от 0,10 м. Двускатная крыша с поворотом конька. Терраса 3,00×5,77 м во внутреннем углу, восточный свес удлинён до колонн, водосток на внешнем углу.";
 
 function saveView() {
   try {
@@ -5178,7 +5178,7 @@ const blurb = document.getElementById("blurb");
 
 function focusPoint(id) {
   // Д2 стоит в другом месте плана, чем дом А. Крутить нужно вокруг него, а не вокруг пустой точки.
-  if (id === "vd2") return new THREE.Vector3(2.61, 1.5, -1.27);
+  if (id === "vd2") return new THREE.Vector3(3.56, 1.5, -0.94);
   return new THREE.Vector3(-3.69, 1.5, -3.45);
 }
 
@@ -5273,3 +5273,4 @@ window.addEventListener("resize", () => {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
