@@ -47,8 +47,8 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="1"
-     inkscape:cx="615"
-     inkscape:cy="591"
+     inkscape:cx="-81.5"
+     inkscape:cy="632"
      inkscape:window-width="2560"
      inkscape:window-height="1368"
      inkscape:window-x="0"
@@ -294,25 +294,6 @@
          id="text336">4,15 м²<tspan
    dx="0.80000001"
    id="tspan334">3,72×1,12</tspan></text>
-    </g>
-  </g>
-  <g
-     transform="rotate(-90,34.108892,14.064497)"
-     id="g360">
-    <g
-       class="upright"
-       transform="rotate(90)"
-       id="g358">
-      <text
-         class="rname"
-         y="-1.15"
-         id="text352">Крыльцо</text>
-      <text
-         class="rmeta"
-         y="1.2"
-         id="text356">5,72 м²<tspan
-   dx="0.80000001"
-   id="tspan354">1,58×3,62</tspan></text>
     </g>
   </g>
   <rect
@@ -5429,7 +5410,7 @@
   </g>
   <g
      id="g1904"
-     transform="rotate(90,143.28712,145.51131)">
+     transform="rotate(180,141.54474,144.77705)">
     <rect
        x="137"
        y="148"
@@ -5652,7 +5633,7 @@
     </g>
   </g>
   <g
-     transform="rotate(-90,135.49401,-4.5434599)"
+     transform="rotate(-90,144.91658,5.6741851)"
      id="g-terr1">
     <g
        class="upright"
@@ -5665,13 +5646,13 @@
       <text
          class="rmeta"
          y="1.2"
-         id="g-terr1-meta">17,86 м²<tspan
+         id="g-terr1-meta">16,49 м²<tspan
    dx="0.80000001"
-   id="g-terr1-dim">2,99×5,98</tspan></text>
+   id="g-terr1-dim">2,99×5,52</tspan></text>
     </g>
   </g>
   <g
-     transform="rotate(-90,112.35293,35.75191)"
+     transform="rotate(-90,113.7324,37.378989)"
      id="g-terr2">
     <g
        class="upright"
@@ -5684,21 +5665,19 @@
       <text
          class="rmeta"
          y="1.2"
-         id="g-terr2-meta">28,86 м²<tspan
+         id="g-terr2-meta">24,40 м²<tspan
    dx="0.80000001"
-   id="g-terr2-dim">9,70×2,97</tspan></text>
+   id="g-terr2-dim">9,70×2,51</tspan></text>
     </g>
   </g>
   <polygon
      class="roombox"
      id="roombox-g-terr1"
-     points="125.41,118.53 154.49,118.53 154.49,167.02 125.41,167.02 "
-     transform="matrix(0.99963051,0,0,1.100551,0.16273248,-26.812115)" />
+     points="125.12019,103.23549 155.0057,103.23549 155.0057,158.41403 125.12019,158.41403" />
   <polygon
      class="roombox"
      id="roombox-g-terr2"
-     points="124.61,167.02 28.37,167.02 28.37,148.57 124.61,148.57 "
-     transform="matrix(0.99968002,0,0,1.2674891,0.13549629,-54.628864)"
+     points="28.090454,133.26673 125.12019,133.26673 125.12019,158.41403 28.090454,158.41403"
      style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#8a8a8a;stroke-width:0.19413;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:1.14713, 0.705926;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1" />
   <rect
      x="-157.72311"
@@ -5710,7 +5689,7 @@
      transform="rotate(-90)" />
   <g
      id="g1739"
-     transform="matrix(0.35466476,0.75509134,-0.75509134,0.35466476,179.84418,-31.83203)">
+     transform="matrix(0.67620572,0.48856509,0.48856509,-0.67620572,-44.265264,159.44162)">
     <g
        id="g2362"
        transform="rotate(35.092633,145.03749,102.36191)">
@@ -5913,18 +5892,92 @@
   </g>
   <rect
      x="-158.39697"
-     y="27.962893"
+     y="27.828197"
      width="30.682697"
-     height="3.7306082"
+     height="4"
      id="rect1102"
      style="opacity:0.437892;fill:#1a1a1a;stroke:none;stroke-width:3.14672"
      transform="rotate(-90)" />
   <rect
      x="-158.47858"
-     y="121.55132"
+     y="121.416624"
      width="30.764297"
-     height="3.7306082"
+     height="4"
      id="rect1660"
      style="opacity:0.437892;fill:#1a1a1a;stroke:none;stroke-width:3.1509"
      transform="rotate(-90)" />
+  <polygon
+     class="roombox"
+     id="polygon5509"
+     points="27.79,80.15 11.96,80.15 11.96,43.99 27.79,43.99 "
+     transform="matrix(0.19840236,0,0,0.74926562,9.6304321,0.79405792)"
+     style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#222222;stroke-width:0.41498143;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1" />
+  <polygon
+     class="roombox"
+     id="polygon5511"
+     points="11.96,80.15 11.96,43.99 27.79,43.99 27.79,80.15 "
+     transform="matrix(0.19840236,0,0,0.74926562,12.899209,0.79405792)"
+     style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:none;fill-opacity:1;stroke:#222222;stroke-width:0.41498143;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1" />
+  <g
+     transform="rotate(-90,34.108892,14.064497)"
+     id="g360">
+    <g
+       class="upright"
+       transform="rotate(90)"
+       id="g358">
+      <text
+         class="rname"
+         y="-1.15"
+         id="text352">Крыльцо</text>
+      <text
+         class="rmeta"
+         y="1.2"
+         id="text356">5,72 м²<tspan
+   dx="0.80000001"
+   id="tspan354">1,58×3,62</tspan></text>
+    </g>
+  </g>
+  <polygon
+     class="roombox"
+     id="polygon5537"
+     points="27.79,43.99 27.79,80.15 11.96,80.15 11.96,43.99 "
+     transform="matrix(0.19912122,0,0,0.54777291,25.739781,109.59757)"
+     style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#222222;stroke-width:0.414981;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1" />
+  <polygon
+     class="roombox"
+     id="polygon5539"
+     points="27.79,80.15 11.96,80.15 11.96,43.99 27.79,43.99 "
+     transform="matrix(0.19912122,0,0,0.54777291,29.020401,109.59757)"
+     style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#222222;stroke-width:0.414981;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1" />
+  <g
+     id="g5547"
+     transform="matrix(0,-0.99776474,1.2216541,0,5.9769337,312.08016)">
+    <polygon
+       class="roombox"
+       id="polygon5541"
+       points="27.79,80.15 11.96,80.15 11.96,43.99 27.79,43.99 "
+       transform="matrix(0.19912122,0,0,0.54777291,200.26165,74.13063)"
+       style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#222222;stroke-width:0.414981;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1" />
+    <polygon
+       class="roombox"
+       id="polygon5543"
+       points="11.96,80.15 11.96,43.99 27.79,43.99 27.79,80.15 "
+       transform="matrix(0.19912122,0,0,0.54777291,203.54227,74.13063)"
+       style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#222222;stroke-width:0.414981;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1" />
+  </g>
+  <rect
+     x="-156.52953"
+     y="30.516958"
+     width="0.89918375"
+     height="122.02811"
+     id="rect5549"
+     style="fill:#1a1a1a;stroke:none;stroke-width:3.08088"
+     transform="rotate(-90)" />
+  <rect
+     x="152.298"
+     y="105.47753"
+     width="0.89918375"
+     height="50.692749"
+     id="rect5551"
+     style="fill:#1a1a1a;stroke:none;stroke-width:1.98571" />
 </svg>
