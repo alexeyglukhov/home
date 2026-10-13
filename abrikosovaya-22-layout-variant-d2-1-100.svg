@@ -110,7 +110,7 @@
      stroke-linejoin="miter"
      id="polygon20" />
   <g id="site-paving">
-    <path d="M 401.87,396.55 L 589.25,331.90 L 627.82,443.70 L 551.33,470.09 L 572.83,532.40 L 461.94,570.66 L 439.82,506.55 L 424.86,511.71 L 406.54,458.62 L 421.51,453.46 Z M 414.59,402.74 L 583.06,344.62 L 615.11,437.50 L 538.62,463.89 L 560.11,526.20 L 468.13,557.94 L 446.01,493.84 L 431.05,499.00 L 419.26,464.82 L 434.22,459.65 Z" fill="#d4cfc4" fill-rule="evenodd" stroke="#bdbdb8" stroke-width="0.25" transform="translate(3.26137,9.45323)" id="blind-area" />
+    <path d="M 401.87,396.55 L 589.25,331.90 L 627.82,443.70 L 551.33,470.09 L 576.25,542.32 L 465.36,580.58 L 439.82,506.55 L 424.86,511.71 L 406.54,458.62 L 421.51,453.46 Z M 414.59,402.74 L 583.06,344.62 L 615.11,437.50 L 538.62,463.89 L 563.53,536.12 L 471.55,567.86 L 446.01,493.84 L 431.05,499.00 L 419.26,464.82 L 434.22,459.65 Z" fill="#d4cfc4" fill-rule="evenodd" stroke="#bdbdb8" stroke-width="0.25" transform="translate(3.26137,9.45323)" id="blind-area" />
     <polygon points="247.51,471.16 417.85,412.19 449.28,503.29 295.80,556.43" fill="#e4ddd2" stroke="none" id="front-court" />
     <polygon points="430.89,450.01 414.59,402.74 357.87,422.31 374.18,469.58" fill="none" stroke="#5c4634" stroke-width="0.45" stroke-dasharray="2.2 1.15" transform="translate(3.26137,9.45323)" id="canopy-zone" />
     <polygon points="430.89,450.01 422.74,426.38 375.48,442.68 383.63,466.32" fill="#f4f0e8" stroke="#8a8178" stroke-width="0.35" transform="translate(3.26137,9.45323)" id="stall-1" />
@@ -817,12 +817,12 @@
     <svg:line class="dim" x1="4.10" y1="-16.21" x2="6.30" y2="-16.21" id="p-line656" />
     <svg:line class="dim" x1="4.10" y1="147.95" x2="6.30" y2="147.95" id="p-line658" />
     <svg:text class="dimnum" x="-2.40" y="65.87" fill="#222" stroke="none" id="p-text660" transform="matrix(0.94531661,0.32615411,-0.32615411,0.94531661,21.35253141,4.38476477)">16,42 м</svg:text>
-    <svg:line class="ext" x1="27.79" y1="147.95" x2="27.79" y2="156.50" id="p-line662" />
-    <svg:line class="ext" x1="129.10" y1="147.95" x2="129.10" y2="156.50" id="p-line664" transform="matrix(1.00000000,0.00000000,0.00000000,1.00000000,-4.00000000,0.00000000)" />
-    <svg:line class="dim" x1="27.79" y1="156.50" x2="125.10" y2="156.50" id="p-line666" />
-    <svg:line class="dim" x1="27.79" y1="155.40" x2="27.79" y2="157.60" id="p-line668" />
-    <svg:line class="dim" x1="129.10" y1="155.40" x2="129.10" y2="157.60" id="p-line670" transform="matrix(1.00000000,0.00000000,0.00000000,1.00000000,-4.00000000,0.00000000)" />
-    <svg:text class="dimnum" x="76.45" y="154.20" fill="#222" stroke="none" id="p-text672" transform="matrix(0.94531661,0.32615411,-0.32615411,0.94531661,54.47350966,-16.50230336)">9,73 м</svg:text>
+    <svg:line class="ext" x1="27.79" y1="158.44" x2="27.79" y2="166.99" id="p-line662" />
+    <svg:line class="ext" x1="129.10" y1="158.44" x2="129.10" y2="166.99" id="p-line664" transform="matrix(1.00000000,0.00000000,0.00000000,1.00000000,-4.00000000,0.00000000)" />
+    <svg:line class="dim" x1="27.79" y1="166.99" x2="125.10" y2="166.99" id="p-line666" />
+    <svg:line class="dim" x1="27.79" y1="165.89" x2="27.79" y2="168.09" id="p-line668" />
+    <svg:line class="dim" x1="129.10" y1="165.89" x2="129.10" y2="168.09" id="p-line670" transform="matrix(1.00000000,0.00000000,0.00000000,1.00000000,-4.00000000,0.00000000)" />
+    <svg:text class="dimnum" x="76.45" y="154.20" fill="#222" stroke="none" id="p-text672" transform="matrix(0.94531661,0.32615411,-0.32615411,0.94531661,54.47350966,-6.01100336)">9,73 м</svg:text>
     <svg:line class="ext" x1="210.02" y1="-16.21" x2="218.50" y2="-16.21" id="p-line674" transform="matrix(1.00000000,0.00000000,0.00000000,1.00000000,-4.00000000,0.00000000)" />
     <svg:line class="ext" x1="210.02" y1="82.05" x2="218.50" y2="82.05" id="p-line676" transform="matrix(1.00000000,0.00000000,0.00000000,1.00000000,-4.00000000,0.00000000)" />
     <svg:line class="dim" x1="218.50" y1="-16.21" x2="218.50" y2="82.05" id="p-line678" transform="matrix(1.00000000,0.00000000,0.00000000,1.00000000,-4.00000000,0.00000000)" />
@@ -837,9 +837,9 @@
     <svg:text class="dimnum" x="169.56" y="88.20" fill="#222" stroke="none" id="p-text696" transform="matrix(0.94531661,0.32615411,-0.32615411,0.94531661,34.03890851,-50.47961672)">8,09 м</svg:text>
   </svg:g>
   <svg:g id="p-areas" fill="#1a1a1a" stroke="none">
-    <svg:text class="rname" x="40" y="168" text-anchor="start" id="p-text699" transform="matrix(0.94531661,0.32615411,-0.32615411,0.94531661,56.98122689,-3.85935509)">Жилая  107,65 м²</svg:text>
-    <svg:text class="rname" x="40" y="172" text-anchor="start" id="p-text701" transform="matrix(0.94531661,0.32615411,-0.32615411,0.94531661,58.28584335,-3.64062153)">Общая  194,81 м²</svg:text>
-    <svg:text class="rmeta" x="40" y="175.2" text-anchor="start" id="p-text703" transform="matrix(0.94531661,0.32615411,-0.32615411,0.94531661,59.32953651,-3.46563469)">Жилые и подсобные, без крыльца</svg:text>
+    <svg:text class="rname" x="40" y="168" text-anchor="start" id="p-text699" transform="matrix(0.94531661,0.32615411,-0.32615411,0.94531661,56.98122689,6.63194491)">Жилая  107,65 м²</svg:text>
+    <svg:text class="rname" x="40" y="172" text-anchor="start" id="p-text701" transform="matrix(0.94531661,0.32615411,-0.32615411,0.94531661,58.28584335,6.85067847)">Общая  194,81 м²</svg:text>
+    <svg:text class="rmeta" x="40" y="175.2" text-anchor="start" id="p-text703" transform="matrix(0.94531661,0.32615411,-0.32615411,0.94531661,59.32953651,7.02566531)">Жилые и подсобные, без крыльца</svg:text>
   </svg:g>
   <svg:text class="rmeta" x="138.6" y="64.6" text-anchor="middle" id="p-text706" transform="matrix(0.94531661,0.32615411,-0.32615411,0.94531661,24.64867365,-41.67241333)">5,99 м²</svg:text>
   <svg:text class="rmeta" x="138.6" y="66.4" text-anchor="middle" id="p-text708" transform="matrix(0.94531661,0.32615411,-0.32615411,0.94531661,25.23575106,-41.57398323)">1,87×3,21</svg:text>
@@ -984,13 +984,13 @@
   </svg:g>
   <svg:rect style="fill:#ffdd55;stroke:#000000;stroke-width:0.19057;stroke-dasharray:none" id="p-rect4378" width="5.8094301" height="2.0809999" x="30.436657" y="28.578934" transform="matrix(0,1,1,0,0,0)" />
   <svg:rect style="font-variation-settings:normal;vector-effect:none;fill:#ffdd55;fill-opacity:1;stroke:#000000;stroke-width:0.265397;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000" id="p-rect4380" width="5.7346029" height="2.0809999" x="-159.73178" y="79.126999" transform="scale(-1,1)" />
-  <svg:path id="p-rect2066" style="opacity:0.3;fill:#e5ff80;stroke:#000000;stroke-width:0.445" d="M 125.00909 118.1338 L 125.00909 148.16504 L 28.003638 148.16504 L 28.003638 156.79914 L 27.974699 156.79914 L 27.974699 167.41555 L 154.86463 167.41555 L 154.86463 157.68849 L 154.8946 157.68849 L 154.8946 118.1338 L 125.00909 118.1338 z " />
-  <svg:rect x="-166.66216" y="28.50771" width="3.4" height="3.4" id="p-rect2004" style="fill:#1a1a1a;stroke:none" transform="rotate(-90)" />
-  <svg:rect x="-166.59216" y="121.12771" width="3.4" height="3.4" id="p-rect2006" style="fill:#1a1a1a;stroke:none" transform="rotate(-90)" />
-  <svg:rect x="-166.68686" y="58.364876" width="3.4000001" height="3.4000001" id="p-rect2008" style="fill:#1a1a1a;stroke:none" transform="rotate(-90)" />
-  <svg:rect x="-166.57216" y="150.94771" width="3.4" height="3.4" id="p-rect2010" style="fill:#1a1a1a;stroke:none" transform="rotate(-90)" />
-  <svg:rect x="-122.23716" y="150.94771" width="3.4" height="3.4" id="p-rect2622" style="fill:#1a1a1a;stroke:none" transform="rotate(-90)" />
-  <svg:rect x="-166.68686" y="90.126564" width="3.4000001" height="3.4000001" id="p-rect1079" style="fill:#1a1a1a;stroke:none" transform="rotate(-90)" />
+  <svg:path id="p-rect2066" style="opacity:0.3;fill:#e5ff80;stroke:#000000;stroke-width:0.445" d="M 125.00909 118.1338 L 125.00909 148.16504 L 28.003638 148.16504 L 27.974699 177.90685 L 154.8946 177.90685 L 154.8946 118.1338 Z" />
+  <svg:rect x="-177.17459" y="28.58750" width="3.4" height="3.4" id="p-rect2004" style="fill:#1a1a1a;stroke:none" transform="rotate(-90)" />
+  <svg:rect x="-177.12172" y="121.05795" width="3.4" height="3.4" id="p-rect2006" style="fill:#1a1a1a;stroke:none" transform="rotate(-90)" />
+  <svg:rect x="-177.14702" y="58.36490" width="3.4000001" height="3.4000001" id="p-rect2008" style="fill:#1a1a1a;stroke:none" transform="rotate(-90)" />
+  <svg:rect x="-177.12222" y="150.85032" width="3.4" height="3.4" id="p-rect2010" style="fill:#1a1a1a;stroke:none" transform="rotate(-90)" />
+  <svg:rect x="-122.21573" y="150.82957" width="3.4" height="3.4" id="p-rect2622" style="fill:#1a1a1a;stroke:none" transform="rotate(-90)" />
+  <svg:rect x="-177.12718" y="90.09618" width="3.4000001" height="3.4000001" id="p-rect1079" style="fill:#1a1a1a;stroke:none" transform="rotate(-90)" />
 
   <svg:g id="p-g1062" transform="matrix(-1,0,0,1,205.23035,-0.0026867)">
     <svg:rect style="font-variation-settings:normal;vector-effect:none;fill:#00ffff;fill-opacity:1;stroke:#000000;stroke-width:0.265397;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000" id="p-rect1097" width="19.734602" height="2.0809999" x="90.702477" y="-146.97124" transform="scale(1,-1)" />
@@ -1012,7 +1012,7 @@
       </svg:g>
     </svg:g>
   </svg:g>
-  <svg:g id="p-g1904" transform="rotate(180,141.57822,150.9679)">
+  <svg:g id="p-g1904" transform="matrix(0.00000000,1.00000000,-1.00000000,0.00000000,279.74505000,20.35595000)">
     <svg:rect x="137" y="148" width="9.5" height="21" rx="0.25" fill="#ffffff" stroke="#000000" stroke-width="0.18" id="p-rect1847" style="stroke-linejoin:round" />
     <svg:rect x="137.60001" y="148.60001" width="8.3000002" height="19.799999" fill="none" stroke="#000000" stroke-width="0.11" id="p-rect1849" style="stroke-linejoin:round" />
     <svg:g transform="rotate(-90,143,8.5)" id="p-g1855" style="fill:#ffffff;stroke:#000000;stroke-width:0.18;stroke-linejoin:round">
@@ -1052,20 +1052,45 @@
       </svg:g>
     </svg:g>
   </svg:g>
-  <svg:g transform="rotate(-90,141.36326,1.41142)" id="p-g-terr1">
+  <svg:g transform="rotate(-90,143.95550,4.00550)" id="p-g-terr1">
     <svg:g class="upright" transform="rotate(90)" id="p-g-terr1b">
       <svg:text class="rname" y="-1.15" id="p-g-terr1-name" transform="matrix(0.94531661,0.32615411,-0.32615411,0.94531661,-0.37507723,-0.06288590)">Терраса-1</svg:text>
-      <svg:text class="rmeta" y="1.2" id="p-g-terr1-meta" transform="matrix(0.94531661,0.32615411,-0.32615411,0.94531661,0.39138494,0.06562007)">14,73 м²<svg:tspan dx="0.8" id="p-g-terr1-dim">2,99×4,93</svg:tspan></svg:text>
+      <svg:text class="rmeta" y="1.2" id="p-g-terr1-meta" transform="matrix(0.94531661,0.32615411,-0.32615411,0.94531661,0.39138494,0.06562007)">17,86 м²<svg:tspan dx="0.8" id="p-g-terr1-dim">2,99×5,98</svg:tspan></svg:text>
     </svg:g>
   </svg:g>
-  <svg:g transform="rotate(-90,117.14109,40.64920)" id="p-g-terr2">
+  <svg:g transform="rotate(-90,119.74650,43.25650)" id="p-g-terr2">
     <svg:g class="upright" transform="rotate(90)" id="p-g-terr2b">
       <svg:text class="rname" y="-1.15" id="p-g-terr2-name" transform="matrix(0.94531661,0.32615411,-0.32615411,0.94531661,-0.37507723,-0.06288590)">Терраса-2</svg:text>
-      <svg:text class="rmeta" y="1.2" id="p-g-terr2-meta" transform="matrix(0.94531661,0.32615411,-0.32615411,0.94531661,0.39138494,0.06562007)">18,68 м²<svg:tspan dx="0.8" id="p-g-terr2-dim">9,70×1,93</svg:tspan></svg:text>
+      <svg:text class="rmeta" y="1.2" id="p-g-terr2-meta" transform="matrix(0.94531661,0.32615411,-0.32615411,0.94531661,0.39138494,0.06562007)">28,86 м²<svg:tspan dx="0.8" id="p-g-terr2-dim">9,70×2,97</svg:tspan></svg:text>
     </svg:g>
   </svg:g>
-  <svg:polygon class="roombox" id="p-roombox-g-terr1" points="125.41,118.53 154.49,118.53 154.49,167.02 125.41,167.02" />
-  <svg:polygon class="roombox" id="p-roombox-g-terr2" points="28.37,148.57 124.61,148.57 124.61,167.02 28.37,167.02" />
+  <svg:polygon class="roombox" id="p-roombox-g-terr1" points="125.41,118.53 154.49,118.53 154.49,177.51 125.41,177.51" />
+  <svg:polygon class="roombox" id="p-roombox-g-terr2" points="28.37,148.57 124.61,148.57 124.61,177.51 28.37,177.51" />
+  <svg:g id="p-g2362" transform="matrix(0.81822364,0.57490005,-0.57490005,0.81822364,89.42463623,-48.90389147)">
+    <svg:rect x="-145.71075" y="-116.91883" width="5.8144221" height="5.6690617" fill="#ffffff" stroke="#000000" stroke-width="0.261649" id="p-rect2350" style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.131674;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1" transform="rotate(-179.99332)" />
+    <svg:rect x="-144.83859" y="-116.04664" width="4.0700955" height="3.9247348" fill="none" stroke="#000000" stroke-width="0.159897" id="p-rect2352" style="stroke-linejoin:round" transform="rotate(-179.99332)" />
+    <svg:rect x="-116.99689" y="136.08792" width="5.8975234" height="0.94255817" fill="#ffffff" stroke="#000000" stroke-width="0.107448" id="p-rect2354" style="stroke-linejoin:round" transform="matrix(4.4804905e-5,-1,0.99999995,3.0337659e-4,0,0)" />
+    <svg:path id="p-path2356" style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.131674;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1" d="m 140.16581,116.45479 -3.20378,0.51697 8.3e-4,-5.79846 3.14619,0.54886 z" />
+    <svg:rect x="-144.19717" y="-118.26225" width="4.8937154" height="1.4323503" fill="#ffffff" stroke="#000000" stroke-width="0.120658" id="p-rect2358" style="stroke-linejoin:round" transform="matrix(-1,-8.2053595e-5,1.656571e-4,-0.99999999,0,0)" />
+    <svg:rect x="-144.19601" y="-111.26992" width="4.8937154" height="1.4323503" fill="#ffffff" stroke="#000000" stroke-width="0.120658" id="p-rect2360" style="stroke-linejoin:round" transform="matrix(-1,-8.2053595e-5,1.656571e-4,-0.99999999,0,0)" />
+  </svg:g>
+  <svg:g id="p-g2376" transform="matrix(0.93048364,0.36633346,-0.36633346,0.93048364,43.89076175,-22.18279582)">
+    <svg:rect x="-145.71075" y="-116.91883" width="5.8144221" height="5.6690617" fill="#ffffff" stroke="#000000" stroke-width="0.261649" id="p-rect2364" style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.131674;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1" transform="rotate(-179.99332)" />
+    <svg:rect x="-144.83859" y="-116.04664" width="4.0700955" height="3.9247348" fill="none" stroke="#000000" stroke-width="0.159897" id="p-rect2366" style="stroke-linejoin:round" transform="rotate(-179.99332)" />
+    <svg:rect x="-116.99689" y="136.08792" width="5.8975234" height="0.94255817" fill="#ffffff" stroke="#000000" stroke-width="0.107448" id="p-rect2368" style="stroke-linejoin:round" transform="matrix(4.4804905e-5,-1,0.99999995,3.0337659e-4,0,0)" />
+    <svg:path id="p-path2370" style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.131674;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1" d="m 140.16581,116.45479 -3.20378,0.51697 8.3e-4,-5.79846 3.14619,0.54886 z" />
+    <svg:rect x="-144.19717" y="-118.26225" width="4.8937154" height="1.4323503" fill="#ffffff" stroke="#000000" stroke-width="0.120658" id="p-rect2372" style="stroke-linejoin:round" transform="matrix(-1,-8.2053595e-5,1.656571e-4,-0.99999999,0,0)" />
+    <svg:rect x="-144.19601" y="-111.26992" width="4.8937154" height="1.4323503" fill="#ffffff" stroke="#000000" stroke-width="0.120658" id="p-rect2374" style="stroke-linejoin:round" transform="matrix(-1,-8.2053595e-5,1.656571e-4,-0.99999999,0,0)" />
+  </svg:g>
+  <svg:g id="p-g2390" transform="matrix(0.54732438,-0.83692056,0.83692056,0.54732438,-31.97458644,203.01296510)">
+    <svg:rect x="-145.71075" y="-116.91883" width="5.8144221" height="5.6690617" fill="#ffffff" stroke="#000000" stroke-width="0.261649" id="p-rect2378" style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.131674;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1" transform="rotate(-179.99332)" />
+    <svg:rect x="-144.83859" y="-116.04664" width="4.0700955" height="3.9247348" fill="none" stroke="#000000" stroke-width="0.159897" id="p-rect2380" style="stroke-linejoin:round" transform="rotate(-179.99332)" />
+    <svg:rect x="-116.99689" y="136.08792" width="5.8975234" height="0.94255817" fill="#ffffff" stroke="#000000" stroke-width="0.107448" id="p-rect2382" style="stroke-linejoin:round" transform="matrix(4.4804905e-5,-1,0.99999995,3.0337659e-4,0,0)" />
+    <svg:path id="p-path2384" style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.131674;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1" d="m 140.16581,116.45479 -3.20378,0.51697 8.3e-4,-5.79846 3.14619,0.54886 z" />
+    <svg:rect x="-144.19717" y="-118.26225" width="4.8937154" height="1.4323503" fill="#ffffff" stroke="#000000" stroke-width="0.120658" id="p-rect2386" style="stroke-linejoin:round" transform="matrix(-1,-8.2053595e-5,1.656571e-4,-0.99999999,0,0)" />
+    <svg:rect x="-144.19601" y="-111.26992" width="4.8937154" height="1.4323503" fill="#ffffff" stroke="#000000" stroke-width="0.120658" id="p-rect2388" style="stroke-linejoin:round" transform="matrix(-1,-8.2053595e-5,1.656571e-4,-0.99999999,0,0)" />
+  </svg:g>
+  <svg:circle id="p-path2444" cx="147.1822" cy="135.9066" r="4.9502001" style="font-variation-settings:normal;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.0996;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000" />
 </svg:g>
     </g>
   </g>
