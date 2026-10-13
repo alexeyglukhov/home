@@ -2838,14 +2838,14 @@ export function buildVariantD2(api) {
   if (gableTris.length) withFinish("wall", () => addMesh(geometryFromTriangles(gableTris), WALL_C));
 
   // Навес 6×5 домиком: конёк от стены к заезду, скаты на боковые края.
-  // Под коньком около 3,1 м, по карнизу 2,5 м — машина проходит по центру.
+  // Под коньком около 3,5 м, по карнизу 2,8 м — машина проходит по центру.
   const cX0 = -10.70;
   // Кромка у западной стены: 2 см в плоскость, чтобы касаться, а не входить в кладку.
   const cX1 = -4.40;
   const cY0 = 13.60;
   const cY1 = 19.15;
   const cYm = (cY0 + cY1) / 2;
-  const cEave = 2.50;
+  const cEave = 2.80;
   const cRise = Math.tan(15 * Math.PI / 180) * ((cY1 - cY0) / 2);
   const cRidge = cEave + cRise;
   const cDrop = 0.12;
