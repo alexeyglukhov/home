@@ -7,7 +7,7 @@ import { FURNITURE_D } from "./furniture-d.js?v=6";
 import { WALL_LINES } from "./wall-sketch.js?v=2";
 import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=19";
 import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=18";
-import { buildVariantD2 } from "./variant-d2.js?v=75";
+import { buildVariantD2 } from "./variant-d2.js?v=76";
 
 const panel = document.getElementById("panel");
 const dateInput = document.getElementById("date");

@@ -2744,25 +2744,31 @@ export function buildVariantD2(api) {
   squareWindow([cy - halfWin, cy + halfWin, zWinBot, zWinTop], xg - 0.06, xg + 0.02, true);
   if (gableTris.length) withFinish("wall", () => addMesh(geometryFromTriangles(gableTris), WALL_C));
 
-  // Навес со схемы: 6,31×7,31 м, конёк восток-запад, по четыре столба 22×22 см на скате, как столбы крыльца.
+  // Навес со схемы: трапеция, передняя кромка скошена. Юг 5,72 м, север 7,06 м, глубина 7,31 м.
+  // Пять столбов 22×22 см с севера, четыре с юга. Карниз 2,70 м.
   // Числа — координаты схемы. planBox и world прибавляют HOUSE_DX, поэтому X возвращается в систему дома.
   const lx = (x) => x - HOUSE_DX;
-  const cX0 = lx(-11.77);
-  const cX1 = lx(-5.46);
-  const cY0 = 13.33;
-  const cY1 = 20.64;
-  const cYm = 16.98;
-  const cEave = 2.80;
-  const cRise = Math.tan(15 * Math.PI / 180) * ((cY1 - cY0) / 2);
-  const cRidge = cEave + cRise;
+  const cYs = 13.328;
+  const cYn = 20.635;
+  const cYm = (cYs + cYn) / 2;
+  const cXeS = lx(-5.461);
+  const cXeN = lx(-5.465);
+  const cXwS = lx(-11.177);
+  const cXwN = lx(-12.526);
+  const cXw = (y) => cXwS + (cXwN - cXwS) * ((y - cYs) / (cYn - cYs));
+  const cXe = (y) => cXeS + (cXeN - cXeS) * ((y - cYs) / (cYn - cYs));
+  const cEave = 2.70;
+  const cHalf = (cYn - cYs) / 2;
+  const cRise = Math.tan(15 * Math.PI / 180) * cHalf;
+  const cRidgeZ = cEave + cRise;
   const cDrop = 0.12;
   const canopyZ = (y) => {
-    const dy = Math.min(Math.abs(y - cY0), Math.abs(y - cY1));
-    return cEave + cRise * dy / ((cY1 - cY0) / 2);
+    const dy = Math.min(Math.abs(y - cYs), Math.abs(y - cYn));
+    return cEave + cRise * dy / cHalf;
   };
   for (const [x, y] of [
-    [-11.572, 20.444], [-9.583, 20.449], [-7.649, 20.437], [-5.678, 20.435],
-    [-11.569, 13.531], [-9.540, 13.554], [-7.618, 13.552], [-5.673, 13.557],
+    [-11.018, 13.531], [-9.182, 13.554], [-7.372, 13.552], [-5.673, 13.557],
+    [-12.241, 20.444], [-10.617, 20.449], [-8.918, 20.449], [-7.289, 20.418], [-5.678, 20.435],
   ]) {
     const cx = lx(x);
     planBox(
@@ -2770,27 +2776,30 @@ export function buildVariantD2(api) {
       0.05, canopyZ(y) - cDrop, 0x6b3e24
     );
   }
+  const xwM = cXw(cYm);
+  const xeM = cXe(cYm);
   const canopyTris = [];
   const ct = (a, b, c) => canopyTris.push([a, b, c]);
   const cq = (a, b, c, d) => { ct(a, b, c); ct(a, c, d); };
-  cq([cX0, cY0, cEave], [cX1, cY0, cEave], [cX1, cYm, cRidge], [cX0, cYm, cRidge]);
-  cq([cX0, cY1, cEave], [cX0, cYm, cRidge], [cX1, cYm, cRidge], [cX1, cY1, cEave]);
+  cq([cXwS, cYs, cEave], [cXeS, cYs, cEave], [xeM, cYm, cRidgeZ], [xwM, cYm, cRidgeZ]);
+  cq([cXwN, cYn, cEave], [xwM, cYm, cRidgeZ], [xeM, cYm, cRidgeZ], [cXeN, cYn, cEave]);
   const cInset = cDrop * Math.tan(15 * Math.PI / 180);
   const lowerCanopy = (p) => {
     let y = p[1];
-    if (Math.abs(y - cY0) < 0.03) y += cInset;
-    if (Math.abs(y - cY1) < 0.03) y -= cInset;
+    if (Math.abs(y - cYs) < 0.03) y += cInset;
+    if (Math.abs(y - cYn) < 0.03) y -= cInset;
     return [p[0], y, p[2] - cDrop];
   };
   withFinish("roof", () => asRoof(addMesh(geometryFromTriangles(shellOf(canopyTris, lowerCanopy)), ROOF_C)));
   const tanC = Math.tan(15 * Math.PI / 180);
-  const dCan = runDrop(cX0, cY0, cX1, cY0);
-  eaveLine(cX1, cY0, cX0, cY0, cEave, cEave, 0, 1, tanC, 0, dCan);
-  eaveLine(cX1, cY1, cX0, cY1, cEave, cEave, 0, -1, tanC, 0, dCan);
-  spout(cX0, cY0 - GW / 2, cX0 - 0.04, cY0, outletZ(cEave, dCan, tanC), 0.20);
-  spout(cX0, cY1 + GW / 2, cX0 - 0.04, cY1, outletZ(cEave, dCan, tanC), 0.20);
-  snow(cX0, cY0, cX1, cY0, cEave, cEave, 0, 1, tanC, 0.45);
-  snow(cX0, cY1, cX1, cY1, cEave, cEave, 0, -1, tanC, 0.45);
+  const dCanS = runDrop(cXeS, cYs, cXwS, cYs);
+  const dCanN = runDrop(cXeN, cYn, cXwN, cYn);
+  eaveLine(cXeS, cYs, cXwS, cYs, cEave, cEave, 0, 1, tanC, 0, dCanS);
+  eaveLine(cXeN, cYn, cXwN, cYn, cEave, cEave, 0, -1, tanC, 0, dCanN);
+  spout(cXwS, cYs - GW / 2, cXwS - 0.04, cYs, outletZ(cEave, dCanS, tanC), 0.20);
+  spout(cXwN, cYn + GW / 2, cXwN - 0.04, cYn, outletZ(cEave, dCanN, tanC), 0.20);
+  snow(cXwS, cYs, cXeS, cYs, cEave, cEave, 0, 1, tanC, 0.45);
+  snow(cXwN, cYn, cXeN, cYn, cEave, cEave, 0, -1, tanC, 0.45);
 
   const blind = addSlabHole(
     [[-5.42, 19.88], [14.40, 19.88], [14.40, 8.05], [9.50, 8.05], [9.50, 1.46], [-5.42, 1.46], [-5.42, 8.24], [-7.00, 8.24], [-7.00, 13.86], [-5.42, 13.86]],

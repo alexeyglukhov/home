@@ -117,15 +117,18 @@
      stroke-width="0.25"
      id="blind-area" />
   <polygon
-     points="443.09,516.04 349.77,548.25 286.43,436.38 401.87,396.54 "
-     fill="#e4ddd2"
-     stroke="none"
+     points="290.58,436.77 402.15,398.27 440.16,508.46 348.80,539.99"
+     fill="#ececec"
+     stroke="#222222"
+     stroke-width="0.3"
+     stroke-linejoin="miter"
      id="front-court" />
   <polygon
-     points="288.74,541.94 259.18,489.73 302.69,465.09 332.24,517.3 "
-     fill="#e4ddd2"
-     stroke="#b7aea2"
+     points="289.79,543.05 258.56,487.89 304.53,461.85 335.75,517.02"
+     fill="#ececec"
+     stroke="#222222"
      stroke-width="0.3"
+     stroke-linejoin="miter"
      id="drive-apron" />
   <g
      id="fence">
@@ -6193,17 +6196,6 @@
      id="line4129"
      style="fill:none;stroke:#4e4842;stroke-width:0.337913;stroke-linecap:square;stroke-dasharray:none" />
   <g
-     id="g2184">
-    <polygon
-       id="rect2154"
-       points="366.50,488.64 426.11,468.07 414.23,433.66 354.62,454.23"
-       style="fill:#e3e3e0;stroke:#000000;stroke-width:0.2" />
-    <polygon
-       id="rect2168"
-       points="354.51,453.98 414.12,433.42 402.25,399.00 342.64,419.57"
-       style="fill:#e3e3e0;stroke:#000000;stroke-width:0.2" />
-  </g>
-  <g
      id="g1245"
      transform="translate(21.192423,-28.931796)">
     <polygon
@@ -6279,77 +6271,19 @@
          id="text886">6,31×3,65 м · 23,04 м²</text>
     </g>
   </g>
-  <rect
-     x="-580.53288"
-     y="187.99865"
-     width="2.2"
-     height="2.2"
-     id="rect3818"
-     style="fill:#6b3e24;stroke:none"
-     transform="matrix(-0.32611652,-0.94532958,0.94531661,-0.32615411,0,0)" />
-  <rect
-     x="-511.39790"
-     y="187.96183"
-     width="2.2"
-     height="2.2"
-     id="rect3871"
-     style="fill:#6b3e24;stroke:none"
-     transform="matrix(-0.32611652,-0.94532958,0.94531661,-0.32615411,0,0)" />
-  <rect
-     x="-511.47919"
-     y="246.89935"
-     width="2.2"
-     height="2.2"
-     id="rect3885"
-     style="fill:#6b3e24;stroke:none"
-     transform="matrix(-0.32611652,-0.94532958,0.94531661,-0.32615411,0,0)" />
-  <rect
-     x="-580.27165"
-     y="246.95225"
-     width="2.2"
-     height="2.2"
-     id="rect3899"
-     style="fill:#6b3e24;stroke:none"
-     transform="matrix(-0.32611652,-0.94532958,0.94531661,-0.32615411,0,0)" />
-  <rect
-     x="-580.31609"
-     y="227.50692"
-     width="2.2"
-     height="2.2"
-     id="rect3913"
-     style="fill:#6b3e24;stroke:none"
-     transform="matrix(-0.32611652,-0.94532958,0.94531661,-0.32615411,0,0)" />
-  <rect
-     x="-511.46857"
-     y="227.19755"
-     width="2.2"
-     height="2.2"
-     id="rect3927"
-     style="fill:#6b3e24;stroke:none"
-     transform="matrix(-0.32611652,-0.94532958,0.94531661,-0.32615411,0,0)" />
-  <rect
-     x="-580.30052"
-     y="208.28495"
-     width="2.2"
-     height="2.2"
-     id="rect3941"
-     style="fill:#6b3e24;stroke:none"
-     transform="matrix(-0.32611652,-0.94532958,0.94531661,-0.32615411,0,0)" />
-  <rect
-     x="-511.34235"
-     y="207.85116"
-     width="2.2"
-     height="2.2"
-     id="rect3955"
-     style="fill:#6b3e24;stroke:none"
-     transform="matrix(-0.32611652,-0.94532958,0.94531661,-0.32615411,0,0)" />
-  <polygon
-     id="canopy-eave"
-     points="342.64,419.57 402.25,399.00 414.12,433.42 426.11,468.07 366.50,488.64 354.62,454.23"
-     fill="none"
-     stroke="#c0392b"
-     stroke-width="0.4"
-     stroke-dasharray="1.6 0.9" />
+  <g id="canopy-posts">
+    <polygon id="canopy-post-0" points="371.53,483.60 373.61,482.88 374.33,484.96 372.25,485.68" fill="#6b3e24" stroke="none" />
+    <polygon id="canopy-post-1" points="337.42,422.24 339.50,421.52 340.22,423.60 338.14,424.32" fill="#6b3e24" stroke="none" />
+    <polygon id="canopy-post-2" points="399.48,400.91 401.56,400.19 402.28,402.27 400.20,402.99" fill="#6b3e24" stroke="none" />
+    <polygon id="canopy-post-3" points="421.97,465.92 424.05,465.21 424.76,467.29 422.68,468.00" fill="#6b3e24" stroke="none" />
+    <polygon id="canopy-post-4" points="405.92,471.51 408.00,470.79 408.72,472.87 406.64,473.59" fill="#6b3e24" stroke="none" />
+    <polygon id="canopy-post-5" points="384.32,406.33 386.40,405.61 387.11,407.69 385.03,408.41" fill="#6b3e24" stroke="none" />
+    <polygon id="canopy-post-6" points="388.81,477.40 390.89,476.68 391.60,478.76 389.52,479.48" fill="#6b3e24" stroke="none" />
+    <polygon id="canopy-post-7" points="368.81,411.35 370.89,410.63 371.61,412.71 369.53,413.43" fill="#6b3e24" stroke="none" />
+    <polygon id="canopy-post-8" points="352.76,416.89 354.84,416.17 355.55,418.25 353.47,418.97" fill="#6b3e24" stroke="none" />
+  </g>
+  <line id="canopy-ridge" x1="354.62" y1="454.23" x2="414.12" y2="433.42" fill="none" stroke="#c0392b" stroke-width="0.35" stroke-dasharray="1.6 0.9" stroke-linecap="butt" />
+  <polygon id="canopy-eave" points="426.11,468.07 372.08,486.71 335.50,422.03 402.25,399.00" fill="none" stroke="#c0392b" stroke-width="0.4" stroke-dasharray="1.6 0.9" stroke-linejoin="miter" />
   <polygon
      id="house-eave"
      points="458.85,577.05 591.28,531.35 569.79,469.05 615.26,453.37 579.94,350.98 402.04,412.36 422.32,471.16 406.91,476.48 420.68,516.37 436.09,511.06"
