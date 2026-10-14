@@ -2116,11 +2116,19 @@ const WOOD = 0x6b5344;
 function hit(wall, op) {
   const [x0, y0, x1, y1] = wall;
   const [a, b, c, d] = op;
-  const ix0 = Math.max(x0, a - 0.08);
-  const ix1 = Math.min(x1, c + 0.08);
-  const iy0 = Math.max(y0, b - 0.08);
-  const iy1 = Math.min(y1, d + 0.08);
-  return ix1 - ix0 > 0.04 && iy1 - iy0 > 0.04;
+  const vertical = (x1 - x0) < (y1 - y0);
+  // Проём режет стену, только если пересекает её толщину.
+  // Допуск 8 см нужен вдоль стены: линии плана чуть не совпадают с гранью.
+  // На торец его переносить нельзя. Дверь туалета кончается в 3 см от стены
+  // холла, и старый допуск пробивал в этой стене щель 22 см.
+  if (vertical) {
+    const across = Math.min(x1, c) - Math.max(x0, a);
+    const along = Math.min(y1, d + 0.08) - Math.max(y0, b - 0.08);
+    return across > (x1 - x0) * 0.4 && along > 0.2;
+  }
+  const across = Math.min(y1, d) - Math.max(y0, b);
+  const along = Math.min(x1, c + 0.08) - Math.max(x0, a - 0.08);
+  return across > (y1 - y0) * 0.4 && along > 0.2;
 }
 
 export function buildVariantD2(api) {
