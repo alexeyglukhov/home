@@ -8,7 +8,7 @@ import { WALL_LINES } from "./wall-sketch.js?v=2";
 import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=19";
 import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=18";
 import { buildVariantD2, d2WalkBoxes, d2FenceSegments } from "./variant-d2.js?v=82";
-import { createD2Tour, createTourDaylight, d2TourPose } from "./tour-d2.js?v=15";
+import { createD2Tour, createTourDaylight, d2TourPose } from "./tour-d2.js?v=17";
 import { syncPrintSheets } from "./print-sheets.js?v=4";
 
 const panel = document.getElementById("panel");
@@ -455,9 +455,13 @@ function planBox(quad, y0, y1, color, cast = true) {
     if (len < minEdge) minEdge = len;
     if (len > maxEdge) maxEdge = len;
   }
-  const tall = height >= 0.85 && y1 >= 1;
-  const rail = height >= 0.06 && minEdge <= 0.2 && maxEdge >= 1.2;
-  if ((tall || rail) && minEdge >= 0.02 && minEdge <= 0.9) mesh.userData.foot = foot;
+  // В плане перемычка совпадает с проёмом, но выше головы — сквозь неё ходят. Подоконник пересекает корпус и остаётся стеной.
+  const bodyLo = 0.4;
+  const bodyHi = 1.55;
+  const overlap = Math.min(y1, bodyHi) - Math.max(y0, bodyLo);
+  const hitsBody = overlap >= 0.12 && minEdge >= 0.02 && minEdge <= 0.9;
+  const rail = y0 < 1.35 && y1 > 0.4 && height >= 0.05 && minEdge >= 0.02 && minEdge <= 0.2 && maxEdge >= 1.2;
+  if (finishRole !== "frame" && finishRole !== "door" && (hitsBody || rail)) mesh.userData.foot = foot;
   return mesh;
 }
 
@@ -5329,7 +5333,7 @@ scene.add(tourDaylight.object);
 const tourButton = document.getElementById("tour");
 let savedTourView = null;
 let tourStamp = 0;
-let tourSpeed = 1;
+let tourSpeed = 3;
 
 function shownNode(obj) {
   let node = obj;
@@ -5408,8 +5412,8 @@ function startTour() {
   controls.enabled = false;
   tourActive = true;
   tourStamp = performance.now();
-  tourSpeed = 1;
-  d2Tour.setSpeed(1);
+  tourSpeed = 3;
+  d2Tour.setSpeed(3);
   lookPtr = null;
   if (keepHouse) {
     fillLight.intensity = 0.26;

@@ -6,6 +6,7 @@ const EYE = 1.60;
 const WALK = 1.30;
 const LOOK = 3;
 const GAP = 0.20;
+const GAP_REVEAL = 0.02;
 const PITCH_MIN = -75 * Math.PI / 180;
 const PITCH_MAX = 80 * Math.PI / 180;
 const START = { x: -8.80, y: 12.220 };
@@ -103,7 +104,7 @@ export function createD2Tour(planToWorld, boxes, segments = []) {
   let eye = groundD2(e, n) + EYE;
   let yaw = home.yaw;
   let pitch = -7 * Math.PI / 180;
-  let speed = 1;
+  let speed = 3;
   let vx = 0;
   let vy = 0;
   const held = new Set();
@@ -122,20 +123,42 @@ export function createD2Tour(planToWorld, boxes, segments = []) {
     return inside;
   }
 
+  function measure(poly) {
+    if (poly.maxEdge != null) return;
+    let minEdge = Infinity;
+    let maxEdge = 0;
+    for (let i = 0; i < poly.length; i++) {
+      const a = poly[i];
+      const b = poly[(i + 1) % poly.length];
+      const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      if (len < minEdge) minEdge = len;
+      if (len > maxEdge) maxEdge = len;
+    }
+    poly.minEdge = minEdge;
+    poly.maxEdge = maxEdge;
+  }
+
+  // Коробка и прочий узкий короткий выступ не держат дистанцию. Торец длинной стены тоже:
+  // иначе запас 20 см с обеих сторон запирает межкомнатную дверь.
+  function skip(poly) {
+    return poly.minEdge < 0.12 && poly.maxEdge < 0.5;
+  }
+
   function closestEdge(px, py, poly) {
     let best = Infinity;
     let qx = px;
     let qy = py;
     let tx = 1;
     let ty = 0;
+    let atVertex = false;
     for (let i = 0; i < poly.length; i++) {
       const a = poly[i];
       const b = poly[(i + 1) % poly.length];
       const dx = b[0] - a[0];
       const dy = b[1] - a[1];
       const len2 = dx * dx + dy * dy;
-      let t = len2 ? ((px - a[0]) * dx + (py - a[1]) * dy) / len2 : 0;
-      t = Math.max(0, Math.min(1, t));
+      const raw = len2 ? ((px - a[0]) * dx + (py - a[1]) * dy) / len2 : 0;
+      const t = Math.max(0, Math.min(1, raw));
       const cx = a[0] + t * dx;
       const cy = a[1] + t * dy;
       const d = Math.hypot(px - cx, py - cy);
@@ -145,15 +168,24 @@ export function createD2Tour(planToWorld, boxes, segments = []) {
         qy = cy;
         tx = dx;
         ty = dy;
+        atVertex = raw <= 0 || raw >= 1;
       }
     }
-    return { d: best, qx, qy, tx, ty };
+    return { d: best, qx, qy, tx, ty, atVertex };
+  }
+
+  function clearance(poly, edge) {
+    const len = Math.hypot(edge.tx, edge.ty);
+    if (poly.maxEdge >= 0.75 && (len < 0.55 || edge.atVertex)) return GAP_REVEAL;
+    return GAP;
   }
 
   function blocked(px, py) {
     for (const poly of obstacles) {
+      if (skip(poly)) continue;
       if (pointInPoly(px, py, poly)) return true;
-      if (closestEdge(px, py, poly).d < GAP) return true;
+      const edge = closestEdge(px, py, poly);
+      if (edge.d < clearance(poly, edge)) return true;
     }
     return false;
   }
@@ -162,21 +194,23 @@ export function createD2Tour(planToWorld, boxes, segments = []) {
     for (let pass = 0; pass < 6; pass++) {
       let hit = false;
       for (const poly of obstacles) {
+        if (skip(poly)) continue;
         const inside = pointInPoly(px, py, poly);
         const edge = closestEdge(px, py, poly);
-        if (!inside && edge.d >= GAP) continue;
+        const gap = clearance(poly, edge);
+        if (!inside && edge.d >= gap) continue;
         hit = true;
         if (inside) {
           const dist = Math.max(edge.d, 1e-6);
-          const push = edge.d + GAP + 0.001;
+          const push = edge.d + gap + 0.001;
           px += (edge.qx - px) / dist * push;
           py += (edge.qy - py) / dist * push;
         } else if (edge.d < 1e-6) {
           const len = Math.hypot(edge.tx, edge.ty) || 1;
-          px += -edge.ty / len * (GAP + 0.001);
-          py += edge.tx / len * (GAP + 0.001);
+          px += -edge.ty / len * (gap + 0.001);
+          py += edge.tx / len * (gap + 0.001);
         } else {
-          const push = GAP - edge.d + 0.001;
+          const push = gap - edge.d + 0.001;
           px += (px - edge.qx) / edge.d * push;
           py += (py - edge.qy) / edge.d * push;
         }
@@ -203,10 +237,11 @@ export function createD2Tour(planToWorld, boxes, segments = []) {
       if (freeY) py += sy;
       if (freeX || freeY) continue;
       let tangent = null;
-      let bestD = GAP + 0.05;
+      let bestD = Infinity;
       for (const poly of obstacles) {
+        if (skip(poly)) continue;
         const edge = closestEdge(px, py, poly);
-        if (edge.d > bestD) continue;
+        if (edge.d > clearance(poly, edge) + 0.05 || edge.d >= bestD) continue;
         const len = Math.hypot(edge.tx, edge.ty) || 1;
         bestD = edge.d;
         tangent = [edge.tx / len, edge.ty / len];
@@ -258,10 +293,11 @@ export function createD2Tour(planToWorld, boxes, segments = []) {
       yaw = pose.yaw;
       groundFn = opts.ground || groundD2;
       obstacles = (opts.keepHouse === false ? [] : housePolys).concat(opts.obstacles || []);
+      for (const poly of obstacles) measure(poly);
       [e, n] = pushOut(e, n);
       eye = groundFn(e, n) + EYE;
       pitch = -7 * Math.PI / 180;
-      speed = 1;
+      speed = 3;
       vx = 0;
       vy = 0;
       held.clear();
@@ -275,7 +311,7 @@ export function createD2Tour(planToWorld, boxes, segments = []) {
     },
     setSpeed(v) {
       const n = Math.round(Number(v));
-      speed = n >= 1 && n <= 9 ? n : 1;
+      speed = n >= 1 && n <= 9 ? n : 3;
     },
     setMove(code, down) {
       if (!active) return;
