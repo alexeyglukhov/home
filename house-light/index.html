@@ -29,6 +29,79 @@
   select { width: 100%; font: inherit; font-size: 12px; margin-top: 4px; padding: 4px; }
   #sun { font-variant-numeric: tabular-nums; }
   #clock { font-weight: 700; }
+  #prints {
+    position: absolute; top: 14px; right: 14px; z-index: 4;
+    display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 16px;
+    max-width: min(360px, calc(100vw - 320px));
+  }
+  #prints[hidden] { display: none; }
+  #prints button.sheet {
+    width: 150px; margin: 0; padding: 0; border: 0; border-radius: 0;
+    background: transparent; color: #241f18; text-align: center;
+  }
+  #prints button.sheet:hover { background: transparent; }
+  .leaf {
+    position: relative; display: block;
+    filter:
+      drop-shadow(0 0.5px 0.5px rgba(0, 0, 0, .28))
+      drop-shadow(1px 2px 1px rgba(0, 0, 0, .12))
+      drop-shadow(6px 12px 12px rgba(40, 30, 16, .28));
+  }
+  #prints .sheet:nth-child(odd) .leaf { transform: rotate(-1.5deg); }
+  #prints .sheet:nth-child(even) .leaf { transform: rotate(1.2deg); }
+  #prints .sheet .leaf { transition: transform .15s ease; }
+  #prints .sheet:hover .leaf { transform: rotate(0deg) translateY(-3px); }
+  .page {
+    display: block; background: #fff; aspect-ratio: 297 / 210; line-height: 0;
+    clip-path: url(#sheet-edge);
+  }
+  .page img {
+    width: 100%; height: 100%; display: block; object-fit: fill; background: #fff;
+  }
+  .cap {
+    display: inline-block; margin-top: 7px; padding: 2px 8px;
+    background: rgba(255, 254, 249, .94); border-radius: 3px;
+    font-size: 12px; line-height: 1.3;
+  }
+  #print-open {
+    position: fixed; inset: 0; z-index: 30;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(22, 26, 30, .62);
+  }
+  #print-open[hidden] { display: none; }
+  .print-stage {
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    max-width: 94vw;
+  }
+  #print-open .leaf {
+    width: min(88vw, calc((100vh - 180px) * 297 / 210));
+    filter:
+      drop-shadow(0 1px 2px rgba(0, 0, 0, .25))
+      drop-shadow(10px 16px 16px rgba(0, 0, 0, .4));
+  }
+  #print-open .cap {
+    margin: 0; font-size: 16px; background: #fffef9; padding: 4px 12px;
+  }
+  .print-actions { display: flex; gap: 10px; }
+  .print-actions button {
+    box-sizing: border-box; width: 80px; height: 80px; padding: 8px 4px 6px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+    font-size: 11px; font-weight: 600; line-height: 1; color: #2a241c;
+    background: #fffef9; border: 1px solid #cfc8b8; border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, .22);
+  }
+  .print-actions svg { width: 28px; height: 28px; display: block; }
+  .print-actions button:disabled { opacity: .55; cursor: wait; }
+  #print-open-status {
+    min-height: 1.2em; margin: 0; color: #fffef9; font-size: 13px;
+  }
+  #print-slot { display: none; }
+  @page { size: A4 landscape; margin: 0; }
+  @media print {
+    body.sheet-print > *:not(#print-slot) { display: none !important; }
+    body.sheet-print #print-slot { display: block !important; }
+    body.sheet-print #print-slot img { width: 297mm; height: 210mm; display: block; }
+  }
 </style>
 </head>
 <body>
@@ -67,9 +140,63 @@
     <button type="button" id="view-top">Сверху</button>
   </div>
 </div>
+<div id="prints" hidden></div>
+<div id="print-open" hidden>
+  <div class="print-stage">
+    <div class="leaf">
+      <div class="page">
+        <img id="print-open-img" alt="" draggable="false">
+      </div>
+    </div>
+    <p id="print-open-label" class="cap"></p>
+    <div class="print-actions">
+      <button type="button" data-act="print" title="Распечатать">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M7 9V3.5h10V9"/>
+          <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M6 17.5H4.2A1.7 1.7 0 0 1 2.5 15.8v-4.6A1.7 1.7 0 0 1 4.2 9.5h15.6a1.7 1.7 0 0 1 1.7 1.7v4.6a1.7 1.7 0 0 1-1.7 1.7H18"/>
+          <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M7 14h10v6.5H7z"/>
+        </svg>
+        <span>Печать</span>
+      </button>
+      <button type="button" data-act="jpg" title="Скачать картинку JPG">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="3.5" y="4.5" width="17" height="15" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.6"/>
+          <circle cx="8.2" cy="9" r="1.3" fill="currentColor"/>
+          <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" d="M3.8 16.2 8.4 12l3.3 2.8 2.6-2.1 5.8 4.6"/>
+        </svg>
+        <span>JPG</span>
+      </button>
+      <button type="button" data-act="svg" title="Скачать картинку SVG">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M7 16.5 9.2 7.2 17.8 6.2 15.6 16.8z"/>
+          <circle cx="7" cy="16.5" r="1.45" fill="currentColor"/>
+          <circle cx="9.2" cy="7.2" r="1.45" fill="currentColor"/>
+          <circle cx="17.8" cy="6.2" r="1.45" fill="currentColor"/>
+          <circle cx="15.6" cy="16.8" r="1.45" fill="currentColor"/>
+        </svg>
+        <span>SVG</span>
+      </button>
+      <button type="button" data-act="pdf" title="Скачать PDF">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M6 3.5h8.2L19 8.2V20.5H6z"/>
+          <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M14 3.5V8.4h5"/>
+          <path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M8.5 12.5h7M8.5 16h7"/>
+        </svg>
+        <span>PDF</span>
+      </button>
+    </div>
+    <p id="print-open-status" role="status"></p>
+  </div>
+</div>
+<div id="print-slot"><img id="print-slot-img" alt=""></div>
+<svg width="0" height="0" aria-hidden="true" style="position:absolute">
+  <clipPath id="sheet-edge" clipPathUnits="objectBoundingBox">
+    <path d="M0.015,0.02 C0.28,0.004 0.72,0 0.985,0.018 C0.998,0.08 1,0.45 0.998,0.7 C1,0.9 0.99,0.995 0.97,0.992 C0.72,1 0.28,0.998 0.02,0.985 C0.004,0.95 0,0.55 0.002,0.3 C0,0.1 0.006,0.035 0.015,0.02 Z"/>
+  </clipPath>
+</svg>
 <script type="importmap">
 { "imports": { "three": "./vendor/three.module.js" } }
 </script>
-<script type="module" src="./app.js?v=580"></script>
+<script type="module" src="./app.js?v=584"></script>
 </body>
 </html>

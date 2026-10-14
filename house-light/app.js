@@ -8,6 +8,7 @@ import { WALL_LINES } from "./wall-sketch.js?v=2";
 import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=19";
 import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=18";
 import { buildVariantD2 } from "./variant-d2.js?v=76";
+import { syncPrintSheets } from "./print-sheets.js?v=4";
 
 const panel = document.getElementById("panel");
 const dateInput = document.getElementById("date");
@@ -5225,6 +5226,7 @@ function setVariant(id) {
   document.getElementById("var-vd2").classList.toggle("active", viewVariant === "vd2");
   showRoofs(roofToggle.checked);
   saveView();
+  syncPrintSheets(viewVariant);
 }
 
 document.getElementById("var-v2").addEventListener("click", () => { setVariant("v2"); retargetKeepOffset("v2"); });
