@@ -26,6 +26,8 @@
   }
   button:hover { background: #efe6d4; }
   button.active { background: #e4d7bf; border-color: #6b5a45; }
+  button:disabled { opacity: 0.45; cursor: default; }
+  button:disabled:hover { background: #f4efe4; }
   select { width: 100%; font: inherit; font-size: 12px; margin-top: 4px; padding: 4px; }
   #sun { font-variant-numeric: tabular-nums; }
   #clock { font-weight: 700; }
@@ -138,6 +140,7 @@
   <div class="row">
     <button type="button" id="view-side">Сбоку</button>
     <button type="button" id="view-top">Сверху</button>
+    <button type="button" id="tour" disabled>Экскурсия</button>
   </div>
 </div>
 <div id="prints" hidden></div>
@@ -197,6 +200,6 @@
 <script type="importmap">
 { "imports": { "three": "./vendor/three.module.js" } }
 </script>
-<script type="module" src="./app.js?v=587"></script>
+<script type="module" src="./app.js?v=605"></script>
 </body>
 </html>

@@ -73,6 +73,97 @@ const OPENINGS = [
   [-1.70, 6.20, -0.93, 6.38, 'i']
 ];
 
+// Стены для ходьбы: проёмы дверей вырезаны, окна остаются глухими.
+// Колонны крыльца и террасы и перила террасы тоже не пускают.
+export function d2WalkBoxes() {
+  const doors = OPENINGS.filter((op) => op[4] === "d" || op[4] === "i" || op[4] === "g");
+  const boxes = [];
+  const norm = (box) => {
+    let [x0, y0, x1, y1] = box;
+    if (x1 < x0) [x0, x1] = [x1, x0];
+    if (y1 < y0) [y0, y1] = [y1, y0];
+    return [x0, y0, x1, y1];
+  };
+  for (const wall of WALLS) {
+    const [x0, y0, x1, y1] = norm(wall);
+    const vertical = (x1 - x0) < (y1 - y0);
+    const cuts = [];
+    for (const op of doors) {
+      const [a, b, c, d] = norm(op);
+      if (vertical) {
+        const across = Math.min(x1, c) - Math.max(x0, a);
+        if (across > (x1 - x0) * 0.4 && d - b > 0.2) {
+          const span = Math.min(y1, d) - Math.max(y0, b);
+          if (span > 0.2) cuts.push([Math.max(y0, b), Math.min(y1, d)]);
+        }
+      } else {
+        const across = Math.min(y1, d) - Math.max(y0, b);
+        if (across > (y1 - y0) * 0.4 && c - a > 0.2) {
+          const span = Math.min(x1, c) - Math.max(x0, a);
+          if (span > 0.2) cuts.push([Math.max(x0, a), Math.min(x1, c)]);
+        }
+      }
+    }
+    cuts.sort((p, q) => p[0] - q[0]);
+    const merged = [];
+    for (const cut of cuts) {
+      const last = merged[merged.length - 1];
+      if (last && cut[0] <= last[1]) last[1] = Math.max(last[1], cut[1]);
+      else merged.push(cut.slice());
+    }
+    if (vertical) {
+      let y = y0;
+      for (const [a, b] of merged) {
+        if (a - y > 0.02) boxes.push([x0, y, x1, a]);
+        y = Math.max(y, b);
+      }
+      if (y1 - y > 0.02) boxes.push([x0, y, x1, y1]);
+    } else {
+      let x = x0;
+      for (const [a, b] of merged) {
+        if (a - x > 0.02) boxes.push([x, y0, a, y1]);
+        x = Math.max(x, b);
+      }
+      if (x1 - x > 0.02) boxes.push([x, y0, x1, y1]);
+    }
+  }
+  boxes.push(
+    [-5.92, 9.32, -5.70, 9.54],
+    [-5.92, 12.52, -5.70, 12.74],
+    [8.115, 2.487, 8.455, 2.827],
+    [8.121, 4.611, 8.461, 4.951],
+    [8.114, 6.690, 8.454, 7.030],
+    [8.114, 8.657, 8.454, 8.997],
+    [8.260, 2.603, 8.341, 8.778]
+  );
+  return boxes;
+}
+
+// Высокие полотна забора в координатах ходьбы (дом без сдвига). Забор на схеме не едет вместе с домом.
+// Открытый промежуток откатных ворот между полотном и калиткой сюда не входит.
+export function d2FenceSegments() {
+  const plot = [[-18, 22.877], [32.835, 22.877], [39.044, -10.647], [-12.963, -4.345]];
+  const nw = plot[0];
+  const sw = plot[3];
+  const dx = sw[0] - nw[0];
+  const dy = sw[1] - nw[1];
+  const len = Math.hypot(dx, dy);
+  const along = (s) => [nw[0] + dx / len * s, nw[1] + dy / len * s];
+  const inward = [-dy / len, dx / len];
+  const shift = (p, dist) => [p[0] + inward[0] * dist, p[1] + inward[1] * dist];
+  const gateOff = 0.22;
+  const runs = [
+    [plot[0], plot[1], 0.06],
+    [plot[1], plot[2], 0.06],
+    [plot[2], plot[3], 0.06],
+    [along(11.334), plot[3], 0.06],
+    [plot[0], along(5.334), 0.06],
+    [along(10.43), along(11.23), 0.025],
+    [shift(along(3.01), gateOff), shift(along(7.77), gateOff), 0.04],
+  ];
+  return runs.map(([a, b, half]) => [a[0] + 1, a[1], b[0] + 1, b[1], half]);
+}
+
 const FURNITURE = [
   [-6.001, 9.241, -6.001, 12.857],
   [-6.001, 12.857, -4.228, 12.857],
@@ -2222,7 +2313,13 @@ export function buildVariantD2(api) {
           const a = h.a;
           const b = h.b;
           withFinish("door", () => {
-            const bar = (q, za, zb) => planBox(q, za, zb, 0x6b3e24);
+            const bar = (q, za, zb) => {
+              const mesh = planBox(q, za, zb, 0x6b3e24);
+              mesh.material.polygonOffset = true;
+              mesh.material.polygonOffsetFactor = -2;
+              mesh.material.polygonOffsetUnits = -2;
+              return mesh;
+            };
             if (vertical) {
               const xa = t - wallHalf;
               const xb = t + wallHalf;
@@ -2243,13 +2340,18 @@ export function buildVariantD2(api) {
               bar([[a, n0], [b, n0], [b, n1], [a, n1]], h.z1 - jamb, h.z1);
             }
           });
+          const inset = jamb + 0.015;
           const leaf = vertical
-            ? planBox([[t - 0.12, a + jamb], [t + 0.12, a + jamb], [t + 0.12, b - jamb], [t - 0.12, b - jamb]], h.z0 + 0.05, h.z1 - jamb, 0xd7ebf3, false)
-            : planBox([[a + jamb, t - 0.12], [b - jamb, t - 0.12], [b - jamb, t + 0.12], [a + jamb, t + 0.12]], h.z0 + 0.05, h.z1 - jamb, 0xd7ebf3, false);
+            ? planBox([[t - 0.012, a + inset], [t + 0.012, a + inset], [t + 0.012, b - inset], [t - 0.012, b - inset]], h.z0 + 0.04, h.z1 - inset, 0xd7ebf3, false)
+            : planBox([[a + inset, t - 0.012], [b - inset, t - 0.012], [b - inset, t + 0.012], [a + inset, t + 0.012]], h.z0 + 0.04, h.z1 - inset, 0xd7ebf3, false);
           delete leaf.userData.finish;
           leaf.material.transparent = true;
-          leaf.material.opacity = 0.55;
-          leaf.material.depthWrite = false;
+          leaf.material.opacity = 0.42;
+          leaf.material.depthWrite = true;
+          leaf.material.polygonOffset = true;
+          leaf.material.polygonOffsetFactor = -3;
+          leaf.material.polygonOffsetUnits = -3;
+          leaf.renderOrder = 2;
           leaf.castShadow = false;
           leaf.userData.roof = true;
           cursor = Math.max(cursor, h.b);
@@ -2396,10 +2498,19 @@ export function buildVariantD2(api) {
   });
   planBox([[-4.04, 2.84], [4.93, 2.84], [4.93, 18.50], [-4.04, 18.50]], PLINTH, FLOOR, 0xf3f0ea, false);
   planBox([[5.12, 9.43], [13.02, 9.43], [13.02, 18.50], [5.12, 18.50]], PLINTH, FLOOR, 0xf3f0ea, false);
-  withFinish("roof", () => {
-    asRoof(planBox([[-4.04, 2.84], [4.93, 2.84], [4.93, 18.50], [-4.04, 18.50]], CEIL_BOT, CEIL_TOP, 0xe8e4dc, false));
-    asRoof(planBox([[5.12, 9.43], [13.02, 9.43], [13.02, 18.50], [5.12, 18.50]], CEIL_BOT, CEIL_TOP, 0xe8e4dc, false));
-  });
+  // Белый потолок, но не самосвет: краска белая, яркость даёт свет в комнате.
+  const ceiling = (quad) => {
+    const mesh = planBox(quad, CEIL_BOT, CEIL_TOP, 0xffffff, false);
+    delete mesh.userData.finish;
+    delete mesh.userData.section;
+    mesh.material.color.setHex(0xffffff);
+    mesh.material.emissive?.setHex(0x000000);
+    mesh.userData.roof = true;
+    mesh.userData.ceiling = true;
+    return mesh;
+  };
+  ceiling([[-4.04, 2.84], [4.93, 2.84], [4.93, 18.50], [-4.04, 18.50]]);
+  ceiling([[5.12, 9.43], [13.02, 9.43], [13.02, 18.50], [5.12, 18.50]]);
 
   const column = (x, y, zTop) => planBox(
     [[x, y], [x + 0.22, y], [x + 0.22, y + 0.22], [x, y + 0.22]], PLINTH, zTop, 0x6b3e24

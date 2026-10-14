@@ -7,7 +7,8 @@ import { FURNITURE_D } from "./furniture-d.js?v=6";
 import { WALL_LINES } from "./wall-sketch.js?v=2";
 import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=19";
 import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=18";
-import { buildVariantD2 } from "./variant-d2.js?v=77";
+import { buildVariantD2, d2WalkBoxes, d2FenceSegments } from "./variant-d2.js?v=82";
+import { createD2Tour, createTourDaylight, d2TourPose } from "./tour-d2.js?v=15";
 import { syncPrintSheets } from "./print-sheets.js?v=4";
 
 const panel = document.getElementById("panel");
@@ -35,8 +36,11 @@ controls.target.set(-2, 0.4, -6);
 controls.maxPolarAngle = Math.PI * 0.49;
 controls.update();
 
-scene.add(new THREE.AmbientLight(0xffffff, 0.38));
-scene.add(new THREE.HemisphereLight(0xd5e2ef, 0x8aa86a, 0.28));
+const FILL_LIGHT = 0.38;
+const SKY_LIGHT = 0.28;
+const fillLight = new THREE.AmbientLight(0xffffff, FILL_LIGHT);
+const skyLight = new THREE.HemisphereLight(0xd5e2ef, 0x8aa86a, SKY_LIGHT);
+scene.add(fillLight, skyLight);
 
 const sun = new THREE.DirectionalLight(0xfff2d8, 3.2);
 sun.castShadow = true;
@@ -253,6 +257,8 @@ function sunPosition(year, month, day, hour, minute, lat, lon) {
   return { az: azDeg, el: (el * 180) / Math.PI };
 }
 
+let sunElevation = 24;
+
 function applySun(geo) {
   const [year, month, day] = dateInput.value.split("-").map(Number);
   const minutes = Number(timeInput.value);
@@ -260,6 +266,7 @@ function applySun(geo) {
   const minute = minutes % 60;
   clock.textContent = `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
   const { az, el } = sunPosition(year, month, day, hour, minute, geo.lat, geo.lon);
+  sunElevation = el;
   const azR = (az * Math.PI) / 180;
   const elR = (el * Math.PI) / 180;
   const up = Math.sin(elR);
@@ -375,6 +382,13 @@ function planToWorld(x, y) {
   return [east - CE, north - CN];
 }
 
+const tourPoseOf = {};
+function rememberTour(id, here, look) {
+  const [e, n] = planToWorld(here[0], here[1]);
+  const [e1, n1] = planToWorld(look[0], look[1]);
+  tourPoseOf[id] = { east: e, north: n, yaw: Math.atan2(e1 - e, n1 - n) };
+}
+
 function planDeltaToWorld(dx, dy) {
   const x = -dx * Math.sin(AZ_X) + dy * Math.sin(AZ_Y);
   const z = -dx * Math.cos(AZ_X) + dy * Math.cos(AZ_Y);
@@ -405,11 +419,23 @@ function shapeFromPlan(pts) {
   return shape;
 }
 
+const walkSurfaces = [];
+
 function addSlab(pts, y0, height, color, cast = false) {
   const geom = new THREE.ExtrudeGeometry(shapeFromPlan(pts), { depth: height, bevelEnabled: false });
   geom.rotateX(-Math.PI / 2);
   geom.translate(0, y0, 0);
-  return addMesh(geom, color, cast);
+  const mesh = addMesh(geom, color, cast);
+  const top = y0 + height;
+  if (height > 0 && height <= 0.6 && top <= 1.2 && pts.length >= 3) {
+    mesh.userData.walkTop = top;
+    mesh.userData.walkPoly = pts.map(([x, y]) => {
+      const [e, n] = planToWorld(x, y);
+      return [e, n];
+    });
+    walkSurfaces.push(mesh);
+  }
+  return mesh;
 }
 
 function planBox(quad, y0, y1, color, cast = true) {
@@ -417,7 +443,22 @@ function planBox(quad, y0, y1, color, cast = true) {
     const [e, n] = planToWorld(x, y);
     return [e, 0, n];
   });
-  return addMesh(prismGeometry([{ ring, y0, y1 }]), color, cast);
+  const mesh = addMesh(prismGeometry([{ ring, y0, y1 }]), color, cast);
+  const height = y1 - y0;
+  const foot = ring.map(([e, , n]) => [e, n]);
+  let minEdge = Infinity;
+  let maxEdge = 0;
+  for (let i = 0; i < foot.length; i++) {
+    const a = foot[i];
+    const b = foot[(i + 1) % foot.length];
+    const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    if (len < minEdge) minEdge = len;
+    if (len > maxEdge) maxEdge = len;
+  }
+  const tall = height >= 0.85 && y1 >= 1;
+  const rail = height >= 0.06 && minEdge <= 0.2 && maxEdge >= 1.2;
+  if ((tall || rail) && minEdge >= 0.02 && minEdge <= 0.9) mesh.userData.foot = foot;
+  return mesh;
 }
 
 const FRAME = 0x6b3e24;
@@ -1802,6 +1843,10 @@ function addParkedModel({ url, length, centerE, centerN, heading = "west" }) {
               roughness: 0.22,
               clearcoat: 1,
               clearcoatRoughness: 0.06,
+              side: THREE.DoubleSide,
+              transparent: false,
+              opacity: 1,
+              depthWrite: true,
             });
           }
           obj.material = mazdaBody;
@@ -1871,7 +1916,10 @@ function addParkedModel({ url, length, centerE, centerN, heading = "west" }) {
         nor.needsUpdate = true;
         obj.geometry = geom;
         const m = paint.clone();
-        m.side = THREE.FrontSide;
+        m.side = THREE.DoubleSide;
+        m.transparent = false;
+        m.opacity = 1;
+        m.depthWrite = true;
         obj.material = m;
       });
     }
@@ -1990,6 +2038,35 @@ function addParkedModel({ url, length, centerE, centerN, heading = "west" }) {
       model.add(skin);
     }
     holder.add(fit);
+    holder.userData.carFoot = carFootprint(holder);
+  });
+}
+
+function carFootprint(holder) {
+  holder.updateWorldMatrix(true, true);
+  const inv = new THREE.Matrix4().copy(holder.matrixWorld).invert();
+  const box = new THREE.Box3();
+  const v = new THREE.Vector3();
+  const m = new THREE.Matrix4();
+  holder.traverse((obj) => {
+    if (!obj.isMesh || !obj.visible || !obj.geometry || !obj.geometry.attributes.position) return;
+    const pos = obj.geometry.attributes.position;
+    m.multiplyMatrices(inv, obj.matrixWorld);
+    const step = Math.max(1, Math.floor(pos.count / 500));
+    for (let i = 0; i < pos.count; i += step) {
+      v.fromBufferAttribute(pos, i).applyMatrix4(m);
+      box.expandByPoint(v);
+    }
+  });
+  if (box.isEmpty()) return null;
+  return [
+    [box.min.x, box.min.z],
+    [box.max.x, box.min.z],
+    [box.max.x, box.max.z],
+    [box.min.x, box.max.z],
+  ].map(([x, z]) => {
+    v.set(x, 0, z).applyMatrix4(holder.matrixWorld);
+    return [v.x, v.z];
   });
 }
 
@@ -4848,6 +4925,7 @@ function addVariantB() {
     [0.93, 20.65], [4.53, 20.74], [10.53, 20.73], [16.32, 18.75], [0.94, 18.73],
   ], 0.03, 0.035, 0xe6d3b0, false);
   addSouthSetback(site(18.22, -0.93));
+  rememberTour("vb", site(12.74, 19.6), site(12.74, 17.4));
 }
 
 function addVariantC() {
@@ -4886,9 +4964,12 @@ function addVariantC() {
     [-5.24, 15.96], [0.03, 18.00], [1.93, 9.07], [1.93, yFar], [-3.70, yFar], [-5.24, 7.66],
   ], 0.03, 0.035, 0xe6d3b0, false);
   addSouthSetback(site(4.85, 16.22));
+  rememberTour("vc", site(12.74, 19.6), site(12.74, 17.4));
 }
 
 addVariant2();
+rememberTour("v2", v2p(6.23, 17.7), v2p(6.23, 15.5));
+rememberTour("d2", v2p(6.23, 17.7), v2p(6.23, 15.5));
 addVariantB();
 addVariantC();
 
@@ -5110,7 +5191,10 @@ const BLURB_B = "Вариант Б. Терраса и мастер-спальн�
 const BLURB_C = "Вариант В. Тот же дом отзеркален, вход на запад к гаражу. Отмостка и плитка ведут от ворот к крыльцу.";
 const BLURB_VD2 = "Вариант Д2. Детская на север, мастер-спальня на юг, вход с запада. Дом на 1 м ближе к воротам, навес 6,3×7,3 м. До северного забора 4 м. Потолок 3,2 м до перекрытия. Жёлтые окна от 0,80 м, белые панорамные от 0,10 м. Двускатная крыша с поворотом конька. Терраса 3,00×5,77 м во внутреннем углу, восточный свес удлинён до колонн, водосток на внешнем углу.";
 
+let tourActive = false;
+
 function saveView() {
+  if (tourActive) return;
   try {
     localStorage.setItem(VIEW_KEY, JSON.stringify({
       px: camera.position.x,
@@ -5171,8 +5255,10 @@ controls.addEventListener("change", () => {
 });
 
 roofToggle.addEventListener("change", () => {
+  if (tourActive && !roofToggle.checked) stopTour(true);
   showRoofs(roofToggle.checked);
   saveView();
+  syncTourButton();
 });
 
 const blurb = document.getElementById("blurb");
@@ -5205,6 +5291,7 @@ greenhouseGroup.visible = false;
 if (location.hash) history.replaceState(null, "", location.pathname + location.search);
 
 function setVariant(id) {
+  if (tourActive) stopTour(false);
   viewVariant = id === "vb" || id === "vc" || id === "d2" || id === "vd2" ? id : "v2";
   variant2Group.visible = viewVariant !== "vd2";
   if (v2House) v2House.visible = viewVariant === "v2";
@@ -5227,6 +5314,7 @@ function setVariant(id) {
   showRoofs(roofToggle.checked);
   saveView();
   syncPrintSheets(viewVariant);
+  syncTourButton();
 }
 
 document.getElementById("var-v2").addEventListener("click", () => { setVariant("v2"); retargetKeepOffset("v2"); });
@@ -5234,6 +5322,197 @@ document.getElementById("var-d2").addEventListener("click", () => { setVariant("
 document.getElementById("var-b").addEventListener("click", () => { setVariant("vb"); retargetKeepOffset("v2"); });
 document.getElementById("var-c").addEventListener("click", () => { setVariant("vc"); retargetKeepOffset("v2"); });
 document.getElementById("var-vd2").addEventListener("click", () => { setVariant("vd2"); retargetKeepOffset("vd2"); });
+
+const d2Tour = createD2Tour(planToWorld, d2WalkBoxes(), d2FenceSegments());
+const tourDaylight = createTourDaylight(planToWorld);
+scene.add(tourDaylight.object);
+const tourButton = document.getElementById("tour");
+let savedTourView = null;
+let tourStamp = 0;
+let tourSpeed = 1;
+
+function shownNode(obj) {
+  let node = obj;
+  while (node) {
+    if (!node.visible) return false;
+    node = node.parent;
+  }
+  return true;
+}
+
+function pointInWalkPoly(px, py, poly) {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const xi = poly[i][0];
+    const yi = poly[i][1];
+    const xj = poly[j][0];
+    const yj = poly[j][1];
+    if ((yi > py) !== (yj > py) && px < (xj - xi) * (py - yi) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+
+function walkGround(e, n) {
+  let best = 0.035;
+  for (const mesh of walkSurfaces) {
+    const top = mesh.userData.walkTop;
+    if (!(top > best) || !shownNode(mesh)) continue;
+    if (pointInWalkPoly(e, n, mesh.userData.walkPoly)) best = top;
+  }
+  return best;
+}
+
+function collectWalkPolys(kind) {
+  const polys = [];
+  scene.traverse((obj) => {
+    if (!shownNode(obj) || !obj.userData) return;
+    if (kind === "car") {
+      if (obj.userData.carFoot) polys.push(obj.userData.carFoot);
+      return;
+    }
+    if (!obj.isMesh || !obj.userData.foot || obj.userData.roof || obj.userData.ceiling) return;
+    if (obj.userData.finish === "door") return;
+    const mat = Array.isArray(obj.material) ? obj.material[0] : obj.material;
+    if (mat && mat.transparent && mat.opacity < 0.6) return;
+    polys.push(obj.userData.foot);
+  });
+  return polys;
+}
+
+function syncTourButton() {
+  const ready = roofToggle.checked && (viewVariant === "vd2" || tourPoseOf[viewVariant]);
+  tourButton.disabled = tourActive ? false : !ready;
+  tourButton.classList.toggle("active", tourActive);
+  tourButton.textContent = tourActive ? "Стоп" : "Экскурсия";
+  tourButton.title = tourActive
+    ? "Остановить и вернуть прежний вид"
+    : roofToggle.checked
+      ? "Стрелки — ход, мышь — взгляд, цифры 1–9 — скорость"
+      : "Включите крышу, чтобы пройти по дому";
+}
+
+function hideDoorLeaves() {
+  scene.traverse((obj) => {
+    if (obj.userData && obj.userData.roof && obj.userData.finish === "door") obj.visible = false;
+  });
+}
+
+function startTour() {
+  const keepHouse = viewVariant === "vd2";
+  const pose = keepHouse ? d2TourPose(planToWorld) : tourPoseOf[viewVariant];
+  if (tourActive || !roofToggle.checked || !pose) return;
+  savedTourView = {
+    pos: camera.position.clone(),
+    target: controls.target.clone(),
+  };
+  controls.enabled = false;
+  tourActive = true;
+  tourStamp = performance.now();
+  tourSpeed = 1;
+  d2Tour.setSpeed(1);
+  lookPtr = null;
+  if (keepHouse) {
+    fillLight.intensity = 0.26;
+    skyLight.intensity = 0.18;
+    tourDaylight.object.visible = true;
+    tourDaylight.setElevation(sunElevation);
+  }
+  d2Tour.start(camera, controls, {
+    pose,
+    keepHouse,
+    ground: keepHouse ? null : walkGround,
+    obstacles: collectWalkPolys("car").concat(keepHouse ? [] : collectWalkPolys("foot")),
+  });
+  hideDoorLeaves();
+  if (renderer.domElement.requestPointerLock) renderer.domElement.requestPointerLock();
+  syncTourButton();
+}
+
+function stopTour(restore) {
+  if (!tourActive && !d2Tour.active) return;
+  d2Tour.stop();
+  tourActive = false;
+  controls.enabled = true;
+  if (restore && savedTourView) {
+    camera.position.copy(savedTourView.pos);
+    controls.target.copy(savedTourView.target);
+    controls.update();
+  }
+  fillLight.intensity = FILL_LIGHT;
+  skyLight.intensity = SKY_LIGHT;
+  tourDaylight.object.visible = false;
+  showRoofs(roofToggle.checked);
+  d2Tour.clearMove();
+  tourPointerLocked = false;
+  if (document.pointerLockElement) document.exitPointerLock();
+  syncTourButton();
+  if (restore) saveView();
+}
+
+let lookPtr = null;
+window.addEventListener("mousemove", (event) => {
+  if (!tourActive) {
+    lookPtr = null;
+    return;
+  }
+  const locked = document.pointerLockElement === renderer.domElement;
+  if (!lookPtr) {
+    lookPtr = [event.clientX, event.clientY];
+    if (!locked) return;
+  }
+  const dx = locked ? event.movementX : event.clientX - lookPtr[0];
+  const dy = locked ? event.movementY : event.clientY - lookPtr[1];
+  lookPtr = [event.clientX, event.clientY];
+  if (!locked && dx * dx + dy * dy < 4) return;
+  if (dx === 0 && dy === 0) return;
+  d2Tour.addLook(dx, dy);
+});
+window.addEventListener("keydown", (event) => {
+  if (!tourActive) return;
+  if (event.key === "Escape") {
+    event.preventDefault();
+    stopTour(true);
+    return;
+  }
+  if (event.key >= "1" && event.key <= "9" && event.key.length === 1) {
+    if (event.target instanceof Element && event.target.closest("input, textarea")) return;
+    event.preventDefault();
+    tourSpeed = Number(event.key);
+    d2Tour.setSpeed(tourSpeed);
+    return;
+  }
+  if (event.code === "ArrowUp" || event.code === "ArrowDown" || event.code === "ArrowLeft" || event.code === "ArrowRight") {
+    event.preventDefault();
+    d2Tour.setMove(event.code, true);
+  }
+});
+window.addEventListener("keyup", (event) => {
+  if (event.code === "ArrowUp" || event.code === "ArrowDown" || event.code === "ArrowLeft" || event.code === "ArrowRight") {
+    d2Tour.setMove(event.code, false);
+  }
+});
+window.addEventListener("blur", () => d2Tour.clearMove());
+let tourPointerLocked = false;
+document.addEventListener("pointerlockchange", () => {
+  const locked = document.pointerLockElement === renderer.domElement;
+  if (locked) tourPointerLocked = true;
+  else if (tourPointerLocked && tourActive) {
+    tourPointerLocked = false;
+    stopTour(true);
+  }
+});
+window.addEventListener("pointerdown", (event) => {
+  if (!tourActive) return;
+  if (!(event.target instanceof Element)) return;
+  if (event.target.closest("#panel, #prints, button, input, select, label")) return;
+  if (document.pointerLockElement !== renderer.domElement) renderer.domElement.requestPointerLock();
+});
+
+tourButton.addEventListener("click", () => {
+  if (tourActive) stopTour(true);
+  else startTour();
+});
+
 setVariant(pendingVariant);
 if (!restoredCamera) placeCamera(viewVariant, "side");
 else if (viewVariant === "vd2" && controls.target.distanceTo(focusPoint("vd2")) > 4) retargetKeepOffset("vd2");
@@ -5256,6 +5535,7 @@ panel.addEventListener("click", (event) => {
 });
 
 function setView(kind) {
+  if (tourActive) stopTour(false);
   placeCamera(viewVariant, kind);
 }
 document.getElementById("view-side").addEventListener("click", () => setView("side"));
@@ -5264,13 +5544,20 @@ document.getElementById("view-top").addEventListener("click", () => setView("top
 applySun(geo);
 
 function frame() {
-  controls.update();
+  const now = performance.now();
+  const dt = tourStamp ? Math.min(0.05, (now - tourStamp) / 1000) : 0;
+  tourStamp = now;
+  if (tourActive) {
+    tourDaylight.setElevation(sunElevation);
+    if (!d2Tour.step(dt)) stopTour(true);
+  } else controls.update();
   renderer.render(scene, camera);
   requestAnimationFrame(frame);
 }
 frame();
+syncTourButton();
 
-window.__house = { camera, controls, THREE };
+window.__house = { camera, controls, scene, THREE };
 
 window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
