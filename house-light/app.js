@@ -8,7 +8,8 @@ import { WALL_LINES } from "./wall-sketch.js?v=2";
 import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=19";
 import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=18";
 import { buildVariantD2, d2WalkBoxes, d2FenceSegments } from "./variant-d2.js?v=82";
-import { createD2Tour, createTourDaylight, d2TourPose } from "./tour-d2.js?v=17";
+import { buildVariantD3, d3WalkBoxes, d3FenceSegments } from "./variant-d3.js?v=5";
+import { createD2Tour, createTourDaylight, d2TourPose, D3_WINDOWS } from "./tour-d2.js?v=20";
 import { syncPrintSheets } from "./print-sheets.js?v=4";
 
 const panel = document.getElementById("panel");
@@ -63,16 +64,18 @@ const variant2Group = new THREE.Group();
 const variantBGroup = new THREE.Group();
 const variantCGroup = new THREE.Group();
 const variantD2Group = new THREE.Group();
+const variantD3Group = new THREE.Group();
 const greenhouseGroup = new THREE.Group();
 const houseRig = new THREE.Group();
 let v2House = null;
 let v2HouseD2 = null;
 let roofDims = null;
-scene.add(sharedGroup, northDriveGroup, variant2Group, variantBGroup, variantCGroup, variantD2Group);
+scene.add(sharedGroup, northDriveGroup, variant2Group, variantBGroup, variantCGroup, variantD2Group, variantD3Group);
 variant2Group.visible = true;
 variantBGroup.visible = false;
 variantCGroup.visible = false;
 variantD2Group.visible = false;
+variantD3Group.visible = false;
 let bucket = sharedGroup;
 
 const ground = new THREE.Mesh(
@@ -5004,6 +5007,33 @@ function addVariantD2Scene() {
 }
 addVariantD2Scene();
 
+function addVariantD3Scene() {
+  bucket = variantD3Group;
+  buildVariantD3({
+    planBox, addBeam, asRoof, withFinish, addFloorNotes, addFloorLines,
+    planToWorld, geometryFromTriangles, addMesh, addSlab, addSlabHole, addWallRun,
+    addParkedModel, wallFace,
+    mountOverlays(make) {
+      mountAnyOverlays(
+        variantD3Group,
+        (x, y, z) => {
+          const [e, n] = planToWorld(x - 1, y);
+          return [e, z, n];
+        },
+        (x0, y0, x1, y1, z0, z1, color) => planBox(
+          [[x0 - 1, y0], [x1 - 1, y0], [x1 - 1, y1], [x0 - 1, y1]], z0, z1, color
+        ),
+        make
+      );
+    },
+    sectionHeight(value) {
+      if (arguments.length === 0) return sectionHeight;
+      sectionHeight = value;
+    },
+  });
+}
+addVariantD3Scene();
+
 function buildSectionCap(mesh, worldY) {
   const geom = mesh.geometry;
   const pos = geom.getAttribute("position");
@@ -5194,6 +5224,7 @@ const BLURB_D2 = "Вариант A2. Тот же дом: крыша над те�
 const BLURB_B = "Вариант Б. Терраса и мастер-спальня на юг, вход на север. Крыльцо-веранда 6,7 × 2 м, двускатный козырёк на всю ширину.";
 const BLURB_C = "Вариант В. Тот же дом отзеркален, вход на запад к гаражу. Отмостка и плитка ведут от ворот к крыльцу.";
 const BLURB_VD2 = "Вариант Д2. Детская на север, мастер-спальня на юг, вход с запада. Дом на 1 м ближе к воротам, навес 6,3×7,3 м. До северного забора 4 м. Потолок 3,2 м до перекрытия. Жёлтые окна от 0,80 м, белые панорамные от 0,10 м. Двускатная крыша с поворотом конька. Терраса 3,00×5,77 м во внутреннем углу, восточный свес удлинён до колонн, водосток на внешнем углу.";
+const BLURB_VD3 = "Вариант Д3. Тот же дом, что Д2, с другой нарезкой восточного крыла: два гардероба и спальня на север, мастер-ванная у холла, гардероб и мастер-спальня на юг. Контур дома, терраса и крыша как у Д2.";
 
 let tourActive = false;
 
@@ -5223,7 +5254,7 @@ function loadView() {
     const saved = JSON.parse(localStorage.getItem(VIEW_KEY) || "null");
     if (!saved) return false;
     const nums = [saved.px, saved.py, saved.pz, saved.tx, saved.ty, saved.tz];
-    const known = saved.variant === "v2" || saved.variant === "d2" || saved.variant === "vb" || saved.variant === "vc" || saved.variant === "vd2";
+    const known = saved.variant === "v2" || saved.variant === "d2" || saved.variant === "vb" || saved.variant === "vc" || saved.variant === "vd2" || saved.variant === "vd3";
     const cameraOk = known && nums.every((n) => Number.isFinite(n));
     if (known) pendingVariant = saved.variant;
     if (cameraOk) {
@@ -5269,7 +5300,7 @@ const blurb = document.getElementById("blurb");
 
 function focusPoint(id) {
   // Д2 стоит в другом месте плана, чем дом А. Крутить нужно вокруг него, а не вокруг пустой точки.
-  if (id === "vd2") return new THREE.Vector3(3.56, 1.5, -0.94);
+  if (id === "vd2" || id === "vd3") return new THREE.Vector3(3.56, 1.5, -0.94);
   return new THREE.Vector3(-3.69, 1.5, -3.45);
 }
 
@@ -5296,25 +5327,29 @@ if (location.hash) history.replaceState(null, "", location.pathname + location.s
 
 function setVariant(id) {
   if (tourActive) stopTour(false);
-  viewVariant = id === "vb" || id === "vc" || id === "d2" || id === "vd2" ? id : "v2";
-  variant2Group.visible = viewVariant !== "vd2";
+  viewVariant = id === "vb" || id === "vc" || id === "d2" || id === "vd2" || id === "vd3" ? id : "v2";
+  const eastHouse = viewVariant === "vd2" || viewVariant === "vd3";
+  variant2Group.visible = !eastHouse;
   if (v2House) v2House.visible = viewVariant === "v2";
   if (v2HouseD2) v2HouseD2.visible = viewVariant === "d2";
   if (roofDims) roofDims.visible = viewVariant === "v2" || viewVariant === "d2";
   variantBGroup.visible = viewVariant === "vb";
   variantCGroup.visible = viewVariant === "vc";
   variantD2Group.visible = viewVariant === "vd2";
-  northDriveGroup.visible = viewVariant !== "vd2";
+  variantD3Group.visible = viewVariant === "vd3";
+  northDriveGroup.visible = !eastHouse;
   blurb.textContent = viewVariant === "vb" ? BLURB_B
     : viewVariant === "vc" ? BLURB_C
       : viewVariant === "d2" ? BLURB_D2
         : viewVariant === "vd2" ? BLURB_VD2
-          : BLURB_2;
+          : viewVariant === "vd3" ? BLURB_VD3
+            : BLURB_2;
   document.getElementById("var-v2").classList.toggle("active", viewVariant === "v2");
   document.getElementById("var-d2").classList.toggle("active", viewVariant === "d2");
   document.getElementById("var-b").classList.toggle("active", viewVariant === "vb");
   document.getElementById("var-c").classList.toggle("active", viewVariant === "vc");
   document.getElementById("var-vd2").classList.toggle("active", viewVariant === "vd2");
+  document.getElementById("var-vd3").classList.toggle("active", viewVariant === "vd3");
   showRoofs(roofToggle.checked);
   saveView();
   syncPrintSheets(viewVariant);
@@ -5326,14 +5361,23 @@ document.getElementById("var-d2").addEventListener("click", () => { setVariant("
 document.getElementById("var-b").addEventListener("click", () => { setVariant("vb"); retargetKeepOffset("v2"); });
 document.getElementById("var-c").addEventListener("click", () => { setVariant("vc"); retargetKeepOffset("v2"); });
 document.getElementById("var-vd2").addEventListener("click", () => { setVariant("vd2"); retargetKeepOffset("vd2"); });
+document.getElementById("var-vd3").addEventListener("click", () => { setVariant("vd3"); retargetKeepOffset("vd3"); });
 
 const d2Tour = createD2Tour(planToWorld, d2WalkBoxes(), d2FenceSegments());
+const d3Tour = createD2Tour(planToWorld, d3WalkBoxes(), d3FenceSegments());
+function activeTour() {
+  return viewVariant === "vd3" ? d3Tour : d2Tour;
+}
 const tourDaylight = createTourDaylight(planToWorld);
-scene.add(tourDaylight.object);
+const tourDaylightD3 = createTourDaylight(planToWorld, D3_WINDOWS);
+scene.add(tourDaylight.object, tourDaylightD3.object);
+function activeDaylight() {
+  return viewVariant === "vd3" ? tourDaylightD3 : tourDaylight;
+}
 const tourButton = document.getElementById("tour");
 let savedTourView = null;
 let tourStamp = 0;
-let tourSpeed = 3;
+let tourSpeed = 5;
 
 function shownNode(obj) {
   let node = obj;
@@ -5384,14 +5428,14 @@ function collectWalkPolys(kind) {
 }
 
 function syncTourButton() {
-  const ready = roofToggle.checked && (viewVariant === "vd2" || tourPoseOf[viewVariant]);
+  const ready = roofToggle.checked && (viewVariant === "vd2" || viewVariant === "vd3" || tourPoseOf[viewVariant]);
   tourButton.disabled = tourActive ? false : !ready;
   tourButton.classList.toggle("active", tourActive);
   tourButton.textContent = tourActive ? "Стоп" : "Экскурсия";
   tourButton.title = tourActive
     ? "Остановить и вернуть прежний вид"
     : roofToggle.checked
-      ? "Стрелки — ход, мышь — взгляд, цифры 1–9 — скорость"
+      ? "Стрелки и W A S D — ход, мышь — взгляд, цифры 1–9 — скорость"
       : "Включите крышу, чтобы пройти по дому";
 }
 
@@ -5402,7 +5446,7 @@ function hideDoorLeaves() {
 }
 
 function startTour() {
-  const keepHouse = viewVariant === "vd2";
+  const keepHouse = viewVariant === "vd2" || viewVariant === "vd3";
   const pose = keepHouse ? d2TourPose(planToWorld) : tourPoseOf[viewVariant];
   if (tourActive || !roofToggle.checked || !pose) return;
   savedTourView = {
@@ -5412,16 +5456,16 @@ function startTour() {
   controls.enabled = false;
   tourActive = true;
   tourStamp = performance.now();
-  tourSpeed = 3;
-  d2Tour.setSpeed(3);
+  tourSpeed = 5;
+  activeTour().setSpeed(5);
   lookPtr = null;
   if (keepHouse) {
     fillLight.intensity = 0.26;
     skyLight.intensity = 0.18;
-    tourDaylight.object.visible = true;
-    tourDaylight.setElevation(sunElevation);
+    activeDaylight().object.visible = true;
+    activeDaylight().setElevation(sunElevation);
   }
-  d2Tour.start(camera, controls, {
+  activeTour().start(camera, controls, {
     pose,
     keepHouse,
     ground: keepHouse ? null : walkGround,
@@ -5433,8 +5477,8 @@ function startTour() {
 }
 
 function stopTour(restore) {
-  if (!tourActive && !d2Tour.active) return;
-  d2Tour.stop();
+  if (!tourActive && !activeTour().active) return;
+  activeTour().stop();
   tourActive = false;
   controls.enabled = true;
   if (restore && savedTourView) {
@@ -5445,8 +5489,9 @@ function stopTour(restore) {
   fillLight.intensity = FILL_LIGHT;
   skyLight.intensity = SKY_LIGHT;
   tourDaylight.object.visible = false;
+  tourDaylightD3.object.visible = false;
   showRoofs(roofToggle.checked);
-  d2Tour.clearMove();
+  activeTour().clearMove();
   tourPointerLocked = false;
   if (document.pointerLockElement) document.exitPointerLock();
   syncTourButton();
@@ -5469,8 +5514,14 @@ window.addEventListener("mousemove", (event) => {
   lookPtr = [event.clientX, event.clientY];
   if (!locked && dx * dx + dy * dy < 4) return;
   if (dx === 0 && dy === 0) return;
-  d2Tour.addLook(dx, dy);
+  activeTour().addLook(dx, dy);
 });
+function tourMoveCode(code) {
+  return code === "ArrowUp" || code === "KeyW"
+    || code === "ArrowDown" || code === "KeyS"
+    || code === "ArrowLeft" || code === "KeyA"
+    || code === "ArrowRight" || code === "KeyD";
+}
 window.addEventListener("keydown", (event) => {
   if (!tourActive) return;
   if (event.key === "Escape") {
@@ -5482,20 +5533,18 @@ window.addEventListener("keydown", (event) => {
     if (event.target instanceof Element && event.target.closest("input, textarea")) return;
     event.preventDefault();
     tourSpeed = Number(event.key);
-    d2Tour.setSpeed(tourSpeed);
+    activeTour().setSpeed(tourSpeed);
     return;
   }
-  if (event.code === "ArrowUp" || event.code === "ArrowDown" || event.code === "ArrowLeft" || event.code === "ArrowRight") {
+  if (tourMoveCode(event.code)) {
     event.preventDefault();
-    d2Tour.setMove(event.code, true);
+    activeTour().setMove(event.code, true);
   }
 });
 window.addEventListener("keyup", (event) => {
-  if (event.code === "ArrowUp" || event.code === "ArrowDown" || event.code === "ArrowLeft" || event.code === "ArrowRight") {
-    d2Tour.setMove(event.code, false);
-  }
+  if (tourMoveCode(event.code)) activeTour().setMove(event.code, false);
 });
-window.addEventListener("blur", () => d2Tour.clearMove());
+window.addEventListener("blur", () => activeTour().clearMove());
 let tourPointerLocked = false;
 document.addEventListener("pointerlockchange", () => {
   const locked = document.pointerLockElement === renderer.domElement;
@@ -5519,7 +5568,7 @@ tourButton.addEventListener("click", () => {
 
 setVariant(pendingVariant);
 if (!restoredCamera) placeCamera(viewVariant, "side");
-else if (viewVariant === "vd2" && controls.target.distanceTo(focusPoint("vd2")) > 4) retargetKeepOffset("vd2");
+else if ((viewVariant === "vd2" || viewVariant === "vd3") && controls.target.distanceTo(focusPoint(viewVariant)) > 4) retargetKeepOffset(viewVariant);
 dateInput.addEventListener("input", () => {
   applySun(geo);
   saveView();
@@ -5552,8 +5601,8 @@ function frame() {
   const dt = tourStamp ? Math.min(0.05, (now - tourStamp) / 1000) : 0;
   tourStamp = now;
   if (tourActive) {
-    tourDaylight.setElevation(sunElevation);
-    if (!d2Tour.step(dt)) stopTour(true);
+    activeDaylight().setElevation(sunElevation);
+    if (!activeTour().step(dt)) stopTour(true);
   } else controls.update();
   renderer.render(scene, camera);
   requestAnimationFrame(frame);

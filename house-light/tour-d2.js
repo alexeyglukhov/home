@@ -104,7 +104,7 @@ export function createD2Tour(planToWorld, boxes, segments = []) {
   let eye = groundD2(e, n) + EYE;
   let yaw = home.yaw;
   let pitch = -7 * Math.PI / 180;
-  let speed = 3;
+  let speed = 5;
   let vx = 0;
   let vy = 0;
   const held = new Set();
@@ -272,10 +272,10 @@ export function createD2Tour(planToWorld, boxes, segments = []) {
     const fwdY = Math.cos(yaw);
     const leftX = Math.cos(yaw);
     const leftY = -Math.sin(yaw);
-    if (held.has("ArrowUp")) { fx += fwdX; fy += fwdY; }
-    if (held.has("ArrowDown")) { fx -= fwdX; fy -= fwdY; }
-    if (held.has("ArrowLeft")) { fx += leftX; fy += leftY; }
-    if (held.has("ArrowRight")) { fx -= leftX; fy -= leftY; }
+    if (held.has("ArrowUp") || held.has("KeyW")) { fx += fwdX; fy += fwdY; }
+    if (held.has("ArrowDown") || held.has("KeyS")) { fx -= fwdX; fy -= fwdY; }
+    if (held.has("ArrowLeft") || held.has("KeyA")) { fx += leftX; fy += leftY; }
+    if (held.has("ArrowRight") || held.has("KeyD")) { fx -= leftX; fy -= leftY; }
     const len = Math.hypot(fx, fy);
     if (len > 1) { fx /= len; fy /= len; }
     return [fx * WALK * speed, fy * WALK * speed];
@@ -297,7 +297,7 @@ export function createD2Tour(planToWorld, boxes, segments = []) {
       [e, n] = pushOut(e, n);
       eye = groundFn(e, n) + EYE;
       pitch = -7 * Math.PI / 180;
-      speed = 3;
+      speed = 5;
       vx = 0;
       vy = 0;
       held.clear();
@@ -311,7 +311,7 @@ export function createD2Tour(planToWorld, boxes, segments = []) {
     },
     setSpeed(v) {
       const n = Math.round(Number(v));
-      speed = n >= 1 && n <= 9 ? n : 3;
+      speed = n >= 1 && n <= 9 ? n : 5;
     },
     setMove(code, down) {
       if (!active) return;
@@ -368,12 +368,33 @@ const WINDOWS = [
   { x: 11.42, y: 9.95, dx: 0, dy: 1, h: 1.78, wide: 0.75 },
 ];
 
-export function createTourDaylight(planToWorld) {
+// Окна варианта Д3. Прожектор стоит в комнате, в 45 см от проёма, а не в стене.
+export const D3_WINDOWS = [
+  { x: 5.76, y: 18.25, dx: 0, dy: -1, h: 1.78, wide: 0.57 },
+  { x: -3.77, y: 8.07, dx: 1, dy: 0, h: 1.78, wide: 0.58 },
+  { x: -3.80, y: 17.16, dx: 1, dy: 0, h: 1.78, wide: 1.97 },
+  { x: -3.79, y: 4.22, dx: 1, dy: 0, h: 1.78, wide: 1.97 },
+  { x: -0.69, y: 18.23, dx: 0, dy: -1, h: 1.78, wide: 0.98 },
+  { x: 12.77, y: 11.11, dx: -1, dy: 0, h: 1.78, wide: 1.97 },
+  { x: 12.76, y: 16.67, dx: -1, dy: 0, h: 1.78, wide: 1.97 },
+  { x: 2.99, y: 18.25, dx: 0, dy: -1, h: 1.78, wide: 1.97 },
+  { x: 11.02, y: 18.27, dx: 0, dy: -1, h: 1.78, wide: 0.98 },
+  { x: -2.68, y: 3.12, dx: 0, dy: 1, h: 1.78, wide: 1.97 },
+  { x: -3.78, y: 14.32, dx: 1, dy: 0, h: 1.78, wide: 0.58 },
+  { x: 2.84, y: 3.12, dx: 0, dy: 1, h: 1.50, wide: 2.97 },
+  { x: 4.66, y: 4.85, dx: -1, dy: 0, h: 1.50, wide: 2.97 },
+  { x: 8.18, y: 18.24, dx: 0, dy: -1, h: 1.78, wide: 0.57 },
+  { x: 6.61, y: 9.69, dx: 0, dy: 1, h: 1.50, wide: 0.78 },
+  { x: 8.69, y: 9.70, dx: 0, dy: 1, h: 1.78, wide: 0.57 },
+  { x: 12.79, y: 14.01, dx: -1, dy: 0, h: 1.78, wide: 0.57 },
+];
+
+export function createTourDaylight(planToWorld, windows = WINDOWS) {
   const group = new THREE.Group();
   group.name = "tour-daylight";
   group.visible = false;
   const spots = [];
-  for (const win of WINDOWS) {
+  for (const win of windows) {
     const [e, n] = planToWorld(win.x + HOUSE_DX, win.y);
     const [te, tn] = planToWorld(win.x + HOUSE_DX + win.dx * 3.2, win.y + win.dy * 3.2);
     const spot = new THREE.SpotLight(0xfff3dc, 0, 8, 1.05, 0.85, 1.5);
