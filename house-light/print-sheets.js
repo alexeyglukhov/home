@@ -3,7 +3,7 @@ const PRINTS = {
   vd2: [
     {
       label: "Планировка",
-      file: "prints/plan-1-etazh-variant-d-print.svg",
+      file: "prints/plan-1-etazh-variant-d2-print.svg",
       name: "планировка",
     },
     {

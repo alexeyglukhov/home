@@ -7,10 +7,12 @@ import { FURNITURE_D } from "./furniture-d.js?v=6";
 import { WALL_LINES } from "./wall-sketch.js?v=2";
 import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=19";
 import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=18";
-import { buildVariantD2, d2WalkBoxes, d2FenceSegments } from "./variant-d2.js?v=82";
-import { buildVariantD3, d3WalkBoxes, d3FenceSegments } from "./variant-d3.js?v=5";
+import { buildVariantD2, d2WalkBoxes, d2FenceSegments } from "./variant-d2.js?v=84";
+import { buildVariantD3, d3WalkBoxes, d3FenceSegments } from "./variant-d3.js?v=6";
 import { createD2Tour, createTourDaylight, d2TourPose, D3_WINDOWS } from "./tour-d2.js?v=20";
-import { syncPrintSheets } from "./print-sheets.js?v=4";
+import { syncPrintSheets } from "./print-sheets.js?v=5";
+import { mountFurnitureCatalog } from "./furniture-catalog.js?v=5";
+import { mountD2Furniture } from "./furniture-place-d2.js?v=34";
 
 const panel = document.getElementById("panel");
 const dateInput = document.getElementById("date");
@@ -64,6 +66,9 @@ const variant2Group = new THREE.Group();
 const variantBGroup = new THREE.Group();
 const variantCGroup = new THREE.Group();
 const variantD2Group = new THREE.Group();
+const variantD2Furniture = new THREE.Group();
+variantD2Furniture.name = "d2-furniture";
+variantD2Group.add(variantD2Furniture);
 const variantD3Group = new THREE.Group();
 const greenhouseGroup = new THREE.Group();
 const houseRig = new THREE.Group();
@@ -5004,6 +5009,12 @@ function addVariantD2Scene() {
       sectionHeight = value;
     },
   });
+  mountD2Furniture(variantD2Furniture, {
+    planToWorld,
+    prismGeometry,
+    azX: AZ_X,
+    azY: AZ_Y,
+  }).catch((err) => console.warn("d2 furniture", err));
 }
 addVariantD2Scene();
 
@@ -5223,7 +5234,8 @@ const BLURB_2 = "Вариант A. Терраса и гостиная на юг,
 const BLURB_D2 = "Вариант A2. Тот же дом: крыша над террасой и крыльцом — скатная трапеция с прямым передним краем. Средние столбы террасы и крыльца одной высоты с соседними.";
 const BLURB_B = "Вариант Б. Терраса и мастер-спальня на юг, вход на север. Крыльцо-веранда 6,7 × 2 м, двускатный козырёк на всю ширину.";
 const BLURB_C = "Вариант В. Тот же дом отзеркален, вход на запад к гаражу. Отмостка и плитка ведут от ворот к крыльцу.";
-const BLURB_VD2 = "Вариант Д2. Детская на север, мастер-спальня на юг, вход с запада. Дом на 1 м ближе к воротам, навес 6,3×7,3 м. До северного забора 4 м. Потолок 3,2 м до перекрытия. Жёлтые окна от 0,80 м, белые панорамные от 0,10 м. Двускатная крыша с поворотом конька. Терраса 3,00×5,77 м во внутреннем углу, восточный свес удлинён до колонн, водосток на внешнем углу.";
+const BLURB_VD1 = "Вариант Д1. Копия планировки Д2 без расстановки мебели из каталога: детская на север, мастер-спальня на юг, вход с запада. Дом на 1 м ближе к воротам, навес 6,3×7,3 м. До северного забора 4 м. Потолок 3,2 м до перекрытия.";
+const BLURB_VD2 = "Вариант Д2. Тот же дом, что Д1, с мебелью из каталога: единая кухонная столешница, мойка и варочная чуть выше, диван с учётом ориентации, в гардеробах модули с одеждой. Детская на север, мастер-спальня на юг, вход с запада.";
 const BLURB_VD3 = "Вариант Д3. Тот же дом, что Д2, с другой нарезкой восточного крыла: два гардероба и спальня на север, мастер-ванная у холла, гардероб и мастер-спальня на юг. Контур дома, терраса и крыша как у Д2.";
 
 let tourActive = false;
@@ -5254,7 +5266,7 @@ function loadView() {
     const saved = JSON.parse(localStorage.getItem(VIEW_KEY) || "null");
     if (!saved) return false;
     const nums = [saved.px, saved.py, saved.pz, saved.tx, saved.ty, saved.tz];
-    const known = saved.variant === "v2" || saved.variant === "d2" || saved.variant === "vb" || saved.variant === "vc" || saved.variant === "vd2" || saved.variant === "vd3";
+    const known = saved.variant === "v2" || saved.variant === "d2" || saved.variant === "vb" || saved.variant === "vc" || saved.variant === "vd1" || saved.variant === "vd2" || saved.variant === "vd3";
     const cameraOk = known && nums.every((n) => Number.isFinite(n));
     if (known) pendingVariant = saved.variant;
     if (cameraOk) {
@@ -5300,7 +5312,7 @@ const blurb = document.getElementById("blurb");
 
 function focusPoint(id) {
   // Д2 стоит в другом месте плана, чем дом А. Крутить нужно вокруг него, а не вокруг пустой точки.
-  if (id === "vd2" || id === "vd3") return new THREE.Vector3(3.56, 1.5, -0.94);
+  if (id === "vd1" || id === "vd2" || id === "vd3") return new THREE.Vector3(3.56, 1.5, -0.94);
   return new THREE.Vector3(-3.69, 1.5, -3.45);
 }
 
@@ -5327,32 +5339,35 @@ if (location.hash) history.replaceState(null, "", location.pathname + location.s
 
 function setVariant(id) {
   if (tourActive) stopTour(false);
-  viewVariant = id === "vb" || id === "vc" || id === "d2" || id === "vd2" || id === "vd3" ? id : "v2";
-  const eastHouse = viewVariant === "vd2" || viewVariant === "vd3";
+  viewVariant = id === "vb" || id === "vc" || id === "d2" || id === "vd1" || id === "vd2" || id === "vd3" ? id : "v2";
+  const eastHouse = viewVariant === "vd1" || viewVariant === "vd2" || viewVariant === "vd3";
   variant2Group.visible = !eastHouse;
   if (v2House) v2House.visible = viewVariant === "v2";
   if (v2HouseD2) v2HouseD2.visible = viewVariant === "d2";
   if (roofDims) roofDims.visible = viewVariant === "v2" || viewVariant === "d2";
   variantBGroup.visible = viewVariant === "vb";
   variantCGroup.visible = viewVariant === "vc";
-  variantD2Group.visible = viewVariant === "vd2";
+  variantD2Group.visible = viewVariant === "vd1" || viewVariant === "vd2";
+  variantD2Furniture.visible = viewVariant === "vd2";
   variantD3Group.visible = viewVariant === "vd3";
   northDriveGroup.visible = !eastHouse;
   blurb.textContent = viewVariant === "vb" ? BLURB_B
     : viewVariant === "vc" ? BLURB_C
       : viewVariant === "d2" ? BLURB_D2
-        : viewVariant === "vd2" ? BLURB_VD2
-          : viewVariant === "vd3" ? BLURB_VD3
-            : BLURB_2;
+        : viewVariant === "vd1" ? BLURB_VD1
+          : viewVariant === "vd2" ? BLURB_VD2
+            : viewVariant === "vd3" ? BLURB_VD3
+              : BLURB_2;
   document.getElementById("var-v2").classList.toggle("active", viewVariant === "v2");
   document.getElementById("var-d2").classList.toggle("active", viewVariant === "d2");
   document.getElementById("var-b").classList.toggle("active", viewVariant === "vb");
   document.getElementById("var-c").classList.toggle("active", viewVariant === "vc");
+  document.getElementById("var-vd1").classList.toggle("active", viewVariant === "vd1");
   document.getElementById("var-vd2").classList.toggle("active", viewVariant === "vd2");
   document.getElementById("var-vd3").classList.toggle("active", viewVariant === "vd3");
   showRoofs(roofToggle.checked);
   saveView();
-  syncPrintSheets(viewVariant);
+  syncPrintSheets(viewVariant === "vd1" ? "vd2" : viewVariant);
   syncTourButton();
 }
 
@@ -5360,6 +5375,7 @@ document.getElementById("var-v2").addEventListener("click", () => { setVariant("
 document.getElementById("var-d2").addEventListener("click", () => { setVariant("d2"); retargetKeepOffset("v2"); });
 document.getElementById("var-b").addEventListener("click", () => { setVariant("vb"); retargetKeepOffset("v2"); });
 document.getElementById("var-c").addEventListener("click", () => { setVariant("vc"); retargetKeepOffset("v2"); });
+document.getElementById("var-vd1").addEventListener("click", () => { setVariant("vd1"); retargetKeepOffset("vd1"); });
 document.getElementById("var-vd2").addEventListener("click", () => { setVariant("vd2"); retargetKeepOffset("vd2"); });
 document.getElementById("var-vd3").addEventListener("click", () => { setVariant("vd3"); retargetKeepOffset("vd3"); });
 
@@ -5428,7 +5444,7 @@ function collectWalkPolys(kind) {
 }
 
 function syncTourButton() {
-  const ready = roofToggle.checked && (viewVariant === "vd2" || viewVariant === "vd3" || tourPoseOf[viewVariant]);
+  const ready = roofToggle.checked && (viewVariant === "vd1" || viewVariant === "vd2" || viewVariant === "vd3" || tourPoseOf[viewVariant]);
   tourButton.disabled = tourActive ? false : !ready;
   tourButton.classList.toggle("active", tourActive);
   tourButton.textContent = tourActive ? "Стоп" : "Экскурсия";
@@ -5446,7 +5462,7 @@ function hideDoorLeaves() {
 }
 
 function startTour() {
-  const keepHouse = viewVariant === "vd2" || viewVariant === "vd3";
+  const keepHouse = viewVariant === "vd1" || viewVariant === "vd2" || viewVariant === "vd3";
   const pose = keepHouse ? d2TourPose(planToWorld) : tourPoseOf[viewVariant];
   if (tourActive || !roofToggle.checked || !pose) return;
   savedTourView = {
@@ -5557,7 +5573,7 @@ document.addEventListener("pointerlockchange", () => {
 window.addEventListener("pointerdown", (event) => {
   if (!tourActive) return;
   if (!(event.target instanceof Element)) return;
-  if (event.target.closest("#panel, #prints, button, input, select, label")) return;
+  if (event.target.closest("#panel, #prints, #furniture-catalog, button, input, select, label")) return;
   if (document.pointerLockElement !== renderer.domElement) renderer.domElement.requestPointerLock();
 });
 
@@ -5568,7 +5584,7 @@ tourButton.addEventListener("click", () => {
 
 setVariant(pendingVariant);
 if (!restoredCamera) placeCamera(viewVariant, "side");
-else if ((viewVariant === "vd2" || viewVariant === "vd3") && controls.target.distanceTo(focusPoint(viewVariant)) > 4) retargetKeepOffset(viewVariant);
+else if ((viewVariant === "vd1" || viewVariant === "vd2" || viewVariant === "vd3") && controls.target.distanceTo(focusPoint(viewVariant)) > 4) retargetKeepOffset(viewVariant);
 dateInput.addEventListener("input", () => {
   applySun(geo);
   saveView();
@@ -5611,6 +5627,7 @@ frame();
 syncTourButton();
 
 window.__house = { camera, controls, scene, THREE };
+mountFurnitureCatalog();
 
 window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;

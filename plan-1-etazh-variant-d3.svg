@@ -46,11 +46,11 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="8.0000008"
-     inkscape:cx="1052.3124"
-     inkscape:cy="573.12494"
+     inkscape:zoom="2.8284274"
+     inkscape:cx="1159.3015"
+     inkscape:cy="152.91183"
      inkscape:window-width="2560"
-     inkscape:window-height="1368"
+     inkscape:window-height="1362"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -2343,7 +2343,7 @@
      style="fill:#1a1a1a;stroke:none;stroke-width:0.999996" />
   <g
      id="g10121"
-     transform="rotate(90,107.36101,183.81231)">
+     transform="rotate(180,75.02286,77.012881)">
     <rect
        x="-38.713825"
        y="95.578484"
@@ -2454,7 +2454,7 @@
   </g>
   <g
      id="g2202"
-     transform="matrix(-1,0,0,1,465.28909,-44.084482)">
+     transform="matrix(0,-1,-1,0,273.82896,326.60261)">
     <g
        id="g22534"
        transform="rotate(-90,132.87451,-23.519085)">
@@ -5632,27 +5632,6 @@
      style="fill:#1a1a1a;stroke:none;stroke-width:0.986524"
      transform="rotate(-90)" />
   <g
-     transform="rotate(-90,114.04513,-68.78480)"
-     id="g7228">
-    <g
-       class="upright"
-       transform="rotate(90)"
-       id="g7226">
-      <text
-         class="rname"
-         y="-1.15"
-         id="text7226"
-         text-anchor="middle">Мастер-спальня</text>
-      <text
-         class="rmeta"
-         y="1.2"
-         id="text-d3-mbed"
-         text-anchor="middle">14,11 м²<tspan
-   dx="0.80000001"
-   id="tspan-d3-mbed">3,90×3,62</tspan></text>
-    </g>
-  </g>
-  <g
      id="g3037"
      transform="matrix(-7.9044838,0,0,7.9044838,666.3966,-717.57106)">
     <rect
@@ -5957,7 +5936,7 @@
   <g
      id="g6610"
      style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#e6e6e6;fill-opacity:1;stroke:#000000;stroke-width:0.302634;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1"
-     transform="matrix(0,0.61143375,0.82307313,0,173.6702,-56.01234)">
+     transform="matrix(-0.61143375,0,0,0.82307313,297.85976,37.187513)">
     <rect
        x="156.461"
        y="6.3302321"
@@ -6054,6 +6033,27 @@
          text-anchor="middle">14,72 м²<tspan
    dx="0.80000001"
    id="tspan712">4,24×3,47</tspan></text>
+    </g>
+  </g>
+  <g
+     transform="rotate(-90,114.04513,-68.78480)"
+     id="g7228">
+    <g
+       class="upright"
+       transform="rotate(90)"
+       id="g7226">
+      <text
+         class="rname"
+         y="-1.15"
+         id="text7226"
+         text-anchor="middle">Мастер-спальня</text>
+      <text
+         class="rmeta"
+         y="1.2"
+         id="text-d3-mbed"
+         text-anchor="middle">14,11 м²<tspan
+   dx="0.80000001"
+   id="tspan-d3-mbed">3,90×3,62</tspan></text>
     </g>
   </g>
 </svg>

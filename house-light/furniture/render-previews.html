@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>Render furniture previews</title>
+  <script type="importmap">
+  { "imports": { "three": "/vendor/three.module.js" } }
+  </script>
+  <style>
+    body { font: 14px sans-serif; background: #1a1a1a; color: #eee; margin: 16px; }
+    #status { margin-bottom: 12px; }
+    canvas { background: #e7e0d2; }
+  </style>
+</head>
+<body>
+  <p id="status">Загрузка…</p>
+  <canvas id="c" width="400" height="280"></canvas>
+  <script type="module">
+import * as THREE from "three";
+import { GLTFLoader } from "../vendor/GLTFLoader.js";
+
+/** Совпадает с furniture-place-d2.js — лицо модели для стрелки на карте. */
+const FRONT_AXIS = {
+  H: "+z", W: "+z", G: "+z", N: "+z", K: "-z", T: "+z", R: "-z", V: "-z",
+  D: "+z", A: "+z", C: "+z", S: "-z", P: "-z", M: "-z", B: "-z", J: "-z", X: "+z",
+};
+const FRONT_AXIS_ID = { H03: "+z", H17: "+z", H18: "+z" };
+
+function frontAxisOf(id) {
+  if (FRONT_AXIS_ID[id]) return FRONT_AXIS_ID[id];
+  const g = id[0];
+  // Кровать: стрелка = изножье = +Z (изголовье на −Z)
+  if (g === "K") return "+z";
+  return FRONT_AXIS[g] || "-z";
+}
+
+const status = document.getElementById("status");
+const canvas = document.getElementById("c");
+const renderer = new THREE.WebGLRenderer({
+  canvas,
+  antialias: true,
+  alpha: false,
+  preserveDrawingBuffer: true,
+});
+renderer.setSize(400, 280, false);
+renderer.setPixelRatio(1);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.setClearColor(0xe7e0d2, 1);
+
+const stage = new THREE.Scene();
+stage.add(new THREE.HemisphereLight(0xfff6ea, 0x9aa3aa, 1.15));
+const key = new THREE.DirectionalLight(0xfffaf2, 1.7);
+key.position.set(2.4, 3.6, 2.1);
+stage.add(key);
+const fill = new THREE.DirectionalLight(0xd7e6f6, 0.55);
+fill.position.set(-2.2, 1.4, -1.2);
+stage.add(fill);
+
+// Камера чуть слева-сверху: смотрит на начало координат.
+// Фасад модели после поворота смотрит на +Z (к камере) = «вперёд» на снимке.
+const camera = new THREE.PerspectiveCamera(32, 400 / 280, 0.02, 40);
+camera.position.set(1.55, 1.35, 2.85);
+camera.lookAt(0, 0.38, 0);
+
+const loader = new GLTFLoader();
+
+function fileUrl(file) {
+  return new URL("./" + file, import.meta.url).href;
+}
+
+function loadModel(file) {
+  return new Promise((resolve, reject) => {
+    loader.load(fileUrl(file), (gltf) => resolve(gltf.scene), undefined, reject);
+  });
+}
+
+/**
+ * Ориентация: стрелка карты (+Y локально) = перед модели = к камере (+Z мира превью).
+ * На снимке фасад смотрит на зрителя; сзади модели — дальняя сторона.
+ */
+function fitForPreview(scene, itemId) {
+  const pivot = new THREE.Group();
+  const model = scene;
+  pivot.add(model);
+
+  const axis = frontAxisOf(itemId);
+  // Повернуть модель так, чтобы её «перед» смотрел на +Z (к камере)
+  if (axis === "+z") {
+    pivot.rotation.y = 0;
+  } else {
+    pivot.rotation.y = Math.PI; // −Z → +Z
+  }
+
+  model.updateMatrixWorld(true);
+  pivot.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(pivot);
+  const size = box.getSize(new THREE.Vector3());
+  const maxDim = Math.max(size.x, size.y, size.z, 1e-4);
+  const scale = 1.45 / maxDim;
+  model.scale.setScalar(scale);
+  model.updateMatrixWorld(true);
+  pivot.updateMatrixWorld(true);
+  const fitted = new THREE.Box3().setFromObject(pivot);
+  const center = fitted.getCenter(new THREE.Vector3());
+  model.position.x -= center.x;
+  model.position.z -= center.z;
+  model.position.y -= fitted.min.y;
+  model.traverse((obj) => {
+    if (!obj.isMesh) return;
+    obj.castShadow = false;
+    obj.receiveShadow = false;
+  });
+  return pivot;
+}
+
+async function main() {
+  const catalog = await fetch(fileUrl("catalog.json")).then((r) => r.json());
+  const out = {};
+  let i = 0;
+  for (const item of catalog.items) {
+    i += 1;
+    status.textContent = `${i}/${catalog.items.length} ${item.id}`;
+    try {
+      const scene = await loadModel(item.file);
+      const pivot = fitForPreview(scene, item.id);
+      stage.add(pivot);
+      renderer.render(stage, camera);
+      out[item.id] = canvas.toDataURL("image/png");
+      stage.remove(pivot);
+    } catch (err) {
+      console.warn(item.id, err);
+      out[item.id] = null;
+    }
+  }
+  window.PREVIEWS = out;
+  window.DONE = true;
+  status.textContent = `Готово: ${Object.keys(out).filter((k) => out[k]).length} превью`;
+}
+
+main().catch((err) => {
+  console.error(err);
+  window.__ERR = String(err?.stack || err);
+  status.textContent = String(err);
+  window.DONE = true;
+  window.PREVIEWS = {};
+});
+  </script>
+</body>
+</html>

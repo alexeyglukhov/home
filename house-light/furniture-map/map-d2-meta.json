@@ -1,0 +1,2027 @@
+{
+  "version": 1,
+  "units": "m",
+  "front": "arrow=+Y local / frontDeg 0=N 90=E",
+  "items": [
+    {
+      "svgId": "furn-001",
+      "model": "H05",
+      "name": "Шкаф напольный с шуфлядками",
+      "cx": -3.5975,
+      "cy": 3.1494999999999997,
+      "width": 0.7949999999999999,
+      "depth": 0.5409999999999999,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "CAB_H",
+      "wall": "S",
+      "natCm": [
+        45,
+        45,
+        75
+      ],
+      "natNote": "45×45×75 см"
+    },
+    {
+      "svgId": "furn-002",
+      "model": "H04",
+      "name": "Шкаф напольный",
+      "cx": -2.95,
+      "cy": 3.1494999999999997,
+      "width": 0.5,
+      "depth": 0.5409999999999999,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "CAB_H",
+      "wall": "S",
+      "natCm": [
+        45,
+        45,
+        75
+      ],
+      "natNote": "45×45×75 см"
+    },
+    {
+      "svgId": "furn-003",
+      "model": "H05",
+      "name": "Шкаф напольный с шуфлядками",
+      "cx": -1.475,
+      "cy": 3.1494999999999997,
+      "width": 0.8499999999999999,
+      "depth": 0.5409999999999999,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "CAB_H",
+      "wall": "S",
+      "natCm": [
+        45,
+        45,
+        75
+      ],
+      "natNote": "45×45×75 см"
+    },
+    {
+      "svgId": "furn-004",
+      "model": "H04",
+      "name": "Шкаф напольный",
+      "cx": -0.6365000000000001,
+      "cy": 3.1494999999999997,
+      "width": 0.8270000000000001,
+      "depth": 0.5409999999999999,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "CAB_H",
+      "wall": "S",
+      "natCm": [
+        45,
+        45,
+        75
+      ],
+      "natNote": "45×45×75 см"
+    },
+    {
+      "svgId": "furn-005",
+      "model": "H05",
+      "name": "Шкаф напольный с шуфлядками",
+      "cx": -3.734,
+      "cy": 3.723,
+      "width": 0.5539999999999998,
+      "depth": 0.5419999999999998,
+      "frontDeg": 90.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "CAB_H",
+      "wall": "W",
+      "natCm": [
+        45,
+        45,
+        75
+      ],
+      "natNote": "45×45×75 см"
+    },
+    {
+      "svgId": "furn-006",
+      "model": "H04",
+      "name": "Шкаф напольный",
+      "cx": -3.734,
+      "cy": 4.275,
+      "width": 0.5499999999999998,
+      "depth": 0.5419999999999998,
+      "frontDeg": 90.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "CAB_H",
+      "wall": "W",
+      "natCm": [
+        45,
+        45,
+        75
+      ],
+      "natNote": "45×45×75 см"
+    },
+    {
+      "svgId": "furn-007",
+      "model": "H05",
+      "name": "Шкаф напольный с шуфлядками",
+      "cx": -3.734,
+      "cy": 4.824999999999999,
+      "width": 0.5499999999999998,
+      "depth": 0.5419999999999998,
+      "frontDeg": 90.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "CAB_H",
+      "wall": "W",
+      "natCm": [
+        45,
+        45,
+        75
+      ],
+      "natNote": "45×45×75 см"
+    },
+    {
+      "svgId": "furn-008",
+      "model": "H04",
+      "name": "Шкаф напольный",
+      "cx": -3.734,
+      "cy": 5.369999999999999,
+      "width": 0.54,
+      "depth": 0.5419999999999998,
+      "frontDeg": 90.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "CAB_H",
+      "wall": "W",
+      "natCm": [
+        45,
+        45,
+        75
+      ],
+      "natNote": "45×45×75 см"
+    },
+    {
+      "svgId": "furn-009",
+      "model": "H05",
+      "name": "Шкаф напольный с шуфлядками",
+      "cx": -3.6599999999999997,
+      "cy": 5.91,
+      "width": 0.7199999999999998,
+      "depth": 0.54,
+      "frontDeg": 180.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "CAB_H",
+      "wall": "N",
+      "natCm": [
+        45,
+        45,
+        75
+      ],
+      "natNote": "45×45×75 см"
+    },
+    {
+      "svgId": "furn-010",
+      "model": "H11",
+      "name": "Варочная панель",
+      "cx": -2.9,
+      "cy": 5.91,
+      "width": 0.7999999999999998,
+      "depth": 0.5,
+      "frontDeg": 180.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "N",
+      "natCm": [
+        60,
+        51,
+        5
+      ],
+      "natNote": "60×51×5 см"
+    },
+    {
+      "svgId": "furn-011",
+      "model": "H04",
+      "name": "Шкаф напольный",
+      "cx": -2.12,
+      "cy": 5.91,
+      "width": 0.76,
+      "depth": 0.54,
+      "frontDeg": 180.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "CAB_H",
+      "wall": "N",
+      "natCm": [
+        45,
+        45,
+        75
+      ],
+      "natNote": "45×45×75 см"
+    },
+    {
+      "svgId": "furn-012",
+      "model": "H07",
+      "name": "Шкаф навесной двойной",
+      "cx": -3.61,
+      "cy": 5.925,
+      "width": 0.8199999999999994,
+      "depth": 0.34999999999999964,
+      "frontDeg": 180.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "0.55",
+      "wall": "N",
+      "natCm": [
+        90,
+        35,
+        55
+      ],
+      "natNote": "90×35×55 см"
+    },
+    {
+      "svgId": "furn-013",
+      "model": "H06",
+      "name": "Шкаф навесной",
+      "cx": -2.1,
+      "cy": 5.925,
+      "width": 0.5999999999999999,
+      "depth": 0.34999999999999964,
+      "frontDeg": 180.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "0.55",
+      "wall": "N",
+      "natCm": [
+        45,
+        35,
+        55
+      ],
+      "natNote": "45×35×55 см"
+    },
+    {
+      "svgId": "furn-014",
+      "model": "H18",
+      "name": "Кухонный остров butcher-block",
+      "cx": 0.2395,
+      "cy": 3.8609999999999998,
+      "width": 1.9440000000000004,
+      "depth": 0.943,
+      "frontDeg": 270.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "0.95",
+      "wall": "E",
+      "natCm": [
+        131,
+        70,
+        95
+      ],
+      "natNote": "131×70×95 см"
+    },
+    {
+      "svgId": "furn-015",
+      "model": "S02",
+      "name": "Стол овальный, дуб",
+      "cx": 2.7510000000000003,
+      "cy": 4.465,
+      "width": 2.1,
+      "depth": 0.9500000000000002,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "0.75",
+      "wall": "S",
+      "natCm": [
+        210,
+        105,
+        75
+      ],
+      "natNote": "210×105×75 см"
+    },
+    {
+      "svgId": "furn-016",
+      "model": "C01",
+      "name": "Стул дубовый с обивкой",
+      "cx": 1.901,
+      "cy": 3.74,
+      "width": 0.3999999999999999,
+      "depth": 0.3999999999999999,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "S",
+      "natCm": [
+        50,
+        58,
+        89
+      ],
+      "natNote": "50×58×89 см"
+    },
+    {
+      "svgId": "furn-017",
+      "model": "C01",
+      "name": "Стул дубовый с обивкой",
+      "cx": 2.651,
+      "cy": 3.74,
+      "width": 0.3999999999999999,
+      "depth": 0.3999999999999999,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "S",
+      "natCm": [
+        50,
+        58,
+        89
+      ],
+      "natNote": "50×58×89 см"
+    },
+    {
+      "svgId": "furn-018",
+      "model": "C01",
+      "name": "Стул дубовый с обивкой",
+      "cx": 3.4509999999999996,
+      "cy": 3.74,
+      "width": 0.3999999999999999,
+      "depth": 0.3999999999999999,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "S",
+      "natCm": [
+        50,
+        58,
+        89
+      ],
+      "natNote": "50×58×89 см"
+    },
+    {
+      "svgId": "furn-019",
+      "model": "C01",
+      "name": "Стул дубовый с обивкой",
+      "cx": 1.901,
+      "cy": 5.1899999999999995,
+      "width": 0.3999999999999999,
+      "depth": 0.39999999999999947,
+      "frontDeg": 180.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "N",
+      "natCm": [
+        50,
+        58,
+        89
+      ],
+      "natNote": "50×58×89 см"
+    },
+    {
+      "svgId": "furn-020",
+      "model": "C01",
+      "name": "Стул дубовый с обивкой",
+      "cx": 2.651,
+      "cy": 5.1899999999999995,
+      "width": 0.3999999999999999,
+      "depth": 0.39999999999999947,
+      "frontDeg": 180.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "N",
+      "natCm": [
+        50,
+        58,
+        89
+      ],
+      "natNote": "50×58×89 см"
+    },
+    {
+      "svgId": "furn-021",
+      "model": "C01",
+      "name": "Стул дубовый с обивкой",
+      "cx": 3.4509999999999996,
+      "cy": 5.1899999999999995,
+      "width": 0.3999999999999999,
+      "depth": 0.39999999999999947,
+      "frontDeg": 180.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "N",
+      "natCm": [
+        50,
+        58,
+        89
+      ],
+      "natNote": "50×58×89 см"
+    },
+    {
+      "svgId": "furn-022",
+      "model": "C01",
+      "name": "Стул дубовый с обивкой",
+      "cx": 4.038,
+      "cy": 4.444,
+      "width": 0.40000000000000036,
+      "depth": 0.40000000000000036,
+      "frontDeg": 270.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "E",
+      "natCm": [
+        50,
+        58,
+        89
+      ],
+      "natNote": "50×58×89 см"
+    },
+    {
+      "svgId": "furn-023",
+      "model": "C01",
+      "name": "Стул дубовый с обивкой",
+      "cx": 1.3519999999999999,
+      "cy": 4.45,
+      "width": 0.40000000000000036,
+      "depth": 0.40000000000000013,
+      "frontDeg": 90.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "W",
+      "natCm": [
+        50,
+        58,
+        89
+      ],
+      "natNote": "50×58×89 см"
+    },
+    {
+      "svgId": "furn-024",
+      "model": "D08",
+      "name": "Кушетка",
+      "cx": 2.9850000000000003,
+      "cy": 7.39,
+      "width": 3.33,
+      "depth": 1.6199999999999992,
+      "frontDeg": 0.0,
+      "mirror": true,
+      "keepAspect": false,
+      "h": "0.90",
+      "wall": "S",
+      "natCm": [
+        260,
+        174,
+        90
+      ],
+      "natNote": "260×174×90 см"
+    },
+    {
+      "svgId": "furn-025",
+      "model": "J01",
+      "name": "Столик ореховый",
+      "cx": 2.27,
+      "cy": 8.865,
+      "width": 1.4799999999999998,
+      "depth": 0.9299999999999997,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "S",
+      "natCm": [
+        122,
+        66,
+        36
+      ],
+      "natNote": "122×66×36 см"
+    },
+    {
+      "svgId": "furn-026",
+      "model": "S01",
+      "name": "Стол раздвижной",
+      "cx": 6.885,
+      "cy": 6.09,
+      "width": 2.0999999999999996,
+      "depth": 0.9500000000000002,
+      "frontDeg": 270.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "0.75",
+      "wall": "E",
+      "natCm": [
+        225,
+        90,
+        76
+      ],
+      "natNote": "225×90×76 см"
+    },
+    {
+      "svgId": "furn-027",
+      "model": "C01",
+      "name": "Стул дубовый с обивкой",
+      "cx": 6.88,
+      "cy": 4.8,
+      "width": 0.40000000000000036,
+      "depth": 0.40000000000000036,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "S",
+      "natCm": [
+        50,
+        58,
+        89
+      ],
+      "natNote": "50×58×89 см"
+    },
+    {
+      "svgId": "furn-028",
+      "model": "C01",
+      "name": "Стул дубовый с обивкой",
+      "cx": 6.157,
+      "cy": 5.369,
+      "width": 0.40000000000000036,
+      "depth": 0.40000000000000036,
+      "frontDeg": 90.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "W",
+      "natCm": [
+        50,
+        58,
+        89
+      ],
+      "natNote": "50×58×89 см"
+    },
+    {
+      "svgId": "furn-029",
+      "model": "C01",
+      "name": "Стул дубовый с обивкой",
+      "cx": 7.602,
+      "cy": 5.369,
+      "width": 0.40000000000000036,
+      "depth": 0.3899999999999997,
+      "frontDeg": 270.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "E",
+      "natCm": [
+        50,
+        58,
+        89
+      ],
+      "natNote": "50×58×89 см"
+    },
+    {
+      "svgId": "furn-030",
+      "model": "C01",
+      "name": "Стул дубовый с обивкой",
+      "cx": 6.157,
+      "cy": 6.1690000000000005,
+      "width": 0.39999999999999947,
+      "depth": 0.40000000000000036,
+      "frontDeg": 90.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "W",
+      "natCm": [
+        50,
+        58,
+        89
+      ],
+      "natNote": "50×58×89 см"
+    },
+    {
+      "svgId": "furn-031",
+      "model": "C01",
+      "name": "Стул дубовый с обивкой",
+      "cx": 7.602,
+      "cy": 6.1690000000000005,
+      "width": 0.39999999999999947,
+      "depth": 0.3899999999999997,
+      "frontDeg": 270.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "E",
+      "natCm": [
+        50,
+        58,
+        89
+      ],
+      "natNote": "50×58×89 см"
+    },
+    {
+      "svgId": "furn-032",
+      "model": "C01",
+      "name": "Стул дубовый с обивкой",
+      "cx": 6.157,
+      "cy": 6.9190000000000005,
+      "width": 0.39999999999999947,
+      "depth": 0.40000000000000036,
+      "frontDeg": 90.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "W",
+      "natCm": [
+        50,
+        58,
+        89
+      ],
+      "natNote": "50×58×89 см"
+    },
+    {
+      "svgId": "furn-033",
+      "model": "C01",
+      "name": "Стул дубовый с обивкой",
+      "cx": 7.602,
+      "cy": 6.9190000000000005,
+      "width": 0.39999999999999947,
+      "depth": 0.3899999999999997,
+      "frontDeg": 270.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "E",
+      "natCm": [
+        50,
+        58,
+        89
+      ],
+      "natNote": "50×58×89 см"
+    },
+    {
+      "svgId": "furn-034",
+      "model": "C01",
+      "name": "Стул дубовый с обивкой",
+      "cx": 6.890000000000001,
+      "cy": 7.49,
+      "width": 0.39999999999999947,
+      "depth": 0.40000000000000036,
+      "frontDeg": 180.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "N",
+      "natCm": [
+        50,
+        58,
+        89
+      ],
+      "natNote": "50×58×89 см"
+    },
+    {
+      "svgId": "furn-035",
+      "model": "P02",
+      "name": "Стол письменный, орех",
+      "cx": -3.2945,
+      "cy": 18.0375,
+      "width": 1.4130000000000003,
+      "depth": 0.8790000000000013,
+      "frontDeg": 180.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "0.75",
+      "wall": "N",
+      "natCm": [
+        140,
+        65,
+        76
+      ],
+      "natNote": "140×65×76 см"
+    },
+    {
+      "svgId": "furn-036",
+      "model": "P02",
+      "name": "Стол письменный, орех",
+      "cx": -1.924,
+      "cy": 18.04,
+      "width": 1.4080000000000001,
+      "depth": 0.8719999999999999,
+      "frontDeg": 180.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "0.75",
+      "wall": "N",
+      "natCm": [
+        140,
+        65,
+        76
+      ],
+      "natNote": "140×65×76 см"
+    },
+    {
+      "svgId": "furn-037",
+      "model": "A01",
+      "name": "Кресло компьютерное",
+      "cx": -3.25,
+      "cy": 17.253,
+      "width": 0.4800000000000004,
+      "depth": 0.490000000000002,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "S",
+      "natCm": [
+        73,
+        70,
+        117
+      ],
+      "natNote": "73×70×117 см"
+    },
+    {
+      "svgId": "furn-038",
+      "model": "A01",
+      "name": "Кресло компьютерное",
+      "cx": -1.9040000000000001,
+      "cy": 17.403,
+      "width": 0.6320000000000001,
+      "depth": 0.6380000000000017,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "S",
+      "natCm": [
+        73,
+        70,
+        117
+      ],
+      "natNote": "73×70×117 см"
+    },
+    {
+      "svgId": "furn-039",
+      "model": "H17",
+      "name": "Комод с шуфлядками",
+      "cx": 0.398,
+      "cy": 18.275,
+      "width": 0.8,
+      "depth": 0.4499999999999993,
+      "frontDeg": 180.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "0.75",
+      "wall": "N",
+      "natCm": [
+        80,
+        45,
+        75
+      ],
+      "natNote": "80×45×75 см"
+    },
+    {
+      "svgId": "furn-040",
+      "model": "W07",
+      "name": "Шкаф сёдзи",
+      "cx": -1.2125,
+      "cy": 15.8405,
+      "width": 1.8289999999999997,
+      "depth": 0.5950000000000024,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "2.04",
+      "wall": "S",
+      "natCm": [
+        167,
+        69,
+        204
+      ],
+      "natNote": "167×69×204 см"
+    },
+    {
+      "svgId": "furn-041",
+      "model": "G03",
+      "name": "Секция с рубашками",
+      "cx": -2.08,
+      "cy": 14.165,
+      "width": 1.1440000000000001,
+      "depth": 0.5800000000000001,
+      "frontDeg": 270.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "2.20",
+      "wall": "E",
+      "natCm": [
+        90,
+        58,
+        220
+      ],
+      "natNote": "90×58×220 см"
+    },
+    {
+      "svgId": "furn-042",
+      "model": "G07",
+      "name": "Гардероб открытый, бельё",
+      "cx": 7.4735000000000005,
+      "cy": 16.841,
+      "width": 1.3710000000000004,
+      "depth": 0.5999999999999979,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "2.15",
+      "wall": "S",
+      "natCm": [
+        120,
+        60,
+        215
+      ],
+      "natNote": "120×60×215 см"
+    },
+    {
+      "svgId": "furn-043",
+      "model": "G07",
+      "name": "Гардероб открытый, бельё",
+      "cx": 6.033,
+      "cy": 14.911999999999999,
+      "width": 1.3559999999999999,
+      "depth": 0.5999999999999996,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "2.15",
+      "wall": "S",
+      "natCm": [
+        120,
+        60,
+        215
+      ],
+      "natNote": "120×60×215 см"
+    },
+    {
+      "svgId": "furn-044",
+      "model": "G03",
+      "name": "Секция с рубашками",
+      "cx": 9.207999999999998,
+      "cy": 11.210999999999999,
+      "width": 0.9000000000000004,
+      "depth": 0.5800000000000001,
+      "frontDeg": 270.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "2.20",
+      "wall": "E",
+      "natCm": [
+        90,
+        58,
+        220
+      ],
+      "natNote": "90×58×220 см"
+    },
+    {
+      "svgId": "furn-045",
+      "model": "G03",
+      "name": "Секция с рубашками",
+      "cx": 9.213000000000001,
+      "cy": 12.14,
+      "width": 0.9000000000000004,
+      "depth": 0.5800000000000001,
+      "frontDeg": 270.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "2.20",
+      "wall": "E",
+      "natCm": [
+        90,
+        58,
+        220
+      ],
+      "natNote": "90×58×220 см"
+    },
+    {
+      "svgId": "furn-046",
+      "model": "W08",
+      "name": "Шкаф жалюзийный",
+      "cx": 8.455,
+      "cy": 12.35,
+      "width": 0.870000000000001,
+      "depth": 0.5199999999999996,
+      "frontDeg": 180.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "1.48",
+      "wall": "N",
+      "natCm": [
+        87,
+        52,
+        148
+      ],
+      "natNote": "87×52×148 см"
+    },
+    {
+      "svgId": "furn-047",
+      "model": "K04",
+      "name": "Односпальная с бельём",
+      "cx": 2.1365,
+      "cy": 17.064999999999998,
+      "width": 1.5899999999999999,
+      "depth": 2.153,
+      "frontDeg": 90.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "1.27",
+      "wall": "W",
+      "natCm": [
+        108,
+        206,
+        127
+      ],
+      "natNote": "108×206×127 см"
+    },
+    {
+      "svgId": "furn-048",
+      "model": "N01",
+      "name": "Тумба REED 50 дуб",
+      "cx": 1.294,
+      "cy": 16.0,
+      "width": 0.5,
+      "depth": 0.5,
+      "frontDeg": 90.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "0.55",
+      "wall": "W",
+      "natCm": [
+        51,
+        48,
+        55
+      ],
+      "natNote": "51×48×55 см"
+    },
+    {
+      "svgId": "furn-049",
+      "model": "N01",
+      "name": "Тумба REED 50 дуб",
+      "cx": 1.294,
+      "cy": 18.15,
+      "width": 0.5,
+      "depth": 0.5,
+      "frontDeg": 90.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "0.55",
+      "wall": "W",
+      "natCm": [
+        51,
+        48,
+        55
+      ],
+      "natNote": "51×48×55 см"
+    },
+    {
+      "svgId": "furn-050",
+      "model": "W01",
+      "name": "Шкаф двустворчатый",
+      "cx": 4.6135,
+      "cy": 17.5465,
+      "width": 1.8589999999999982,
+      "depth": 0.5890000000000004,
+      "frontDeg": 270.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "2.10",
+      "wall": "E",
+      "natCm": [
+        120,
+        67,
+        210
+      ],
+      "natNote": "120×67×210 см"
+    },
+    {
+      "svgId": "furn-051",
+      "model": "P02",
+      "name": "Стол письменный, орех",
+      "cx": 4.0440000000000005,
+      "cy": 14.966999999999999,
+      "width": 1.694,
+      "depth": 0.7219999999999995,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "0.75",
+      "wall": "S",
+      "natCm": [
+        140,
+        65,
+        76
+      ],
+      "natNote": "140×65×76 см"
+    },
+    {
+      "svgId": "furn-052",
+      "model": "A02",
+      "name": "Кресло рабочее, ребристое",
+      "cx": 4.27,
+      "cy": 15.635,
+      "width": 0.39999999999999947,
+      "depth": 0.39000000000000057,
+      "frontDeg": 180.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "N",
+      "natCm": [
+        69,
+        75,
+        111
+      ],
+      "natNote": "69×75×111 см"
+    },
+    {
+      "svgId": "furn-053",
+      "model": "K01",
+      "name": "Кровать с мягким изголовьем",
+      "cx": 10.836,
+      "cy": 15.7,
+      "width": 1.879999999999999,
+      "depth": 2.1579999999999995,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "1.10",
+      "wall": "S",
+      "natCm": [
+        183,
+        254,
+        116
+      ],
+      "natNote": "183×254×116 см"
+    },
+    {
+      "svgId": "furn-054",
+      "model": "N01",
+      "name": "Тумба REED 50 дуб",
+      "cx": 9.598,
+      "cy": 14.86,
+      "width": 0.5,
+      "depth": 0.5,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "0.55",
+      "wall": "S",
+      "natCm": [
+        51,
+        48,
+        55
+      ],
+      "natNote": "51×48×55 см"
+    },
+    {
+      "svgId": "furn-055",
+      "model": "N01",
+      "name": "Тумба REED 50 дуб",
+      "cx": 12.072,
+      "cy": 14.889,
+      "width": 0.5,
+      "depth": 0.5,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "0.55",
+      "wall": "S",
+      "natCm": [
+        51,
+        48,
+        55
+      ],
+      "natNote": "51×48×55 см"
+    },
+    {
+      "svgId": "furn-056",
+      "model": "M01",
+      "name": "Стол макияжный",
+      "cx": 12.3655,
+      "cy": 18.189500000000002,
+      "width": 1.2249999999999996,
+      "depth": 0.5130000000000017,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "S",
+      "natCm": [
+        110,
+        47,
+        143
+      ],
+      "natNote": "110×47×143 см"
+    },
+    {
+      "svgId": "furn-057",
+      "model": "A02",
+      "name": "Кресло рабочее, ребристое",
+      "cx": 12.39,
+      "cy": 17.335,
+      "width": 0.40000000000000036,
+      "depth": 0.39000000000000057,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "S",
+      "natCm": [
+        69,
+        75,
+        111
+      ],
+      "natNote": "69×75×111 см"
+    },
+    {
+      "svgId": "furn-058",
+      "model": "K01",
+      "name": "Кровать с мягким изголовьем",
+      "cx": 10.834,
+      "cy": 11.741,
+      "width": 1.8900000000000006,
+      "depth": 2.1359999999999992,
+      "frontDeg": 90.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "1.10",
+      "wall": "W",
+      "natCm": [
+        183,
+        254,
+        116
+      ],
+      "natNote": "183×254×116 см"
+    },
+    {
+      "svgId": "furn-059",
+      "model": "N02",
+      "name": "Тумба прикроватная высокая",
+      "cx": 10.045,
+      "cy": 10.457,
+      "width": 0.6099999999999994,
+      "depth": 0.5499999999999989,
+      "frontDeg": 180.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "0.83",
+      "wall": "N",
+      "natCm": [
+        61,
+        55,
+        83
+      ],
+      "natNote": "61×55×83 см"
+    },
+    {
+      "svgId": "furn-060",
+      "model": "N02",
+      "name": "Тумба прикроватная высокая",
+      "cx": 10.048,
+      "cy": 13.015,
+      "width": 0.6099999999999994,
+      "depth": 0.5499999999999989,
+      "frontDeg": 180.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "0.83",
+      "wall": "N",
+      "natCm": [
+        61,
+        55,
+        83
+      ],
+      "natNote": "61×55×83 см"
+    },
+    {
+      "svgId": "furn-061",
+      "model": "M01",
+      "name": "Стол макияжный",
+      "cx": 12.42,
+      "cy": 14.115,
+      "width": 1.1000000000000014,
+      "depth": 0.46999999999999886,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "S",
+      "natCm": [
+        110,
+        47,
+        143
+      ],
+      "natNote": "110×47×143 см"
+    },
+    {
+      "svgId": "furn-062",
+      "model": "B04",
+      "name": "Пуф букле",
+      "cx": 12.648499999999999,
+      "cy": 13.497499999999999,
+      "width": 0.5069999999999997,
+      "depth": 0.49900000000000055,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "S",
+      "natCm": [
+        75,
+        75,
+        52
+      ],
+      "natNote": "75×75×52 см"
+    },
+    {
+      "svgId": "furn-063",
+      "model": "V03",
+      "name": "Ванна встроенная",
+      "cx": 2.2,
+      "cy": 11.805,
+      "width": 0.8,
+      "depth": 1.7100000000000009,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "S",
+      "natCm": [
+        80,
+        171,
+        53
+      ],
+      "natNote": "80×171×53 см"
+    },
+    {
+      "svgId": "furn-064",
+      "model": "W08",
+      "name": "Шкаф жалюзийный",
+      "cx": 3.3155,
+      "cy": 12.397,
+      "width": 1.177,
+      "depth": 0.4059999999999988,
+      "frontDeg": 180.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "1.48",
+      "wall": "N",
+      "natCm": [
+        87,
+        52,
+        148
+      ],
+      "natNote": "87×52×148 см"
+    },
+    {
+      "svgId": "furn-065",
+      "model": "R02",
+      "name": "Тумба с раковиной",
+      "cx": 4.432,
+      "cy": 11.190999999999999,
+      "width": 0.94,
+      "depth": 0.5600000000000005,
+      "frontDeg": 180.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "1.17",
+      "wall": "N",
+      "natCm": [
+        94,
+        56,
+        117
+      ],
+      "natNote": "94×56×117 см"
+    },
+    {
+      "svgId": "furn-066",
+      "model": "T01",
+      "name": "Унитаз компакт",
+      "cx": 3.375,
+      "cy": 11.2,
+      "width": 0.4500000000000002,
+      "depth": 0.5999999999999996,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "S",
+      "natCm": [
+        43,
+        74,
+        93
+      ],
+      "natNote": "43×74×93 см"
+    },
+    {
+      "svgId": "furn-067",
+      "model": "R02",
+      "name": "Тумба с раковиной",
+      "cx": 5.606,
+      "cy": 9.986,
+      "width": 0.9399999999999995,
+      "depth": 0.5600000000000005,
+      "frontDeg": 90.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "1.17",
+      "wall": "W",
+      "natCm": [
+        94,
+        56,
+        117
+      ],
+      "natNote": "94×56×117 см"
+    },
+    {
+      "svgId": "furn-068",
+      "model": "V03",
+      "name": "Ванна встроенная",
+      "cx": 6.244999999999999,
+      "cy": 12.24,
+      "width": 0.8000000000000007,
+      "depth": 1.71,
+      "frontDeg": 270.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "E",
+      "natCm": [
+        80,
+        171,
+        53
+      ],
+      "natNote": "80×171×53 см"
+    },
+    {
+      "svgId": "furn-069",
+      "model": "T01",
+      "name": "Унитаз компакт",
+      "cx": -1.2759999999999998,
+      "cy": 14.874500000000001,
+      "width": 0.4090000000000007,
+      "depth": 0.538,
+      "frontDeg": 90.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "W",
+      "natCm": [
+        43,
+        74,
+        93
+      ],
+      "natNote": "43×74×93 см"
+    },
+    {
+      "svgId": "furn-070",
+      "model": "R02",
+      "name": "Тумба с раковиной",
+      "cx": -1.332,
+      "cy": 13.975999999999999,
+      "width": 0.7580000000000009,
+      "depth": 0.44399999999999995,
+      "frontDeg": 270.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "1.17",
+      "wall": "E",
+      "natCm": [
+        94,
+        56,
+        117
+      ],
+      "natNote": "94×56×117 см"
+    },
+    {
+      "svgId": "furn-071",
+      "model": "B03",
+      "name": "Банкетка обеденная",
+      "cx": -2.575,
+      "cy": 11.219999999999999,
+      "width": 0.8699999999999997,
+      "depth": 0.5400000000000009,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "S",
+      "natCm": [
+        154,
+        54,
+        53
+      ],
+      "natNote": "154×54×53 см"
+    },
+    {
+      "svgId": "furn-072",
+      "model": "W08",
+      "name": "Шкаф жалюзийный",
+      "cx": -2.624,
+      "cy": 13.196000000000002,
+      "width": 0.8700000000000001,
+      "depth": 0.3179999999999996,
+      "frontDeg": 180.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "1.48",
+      "wall": "N",
+      "natCm": [
+        87,
+        52,
+        148
+      ],
+      "natNote": "87×52×148 см"
+    },
+    {
+      "svgId": "furn-073",
+      "model": "W06",
+      "name": "Комод высокий",
+      "cx": -1.708,
+      "cy": 13.1935,
+      "width": 0.8660000000000001,
+      "depth": 0.3049999999999997,
+      "frontDeg": 180.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "1.32",
+      "wall": "N",
+      "natCm": [
+        68,
+        49,
+        132
+      ],
+      "natNote": "68×49×132 см"
+    },
+    {
+      "svgId": "furn-074",
+      "model": "W06",
+      "name": "Комод высокий",
+      "cx": -2.519,
+      "cy": 8.841,
+      "width": 0.6799999999999997,
+      "depth": 0.48999999999999977,
+      "frontDeg": 270.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "1.32",
+      "wall": "E",
+      "natCm": [
+        68,
+        49,
+        132
+      ],
+      "natNote": "68×49×132 см"
+    },
+    {
+      "svgId": "furn-075",
+      "model": "X06",
+      "name": "Сундук",
+      "cx": -2.5155,
+      "cy": 9.597999999999999,
+      "width": 0.4950000000000001,
+      "depth": 0.702,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "S",
+      "natCm": [
+        83,
+        52,
+        50
+      ],
+      "natNote": "83×52×50 см"
+    },
+    {
+      "svgId": "furn-076",
+      "model": "W06",
+      "name": "Комод высокий",
+      "cx": -2.511,
+      "cy": 10.355,
+      "width": 0.6799999999999997,
+      "depth": 0.48999999999999977,
+      "frontDeg": 270.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "1.32",
+      "wall": "E",
+      "natCm": [
+        68,
+        49,
+        132
+      ],
+      "natNote": "68×49×132 см"
+    },
+    {
+      "svgId": "furn-077",
+      "model": "H17",
+      "name": "Комод с шуфлядками",
+      "cx": -0.575,
+      "cy": 9.448,
+      "width": 0.7279999999999998,
+      "depth": 0.45000000000000007,
+      "frontDeg": 270.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "0.75",
+      "wall": "E",
+      "natCm": [
+        80,
+        45,
+        75
+      ],
+      "natNote": "80×45×75 см"
+    },
+    {
+      "svgId": "furn-078",
+      "model": "H17",
+      "name": "Комод с шуфлядками",
+      "cx": -0.5820000000000001,
+      "cy": 8.682500000000001,
+      "width": 0.7569999999999997,
+      "depth": 0.43400000000000005,
+      "frontDeg": 270.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "0.75",
+      "wall": "E",
+      "natCm": [
+        80,
+        45,
+        75
+      ],
+      "natNote": "80×45×75 см"
+    },
+    {
+      "svgId": "furn-079",
+      "model": "W08",
+      "name": "Шкаф жалюзийный",
+      "cx": -0.537,
+      "cy": 10.264,
+      "width": 0.8699999999999992,
+      "depth": 0.40399999999999997,
+      "frontDeg": 270.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "1.48",
+      "wall": "E",
+      "natCm": [
+        87,
+        52,
+        148
+      ],
+      "natNote": "87×52×148 см"
+    },
+    {
+      "svgId": "furn-080",
+      "model": "H04",
+      "name": "Шкаф напольный",
+      "cx": -2.3085,
+      "cy": 3.1525,
+      "width": 0.827,
+      "depth": 0.5409999999999999,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "CAB_H",
+      "wall": "S",
+      "natCm": [
+        45,
+        45,
+        75
+      ],
+      "natNote": "45×45×75 см"
+    },
+    {
+      "svgId": "furn-081",
+      "model": "W08",
+      "name": "Шкаф жалюзийный",
+      "cx": 8.693999999999999,
+      "cy": 16.450499999999998,
+      "width": 1.0389999999999997,
+      "depth": 0.4620000000000015,
+      "frontDeg": 90.0,
+      "mirror": true,
+      "keepAspect": false,
+      "h": "1.48",
+      "wall": "W",
+      "natCm": [
+        87,
+        52,
+        148
+      ],
+      "natNote": "87×52×148 см"
+    },
+    {
+      "svgId": "furn-082",
+      "model": "W08",
+      "name": "Шкаф жалюзийный",
+      "cx": 9.446,
+      "cy": 18.261499999999998,
+      "width": 1.8919999999999995,
+      "depth": 0.4610000000000021,
+      "frontDeg": 180.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "1.48",
+      "wall": "N",
+      "natCm": [
+        87,
+        52,
+        148
+      ],
+      "natNote": "87×52×148 см"
+    },
+    {
+      "svgId": "furn-083",
+      "model": "G03",
+      "name": "Секция с рубашками",
+      "cx": 7.684,
+      "cy": 11.215,
+      "width": 0.8999999999999986,
+      "depth": 0.5800000000000001,
+      "frontDeg": 90.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "2.20",
+      "wall": "W",
+      "natCm": [
+        90,
+        58,
+        220
+      ],
+      "natNote": "90×58×220 см"
+    },
+    {
+      "svgId": "furn-084",
+      "model": "G03",
+      "name": "Секция с рубашками",
+      "cx": 7.684,
+      "cy": 12.155000000000001,
+      "width": 0.9000000000000004,
+      "depth": 0.5800000000000001,
+      "frontDeg": 90.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "2.20",
+      "wall": "W",
+      "natCm": [
+        90,
+        58,
+        220
+      ],
+      "natNote": "90×58×220 см"
+    },
+    {
+      "svgId": "furn-085",
+      "model": "T01",
+      "name": "Унитаз компакт",
+      "cx": 5.627,
+      "cy": 11.134,
+      "width": 0.4499999999999993,
+      "depth": 0.5999999999999996,
+      "frontDeg": 90.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "W",
+      "natCm": [
+        43,
+        74,
+        93
+      ],
+      "natNote": "43×74×93 см"
+    },
+    {
+      "svgId": "furn-086",
+      "model": "G03",
+      "name": "Секция с рубашками",
+      "cx": 6.045,
+      "cy": 16.848,
+      "width": 1.412,
+      "depth": 0.5800000000000018,
+      "frontDeg": 0.0,
+      "mirror": true,
+      "keepAspect": false,
+      "h": "2.20",
+      "wall": "S",
+      "natCm": [
+        90,
+        58,
+        220
+      ],
+      "natNote": "90×58×220 см"
+    },
+    {
+      "svgId": "furn-087",
+      "model": "G01",
+      "name": "Гардероб открытый",
+      "cx": 5.654,
+      "cy": 17.810499999999998,
+      "width": 1.3309999999999995,
+      "depth": 0.6579999999999995,
+      "frontDeg": 90.0,
+      "mirror": true,
+      "keepAspect": false,
+      "h": "2.08",
+      "wall": "W",
+      "natCm": [
+        172,
+        58,
+        208
+      ],
+      "natNote": "172×58×208 см"
+    },
+    {
+      "svgId": "furn-088",
+      "model": "G03",
+      "name": "Секция с рубашками",
+      "cx": 7.4670000000000005,
+      "cy": 14.924,
+      "width": 1.412,
+      "depth": 0.5800000000000001,
+      "frontDeg": 0.0,
+      "mirror": true,
+      "keepAspect": false,
+      "h": "2.20",
+      "wall": "S",
+      "natCm": [
+        90,
+        58,
+        220
+      ],
+      "natNote": "90×58×220 см"
+    },
+    {
+      "svgId": "furn-089",
+      "model": "X06",
+      "name": "Сундук",
+      "cx": 6.534,
+      "cy": 18.3105,
+      "width": 1.0579999999999998,
+      "depth": 0.3049999999999997,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "S",
+      "natCm": [
+        83,
+        52,
+        50
+      ],
+      "natNote": "83×52×50 см"
+    },
+    {
+      "svgId": "furn-090",
+      "model": "X06",
+      "name": "Сундук",
+      "cx": 7.655,
+      "cy": 18.3225,
+      "width": 1.0280000000000005,
+      "depth": 0.3049999999999997,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "S",
+      "natCm": [
+        83,
+        52,
+        50
+      ],
+      "natNote": "83×52×50 см"
+    },
+    {
+      "svgId": "furn-091",
+      "model": "G01",
+      "name": "Гардероб открытый",
+      "cx": 7.87,
+      "cy": 15.7795,
+      "width": 1.0250000000000021,
+      "depth": 0.6579999999999995,
+      "frontDeg": 270.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "2.08",
+      "wall": "E",
+      "natCm": [
+        172,
+        58,
+        208
+      ],
+      "natNote": "172×58×208 см"
+    },
+    {
+      "svgId": "furn-092",
+      "model": "W07",
+      "name": "Шкаф сёдзи",
+      "cx": -3.0940000000000003,
+      "cy": 15.8295,
+      "width": 1.8300000000000005,
+      "depth": 0.5949999999999989,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "2.04",
+      "wall": "S",
+      "natCm": [
+        167,
+        69,
+        204
+      ],
+      "natNote": "167×69×204 см"
+    },
+    {
+      "svgId": "furn-093",
+      "model": "G03",
+      "name": "Секция с рубашками",
+      "cx": -3.4465,
+      "cy": 15.036000000000001,
+      "width": 1.1109999999999998,
+      "depth": 0.5800000000000001,
+      "frontDeg": 180.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "2.20",
+      "wall": "N",
+      "natCm": [
+        90,
+        58,
+        220
+      ],
+      "natNote": "90×58×220 см"
+    },
+    {
+      "svgId": "furn-094",
+      "model": "G03",
+      "name": "Секция с рубашками",
+      "cx": -2.3305000000000002,
+      "cy": 15.038,
+      "width": 1.0850000000000002,
+      "depth": 0.5800000000000001,
+      "frontDeg": 180.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "2.20",
+      "wall": "N",
+      "natCm": [
+        90,
+        58,
+        220
+      ],
+      "natNote": "90×58×220 см"
+    },
+    {
+      "svgId": "furn-095",
+      "model": "X06",
+      "name": "Сундук",
+      "cx": -1.7305000000000001,
+      "cy": 7.9955,
+      "width": 0.5610000000000002,
+      "depth": 0.593,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "S",
+      "natCm": [
+        83,
+        52,
+        50
+      ],
+      "natNote": "83×52×50 см"
+    },
+    {
+      "svgId": "furn-096",
+      "model": "X06",
+      "name": "Сундук",
+      "cx": -1.1495,
+      "cy": 7.996499999999999,
+      "width": 0.5609999999999999,
+      "depth": 0.5929999999999991,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "S",
+      "natCm": [
+        83,
+        52,
+        50
+      ],
+      "natNote": "83×52×50 см"
+    },
+    {
+      "svgId": "furn-097",
+      "model": "X06",
+      "name": "Сундук",
+      "cx": -0.6074999999999999,
+      "cy": 7.9855,
+      "width": 0.473,
+      "depth": 0.593,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "S",
+      "natCm": [
+        83,
+        52,
+        50
+      ],
+      "natNote": "83×52×50 см"
+    },
+    {
+      "svgId": "furn-098",
+      "model": "X06",
+      "name": "Сундук",
+      "cx": -2.5225,
+      "cy": 8.084,
+      "width": 0.4950000000000001,
+      "depth": 0.7020000000000008,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "S",
+      "natCm": [
+        83,
+        52,
+        50
+      ],
+      "natNote": "83×52×50 см"
+    },
+    {
+      "svgId": "furn-099",
+      "model": "J03",
+      "name": "Столик барабан",
+      "cx": -3.7205000000000004,
+      "cy": 7.9895000000000005,
+      "width": 0.5870000000000002,
+      "depth": 0.5890000000000004,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "S",
+      "natCm": [
+        78,
+        78,
+        38
+      ],
+      "natNote": "78×78×38 см"
+    },
+    {
+      "svgId": "furn-100",
+      "model": "J03",
+      "name": "Столик барабан",
+      "cx": -3.1045,
+      "cy": 8.0025,
+      "width": 0.6110000000000002,
+      "depth": 0.5970000000000004,
+      "frontDeg": 0.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": null,
+      "wall": "S",
+      "natCm": [
+        78,
+        78,
+        38
+      ],
+      "natNote": "78×78×38 см"
+    },
+    {
+      "svgId": "furn-101",
+      "model": "W08",
+      "name": "Шкаф жалюзийный",
+      "cx": 6.987,
+      "cy": 11.096,
+      "width": 1.0760000000000005,
+      "depth": 0.3680000000000003,
+      "frontDeg": 270.0,
+      "mirror": false,
+      "keepAspect": false,
+      "h": "1.48",
+      "wall": "E",
+      "natCm": [
+        87,
+        52,
+        148
+      ],
+      "natNote": "87×52×148 см"
+    }
+  ]
+}

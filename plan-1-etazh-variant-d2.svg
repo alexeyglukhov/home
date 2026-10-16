@@ -5,7 +5,7 @@
    viewBox="-150 -82 404 274"
    version="1.1"
    id="svg496"
-   sodipodi:docname="plan-1-etazh-variant-d.svg"
+   sodipodi:docname="plan-1-etazh-variant-d2.svg"
    inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -46,11 +46,11 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="2.0000001"
-     inkscape:cx="110.5"
-     inkscape:cy="353.99999"
+     inkscape:zoom="2.8284273"
+     inkscape:cx="1009.3949"
+     inkscape:cy="503.63678"
      inkscape:window-width="2560"
-     inkscape:window-height="1368"
+     inkscape:window-height="1362"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -2280,7 +2280,7 @@
   </g>
   <g
      id="san-bath-toilet"
-     transform="rotate(180,141.14873,54.059032)"
+     transform="rotate(180,141.21891,54.059032)"
      style="opacity:0.3;fill:#ffffff;stroke:#000000;stroke-width:0.24;stroke-linejoin:round">
     <rect
        x="175.41"
@@ -3132,7 +3132,7 @@
   </g>
   <g
      id="g3303"
-     transform="matrix(-1,0,0,-1.1085714,323.27454,127.12226)"
+     transform="matrix(-1,0,0,-1.1085714,322.66157,126.93434)"
      style="opacity:0.3;fill:#ffffff;stroke:#000000;stroke-width:0.227945;stroke-linejoin:round">
     <rect
        x="176.33"
@@ -3162,7 +3162,7 @@
   </g>
   <g
      id="g3309"
-     transform="rotate(90,168.19913,38.969821)"
+     transform="matrix(0,1,1,0,61.863439,-132.06433)"
      style="opacity:0.3;fill:#ffffff;stroke:#000000;stroke-width:0.24;stroke-linejoin:round">
     <rect
        x="175.41"
@@ -3179,84 +3179,47 @@
        id="ellipse3307"
        transform="translate(0,4)" />
   </g>
-  <rect
-     x="-130.06972"
-     y="-51.905457"
-     width="4.1798682"
-     height="11.968412"
-     rx="0.24999212"
-     id="rect2556"
-     style="opacity:0.3;fill:#ffffff;stroke:#000000;stroke-width:0.240003;stroke-linejoin:round"
-     transform="scale(-1)" />
   <g
-     id="g2561"
-     transform="translate(0.12079078,-15.81694)">
+     id="g9253"
+     transform="translate(-0.603956,11.188139)">
     <rect
-       x="-129.95869"
-       y="-64.282837"
+       x="-130.06972"
+       y="-51.905457"
        width="4.1798682"
-       height="4.9304419"
+       height="11.968412"
        rx="0.24999212"
-       id="rect3362"
-       style="opacity:0.3;fill:#ffffff;stroke:#000000;stroke-width:0.240001;stroke-linejoin:round"
+       id="rect2556"
+       style="opacity:0.3;fill:#ffffff;stroke:#000000;stroke-width:0.240003;stroke-linejoin:round"
        transform="scale(-1)" />
-    <ellipse
-       cx="-127.85877"
-       cy="-61.817616"
-       rx="1.1499637"
-       ry="1.3695672"
-       id="ellipse3364"
-       style="opacity:0.3;fill:#ffffff;stroke:#000000;stroke-width:0.240001;stroke-linejoin:round"
-       transform="scale(-1)" />
-    <ellipse
-       cx="-126.30882"
-       cy="-61.817616"
-       style="opacity:0.3;fill:none;stroke:#000000;stroke-width:0.240001;stroke-linejoin:round"
-       id="circle3366"
-       transform="scale(-1)"
-       rx="0.1999937"
-       ry="0.21913074" />
-  </g>
-  <g
-     id="g1843"
-     transform="matrix(0.89617537,0,0,0.89754069,13.342369,-6.8698204)"
-     style="stroke-width:1.11501">
-    <rect
-       x="-139.35136"
-       y="-77.828812"
-       width="9.7599993"
-       height="9.7599993"
-       rx="0.58373201"
-       id="rect3343"
-       style="opacity:0.3;fill:#ffffff;stroke:#000000;stroke-width:0.267601;stroke-linejoin:round"
-       transform="rotate(180,-2,0)" />
-    <rect
-       x="-132.01849"
-       y="-76.222946"
-       width="0.73411417"
-       height="0.72169614"
-       rx="0.04390635"
-       id="rect3370"
-       style="opacity:0.3;fill:#ffffff;stroke:#000000;stroke-width:0.267602;stroke-linejoin:round"
-       transform="rotate(180,-2,0)" />
-    <rect
-       x="-139.35136"
-       y="-68.654892"
-       width="9.7599993"
-       height="0.58608347"
-       rx="0.58373201"
-       id="rect3372"
-       style="opacity:0.3;fill:#ffffff;stroke:#000000;stroke-width:0.267601;stroke-linejoin:round"
-       transform="rotate(180,-2,0)" />
-    <rect
-       x="-139.35136"
-       y="-77.828812"
-       width="0.62234759"
-       height="9.7599993"
-       rx="0.037221748"
-       id="rect3374"
-       style="opacity:0.3;fill:#ffffff;stroke:#000000;stroke-width:0.267601;stroke-linejoin:round"
-       transform="rotate(180,-2,0)" />
+    <g
+       id="g2561"
+       transform="translate(0.12079078,-15.81694)">
+      <rect
+         x="-129.95869"
+         y="-64.282837"
+         width="4.1798682"
+         height="4.9304419"
+         rx="0.24999212"
+         id="rect3362"
+         style="opacity:0.3;fill:#ffffff;stroke:#000000;stroke-width:0.240001;stroke-linejoin:round"
+         transform="scale(-1)" />
+      <ellipse
+         cx="-127.85877"
+         cy="-61.817616"
+         rx="1.1499637"
+         ry="1.3695672"
+         id="ellipse3364"
+         style="opacity:0.3;fill:#ffffff;stroke:#000000;stroke-width:0.240001;stroke-linejoin:round"
+         transform="scale(-1)" />
+      <ellipse
+         cx="-126.30882"
+         cy="-61.817616"
+         style="opacity:0.3;fill:none;stroke:#000000;stroke-width:0.240001;stroke-linejoin:round"
+         id="circle3366"
+         transform="scale(-1)"
+         rx="0.1999937"
+         ry="0.21913074" />
+    </g>
   </g>
   <g
      id="g4126"
@@ -4219,18 +4182,6 @@
   </g>
   <text
      class="rmeta"
-     x="134.71103"
-     y="49.701881"
-     text-anchor="middle"
-     id="text706">5,99 м²</text>
-  <text
-     class="rmeta"
-     x="134.71103"
-     y="51.501884"
-     text-anchor="middle"
-     id="text708">1,87×3,21</text>
-  <text
-     class="rmeta"
      x="182.75624"
      y="27.266918"
      text-anchor="middle"
@@ -4400,29 +4351,6 @@
      x="-191.22607"
      y="64.182732"
      transform="scale(-1,1)" />
-  <g
-     transform="rotate(-90,90.946259,-48.231395)"
-     id="g7216">
-    <g
-       class="upright"
-       transform="rotate(90)"
-       id="g7214">
-      <text
-         class="rname"
-         y="1.5537401"
-         id="text7208"
-         x="-0.10028661"
-         transform="translate(-4)"><tspan
-           sodipodi:role="line"
-           id="tspan7218"
-           x="-0.10028643"
-           y="1.5537401">Мастер-</tspan><tspan
-           sodipodi:role="line"
-           id="tspan7220"
-           x="-0.10028671"
-           y="4.30374">ванная</tspan></text>
-    </g>
-  </g>
   <g
      id="g2585"
      transform="rotate(90,130.6775,155.32128)">
@@ -5898,4 +5826,43 @@
      stroke-width="1.28566"
      stroke-linecap="butt"
      style="stroke-width:0.422;stroke-dasharray:none" />
+  <g
+     id="g1131"
+     transform="translate(-0.33189282,-0.55918777)">
+    <text
+       class="rmeta"
+       x="136.82681"
+       y="49.665642"
+       text-anchor="middle"
+       id="text706">5,99 м²</text>
+    <text
+       class="rmeta"
+       x="136.64168"
+       y="51.328758"
+       text-anchor="middle"
+       id="text708">1,87×3,21</text>
+    <g
+       transform="rotate(-90,92.081856,-49.042655)"
+       id="g7216">
+      <g
+         class="upright"
+         transform="rotate(90)"
+         id="g7214">
+        <text
+           class="rname"
+           y="1.5537401"
+           id="text7208"
+           x="-0.10028661"
+           transform="translate(-4)"><tspan
+             sodipodi:role="line"
+             id="tspan7218"
+             x="-0.10028643"
+             y="1.5537401">Мастер-</tspan><tspan
+             sodipodi:role="line"
+             id="tspan7220"
+             x="-0.10028671"
+             y="4.30374">ванная</tspan></text>
+      </g>
+    </g>
+  </g>
 </svg>

@@ -555,23 +555,19 @@
           <rect x="176.85001" y="79.75" width="15.9" height="5.96" rx="0.5" style="fill:none;stroke-width:0.227945" id="p-rect3299" transform="translate(4)"/>
           <circle cx="191.3" cy="82.730003" r="0.31999999" style="fill:none;stroke-width:0.227945" id="p-circle3301" transform="translate(4)"/>
         </g>
-        <g id="p-g3309" transform="rotate(90,160.69456,46.363368)" style="opacity:0.3;fill:#ffffff;stroke:#000000;stroke-width:0.24;stroke-linejoin:round">
+        <g id="p-g3309" transform="matrix(0,1,1,0,61.67565,-117.71195)" style="opacity:0.3;fill:#ffffff;stroke:#000000;stroke-width:0.24;stroke-linejoin:round">
           <rect x="175.41" y="59.59" width="3.5999999" height="1.6" id="p-rect3305" transform="translate(0,4)"/>
           <ellipse cx="177.21001" cy="63.150002" rx="1.8" ry="2.05" id="p-ellipse3307" transform="translate(0,4)"/>
         </g>
-        <rect x="-129.95869" y="-66.803574" width="4.1798682" height="11.968412" rx="0.24999212" id="p-rect2556" style="opacity:0.3;fill:#ffffff;stroke:#000000;stroke-width:0.240003;stroke-linejoin:round" transform="scale(-1)"/>
-        <g id="p-g2561" transform="translate(0.00976884,-0.91882329)">
-          <rect x="-129.95869" y="-64.282837" width="4.1798682" height="4.9304419" rx="0.24999212" id="p-rect3362" style="opacity:0.3;fill:#ffffff;stroke:#000000;stroke-width:0.240001;stroke-linejoin:round" transform="scale(-1)"/>
-          <ellipse cx="-127.85877" cy="-61.817616" rx="1.1499637" ry="1.3695672" id="p-ellipse3364" style="opacity:0.3;fill:#ffffff;stroke:#000000;stroke-width:0.240001;stroke-linejoin:round" transform="scale(-1)"/>
-          <ellipse cx="-126.30882" cy="-61.817616" style="opacity:0.3;fill:none;stroke:#000000;stroke-width:0.240001;stroke-linejoin:round" id="p-circle3366" transform="scale(-1)" rx="0.1999937" ry="0.21913074"/>
-        </g>
-        <g id="p-g1843" transform="matrix(0.89617537,0,0,0.89754069,13.231347,8.0282959)" style="stroke-width:1.11501">
-          <rect x="-139.35136" y="-77.828812" width="9.7599993" height="9.7599993" rx="0.58373201" id="p-rect3343" style="opacity:0.3;fill:#ffffff;stroke:#000000;stroke-width:0.267601;stroke-linejoin:round" transform="rotate(180,-2,0)"/>
-          <rect x="-132.01849" y="-76.222946" width="0.73411417" height="0.72169614" rx="0.04390635" id="p-rect3370" style="opacity:0.3;fill:#ffffff;stroke:#000000;stroke-width:0.267602;stroke-linejoin:round" transform="rotate(180,-2,0)"/>
-          <rect x="-139.35136" y="-68.654892" width="9.7599993" height="0.58608347" rx="0.58373201" id="p-rect3372" style="opacity:0.3;fill:#ffffff;stroke:#000000;stroke-width:0.267601;stroke-linejoin:round" transform="rotate(180,-2,0)"/>
-          <rect x="-139.35136" y="-77.828812" width="0.62234759" height="9.7599993" rx="0.037221748" id="p-rect3374" style="opacity:0.3;fill:#ffffff;stroke:#000000;stroke-width:0.267601;stroke-linejoin:round" transform="rotate(180,-2,0)"/>
-        </g>
-        <g id="p-g4126" style="opacity:0.3;stroke-width:0.956462" transform="matrix(0,-6.3108954,5.4069125,0,-350.94327,440.04207)">
+        <g id="p-g9253" transform="translate(-0.63857,25.15553)">
+    <rect x="-130.06972" y="-51.905457" width="4.1798682" height="11.968412" rx="0.24999212" id="p-rect2556" style="opacity:0.3;fill:#ffffff;stroke:#000000;stroke-width:0.240003;stroke-linejoin:round" transform="scale(-1)"/>
+    <g id="p-g2561" transform="translate(0.12079078,-15.81694)">
+      <rect x="-129.95869" y="-64.282837" width="4.1798682" height="4.9304419" rx="0.24999212" id="p-rect3362" style="opacity:0.3;fill:#ffffff;stroke:#000000;stroke-width:0.240001;stroke-linejoin:round" transform="scale(-1)"/>
+      <ellipse cx="-127.85877" cy="-61.817616" rx="1.1499637" ry="1.3695672" id="p-ellipse3364" style="opacity:0.3;fill:#ffffff;stroke:#000000;stroke-width:0.240001;stroke-linejoin:round" transform="scale(-1)"/>
+      <ellipse cx="-126.30882" cy="-61.817616" style="opacity:0.3;fill:none;stroke:#000000;stroke-width:0.240001;stroke-linejoin:round" id="p-circle3366" transform="scale(-1)" rx="0.1999937" ry="0.21913074"/>
+    </g>
+  </g>
+  <g id="p-g4126" style="opacity:0.3;stroke-width:0.956462" transform="matrix(0,-6.3108954,5.4069125,0,-350.94327,440.04207)">
           <rect style="fill:#ffffff;stroke:#000000;stroke-width:0.041801;stroke-dasharray:none" id="p-rect4098" width="0.65630001" height="1.63588" x="-62.36832" y="-95.42038" transform="matrix(-1.00000000,0.00000000,0.00000000,-1.00000000,0.00000000,-0.73979374)"/>
           <rect style="fill:#000000;stroke:none;stroke-width:0.00421161;stroke-dasharray:none" id="p-rect4100" width="0.02802" height="0.48063001" x="-82.171516" y="-77.270943" transform="matrix(0.16906013,-0.98560574,-0.98560574,-0.16906013,0.00000000,-0.73979374)"/>
           <rect style="fill:#000000;stroke:none;stroke-width:0.00421161;stroke-dasharray:none" id="p-rect4102" width="0.02802" height="0.48063001" x="-82.261368" y="-77.303368" transform="matrix(0.16906013,-0.98560574,-0.98560574,-0.16906013,0.00000000,-0.73979374)"/>
@@ -741,8 +737,8 @@
           <text class="rname" x="40" y="172" text-anchor="start" id="p-text701" transform="matrix(0.94531661,0.32615411,-0.32615411,0.94531661,58.28584335,2.25595847)">Общая  194,81 м²</text>
           <text class="rmeta" x="40" y="175.2" text-anchor="start" id="p-text703" transform="matrix(0.94531661,0.32615411,-0.32615411,0.94531661,59.32953651,2.43094531)">Жилые и подсобные, без крыльца</text>
         </g>
-        <text class="rmeta" x="138.6" y="64.6" text-anchor="middle" id="p-text706" transform="matrix(0.94531661,0.32615411,-0.32615411,0.94531661,24.64867365,-41.67241333)">5,99 м²</text>
-        <text class="rmeta" x="138.6" y="66.4" text-anchor="middle" id="p-text708" transform="matrix(0.94531661,0.32615411,-0.32615411,0.94531661,25.23575106,-41.57398323)">1,87×3,21</text>
+        <text class="rmeta" x="136.71579" y="64.56376" text-anchor="middle" id="p-text706" transform="matrix(0.94531661,0.32615411,-0.32615411,0.94531661,24.64867365,-41.67241333)">5,99 м²</text>
+        <text class="rmeta" x="136.53066" y="66.22688" text-anchor="middle" id="p-text708" transform="matrix(0.94531661,0.32615411,-0.32615411,0.94531661,25.23575106,-41.57398323)">1,87×3,21</text>
         <text class="rmeta" x="182.64522" y="42.165035" text-anchor="middle" id="p-text710" transform="matrix(0.94531661,0.32615411,-0.32615411,0.94531661,23.73995944,-57.26476301)">16,38 м² 3,30×4,97</text>
         <rect style="font-variation-settings:normal;vector-effect:none;fill:#ffdd55;fill-opacity:1;stroke:#000000;stroke-width:0.265397;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000" id="p-rect965" width="19.734602" height="2.0809999" x="92.028084" y="13.375983" transform="scale(1,-1)"/>
         <rect style="font-variation-settings:normal;vector-effect:none;fill:#ffdd55;fill-opacity:1;stroke:#000000;stroke-width:0.265397;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000" id="p-rect1089" width="5.7346029" height="2.0809999" x="-142.24596" y="79.126999" transform="scale(-1,1)"/>
@@ -765,7 +761,7 @@
           <rect style="fill:#000000;stroke:none;stroke-width:0.00494049;stroke-dasharray:none" id="p-rect1126" width="0.02802" height="0.48063001" x="73.028542" y="-86.842262" transform="rotate(106.64428)"/>
           <rect style="fill:#000000;stroke:none;stroke-width:0.00494049;stroke-dasharray:none" id="p-rect1128" width="0.02802" height="0.48063001" x="83.709579" y="-76.454887" transform="rotate(99.078583)"/>
         </g>
-        <g transform="rotate(-90,98.339806,-40.726826)" id="p-g7216">
+        <g transform="rotate(-90,91.97083,-34.14454)" id="p-g7216">
           <g class="upright" transform="rotate(90)" id="p-g7214">
             <text class="rname" y="1.5537401" id="p-text7208" x="-0.10028661" transform="matrix(0.94531661,0.32615411,-0.32615411,0.94531661,-3.49872528,0.11767267)"><tspan sodipodi:role="line" id="p-tspan7218" x="-0.10028643" y="1.5537401">Мастер-</tspan><tspan sodipodi:role="line" id="p-tspan7220" x="-0.10028671" y="4.30374">ванная</tspan></text>
           </g>

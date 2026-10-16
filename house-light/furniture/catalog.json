@@ -1,0 +1,1389 @@
+{
+  "license": "CC0",
+  "credit": "CC0: Innerscene и Poly Haven. Размер: ширина × глубина × высота, см.",
+  "groups": [
+    {
+      "id": "D",
+      "title": "Диваны"
+    },
+    {
+      "id": "K",
+      "title": "Кровати"
+    },
+    {
+      "id": "W",
+      "title": "Шкафы"
+    },
+    {
+      "id": "G",
+      "title": "Гардеробы"
+    },
+    {
+      "id": "C",
+      "title": "Стулья"
+    },
+    {
+      "id": "S",
+      "title": "Столы"
+    },
+    {
+      "id": "A",
+      "title": "Кресла"
+    },
+    {
+      "id": "P",
+      "title": "Компьютерные столы"
+    },
+    {
+      "id": "M",
+      "title": "Макияж"
+    },
+    {
+      "id": "B",
+      "title": "Банкетки"
+    },
+    {
+      "id": "N",
+      "title": "Прикроватные тумбы"
+    },
+    {
+      "id": "H",
+      "title": "Кухня"
+    },
+    {
+      "id": "J",
+      "title": "Журнальные"
+    },
+    {
+      "id": "V",
+      "title": "Ванные"
+    },
+    {
+      "id": "T",
+      "title": "Унитазы"
+    },
+    {
+      "id": "R",
+      "title": "Раковины"
+    },
+    {
+      "id": "X",
+      "title": "Коробки"
+    }
+  ],
+  "items": [
+    {
+      "id": "D01",
+      "group": "D",
+      "name": "Диван двухместный",
+      "file": "models/D01.glb",
+      "cm": [
+        228,
+        93,
+        92
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/haven-224-oatmeal-two-seat-sofa-40262c27"
+    },
+    {
+      "id": "D02",
+      "group": "D",
+      "name": "Диван трёхместный низкий",
+      "file": "models/D02.glb",
+      "cm": [
+        260,
+        95,
+        84
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/lowline-low-three-seat-sofa-4bb27e8c"
+    },
+    {
+      "id": "D03",
+      "group": "D",
+      "name": "Диван букле, дуга",
+      "file": "models/D03.glb",
+      "cm": [
+        264,
+        115,
+        92
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/crescent-curved-boucle-sofa-90c9ad84"
+    },
+    {
+      "id": "D04",
+      "group": "D",
+      "name": "Диван честерфилд",
+      "file": "models/D04.glb",
+      "cm": [
+        242,
+        89,
+        93
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/regent-chesterfield-sofa-cbfb5b70"
+    },
+    {
+      "id": "D05",
+      "group": "D",
+      "name": "Диван с каретной стяжкой",
+      "file": "models/D05.glb",
+      "cm": [
+        233,
+        87,
+        100
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/flute-channel-tufted-sofa-9a6d1e84"
+    },
+    {
+      "id": "D06",
+      "group": "D",
+      "name": "Диван смокинг",
+      "file": "models/D06.glb",
+      "cm": [
+        224,
+        89,
+        94
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/boxwell-tuxedo-sofa-defac53d"
+    },
+    {
+      "id": "D07",
+      "group": "D",
+      "name": "Диван уличный",
+      "file": "models/D07.glb",
+      "cm": [
+        221,
+        95,
+        88
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/coast-three-seat-outdoor-sofa-30a2b0e5"
+    },
+    {
+      "id": "D08",
+      "group": "D",
+      "name": "Кушетка",
+      "file": "models/D08.glb",
+      "cm": [
+        260,
+        174,
+        90
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/chaise-sofa-original-interior-furnishing-93524551"
+    },
+    {
+      "id": "K01",
+      "group": "K",
+      "name": "Кровать с мягким изголовьем",
+      "file": "models/K01.glb",
+      "cm": [
+        183,
+        254,
+        116
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/sweep-160-upholstered-sleigh-bed-eb63225c"
+    },
+    {
+      "id": "K02",
+      "group": "K",
+      "name": "Кровать с точёными стойками",
+      "file": "models/K02.glb",
+      "cm": [
+        170,
+        215,
+        106
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/spindle-spindle-frame-bed-e3b52566"
+    },
+    {
+      "id": "K03",
+      "group": "K",
+      "name": "Кровать-платформа",
+      "file": "models/K03.glb",
+      "cm": [
+        195,
+        228,
+        57
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/tatami-low-platform-bed-3e8a3cb6"
+    },
+    {
+      "id": "K04",
+      "group": "K",
+      "name": "Односпальная с бельём",
+      "file": "models/K04.glb",
+      "cm": [
+        108,
+        206,
+        127
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/single-bed-with-bedding-original-interior-furnishing-6cc48cf8"
+    },
+    {
+      "id": "K05",
+      "group": "K",
+      "name": "Кровать с подъёмом",
+      "file": "models/K05.glb",
+      "cm": [
+        114,
+        216,
+        127
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/adjustable-home-bed-with-bedding-original-interior-furnishin-428e11ca"
+    },
+    {
+      "id": "K06",
+      "group": "K",
+      "name": "Тахта",
+      "file": "models/K06.glb",
+      "cm": [
+        196,
+        80,
+        72
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/siesta-midcentury-daybed-79f53296"
+    },
+    {
+      "id": "K07",
+      "group": "K",
+      "name": "Кровать с изголовьем и банкеткой",
+      "file": "models/K07.glb",
+      "cm": [
+        265,
+        282,
+        135
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/hotel-bed-with-headboard-and-bench-original-hotel-furnishing-700471ba"
+    },
+    {
+      "id": "W01",
+      "group": "W",
+      "name": "Шкаф двустворчатый",
+      "file": "models/W01.glb",
+      "cm": [
+        120,
+        67,
+        210
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/two-door-wardrobe-original-interior-furnishing-34cd4585"
+    },
+    {
+      "id": "W02",
+      "group": "W",
+      "name": "Шкаф трёхстворчатый",
+      "file": "models/W02.glb",
+      "cm": [
+        180,
+        67,
+        210
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/three-door-wardrobe-original-interior-furnishing-4bc43436"
+    },
+    {
+      "id": "W03",
+      "group": "W",
+      "name": "Шкаф-купе",
+      "file": "models/W03.glb",
+      "cm": [
+        240,
+        71,
+        230
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/sliding-door-wardrobe-original-interior-furnishing-36f92e08"
+    },
+    {
+      "id": "W04",
+      "group": "W",
+      "name": "Шкаф с текстильными дверцами",
+      "file": "models/W04.glb",
+      "cm": [
+        123,
+        68,
+        212
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/linea-120-textile-panel-wardrobe-d7898f5e"
+    },
+    {
+      "id": "W05",
+      "group": "W",
+      "name": "Шкаф угловой",
+      "file": "models/W05.glb",
+      "cm": [
+        128,
+        128,
+        209
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/angle-corner-wardrobe-f2608372"
+    },
+    {
+      "id": "W06",
+      "group": "W",
+      "name": "Комод высокий",
+      "file": "models/W06.glb",
+      "cm": [
+        68,
+        49,
+        132
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/tier-65-tall-drawer-chest-8db735a7"
+    },
+    {
+      "id": "W07",
+      "group": "W",
+      "name": "Шкаф сёдзи",
+      "file": "models/W07.glb",
+      "cm": [
+        167,
+        69,
+        204
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/screen-shoji-wardrobe-dad72a5d"
+    },
+    {
+      "id": "W08",
+      "group": "W",
+      "name": "Шкаф жалюзийный",
+      "file": "models/W08.glb",
+      "cm": [
+        87,
+        52,
+        148
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/breeze-louvered-cabinet-0214540b"
+    },
+    {
+      "id": "G01",
+      "group": "G",
+      "name": "Гардероб открытый",
+      "file": "models/G01.glb",
+      "cm": [
+        172,
+        58,
+        208
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/rail-open-wardrobe-971aa06b"
+    },
+    {
+      "id": "G02",
+      "group": "G",
+      "name": "Рейка с плечиками",
+      "file": "models/G02.glb",
+      "cm": [
+        134,
+        48,
+        167
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/open-clothes-rail-original-interior-furnishing-911481fb"
+    },
+    {
+      "id": "G03",
+      "group": "G",
+      "name": "Секция с рубашками",
+      "file": "models/G03.glb",
+      "cm": [
+        90,
+        58,
+        220
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/walk-in-hanging-module-original-interior-furnishing-fecff0c5"
+    },
+    {
+      "id": "G04",
+      "group": "G",
+      "name": "Секция с полками",
+      "file": "models/G04.glb",
+      "cm": [
+        60,
+        50,
+        220
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/walk-in-shelf-module-original-interior-furnishing-8c4f9190"
+    },
+    {
+      "id": "G05",
+      "group": "G",
+      "name": "Секция с ящиками",
+      "file": "models/G05.glb",
+      "cm": [
+        90,
+        62,
+        120
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/walk-in-drawer-module-original-interior-furnishing-377c0d94"
+    },
+    {
+      "id": "G06",
+      "group": "G",
+      "name": "Секция угловая",
+      "file": "models/G06.glb",
+      "cm": [
+        120,
+        120,
+        220
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/corner-closet-module-original-interior-furnishing-528b77a5"
+    },
+    {
+      "id": "G07",
+      "group": "G",
+      "name": "Гардероб открытый, бельё",
+      "file": "models/G07.glb",
+      "cm": [
+        120,
+        60,
+        215
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/open-wardrobe-original-hotel-furnishing-748bf323"
+    },
+    {
+      "id": "G08",
+      "group": "G",
+      "name": "Органайзер на плечики",
+      "file": "models/G08.glb",
+      "cm": [
+        30,
+        29,
+        110
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/hanging-six-closet-organizer-857ea1a0"
+    },
+    {
+      "id": "C01",
+      "group": "C",
+      "name": "Стул дубовый с обивкой",
+      "file": "models/C01.glb",
+      "cm": [
+        50,
+        58,
+        89
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/arc-oak-upholstered-dining-chair-09932cbc"
+    },
+    {
+      "id": "C02",
+      "group": "C",
+      "name": "Стул виндзор",
+      "file": "models/C02.glb",
+      "cm": [
+        55,
+        59,
+        98
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/windsor-spindle-dining-chair-27c752b8"
+    },
+    {
+      "id": "C03",
+      "group": "C",
+      "name": "Стул со спинкой-рогаткой",
+      "file": "models/C03.glb",
+      "cm": [
+        69,
+        55,
+        93
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/wish-y-back-dining-chair-ed699367"
+    },
+    {
+      "id": "C04",
+      "group": "C",
+      "name": "Стул с крестовой спинкой",
+      "file": "models/C04.glb",
+      "cm": [
+        54,
+        58,
+        98
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/crossley-cross-back-dining-chair-021d7599"
+    },
+    {
+      "id": "C05",
+      "group": "C",
+      "name": "Стул с подлокотниками",
+      "file": "models/C05.glb",
+      "cm": [
+        63,
+        66,
+        93
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/loop-loop-arm-dining-chair-a8ae772c"
+    },
+    {
+      "id": "C06",
+      "group": "C",
+      "name": "Кресло обеденное",
+      "file": "models/C06.glb",
+      "cm": [
+        68,
+        62,
+        103
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/gather-dining-armchair-ee459660"
+    },
+    {
+      "id": "S01",
+      "group": "S",
+      "name": "Стол раздвижной",
+      "file": "models/S01.glb",
+      "cm": [
+        225,
+        90,
+        76
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/span-225-extendable-dining-table-b5cc7e64"
+    },
+    {
+      "id": "S02",
+      "group": "S",
+      "name": "Стол овальный, дуб",
+      "file": "models/S02.glb",
+      "cm": [
+        210,
+        105,
+        75
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/morrow-210-oval-oak-dining-table-0715db09"
+    },
+    {
+      "id": "S03",
+      "group": "S",
+      "name": "Стол круглый",
+      "file": "models/S03.glb",
+      "cm": [
+        120,
+        120,
+        75
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/halo-120-round-dining-table-d1ecf403"
+    },
+    {
+      "id": "S04",
+      "group": "S",
+      "name": "Стол тюльпан",
+      "file": "models/S04.glb",
+      "cm": [
+        160,
+        92,
+        75
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/lily-oval-oval-tulip-dining-table-658a4eec"
+    },
+    {
+      "id": "S05",
+      "group": "S",
+      "name": "Стол на крестовых ногах",
+      "file": "models/S05.glb",
+      "cm": [
+        201,
+        93,
+        76
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/crossbeam-cross-leg-dining-table-3ce8d4a2"
+    },
+    {
+      "id": "S06",
+      "group": "S",
+      "name": "Стол с откидной вставкой",
+      "file": "models/S06.glb",
+      "cm": [
+        200,
+        90,
+        76
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/wingfold-butterfly-leaf-dining-table-114f0a59"
+    },
+    {
+      "id": "A01",
+      "group": "A",
+      "name": "Кресло компьютерное",
+      "file": "models/A01.glb",
+      "cm": [
+        73,
+        70,
+        117
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/vector-ergonomic-office-chair-ae299d68"
+    },
+    {
+      "id": "A02",
+      "group": "A",
+      "name": "Кресло рабочее, ребристое",
+      "file": "models/A02.glb",
+      "cm": [
+        69,
+        75,
+        111
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/ridge-aluminum-ribbed-task-chair-25fb21c3"
+    },
+    {
+      "id": "A03",
+      "group": "A",
+      "name": "Кресло вращающееся",
+      "file": "models/A03.glb",
+      "cm": [
+        90,
+        87,
+        89
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/orbit-barrel-swivel-chair-764266b4"
+    },
+    {
+      "id": "P01",
+      "group": "P",
+      "name": "Стол компьютерный угловой",
+      "file": "models/P01.glb",
+      "cm": [
+        123,
+        90,
+        75
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/apex-120-corner-computer-desk-140591fe"
+    },
+    {
+      "id": "P02",
+      "group": "P",
+      "name": "Стол письменный, орех",
+      "file": "models/P02.glb",
+      "cm": [
+        140,
+        65,
+        76
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/linea-140-walnut-writing-desk-c94a30dc"
+    },
+    {
+      "id": "P03",
+      "group": "P",
+      "name": "Стол офисный стальной",
+      "file": "models/P03.glb",
+      "cm": [
+        130,
+        72,
+        141
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/steel-office-desk-16158a62"
+    },
+    {
+      "id": "P04",
+      "group": "P",
+      "name": "Стол рабочий Г-образный",
+      "file": "models/P04.glb",
+      "cm": [
+        160,
+        143,
+        76
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/angle-160-l-shaped-workstation-8f14db08"
+    },
+    {
+      "id": "M01",
+      "group": "M",
+      "name": "Стол макияжный",
+      "file": "models/M01.glb",
+      "cm": [
+        110,
+        47,
+        143
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/reflect-110-vanity-dressing-table-25432d16"
+    },
+    {
+      "id": "B01",
+      "group": "B",
+      "name": "Банкетка кожаная",
+      "file": "models/B01.glb",
+      "cm": [
+        88,
+        88,
+        51
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/chester-tufted-leather-ottoman-e51f48fc"
+    },
+    {
+      "id": "B02",
+      "group": "B",
+      "name": "Банкетка в изножье",
+      "file": "models/B02.glb",
+      "cm": [
+        151,
+        51,
+        67
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/suite-bedroom-end-bench-405775e2"
+    },
+    {
+      "id": "B03",
+      "group": "B",
+      "name": "Банкетка обеденная",
+      "file": "models/B03.glb",
+      "cm": [
+        154,
+        54,
+        53
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/span-upholstered-dining-bench-988d8c6f"
+    },
+    {
+      "id": "B04",
+      "group": "B",
+      "name": "Пуф букле",
+      "file": "models/B04.glb",
+      "cm": [
+        75,
+        75,
+        52
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/cloud-round-boucle-pouf-24c99f0c"
+    },
+    {
+      "id": "B05",
+      "group": "B",
+      "name": "Банкетка пианино",
+      "file": "models/B05.glb",
+      "cm": [
+        102,
+        43,
+        55
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/sonata-piano-bench-550f5fd9"
+    },
+    {
+      "id": "H01",
+      "group": "H",
+      "name": "Шкаф-кладовая",
+      "file": "models/H01.glb",
+      "cm": [
+        91,
+        74,
+        200
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/larder-90-kitchen-pantry-fd0abc4f"
+    },
+    {
+      "id": "H02",
+      "group": "H",
+      "name": "Остров с деревянной столешницей",
+      "file": "models/H02.glb",
+      "cm": [
+        121,
+        70,
+        90
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/block-120-butcher-block-kitchen-island-aa83dfa6"
+    },
+    {
+      "id": "H03",
+      "group": "H",
+      "name": "Тумба кухонная на колёсах",
+      "file": "models/H03.glb",
+      "cm": [
+        105,
+        57,
+        91
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/prep-kitchen-trolley-ebc94ffb"
+    },
+    {
+      "id": "H04",
+      "group": "H",
+      "name": "Шкаф напольный",
+      "file": "models/H04.glb",
+      "cm": [
+        45,
+        45,
+        75
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/kitchen-cabinet-ff622f5c"
+    },
+    {
+      "id": "H05",
+      "group": "H",
+      "name": "Шкаф напольный с шуфлядками",
+      "file": "models/H05.glb",
+      "cm": [
+        45,
+        45,
+        75
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/kitchen-cabinet-drawer-3206f869"
+    },
+    {
+      "id": "H06",
+      "group": "H",
+      "name": "Шкаф навесной",
+      "file": "models/H06.glb",
+      "cm": [
+        45,
+        35,
+        55
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/kitchen-cabinet-upper-fe11901d"
+    },
+    {
+      "id": "H07",
+      "group": "H",
+      "name": "Шкаф навесной двойной",
+      "file": "models/H07.glb",
+      "cm": [
+        90,
+        35,
+        55
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/kitchen-cabinet-upper-double-f347769c"
+    },
+    {
+      "id": "H08",
+      "group": "H",
+      "name": "Шкаф навесной низкий",
+      "file": "models/H08.glb",
+      "cm": [
+        45,
+        35,
+        35
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/kitchen-cabinet-upper-low-7e6746d7"
+    },
+    {
+      "id": "H09",
+      "group": "H",
+      "name": "Шкаф угловой напольный",
+      "file": "models/H09.glb",
+      "cm": [
+        90,
+        90,
+        75
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/kitchen-cabinet-corner-round-a1b372e2"
+    },
+    {
+      "id": "H10",
+      "group": "H",
+      "name": "Плита с духовкой",
+      "file": "models/H10.glb",
+      "cm": [
+        61,
+        70,
+        93
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/cook-range-large-appliance-cbf198df"
+    },
+    {
+      "id": "H11",
+      "group": "H",
+      "name": "Варочная панель",
+      "file": "models/H11.glb",
+      "cm": [
+        60,
+        51,
+        5
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/induct-four-cooking-appliance-7d158c11"
+    },
+    {
+      "id": "H12",
+      "group": "H",
+      "name": "Плита газовая",
+      "file": "models/H12.glb",
+      "cm": [
+        60,
+        60,
+        90
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/kitchen-stove-5be499b8"
+    },
+    {
+      "id": "H13",
+      "group": "H",
+      "name": "Полуостров кухонный",
+      "file": "models/H13.glb",
+      "cm": [
+        160,
+        65,
+        106
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/counter-160-breakfast-bar-peninsula-25eb8323"
+    },
+    {
+      "id": "H14",
+      "group": "H",
+      "name": "Тумба с шуфлядками",
+      "file": "models/H14.glb",
+      "cm": [
+        182,
+        52,
+        78
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/trace-180-walnut-sideboard-32858583"
+    },
+    {
+      "id": "H15",
+      "group": "H",
+      "name": "Шкаф с рольставней",
+      "file": "models/H15.glb",
+      "cm": [
+        112,
+        50,
+        80
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/roll-110-tambour-cabinet-e9f93212"
+    },
+    {
+      "id": "H16",
+      "group": "H",
+      "name": "Плита электрическая",
+      "file": "models/H16/electric_stove_1k.gltf",
+      "cm": [
+        60,
+        60,
+        90
+      ],
+      "license": "CC0",
+      "source": "https://polyhaven.com/a/electric_stove"
+    },
+    {
+      "id": "H17",
+      "group": "H",
+      "name": "Комод с шуфлядками",
+      "file": "models/H17/drawer_cabinet_1k.gltf",
+      "cm": [
+        80,
+        45,
+        75
+      ],
+      "license": "CC0",
+      "source": "https://polyhaven.com/a/drawer_cabinet"
+    },
+    {
+      "id": "H18",
+      "group": "H",
+      "name": "Кухонный остров butcher-block",
+      "file": "models/H18.glb",
+      "cm": [
+        131,
+        70,
+        95
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/butcher-block-island-kitchen-work-island-13a01d14"
+    },
+    {
+      "id": "N01",
+      "group": "N",
+      "name": "Тумба REED 50 дуб",
+      "file": "models/N01.glb",
+      "cm": [
+        51,
+        48,
+        55
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/reed-50-fluted-oak-nightstand-7a5e9a47"
+    },
+    {
+      "id": "N02",
+      "group": "N",
+      "name": "Тумба прикроватная высокая",
+      "file": "models/N02.glb",
+      "cm": [
+        61,
+        55,
+        83
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/patient-bedside-cabinet-19c0b99c"
+    },
+    {
+      "id": "J01",
+      "group": "J",
+      "name": "Столик ореховый",
+      "file": "models/J01.glb",
+      "cm": [
+        122,
+        66,
+        36
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/cove-122-walnut-coffee-table-54d12f31"
+    },
+    {
+      "id": "J02",
+      "group": "J",
+      "name": "Столик стеклянный водопад",
+      "file": "models/J02.glb",
+      "cm": [
+        96,
+        54,
+        40
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/clearfall-waterfall-glass-coffee-table-133ed8d0"
+    },
+    {
+      "id": "J03",
+      "group": "J",
+      "name": "Столик барабан",
+      "file": "models/J03.glb",
+      "cm": [
+        78,
+        78,
+        38
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/mono-78-drum-coffee-table-90dc6fc3"
+    },
+    {
+      "id": "J04",
+      "group": "J",
+      "name": "Столики гнездовые",
+      "file": "models/J04.glb",
+      "cm": [
+        114,
+        74,
+        47
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/trio-nesting-coffee-table-set-a1a295a4"
+    },
+    {
+      "id": "J05",
+      "group": "J",
+      "name": "Столик круглый стеклянный",
+      "file": "models/J05.glb",
+      "cm": [
+        90,
+        90,
+        42
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/prism-90-round-glass-coffee-table-a7f353c3"
+    },
+    {
+      "id": "J06",
+      "group": "J",
+      "name": "Столик с подъёмной крышкой",
+      "file": "models/J06.glb",
+      "cm": [
+        106,
+        71,
+        63
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/rise-100-lift-top-coffee-table-6827c0d6"
+    },
+    {
+      "id": "V01",
+      "group": "V",
+      "name": "Ванна на лапах",
+      "file": "models/V01.glb",
+      "cm": [
+        76,
+        158,
+        81
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/clawfoot-clawfoot-bathtub-fd250e8d"
+    },
+    {
+      "id": "V02",
+      "group": "V",
+      "name": "Ванна отдельностоящая",
+      "file": "models/V02.glb",
+      "cm": [
+        78,
+        170,
+        63
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/soak-freestanding-oval-bath-a29c42f0"
+    },
+    {
+      "id": "V03",
+      "group": "V",
+      "name": "Ванна встроенная",
+      "file": "models/V03.glb",
+      "cm": [
+        80,
+        171,
+        53
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/inset-bath-inset-bathtub-118db49b"
+    },
+    {
+      "id": "V04",
+      "group": "V",
+      "name": "Ванна угловая",
+      "file": "models/V04.glb",
+      "cm": [
+        140,
+        140,
+        80
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/corner-bath-corner-soaking-tub-87447647"
+    },
+    {
+      "id": "T01",
+      "group": "T",
+      "name": "Унитаз компакт",
+      "file": "models/T01.glb",
+      "cm": [
+        43,
+        74,
+        93
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/compact-wc-close-coupled-toilet-84214efd"
+    },
+    {
+      "id": "T02",
+      "group": "T",
+      "name": "Унитаз подвесной",
+      "file": "models/T02.glb",
+      "cm": [
+        43,
+        67,
+        81
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/floating-wc-wall-hung-toilet-1db044d9"
+    },
+    {
+      "id": "T03",
+      "group": "T",
+      "name": "Унитаз с высоким бачком",
+      "file": "models/T03.glb",
+      "cm": [
+        52,
+        81,
+        192
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/heritage-wc-high-cistern-toilet-a4ee45d8"
+    },
+    {
+      "id": "R01",
+      "group": "R",
+      "name": "Раковина на пьедестале",
+      "file": "models/R01.glb",
+      "cm": [
+        61,
+        51,
+        97
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/pedestal-pedestal-washbasin-236263ca"
+    },
+    {
+      "id": "R02",
+      "group": "R",
+      "name": "Тумба с раковиной",
+      "file": "models/R02.glb",
+      "cm": [
+        94,
+        56,
+        117
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/basin-90-freestanding-bathroom-vanity-c58c9ba0"
+    },
+    {
+      "id": "R03",
+      "group": "R",
+      "name": "Мойка фартук",
+      "file": "models/R03.glb",
+      "cm": [
+        79,
+        53,
+        29
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/apron-sink-farmhouse-sink-d48bb2ce"
+    },
+    {
+      "id": "R04",
+      "group": "R",
+      "name": "Раковина-чаша",
+      "file": "models/R04.glb",
+      "cm": [
+        52,
+        36,
+        15
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/box-basin-rectangular-vessel-basin-d68322ea"
+    },
+    {
+      "id": "R05",
+      "group": "R",
+      "name": "Раковина круглая",
+      "file": "models/R05.glb",
+      "cm": [
+        44,
+        44,
+        17
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/orbit-basin-round-vessel-basin-abf04ca5"
+    },
+    {
+      "id": "R06",
+      "group": "R",
+      "name": "Мойка врезная",
+      "file": "models/R06.glb",
+      "cm": [
+        99,
+        54,
+        22
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/prep-sink-stainless-inset-sink-c61686eb"
+    },
+    {
+      "id": "X01",
+      "group": "X",
+      "name": "Коробка картонная",
+      "file": "models/X01/cardboard_box_01_1k.gltf",
+      "cm": [
+        40,
+        30,
+        30
+      ],
+      "license": "CC0",
+      "source": "https://polyhaven.com/a/cardboard_box_01"
+    },
+    {
+      "id": "X02",
+      "group": "X",
+      "name": "Ящик деревянный",
+      "file": "models/X02/wooden_crate_01_1k.gltf",
+      "cm": [
+        60,
+        40,
+        40
+      ],
+      "license": "CC0",
+      "source": "https://polyhaven.com/a/wooden_crate_01"
+    },
+    {
+      "id": "X03",
+      "group": "X",
+      "name": "Ящик пластиковый",
+      "file": "models/X03/plastic_crate_01_1k.gltf",
+      "cm": [
+        40,
+        30,
+        28
+      ],
+      "license": "CC0",
+      "source": "https://polyhaven.com/a/plastic_crate_01"
+    },
+    {
+      "id": "X04",
+      "group": "X",
+      "name": "Ящик реечный",
+      "file": "models/X04.glb",
+      "cm": [
+        48,
+        36,
+        24
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/fold-crate-storage-crate-81ee4739"
+    },
+    {
+      "id": "X05",
+      "group": "X",
+      "name": "Ящик открытый",
+      "file": "models/X05.glb",
+      "cm": [
+        37,
+        30,
+        28
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/open-crate-storage-crate-a8e31679"
+    },
+    {
+      "id": "X06",
+      "group": "X",
+      "name": "Сундук",
+      "file": "models/X06.glb",
+      "cm": [
+        83,
+        52,
+        50
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/toy-box-original-interior-furnishing-322bb842"
+    }
+  ]
+}
