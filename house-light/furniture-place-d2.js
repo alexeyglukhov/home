@@ -22,11 +22,14 @@ import { GLTFLoader } from "./vendor/GLTFLoader.js";
 const HOUSE_DX = -1;
 const FLOOR = 0.44;
 const TERRACE_Y = 0.40;
-const COUNTER_H = 0.90;
+export const COUNTER_H = 0.90;
 const COUNTER_TOP = FLOOR + COUNTER_H;
 const COUNTER_THICK = 0.04;
-const CAB_H = COUNTER_H - COUNTER_THICK;
-const RAISE = 0.03;
+export const CAB_H = COUNTER_H - COUNTER_THICK;
+export const RAISE = 0.03;
+/** Напольные кухонные H04/H05 в файле ~45 см — тянем до 85 см под столешницу. */
+const KITCHEN_BASE_IDS = new Set(["H04", "H05"]);
+const KITCHEN_BASE_H = 0.85;
 /** Макс. линейная деформация и перекос пропорций (иначе — неверная модель). */
 const MAX_DEFORM = 2;
 
@@ -267,7 +270,8 @@ function fitToFootprint(model, boxW, boxD, fitH, mirror, keepAspect, lockHeight 
 /**
  * item: { id, x0,y0,x1,y1, frontDeg?, footW?, footD?, wall?, rot?, h?, raise?, mirror?, floorY?, fromMap? }
  * Карта = истина: поворот (frontDeg), зеркало (mirror), пропорции пятна (footW×footD).
- * Высоту модели не трогаем (sy=1); raise/floorY только сдвигают базу.
+ * Высоту модели не трогаем (sy=1), кроме напольных кухонных H04/H05 (85 см).
+ * raise/floorY только сдвигают базу.
  */
 async function placeInBox(group, api, item, catalog) {
   const x0 = Math.min(item.x0, item.x1);
@@ -302,9 +306,10 @@ async function placeInBox(group, api, item, catalog) {
     ({ boxW, boxD } = footprintBox(planW, planD, rot, longAxisZ(item)));
   }
 
+  const kitchenBase = KITCHEN_BASE_IDS.has(item.id);
   const keepAspect = fromMap ? false : !!item.keepAspect;
-  const lockHeight = fromMap;
-  const fitH = fromMap ? null : item.h;
+  const lockHeight = fromMap && !kitchenBase;
+  const fitH = kitchenBase ? KITCHEN_BASE_H : (fromMap ? null : item.h);
 
   let entry = catalog.items.find((row) => row.id === item.id);
   if (!entry) {
@@ -427,19 +432,17 @@ function buildTV(group, api, x0, y0, x1, y1) {
 
 export const D2_FURNITURE = [
   // Сгенерировано из furniture-map-d2.svg — правьте карту, затем sync_map_to_place.py
-  { id: "H05", x0: -3.995, y0: 2.879, x1: -3.200, y1: 3.420, footW: 0.795, footD: 0.541, frontDeg: 0, fromMap: true, wall: "S", h: CAB_H },
-  { id: "H04", x0: -3.200, y0: 2.879, x1: -2.700, y1: 3.420, footW: 0.500, footD: 0.541, frontDeg: 0, fromMap: true, wall: "S", h: CAB_H },
-  { id: "H05", x0: -1.900, y0: 2.879, x1: -1.050, y1: 3.420, footW: 0.850, footD: 0.541, frontDeg: 0, fromMap: true, wall: "S", h: CAB_H },
-  { id: "H04", x0: -1.050, y0: 2.879, x1: -0.223, y1: 3.420, footW: 0.827, footD: 0.541, frontDeg: 0, fromMap: true, wall: "S", h: CAB_H },
-  { id: "H05", x0: -4.005, y0: 3.446, x1: -3.463, y1: 4.000, footW: 0.554, footD: 0.542, frontDeg: 90, fromMap: true, wall: "W", h: CAB_H },
-  { id: "H04", x0: -4.005, y0: 4.000, x1: -3.463, y1: 4.550, footW: 0.550, footD: 0.542, frontDeg: 90, fromMap: true, wall: "W", h: CAB_H },
-  { id: "H05", x0: -4.005, y0: 4.550, x1: -3.463, y1: 5.100, footW: 0.550, footD: 0.542, frontDeg: 90, fromMap: true, wall: "W", h: CAB_H },
-  { id: "H04", x0: -4.005, y0: 5.100, x1: -3.463, y1: 5.640, footW: 0.540, footD: 0.542, frontDeg: 90, fromMap: true, wall: "W", h: CAB_H },
-  { id: "H05", x0: -4.020, y0: 5.640, x1: -3.300, y1: 6.180, footW: 0.720, footD: 0.540, frontDeg: 180, fromMap: true, wall: "N", h: CAB_H },
-  { id: "H11", x0: -3.300, y0: 5.660, x1: -2.500, y1: 6.160, footW: 0.800, footD: 0.500, frontDeg: 180, fromMap: true, wall: "N", raise: COUNTER_H + RAISE },
-  { id: "H04", x0: -2.500, y0: 5.640, x1: -1.740, y1: 6.180, footW: 0.760, footD: 0.540, frontDeg: 180, fromMap: true, wall: "N", h: CAB_H },
-  { id: "H07", x0: -4.020, y0: 5.750, x1: -3.200, y1: 6.100, footW: 0.820, footD: 0.350, frontDeg: 180, fromMap: true, wall: "N", h: 0.55, raise: 1.45 },
-  { id: "H06", x0: -2.400, y0: 5.750, x1: -1.800, y1: 6.100, footW: 0.600, footD: 0.350, frontDeg: 180, fromMap: true, wall: "N", h: 0.55, raise: 1.45 },
+  { id: "H05", x0: -4.001, y0: 2.942, x1: -3.206, y1: 3.483, footW: 0.795, footD: 0.541, frontDeg: 0, fromMap: true, wall: "S", h: CAB_H },
+  { id: "H04", x0: -3.202, y0: 2.951, x1: -2.702, y1: 3.492, footW: 0.500, footD: 0.541, frontDeg: 0, fromMap: true, wall: "S", h: CAB_H },
+  { id: "H05", x0: -1.941, y0: 2.948, x1: -1.091, y1: 3.489, footW: 0.850, footD: 0.541, frontDeg: 0, fromMap: true, wall: "S", h: CAB_H },
+  { id: "H04", x0: -1.079, y0: 2.949, x1: -0.252, y1: 3.490, footW: 0.827, footD: 0.541, frontDeg: 0, fromMap: true, wall: "S", h: CAB_H },
+  { id: "H05", x0: -3.954, y0: 3.492, x1: -3.412, y1: 4.046, footW: 0.554, footD: 0.542, frontDeg: 90, fromMap: true, wall: "W", h: CAB_H },
+  { id: "H04", x0: -3.953, y0: 4.067, x1: -3.411, y1: 4.617, footW: 0.550, footD: 0.542, frontDeg: 90, fromMap: true, wall: "W", h: CAB_H },
+  { id: "H05", x0: -3.957, y0: 4.633, x1: -3.415, y1: 5.183, footW: 0.550, footD: 0.542, frontDeg: 90, fromMap: true, wall: "W", h: CAB_H },
+  { id: "H04", x0: -3.957, y0: 5.190, x1: -3.415, y1: 5.583, footW: 0.393, footD: 0.542, frontDeg: 90, fromMap: true, wall: "W", h: CAB_H },
+  { id: "H05", x0: -4.016, y0: 5.601, x1: -3.296, y1: 6.141, footW: 0.720, footD: 0.540, frontDeg: 180, fromMap: true, wall: "N", h: CAB_H },
+  { id: "H11", x0: -3.298, y0: 5.601, x1: -2.498, y1: 6.101, footW: 0.800, footD: 0.500, frontDeg: 180, fromMap: true, wall: "N", raise: COUNTER_H + RAISE },
+  { id: "H04", x0: -2.484, y0: 5.597, x1: -1.724, y1: 6.137, footW: 0.760, footD: 0.540, frontDeg: 180, fromMap: true, wall: "N", h: CAB_H },
   { id: "H18", x0: -0.232, y0: 2.889, x1: 0.711, y1: 4.833, footW: 1.944, footD: 0.943, frontDeg: 270, fromMap: true, wall: "E", h: 0.95 },
   { id: "S02", x0: 1.701, y0: 3.990, x1: 3.801, y1: 4.940, footW: 2.100, footD: 0.950, frontDeg: 0, fromMap: true, wall: "S", h: 0.75 },
   { id: "C01", x0: 1.701, y0: 3.540, x1: 2.101, y1: 3.940, footW: 0.400, footD: 0.400, frontDeg: 0, fromMap: true, wall: "S" },
@@ -506,7 +509,7 @@ export const D2_FURNITURE = [
   { id: "H17", x0: -0.800, y0: 9.084, x1: -0.350, y1: 9.812, footW: 0.728, footD: 0.450, frontDeg: 270, fromMap: true, wall: "E", h: 0.75 },
   { id: "H17", x0: -0.799, y0: 8.304, x1: -0.365, y1: 9.061, footW: 0.757, footD: 0.434, frontDeg: 270, fromMap: true, wall: "E", h: 0.75 },
   { id: "W08", x0: -0.739, y0: 9.829, x1: -0.335, y1: 10.699, footW: 0.870, footD: 0.404, frontDeg: 270, fromMap: true, wall: "E", h: 1.48 },
-  { id: "H04", x0: -2.722, y0: 2.882, x1: -1.895, y1: 3.423, footW: 0.827, footD: 0.541, frontDeg: 0, fromMap: true, wall: "S", h: CAB_H },
+  { id: "H04", x0: -2.689, y0: 2.965, x1: -1.956, y1: 3.491, footW: 0.733, footD: 0.526, frontDeg: 0, fromMap: true, wall: "S", h: CAB_H },
   { id: "W08", x0: 8.463, y0: 15.931, x1: 8.925, y1: 16.970, footW: 1.039, footD: 0.462, frontDeg: 90, fromMap: true, wall: "W", h: 1.48, mirror: true },
   { id: "W08", x0: 8.500, y0: 18.031, x1: 10.392, y1: 18.492, footW: 1.892, footD: 0.461, frontDeg: 180, fromMap: true, wall: "N", h: 1.48 },
   { id: "G03", x0: 7.394, y0: 10.765, x1: 7.974, y1: 11.665, footW: 0.900, footD: 0.580, frontDeg: 90, fromMap: true, wall: "W", h: 2.20 },
@@ -529,6 +532,17 @@ export const D2_FURNITURE = [
   { id: "J03", x0: -3.410, y0: 7.704, x1: -2.799, y1: 8.301, footW: 0.611, footD: 0.597, frontDeg: 0, fromMap: true, wall: "S" },
   { id: "W08", x0: 6.803, y0: 10.558, x1: 7.171, y1: 11.634, footW: 1.076, footD: 0.368, frontDeg: 270, fromMap: true, wall: "E", h: 1.48 },
 ];
+
+export async function mountFurniture(group, api, items) {
+  const catalog = await fetch(fileUrl("catalog.json")).then((r) => r.json());
+  await Promise.all(
+    items.map((item) =>
+      placeInBox(group, api, item, catalog).catch((err) => {
+        console.warn("furniture", item.id, err);
+      })
+    )
+  );
+}
 
 export async function mountD2Furniture(group, api) {
   const catalog = await fetch(fileUrl("catalog.json")).then((r) => r.json());

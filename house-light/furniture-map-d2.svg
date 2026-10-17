@@ -28,9 +28,9 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="0.14438208"
-     inkscape:cx="3677.7416"
-     inkscape:cy="3556.5354"
+     inkscape:zoom="0.40837419"
+     inkscape:cx="2181.8225"
+     inkscape:cy="6189.1766"
      inkscape:window-width="2560"
      inkscape:window-height="1362"
      inkscape:window-x="0"
@@ -2882,7 +2882,7 @@
        data-floory=""
        data-rot=""
        data-name="Шкаф напольный с шуфлядками"
-       transform="translate(-3.5975,3.1495)"
+       transform="translate(-3.6033878,3.2126594)"
        inkscape:label="H05 Шкаф напольный с шуфлядками">
       <title
          id="title1199">H05 — Шкаф напольный с шуфлядками · перед 0°</title>
@@ -2906,7 +2906,7 @@
            height="0.1893"
            id="rect1203" />
         <polygon
-           points="-0.1,0.0974 0,0.2272 0.1,0.0974 "
+           points="0.1,0.0974 -0.1,0.0974 0,0.2272 "
            id="polygon1205" />
       </g>
       <g
@@ -2935,7 +2935,7 @@
        data-floory=""
        data-rot=""
        data-name="Шкаф напольный"
-       transform="translate(-2.95,3.1495)"
+       transform="translate(-2.9520452,3.2211452)"
        inkscape:label="H04 Шкаф напольный">
       <title
          id="title1216">H04 — Шкаф напольный · перед 0°</title>
@@ -2959,7 +2959,7 @@
            height="0.1893"
            id="rect1220" />
         <polygon
-           points="-0.1,0.0974 0,0.2272 0.1,0.0974 "
+           points="0.1,0.0974 -0.1,0.0974 0,0.2272 "
            id="polygon1222" />
       </g>
       <g
@@ -2988,7 +2988,7 @@
        data-floory=""
        data-rot=""
        data-name="Шкаф напольный с шуфлядками"
-       transform="translate(-1.475,3.1495)"
+       transform="translate(-1.5159022,3.2180442)"
        inkscape:label="H05 Шкаф напольный с шуфлядками">
       <title
          id="title1233">H05 — Шкаф напольный с шуфлядками · перед 0°</title>
@@ -3012,7 +3012,7 @@
            height="0.1893"
            id="rect1237" />
         <polygon
-           points="-0.1,0.0974 0,0.2272 0.1,0.0974 "
+           points="0,0.2272 0.1,0.0974 -0.1,0.0974 "
            id="polygon1239" />
       </g>
       <g
@@ -3041,7 +3041,7 @@
        data-floory=""
        data-rot=""
        data-name="Шкаф напольный"
-       transform="translate(-0.6365,3.1495)"
+       transform="translate(-0.66561889,3.2196975)"
        inkscape:label="H04 Шкаф напольный">
       <title
          id="title1250">H04 — Шкаф напольный · перед 0°</title>
@@ -3065,7 +3065,7 @@
            height="0.1893"
            id="rect1254" />
         <polygon
-           points="-0.1,0.0974 0,0.2272 0.1,0.0974 "
+           points="0,0.2272 0.1,0.0974 -0.1,0.0974 "
            id="polygon1256" />
       </g>
       <g
@@ -3094,7 +3094,7 @@
        data-floory=""
        data-rot=""
        data-name="Шкаф напольный с шуфлядками"
-       transform="rotate(-90,-0.0055,3.7285)"
+       transform="rotate(-90,0.04304365,3.7263578)"
        inkscape:label="H05 Шкаф напольный с шуфлядками">
       <title
          id="title1267">H05 — Шкаф напольный с шуфлядками · перед 90°</title>
@@ -3147,7 +3147,7 @@
        data-floory=""
        data-rot=""
        data-name="Шкаф напольный"
-       transform="rotate(-90,0.2705,4.0045)"
+       transform="rotate(-90,0.32989517,4.0116259)"
        inkscape:label="H04 Шкаф напольный">
       <title
          id="title1284">H04 — Шкаф напольный · перед 90°</title>
@@ -3171,7 +3171,7 @@
            height="0.18970001"
            id="rect1288" />
         <polygon
-           points="-0.1,0.0976 0,0.2276 0.1,0.0976 "
+           points="0.1,0.0976 -0.1,0.0976 0,0.2276 "
            id="polygon1290" />
       </g>
       <g
@@ -3200,7 +3200,7 @@
        data-floory=""
        data-rot=""
        data-name="Шкаф напольный с шуфлядками"
-       transform="rotate(-90,0.5455,4.2795)"
+       transform="rotate(-90,0.61102534,4.2969086)"
        inkscape:label="H05 Шкаф напольный с шуфлядками">
       <title
          id="title1301">H05 — Шкаф напольный с шуфлядками · перед 90°</title>
@@ -3224,7 +3224,7 @@
            height="0.18970001"
            id="rect1305" />
         <polygon
-           points="-0.1,0.0976 0,0.2276 0.1,0.0976 "
+           points="0.1,0.0976 -0.1,0.0976 0,0.2276 "
            id="polygon1307" />
       </g>
       <g
@@ -3253,8 +3253,9 @@
        data-floory=""
        data-rot=""
        data-name="Шкаф напольный"
-       transform="rotate(-90,0.818,4.552)"
-       inkscape:label="H04 Шкаф напольный">
+       transform="matrix(0,-0.72834689,1,0,-3.6862977,5.3864119)"
+       inkscape:label="H04 Шкаф напольный"
+       style="stroke-width:1.17174">
       <title
          id="title1318">H04 — Шкаф напольный · перед 90°</title>
       <rect
@@ -3269,28 +3270,34 @@
       <!-- стрелка к переду (+Y локально) -->
       <g
          class="orient"
-         id="g1326">
+         id="g1326"
+         style="stroke-width:1.17174">
         <rect
            x="-0.029999999"
            y="-0.02"
            width="0.059999999"
            height="0.18970001"
-           id="rect1322" />
+           id="rect1322"
+           style="stroke-width:1.17174" />
         <polygon
            points="-0.1,0.0976 0,0.2276 0.1,0.0976 "
-           id="polygon1324" />
+           id="polygon1324"
+           style="stroke-width:1.17174" />
       </g>
       <g
          transform="matrix(0,1,1,0,0,0)"
-         id="g1332">
+         id="g1332"
+         style="stroke-width:1.17174">
         <text
            class="label"
            y="0.050000001"
-           id="text1328">H04</text>
+           id="text1328"
+           style="stroke-width:1.17174">H04</text>
         <text
            class="label sub"
            y="0.2"
-           id="text1330">Шкаф напольный</text>
+           id="text1330"
+           style="stroke-width:1.17174">Шкаф напольный</text>
       </g>
     </g>
     <g
@@ -3306,7 +3313,7 @@
        data-floory=""
        data-rot=""
        data-name="Шкаф напольный с шуфлядками"
-       transform="rotate(180,-1.83,2.955)"
+       transform="rotate(180,-1.828022,2.9357388)"
        inkscape:label="H05 Шкаф напольный с шуфлядками">
       <title
          id="title1335">H05 — Шкаф напольный с шуфлядками · перед 180°</title>
@@ -3330,7 +3337,7 @@
            height="0.189"
            id="rect1339" />
         <polygon
-           points="-0.1,0.0972 0,0.2268 0.1,0.0972 "
+           points="0.1,0.0972 -0.1,0.0972 0,0.2268 "
            id="polygon1341" />
       </g>
       <g
@@ -3359,7 +3366,7 @@
        data-floory=""
        data-rot=""
        data-name="Варочная панель"
-       transform="rotate(180,-1.45,2.955)"
+       transform="rotate(180,-1.4492058,2.9253056)"
        inkscape:label="H11 Варочная панель">
       <title
          id="title1352">H11 — Варочная панель · перед 180°</title>
@@ -3383,7 +3390,7 @@
            height="0.175"
            id="rect1356" />
         <polygon
-           points="-0.1,0.09 0,0.21 0.1,0.09 "
+           points="0.1,0.09 -0.1,0.09 0,0.21 "
            id="polygon1358" />
       </g>
       <g
@@ -3412,7 +3419,7 @@
        data-floory=""
        data-rot=""
        data-name="Шкаф напольный"
-       transform="rotate(180,-1.06,2.955)"
+       transform="rotate(180,-1.0520336,2.9335373)"
        inkscape:label="H04 Шкаф напольный">
       <title
          id="title1369">H04 — Шкаф напольный · перед 180°</title>
@@ -3436,7 +3443,7 @@
            height="0.189"
            id="rect1373" />
         <polygon
-           points="-0.1,0.0972 0,0.2268 0.1,0.0972 "
+           points="0.1,0.0972 -0.1,0.0972 0,0.2268 "
            id="polygon1375" />
       </g>
       <g
@@ -3450,112 +3457,6 @@
            class="label sub"
            y="0.2"
            id="text1381">Шкаф напольный</text>
-      </g>
-    </g>
-    <g
-       id="furn-012"
-       class="furn"
-       data-model="H07"
-       data-front-deg="180.0"
-       data-mirror="0"
-       data-keep-aspect="0"
-       data-wall="N"
-       data-h="0.55"
-       data-raise="1.45"
-       data-floory=""
-       data-rot=""
-       data-name="Шкаф навесной двойной"
-       transform="rotate(180,-1.805,2.9625)"
-       inkscape:label="H07 Шкаф навесной двойной">
-      <title
-         id="title1386">H07 — Шкаф навесной двойной · перед 180°</title>
-      <rect
-         class="foot"
-         x="-0.41"
-         y="-0.175"
-         width="0.81999999"
-         height="0.34999999"
-         fill="#e8d0a8"
-         rx="0.029999999"
-         id="rect1388" />
-      <!-- стрелка к переду (+Y локально) -->
-      <g
-         class="orient"
-         id="g1394">
-        <rect
-           x="-0.029999999"
-           y="-0.02"
-           width="0.059999999"
-           height="0.1225"
-           id="rect1390" />
-        <polygon
-           points="-0.1,0.063 0,0.147 0.1,0.063 "
-           id="polygon1392" />
-      </g>
-      <g
-         transform="scale(-1,1)"
-         id="g1400">
-        <text
-           class="label"
-           y="0.050000001"
-           id="text1396">H07</text>
-        <text
-           class="label sub"
-           y="0.2"
-           id="text1398">Шкаф навесной двойной</text>
-      </g>
-    </g>
-    <g
-       id="furn-013"
-       class="furn"
-       data-model="H06"
-       data-front-deg="180.0"
-       data-mirror="0"
-       data-keep-aspect="0"
-       data-wall="N"
-       data-h="0.55"
-       data-raise="1.45"
-       data-floory=""
-       data-rot=""
-       data-name="Шкаф навесной"
-       transform="rotate(180,-1.05,2.9625)"
-       inkscape:label="H06 Шкаф навесной">
-      <title
-         id="title1403">H06 — Шкаф навесной · перед 180°</title>
-      <rect
-         class="foot"
-         x="-0.30000001"
-         y="-0.175"
-         width="0.60000002"
-         height="0.34999999"
-         fill="#e8d0a8"
-         rx="0.029999999"
-         id="rect1405" />
-      <!-- стрелка к переду (+Y локально) -->
-      <g
-         class="orient"
-         id="g1411">
-        <rect
-           x="-0.029999999"
-           y="-0.02"
-           width="0.059999999"
-           height="0.1225"
-           id="rect1407" />
-        <polygon
-           points="-0.1,0.063 0,0.147 0.1,0.063 "
-           id="polygon1409" />
-      </g>
-      <g
-         transform="scale(-1,1)"
-         id="g1417">
-        <text
-           class="label"
-           y="0.050000001"
-           id="text1413">H06</text>
-        <text
-           class="label sub"
-           y="0.2"
-           id="text1415">Шкаф навесной</text>
       </g>
     </g>
     <g
@@ -7069,8 +6970,9 @@
        data-floory=""
        data-rot=""
        data-name="Шкаф напольный"
-       transform="translate(-2.3085,3.1525)"
-       inkscape:label="H04 Шкаф напольный">
+       transform="matrix(0.8861166,0,0,0.97196125,-2.3227421,3.2277494)"
+       inkscape:label="H04 Шкаф напольный"
+       style="stroke-width:1.07753">
       <title
          id="title2542">H04 — Шкаф напольный · перед 0°</title>
       <rect
@@ -7085,28 +6987,34 @@
       <!-- стрелка к переду (+Y локально) -->
       <g
          class="orient"
-         id="g2550">
+         id="g2550"
+         style="stroke-width:1.07753">
         <rect
            x="-0.029999999"
            y="-0.02"
            width="0.059999999"
            height="0.1893"
-           id="rect2546" />
+           id="rect2546"
+           style="stroke-width:1.07753" />
         <polygon
-           points="-0.1,0.0974 0,0.2272 0.1,0.0974 "
-           id="polygon2548" />
+           points="0,0.2272 0.1,0.0974 -0.1,0.0974 "
+           id="polygon2548"
+           style="stroke-width:1.07753" />
       </g>
       <g
          transform="scale(1,-1)"
-         id="g2556">
+         id="g2556"
+         style="stroke-width:1.07753">
         <text
            class="label"
            y="0.050000001"
-           id="text2552">H04</text>
+           id="text2552"
+           style="stroke-width:1.07753">H04</text>
         <text
            class="label sub"
            y="0.2"
-           id="text2554">Шкаф напольный</text>
+           id="text2554"
+           style="stroke-width:1.07753">Шкаф напольный</text>
       </g>
     </g>
     <g

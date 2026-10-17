@@ -245,5 +245,161 @@ def main() -> None:
     print(f"synced {len(furns)} items → {PLACE}")
 
 
+def ancestor_matrix(node, parent) -> list[float]:
+    m = parse_transform(node.attrib.get("transform", ""))
+    up = parent.get(node)
+    while up is not None:
+        m = mat_mul(parse_transform(up.attrib.get("transform", "")), m)
+        up = parent.get(up)
+    return m
+
+
+def world_matrix(root: ET.Element) -> list[float]:
+    tag = root.tag.split("}")[-1]
+    world = None
+    for g in root.iter():
+        if g.tag.split("}")[-1] == "g" and g.attrib.get("id") == "world":
+            world = g
+            break
+    if world is None:
+        raise SystemExit("world layer not found")
+    _ = tag
+    return parse_transform(world.attrib.get("transform", ""))
+
+
+def to_plan(world: list[float], x: float, y: float) -> tuple[float, float]:
+    a, _b, _c, d, e, f = world
+    return (x - e) / a, (y - f) / d
+
+
+def collect_plan_items(svg_path: Path) -> list[dict]:
+    """Пятна, которые Inkscape вынес в координаты листа, переводит в метры плана."""
+    tree = ET.parse(svg_path)
+    root = tree.getroot()
+    parent = {child: node for node in root.iter() for child in node}
+    world = world_matrix(root)
+
+    def tag(name: str) -> str:
+        return f"{{{NS['svg']}}}{name}" if root.tag.startswith("{") else name
+
+    furns = []
+    skipped = 0
+    for g in root.iter(tag("g")):
+        cls = g.attrib.get("class", "")
+        tokens = cls.split()
+        gid = g.attrib.get("id", "")
+        if gid.startswith("catalog-"):
+            continue
+        if "furn" not in tokens and "catalog-item" not in tokens:
+            continue
+        model = g.attrib.get("data-model")
+        if not model:
+            continue
+        foot = find_foot(g, tag)
+        if foot is None:
+            print("skip no foot", model, gid)
+            continue
+        m = ancestor_matrix(g, parent)
+        fx = float(foot.attrib["x"])
+        fy = float(foot.attrib["y"])
+        fw = float(foot.attrib["width"])
+        fd = float(foot.attrib["height"])
+        origin = to_plan(world, *mat_apply(m, 0.0, 0.0))
+        unit_x = to_plan(world, *mat_apply(m, 1.0, 0.0))
+        unit_y = to_plan(world, *mat_apply(m, 0.0, 1.0))
+        sx = math.hypot(unit_x[0] - origin[0], unit_x[1] - origin[1])
+        sy = math.hypot(unit_y[0] - origin[0], unit_y[1] - origin[1])
+        det = (unit_x[0] - origin[0]) * (unit_y[1] - origin[1]) - (unit_x[1] - origin[1]) * (unit_y[0] - origin[0])
+        corners = [to_plan(world, *mat_apply(m, x, y)) for x, y in (
+            (fx, fy), (fx + fw, fy), (fx + fw, fy + fd), (fx, fy + fd),
+        )]
+        xs = [p[0] for p in corners]
+        ys = [p[1] for p in corners]
+        x0, x1 = min(xs), max(xs)
+        y0, y1 = min(ys), max(ys)
+        cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+        if not (-7.5 <= cx <= 14.2 and 1.5 <= cy <= 20.0):
+            skipped += 1
+            continue
+        arrow_dx = unit_y[0] - origin[0]
+        arrow_dy = unit_y[1] - origin[1]
+        front = math.degrees(math.atan2(arrow_dx, arrow_dy))
+        front = ((front % 360) + 360) % 360
+        front_snap = ((round(front / 90) * 90) % 360 + 360) % 360
+        on_terrace = 5.32 <= cx <= 8.50 and 2.46 <= cy <= 9.05
+        furns.append({
+            "id": model,
+            "x0": x0,
+            "y0": y0,
+            "x1": x1,
+            "y1": y1,
+            "footW": abs(fw * sx),
+            "footD": abs(fd * sy),
+            "frontDeg": front_snap,
+            "wall": front_to_wall(front_snap),
+            "h": (g.attrib.get("data-h") or "").strip(),
+            "raise": (g.attrib.get("data-raise") or "").strip(),
+            "floorY": "0.40" if on_terrace else (g.attrib.get("data-floory") or "").strip(),
+            "mirror": det < -1e-6 or g.attrib.get("data-mirror") == "1",
+        })
+    if skipped:
+        print(f"skipped {skipped} outside the house")
+    return furns
+
+
+def write_d5(items: list[dict]) -> None:
+    place = ROOT / "furniture-place-d5.js"
+    lines = [
+        "// Расстановка Д5. Источник — furniture-map-d4.svg.",
+        "// Карту правьте там, затем: python3 furniture-map/sync_map_to_place.py d5",
+        'import { mountFurniture, CAB_H, COUNTER_H, RAISE } from "./furniture-place-d2.js";',
+        "",
+        "export const D5_FURNITURE = [",
+    ]
+    for it in items:
+        bits = [
+            f'id: "{it["id"]}"',
+            f'x0: {it["x0"]:.3f}',
+            f'y0: {it["y0"]:.3f}',
+            f'x1: {it["x1"]:.3f}',
+            f'y1: {it["y1"]:.3f}',
+            f'footW: {it["footW"]:.3f}',
+            f'footD: {it["footD"]:.3f}',
+            f'frontDeg: {it["frontDeg"]:.0f}',
+            "fromMap: true",
+            f'wall: "{it["wall"]}"',
+        ]
+        if it["h"]:
+            bits.append(f'h: {it["h"]}')
+        if it["raise"]:
+            bits.append(f'raise: {it["raise"]}')
+        if it["floorY"]:
+            bits.append(f'floorY: {it["floorY"]}')
+        if it["mirror"]:
+            bits.append("mirror: true")
+        lines.append("  { " + ", ".join(bits) + " },")
+    lines += [
+        "];",
+        "",
+        "export function mountD5Furniture(group, api) {",
+        "  return mountFurniture(group, api, D5_FURNITURE);",
+        "}",
+        "",
+    ]
+    place.write_text("\n".join(lines), encoding="utf-8")
+    print(f"synced {len(items)} items → {place}")
+
+
+def main_d5() -> None:
+    items = collect_plan_items(ROOT / "furniture-map-d4.svg")
+    if not items:
+        raise SystemExit("no placed furniture on the D4 map")
+    write_d5(items)
+
+
 if __name__ == "__main__":
-    main()
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == "d5":
+        main_d5()
+    else:
+        main()

@@ -566,14 +566,16 @@ def main():
     sheet.set("height", "210mm")
     sheet.set("viewBox", "0 0 297 210")
     sheet.set("version", "1.1")
-    etree.SubElement(sheet, f"{{{SVG}}}title").text = "Абрикосовая 22, план 1 этажа, вариант D, печать А4"
+    mark = re.search(r"variant-([a-z]\d*)", src.stem, re.I)
+    variant = mark.group(1).upper() if mark else "D"
+    etree.SubElement(sheet, f"{{{SVG}}}title").text = f"Абрикосовая 22, план 1 этажа, вариант {variant}, печать А4"
     etree.SubElement(sheet, f"{{{SVG}}}rect", width="297", height="210", fill="#ffffff")
     font = "DejaVu Sans, Liberation Sans, sans-serif"
     sheet.append(drawing)
     etree.SubElement(sheet, f"{{{SVG}}}rect", id="margin-top", x="0", y="0", width="297", height="20.6", fill="#ffffff")
     etree.SubElement(sheet, f"{{{SVG}}}rect", id="margin-bottom", x="0", y="199.4", width="297", height="10.6", fill="#ffffff")
     header = [
-        (6.2, "3.2", "700", "д. Глебковичи, ул. Абрикосовая, 22  ·  план 1 этажа, вариант D"),
+        (6.2, "3.2", "700", f"д. Глебковичи, ул. Абрикосовая, 22  ·  план 1 этажа, вариант {variant}"),
         (10.2, "2.25", "400", "Кадастровый номер 623683401601000218  ·  север листа — вверх, ориентация плана сохранена"),
         (14.0, "2.1", "400", f"Печать А4 альбомная  ·  масштаб 1:{denom}  ·  WGS-84"),
         (17.6, "2.0", "400", "Координаты от точки 53,918361° с.ш., 27,860728° в.д. на центре контура. Это не каталог НКЗ."),

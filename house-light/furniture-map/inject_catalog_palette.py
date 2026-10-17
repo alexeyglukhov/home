@@ -173,11 +173,23 @@ def expand_viewbox(svg: str, plan_x0: float, plan_x1: float, plan_y0: float, pla
             r'transform="matrix\(([^)]+)\)"[^>]*id="furniture"',
             svg,
         )
+    if not wm:
+        world = re.search(
+            r'id="world"[^>]*transform="translate\(([-\d.]+),([-\d.]+)\) scale\(([-\d.]+),([-\d.]+)\)"',
+            svg,
+        )
+        if world:
+            tx, ty, sx, sy = (float(world.group(i)) for i in range(1, 5))
+            wm_vals = (sx, 0.0, 0.0, sy, tx, ty)
+        else:
+            wm_vals = None
+    else:
+        wm_vals = tuple(float(x) for x in wm.group(1).split(","))
     vb = re.search(r'viewBox="\s*([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)\s*"', svg)
-    if not wm or not vb:
+    if wm_vals is None or not vb:
         print("warn: cannot expand viewBox")
         return svg
-    a, b, c, d, e, f = [float(x) for x in wm.group(1).split(",")]
+    a, b, c, d, e, f = wm_vals
     # X' = a*x + e; Y' = d*y + f  (b=c=0)
     corners = []
     for x in (plan_x0, plan_x1):
@@ -192,8 +204,8 @@ def expand_viewbox(svg: str, plan_x0: float, plan_x1: float, plan_y0: float, pla
             plan_corners.append((a * x + e, d * y + f))
     xs = [p[0] for p in plan_corners]
     ys = [p[1] for p in plan_corners]
-    left = min(xs) - 40
-    top = min(ys) - 40
+    left = min(min(xs) - 40, 0)
+    top = min(min(ys) - 40, 0)
     right = max(xs) + 40
     bottom = max(ys) + 40
     w2, h2 = right - left, bottom - top
@@ -256,6 +268,8 @@ def insert_into_furniture(text: str, inner: str) -> str:
 
 
 def main() -> None:
+    import sys
+    svg_path = Path(sys.argv[1]) if len(sys.argv) > 1 else SVG
     n_prev = len(list(PREVIEWS.glob("*.png")))
     if n_prev < 50:
         raise SystemExit(
@@ -264,7 +278,7 @@ def main() -> None:
         )
 
     inner, max_x, min_y, max_y = build_inner()
-    text = SVG.read_text(encoding="utf-8")
+    text = svg_path.read_text(encoding="utf-8")
     if "xmlns:xlink" not in text:
         text = text.replace(
             'xmlns="http://www.w3.org/2000/svg"',
@@ -274,8 +288,8 @@ def main() -> None:
     text = remove_catalog(text)
     text = insert_into_furniture(text, inner)
     text = expand_viewbox(text, ORIGIN_X - 0.5, max_x, min_y, max_y)
-    SVG.write_text(text, encoding="utf-8")
-    print(f"catalog-palette injected ({n_prev} previews) → {SVG}")
+    svg_path.write_text(text, encoding="utf-8")
+    print(f"catalog-palette injected ({n_prev} previews) → {svg_path}")
     print(f"plan bounds x≤{max_x:.1f} y∈[{min_y:.1f},{max_y:.1f}]")
 
 

@@ -4,15 +4,60 @@ const PRINTS = {
     {
       label: "Планировка",
       file: "prints/plan-1-etazh-variant-d2-print.svg",
-      name: "планировка",
+      name: "планировка-д2",
     },
     {
       label: "2D схема",
       file: "prints/abrikosovaya-22-layout-variant-d2-1-100-print.svg",
-      name: "2d-схема",
+      name: "2d-схема-д2",
+    },
+    {
+      label: "Дом",
+      file: "prints/plan-1-etazh-variant-d2-dom-print.svg?v=3",
+      name: "дом-д2",
+    },
+  ],
+  vd3: [
+    {
+      label: "Планировка",
+      file: "prints/plan-1-etazh-variant-d3-print.svg",
+      name: "планировка-д3",
+    },
+    {
+      label: "2D схема",
+      file: "prints/abrikosovaya-22-layout-variant-d3-1-100-print.svg",
+      name: "2d-схема-д3",
+    },
+    {
+      label: "Дом",
+      file: "prints/plan-1-etazh-variant-d3-dom-print.svg?v=3",
+      name: "дом-д3",
+    },
+  ],
+  vd4: [
+    {
+      label: "Планировка",
+      file: "prints/plan-1-etazh-variant-d4-print.svg",
+      name: "планировка-д4",
+    },
+    {
+      label: "2D схема",
+      file: "prints/abrikosovaya-22-layout-variant-d4-1-100-print.svg",
+      name: "2d-схема-д4",
+    },
+    {
+      label: "Дом",
+      file: "prints/plan-1-etazh-variant-d4-dom-print.svg?v=3",
+      name: "дом-д4",
     },
   ],
 };
+
+function sheetsOf(variant) {
+  if (variant === "vd1") return PRINTS.vd2;
+  if (variant === "vd5") return PRINTS.vd4;
+  return PRINTS[variant] || [];
+}
 
 const A4_W = 297;
 const A4_H = 210;
@@ -176,7 +221,7 @@ function sheetButton(sheet) {
 export function syncPrintSheets(variant) {
   closeViewer();
   dock.replaceChildren();
-  const sheets = PRINTS[variant] || [];
+  const sheets = sheetsOf(variant);
   dock.hidden = sheets.length === 0;
   for (const sheet of sheets) dock.appendChild(sheetButton(sheet));
 }

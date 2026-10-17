@@ -69,7 +69,13 @@ inkscape --export-type=png --export-dpi=100 --export-filename=/tmp/layout-print.
 
 ## План этажа
 
-Для `plan-1-etazh-*.svg` дом не поворачивать: лист в ориентации исходного плана.
+Лист только дома, без навеса и угла участка, стены параллельно бумаге:
+
+```bash
+python3 .cursor/skills/layout-print/scripts/build_house_print.py plan-1-etazh-variant-d2.svg
+```
+
+Результат `*-dom-print.svg`. Север на этом листе не вверх: стрелка компаса повёрнута. Для `plan-1-etazh-*.svg` с привязкой к участку дом не поворачивать: лист в ориентации исходного плана.
 
 ```bash
 python3 .cursor/skills/layout-print/scripts/build_floor_print.py plan-1-etazh-variant-d.svg

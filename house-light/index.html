@@ -34,7 +34,7 @@
   #prints {
     position: absolute; top: 14px; right: 14px; z-index: 4;
     display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 16px;
-    max-width: min(360px, calc(100vw - 320px));
+    max-width: min(500px, calc(100vw - 320px));
   }
   #prints[hidden] { display: none; }
   #prints button.sheet {
@@ -172,6 +172,8 @@
     <button type="button" id="var-vd1">Вариант Д1</button>
     <button type="button" id="var-vd2">Вариант Д2</button>
     <button type="button" id="var-vd3">Вариант Д3</button>
+    <button type="button" id="var-vd4">Вариант Д4</button>
+    <button type="button" id="var-vd5">Вариант Д5</button>
   </div>
   <label>Отделка
     <select id="facade-style"></select>
@@ -273,6 +275,6 @@
 <script type="importmap">
 { "imports": { "three": "./vendor/three.module.js" } }
 </script>
-<script type="module" src="./app.js?v=667"></script>
+<script type="module" src="./app.js?v=683"></script>
 </body>
 </html>
