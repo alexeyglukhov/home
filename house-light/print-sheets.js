@@ -37,17 +37,17 @@ const PRINTS = {
   vd4: [
     {
       label: "Планировка",
-      file: "prints/plan-1-etazh-variant-d4-print.svg",
+      file: "prints/plan-1-etazh-variant-d4-print.svg?v=5",
       name: "планировка-д4",
     },
     {
       label: "2D схема",
-      file: "prints/abrikosovaya-22-layout-variant-d4-1-100-print.svg",
+      file: "prints/abrikosovaya-22-layout-variant-d4-1-100-print.svg?v=5",
       name: "2d-схема-д4",
     },
     {
       label: "Дом",
-      file: "prints/plan-1-etazh-variant-d4-dom-print.svg?v=3",
+      file: "prints/plan-1-etazh-variant-d4-dom-print.svg?v=5",
       name: "дом-д4",
     },
   ],

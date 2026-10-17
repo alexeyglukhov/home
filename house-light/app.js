@@ -9,12 +9,12 @@ import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overla
 import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=18";
 import { buildVariantD2, d2WalkBoxes, d2FenceSegments } from "./variant-d2.js?v=84";
 import { buildVariantD3, d3WalkBoxes, d3FenceSegments } from "./variant-d3.js?v=6";
-import { buildVariantD4, d4WalkBoxes, d4FenceSegments, D4_WINDOWS } from "./variant-d4.js?v=5";
+import { buildVariantD4, d4WalkBoxes, d4FenceSegments, D4_WINDOWS } from "./variant-d4.js?v=8";
 import { createD2Tour, createTourDaylight, d2TourPose, D3_WINDOWS } from "./tour-d2.js?v=20";
-import { syncPrintSheets } from "./print-sheets.js?v=8";
+import { syncPrintSheets } from "./print-sheets.js?v=10";
 import { mountFurnitureCatalog } from "./furniture-catalog.js?v=5";
 import { mountD2Furniture } from "./furniture-place-d2.js?v=40";
-import { mountD5Furniture } from "./furniture-place-d5.js?v=2";
+import { mountD5Furniture } from "./furniture-place-d5.js?v=5";
 
 const panel = document.getElementById("panel");
 const dateInput = document.getElementById("date");
@@ -5328,7 +5328,7 @@ const BLURB_C = "Вариант В. Тот же дом отзеркален, в�
 const BLURB_VD1 = "Вариант Д1. Копия планировки Д2 без расстановки мебели из каталога: детская на север, мастер-спальня на юг, вход с запада. Дом на 1 м ближе к воротам, навес 6,3×7,3 м. До северного забора 4 м. Потолок 3,2 м до перекрытия.";
 const BLURB_VD2 = "Вариант Д2. Тот же дом, что Д1, с мебелью из каталога: единая кухонная столешница, мойка и варочная чуть выше, диван с учётом ориентации, в гардеробах модули с одеждой. Детская на север, мастер-спальня на юг, вход с запада.";
 const BLURB_VD3 = "Вариант Д3. Тот же дом, что Д2, с другой нарезкой восточного крыла: два гардероба и спальня на север, мастер-ванная у холла, гардероб и мастер-спальня на юг. Контур дома, терраса и крыша как у Д2.";
-const BLURB_VD4 = "Вариант Д4. Тот же контур, терраса и навес, что у Д3. Западный блок: тамбур, постирочная и кабинет с уступом. Восточное крыло — два мастер-блока.";
+const BLURB_VD4 = "Вариант Д4. Тот же контур, терраса и навес, что у Д3. Запад: тамбур, постирочная и кабинет. Север: спальня-1. Восток: один мастер-блок и спальня-2.";
 const BLURB_VD5 = "Вариант Д5. Та же планировка, что у Д4, плюс мебель из каталога.";
 
 let tourActive = false;

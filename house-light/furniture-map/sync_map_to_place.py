@@ -255,16 +255,18 @@ def ancestor_matrix(node, parent) -> list[float]:
 
 
 def world_matrix(root: ET.Element) -> list[float]:
-    tag = root.tag.split("}")[-1]
-    world = None
+    """Масштаб листа: 1 м = 100, север вверх. Группа world или тот же transform на слое."""
+    found = None
     for g in root.iter():
-        if g.tag.split("}")[-1] == "g" and g.attrib.get("id") == "world":
-            world = g
-            break
-    if world is None:
+        if g.tag.split("}")[-1] != "g":
+            continue
+        if g.attrib.get("id") == "world":
+            return parse_transform(g.attrib.get("transform", ""))
+        if g.attrib.get("id") in ("furniture", "plan-underlay") and found is None:
+            found = parse_transform(g.attrib.get("transform", ""))
+    if found is None or abs(found[0]) < 10:
         raise SystemExit("world layer not found")
-    _ = tag
-    return parse_transform(world.attrib.get("transform", ""))
+    return found
 
 
 def to_plan(world: list[float], x: float, y: float) -> tuple[float, float]:
