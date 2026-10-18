@@ -42,9 +42,11 @@ export function d2TourPose(planToWorld) {
   return { east: e, north: n, yaw: Math.atan2(e1 - e, n1 - n) };
 }
 
-export function createD2Tour(planToWorld, boxes, segments = []) {
+export function createD2Tour(planToWorld, boxes, segments = [], shift = null) {
+  const moveX = shift ? shift.x : HOUSE_DX;
+  const moveY = shift ? shift.y : 0;
   function toWorld(x, y) {
-    return planToWorld(x + HOUSE_DX, y);
+    return planToWorld(x + moveX, y + moveY);
   }
 
   function quadOf(x0, y0, x1, y1) {
@@ -70,9 +72,9 @@ export function createD2Tour(planToWorld, boxes, segments = []) {
   });
   for (const [x0, y0, x1, y1, half] of segments) housePolys.push(bandOf(x0, y0, x1, y1, half || 0));
 
-  const origin = planToWorld(HOUSE_DX, 0);
-  const east = planToWorld(HOUSE_DX + 1, 0);
-  const north = planToWorld(HOUSE_DX, 1);
+  const origin = planToWorld(moveX, moveY);
+  const east = planToWorld(moveX + 1, moveY);
+  const north = planToWorld(moveX, moveY + 1);
   const bx = east[0] - origin[0];
   const bz = east[1] - origin[1];
   const by = north[0] - origin[0];
@@ -389,14 +391,16 @@ export const D3_WINDOWS = [
   { x: 12.79, y: 14.01, dx: -1, dy: 0, h: 1.78, wide: 0.57 },
 ];
 
-export function createTourDaylight(planToWorld, windows = WINDOWS) {
+export function createTourDaylight(planToWorld, windows = WINDOWS, shift = null) {
+  const moveX = shift ? shift.x : HOUSE_DX;
+  const moveY = shift ? shift.y : 0;
   const group = new THREE.Group();
   group.name = "tour-daylight";
   group.visible = false;
   const spots = [];
   for (const win of windows) {
-    const [e, n] = planToWorld(win.x + HOUSE_DX, win.y);
-    const [te, tn] = planToWorld(win.x + HOUSE_DX + win.dx * 3.2, win.y + win.dy * 3.2);
+    const [e, n] = planToWorld(win.x + moveX, win.y + moveY);
+    const [te, tn] = planToWorld(win.x + moveX + win.dx * 3.2, win.y + moveY + win.dy * 3.2);
     const spot = new THREE.SpotLight(0xfff3dc, 0, 8, 1.05, 0.85, 1.5);
     spot.position.set(e, win.h, n);
     spot.target.position.set(te, Math.min(3.2, win.h + 1.35), tn);

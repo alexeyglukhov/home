@@ -130,6 +130,110 @@ def world_matrix(el):
     return m
 
 
+# Один кегль на листе: как у размерной цепочки схемы участка (~2,7 мм).
+DIM_MM = 2.7
+
+
+def _fmt_matrix(m):
+    return "matrix({:.6f},{:.6f},{:.6f},{:.6f},{:.3f},{:.3f})".format(*m)
+
+
+def _matrix_until(el, stop):
+    chain = []
+    node = el
+    while node is not None and node is not stop:
+        chain.append(node)
+        node = node.getparent()
+    m = (1, 0, 0, 1, 0, 0)
+    for node in reversed(chain):
+        if node.get("transform"):
+            m = compose(m, parse_transform(node.get("transform")))
+    return m
+
+
+def _set_dim_font(el, size):
+    style = re.sub(r"font-size:\s*[^;]+;?", "", el.get("style") or "").strip().strip(";")
+    el.set("style", f"font-size:{size:.3f}px" + (";" + style if style else ""))
+    if el.get("font-size"):
+        el.set("font-size", f"{size:.3f}")
+    el.set("fill", "#111111")
+
+
+def _dim_text(el, plan_dims):
+    if not isinstance(el.tag, str) or el.tag.split("}")[-1] != "text":
+        return False
+    node = el
+    while node is not None:
+        if node.get("id") in ("print-dims", "outline-dims", "plot-tie"):
+            return True
+        node = node.getparent()
+    return plan_dims and "dimnum" in (el.get("class") or "")
+
+
+def promote_dim_labels(container, scale, plan_dims=True):
+    """Один размер шрифта и подписи поверх чертежа, с белой плашкой."""
+    size = DIM_MM / scale
+    texts = [el for el in container.iter() if _dim_text(el, plan_dims)]
+    if not texts:
+        return
+    layer = etree.Element(f"{{{SVG}}}g", id="dim-labels")
+    seen = set()
+
+    def plate(raw):
+        w = size * (0.55 * len(raw) + 0.55)
+        h = size * 1.32
+        return etree.Element(
+            f"{{{SVG}}}rect",
+            x=f"{-w / 2:.2f}", y=f"{-h / 2:.2f}",
+            width=f"{w:.2f}", height=f"{h:.2f}",
+            fill="#ffffff", stroke="none",
+        )
+
+    for el in texts:
+        if el in seen or el.getparent() is None:
+            continue
+        parent = el.getparent()
+        kids = [k for k in parent if isinstance(k.tag, str)] if parent is not None else []
+        wrapped = (
+            parent is not None
+            and parent.tag.split("}")[-1] == "g"
+            and not parent.get("id")
+            and any(k.tag.split("}")[-1] == "rect" for k in kids)
+            and all(k.tag.split("}")[-1] in ("rect", "text") for k in kids)
+        )
+        if wrapped:
+            for k in kids:
+                seen.add(k)
+            raw = "".join(el.itertext()).strip()
+            _set_dim_font(el, size)
+            rect = next(k for k in kids if k.tag.split("}")[-1] == "rect")
+            w = size * (0.55 * len(raw) + 0.55)
+            h = size * 1.32
+            rect.set("x", f"{-w / 2:.2f}")
+            rect.set("y", f"{-h / 2:.2f}")
+            rect.set("width", f"{w:.2f}")
+            rect.set("height", f"{h:.2f}")
+            parent.set("transform", _fmt_matrix(_matrix_until(parent, container)))
+            layer.append(parent)
+            continue
+        seen.add(el)
+        raw = "".join(el.itertext()).strip()
+        if not raw:
+            parent.remove(el)
+            continue
+        m = compose(_matrix_until(el, container), (1, 0, 0, 1, float(el.get("x") or 0), float(el.get("y") or 0)))
+        g = etree.SubElement(layer, f"{{{SVG}}}g")
+        g.set("transform", _fmt_matrix(m))
+        g.append(plate(raw))
+        parent.remove(el)
+        el.attrib.pop("transform", None)
+        el.set("x", "0")
+        el.set("y", "0")
+        _set_dim_font(el, size)
+        g.append(el)
+    container.append(layer)
+
+
 def recolor(el):
     repl = {
         "#ffdd55": "#ffffff",
@@ -344,6 +448,19 @@ class Draw:
             self.line(foot, add(foot, scale(outward, off + PAST_DIM)), 0.4)
             self.label(add(p0, scale(u, t / 2)), u, scale(outward, -1), fmt_m(t / 10))
 
+    def gate_segments(self, origin, u, outward, ticks, off):
+        """От угла до ворот, ширина ворот и калитки — отдельные отрезки."""
+        last = ticks[-1]
+        self.line(origin, add(origin, scale(outward, off + PAST_DIM)), 0.45)
+        self.line(add(origin, scale(outward, off)), add(add(origin, scale(u, last)), scale(outward, off)), 0.55)
+        for t in ticks:
+            foot = add(origin, scale(u, t))
+            self.line(foot, add(foot, scale(outward, off + PAST_DIM)), 0.4)
+            self.tick(add(foot, scale(outward, off)), u)
+        for a, b in zip(ticks, ticks[1:]):
+            mid = add(add(origin, scale(u, (a + b) / 2)), scale(outward, off))
+            self.label(mid, u, scale(outward, -1), fmt_m((b - a) / 10))
+
 
 def content_points(root):
     pts = []
@@ -382,6 +499,127 @@ def content_points(root):
     return pts
 
 
+def add_outline_dims(root):
+    """Габарит дома, терраса, фронтоны и отступы крыльца — то, чего нет в размерной цепочке плана."""
+
+    def find(eid):
+        return root.find(f".//*[@id='{eid}']")
+
+    if find("line642") is None:
+        print("outline dims skipped")
+        return
+    corners = dict(HOUSE)
+    w_x, n_y = corners["nw"]
+    e_x = corners["ne"][0]
+    s_y = corners["sw"][1]
+    jog_x, jog_y = corners["in"]
+
+    def box(el):
+        m = world_matrix(el)
+        tag = el.tag.split("}")[-1]
+        if tag == "rect":
+            x, y = float(el.get("x")), float(el.get("y"))
+            w, h = float(el.get("width")), float(el.get("height"))
+            local = [(x, y), (x + w, y), (x + w, y + h), (x, y + h)]
+        else:
+            nums = [float(v) for v in re.findall(r"[-+]?(?:\d+\.?\d*|\.\d+)", el.get("points") or "")]
+            local = [(nums[i], nums[i + 1]) for i in range(0, len(nums) - 1, 2)]
+        pts = [apply(m, px, py) for px, py in local]
+        xs, ys = [p[0] for p in pts], [p[1] for p in pts]
+        return min(xs), min(ys), max(xs), max(ys)
+
+    present = set()
+    for el in root.iter():
+        if "dimnum" in (el.get("class") or ""):
+            present.add(" ".join("".join(el.itertext()).split()))
+
+    g = etree.SubElement(root, f"{{{SVG}}}g", id="outline-dims")
+
+    def stroke(x1, y1, x2, y2, kind="dim"):
+        etree.SubElement(
+            g, f"{{{SVG}}}line",
+            x1=f"{x1:.2f}", y1=f"{y1:.2f}", x2=f"{x2:.2f}", y2=f"{y2:.2f}",
+            **{"class": kind},
+        )
+
+    def label(x, y, text, anchor):
+        node = etree.SubElement(
+            g, f"{{{SVG}}}text", x=f"{x:.2f}", y=f"{y:.2f}", fill="#222222",
+        )
+        node.set("class", "dimnum")
+        node.set("font-size", "2.2")
+        node.set("text-anchor", anchor)
+        node.set("dominant-baseline", "middle")
+        node.text = text
+
+    def fmt(meters):
+        return f"{meters:.2f}".replace(".", ",") + " м"
+
+    def add_h(x0, x1, y, text, dy=-2.4):
+        if text in present or abs(x1 - x0) < 2:
+            return False
+        stroke(x0, y, x1, y)
+        stroke(x0, y - 1.05, x0, y + 1.05)
+        stroke(x1, y - 1.05, x1, y + 1.05)
+        label((x0 + x1) / 2, y + dy, text, "middle")
+        present.add(text)
+        return True
+
+    def add_v(y0, y1, x, text, dx=-3.6):
+        if text in present or abs(y1 - y0) < 2:
+            return False
+        stroke(x, y0, x, y1)
+        stroke(x - 1.05, y0, x + 1.05, y0)
+        stroke(x - 1.05, y1, x + 1.05, y1)
+        label(x + dx, (y0 + y1) / 2, text, "end" if dx < 0 else "start")
+        present.add(text)
+        return True
+
+    porch_el = find("roombox-porch")
+    if porch_el is None:
+        porch_el = find("rect62")
+    if porch_el is not None:
+        px0, py0, px1, py1 = box(porch_el)
+        porch_west, porch_n, porch_s = min(px0, w_x), min(py0, py1), max(py0, py1)
+        y_all = n_y - 20
+        if add_h(porch_west, e_x, y_all, fmt((e_x - porch_west) / 10), dy=2.6):
+            stroke(porch_west, porch_n, porch_west, y_all, "ext")
+            stroke(e_x, n_y, e_x, y_all, "ext")
+        add_h(porch_west, w_x, porch_n - 3.6, fmt((w_x - porch_west) / 10), dy=2.0)
+        x_chain = -24.0
+        stroke(w_x, n_y, x_chain, n_y, "ext")
+        stroke(porch_west, porch_n, x_chain, porch_n, "ext")
+        stroke(porch_west, porch_s, x_chain, porch_s, "ext")
+        stroke(w_x, s_y, x_chain, s_y, "ext")
+        add_v(n_y, porch_n, x_chain, fmt((porch_n - n_y) / 10), dx=1.6)
+        add_v(porch_n, porch_s, x_chain, fmt((porch_s - porch_n) / 10), dx=1.6)
+        add_v(porch_s, s_y, x_chain, fmt((s_y - porch_s) / 10), dx=1.6)
+
+    terr = find("roombox-g-terr1")
+    terr_box = box(terr) if terr is not None else None
+
+    x_gable = e_x + 12
+    if add_v(n_y, jog_y, x_gable, fmt((jog_y - n_y) / 10), dx=-3.4):
+        stroke(e_x, n_y, x_gable, n_y, "ext")
+        stroke(e_x, jog_y, x_gable, jog_y, "ext")
+    x_south = (terr_box[2] + 22) if terr_box else (jog_x + 48)
+    if add_v(jog_y, s_y, x_south, fmt((s_y - jog_y) / 10), dx=-3.4):
+        stroke(jog_x, jog_y, x_south, jog_y, "ext")
+        stroke(jog_x, s_y, x_south, s_y, "ext")
+
+    if terr_box is not None:
+        tx0, ty0, tx1, ty1 = terr_box
+        y_w = ty1 + 4.5
+        if add_h(tx0, tx1, y_w, fmt((tx1 - tx0) / 10), dy=-2.2):
+            stroke(tx0, ty1, tx0, y_w, "ext")
+            stroke(tx1, ty1, tx1, y_w, "ext")
+        x_len = tx1 + 5
+        if add_v(ty0, ty1, x_len, fmt((ty1 - ty0) / 10), dx=-3.2):
+            stroke(tx1, ty0, x_len, ty0, "ext")
+            stroke(tx1, ty1, x_len, ty1, "ext")
+    print(f"outline dims +{len(g)}")
+
+
 def main():
     src = Path(sys.argv[1] if len(sys.argv) > 1 else "plan-1-etazh-variant-d.svg")
     out = Path(sys.argv[2] if len(sys.argv) > 2 else str(src.with_name(src.stem + "-print.svg")))
@@ -389,7 +627,7 @@ def main():
 
     for el in list(root):
         tag = el.tag.split("}")[-1]
-        if tag in ("namedview", "metadata", "title") or el.get("id") in ("page-bg", "text6", "namedview498"):
+        if tag in ("namedview", "metadata", "title") or el.get("id") in ("page-bg", "text6", "namedview498", "drive-strip"):
             root.remove(el)
     for el in list(root.iter()):
         if el.getparent() is None:
@@ -401,6 +639,7 @@ def main():
         if el.tag.split("}")[-1] == "style" and el.text and re.search(r"(^|\n)\s*text\s*\{", el.text):
             el.text = re.sub(r"(^|\n)(\s*)text\s*\{", r"\1\2#drawing text {", el.text)
 
+    add_outline_dims(root)
     canopy = canopy_points(root)
     a_plan = None
     # Углы участка в координатах этого плана.
@@ -511,6 +750,9 @@ def main():
     print("west along", [round(t / 10, 2) for t in west_stations])
     draw.from_corner(a_plan, nu, north_out, north_stations)
     draw.from_corner(a_plan, wu, west_out, west_stations, base=10.0, gap=13.0)
+    # 5 м от угла, проём 4 м, калитка 1 м. Линия снаружи стопки отступов дома.
+    gate_off = 10.0 + 13.0 * max(len(west_stations) - 1, 0) + 18.0
+    draw.gate_segments(a_plan, wu, west_out, [0.0, 50.0, 90.0, 100.0], gate_off)
 
     def station_off(stations, base, gap):
         ordered = sorted(stations, reverse=True)
@@ -561,6 +803,7 @@ def main():
     drawing.set("transform", f"translate({ox:.3f},{oy:.3f}) scale({s:.6f}) translate({-minx:.3f},{-miny:.3f})")
     for child in list(root):
         drawing.append(child)
+    promote_dim_labels(drawing, s)
     sheet = etree.Element(f"{{{SVG}}}svg", nsmap={None: SVG})
     sheet.set("width", "297mm")
     sheet.set("height", "210mm")

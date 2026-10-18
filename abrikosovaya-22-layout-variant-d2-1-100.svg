@@ -20,26 +20,26 @@
   <polygon points="85.36,294.18 709.27,78.93 725.58,126.20 101.67,341.45" fill="#e3e3e0" stroke="#bdbdb8" stroke-width="0.3" stroke-linejoin="miter" id="polygon18"/>
   <polygon points="163.20,320.22 369.30,684.22 325.79,708.86 115.14,336.80" fill="#e3e3e0" stroke="#bdbdb8" stroke-width="0.3" stroke-linejoin="miter" id="polygon20"/>
   <path d="m 596.69,534.61 -21.49,-62.28 46.4,-16 -38.54,-111.71 -187.38,64.65 19.62,56.86 -14.97,5.17 18.3,53.05 14.97,-5.17 22.1,64.08 z m -134.8,35.94 122.09,-42.12 -21.49,-62.28 46.39,-16.01 -32.02,-92.82 -168.47,58.13 19.62,56.87 -14.97,5.16 11.79,34.16 14.96,-5.16 z" fill="#d4cfc4" fill-rule="evenodd" stroke="#bdbdb8" stroke-width="0.25" id="blind-area"/>
-  <polygon points="290.58,436.77 402.15,398.27 440.16,508.46 348.80,539.99" fill="#ececec" stroke="#222222" stroke-width="0.3" stroke-linejoin="miter" id="front-court"/>
-  <polygon points="289.79,543.05 258.56,487.89 304.53,461.85 335.75,517.02" fill="#ececec" stroke="#222222" stroke-width="0.3" stroke-linejoin="miter" id="drive-apron"/>
+  <polygon points="276.41,418.68 395.33,377.65 440.42,508.33 345.68,541.02" fill="#ececec" stroke="#222222" stroke-width="0.3" stroke-linejoin="miter" id="front-court"/>
+  <polygon points="257.53,486.83 282.17,530.34 325.68,505.70 301.04,462.19" fill="#ececec" stroke="#222222" stroke-width="0.3" stroke-linejoin="miter" id="drive-apron"/>
   <g id="fence">
-    <path d="M 302.69,465.09 L 276.41,418.68 L 756.96,252.89 L 924.99,549.55 L 412.81,659.59 L 332.25,517.31" fill="none" stroke="#f7f4ee" stroke-width="5.2" stroke-linecap="butt" stroke-linejoin="miter" id="fence-base"/>
-    <path d="M 302.69,465.09 L 276.41,418.68 L 756.96,252.89 L 924.99,549.55 L 412.81,659.59 L 332.25,517.31" fill="none" stroke="#5c4634" stroke-width="2.6" stroke-linecap="butt" stroke-linejoin="miter" id="fence-line"/>
+    <path d="M 301.04,462.19 L 276.41,418.68 L 756.96,252.89 L 924.99,549.55 L 412.81,659.59 L 325.68,505.70" fill="none" stroke="#f7f4ee" stroke-width="5.2" stroke-linecap="butt" stroke-linejoin="miter" id="fence-base"/>
+    <path d="M 301.04,462.19 L 276.41,418.68 L 756.96,252.89 L 924.99,549.55 L 412.81,659.59 L 325.68,505.70" fill="none" stroke="#5c4634" stroke-width="2.6" stroke-linecap="butt" stroke-linejoin="miter" id="fence-line"/>
     <polygon points="273.61,417.32 277.77,415.88 279.21,420.04 275.05,421.48" fill="#3a3028" stroke="#241c16" stroke-width="0.2" id="fence-post-0"/>
     <polygon points="757.79,249.89 759.96,253.72 756.13,255.89 753.96,252.06" fill="#3a3028" stroke="#241c16" stroke-width="0.2" id="fence-post-1"/>
     <polygon points="927.60,551.24 923.30,552.16 922.38,547.86 926.68,546.94" fill="#3a3028" stroke="#241c16" stroke-width="0.2" id="fence-post-2"/>
     <polygon points="411.98,662.59 409.81,658.76 413.64,656.59 415.81,660.42" fill="#3a3028" stroke="#241c16" stroke-width="0.2" id="fence-post-3"/>
-    <polygon points="303.52,462.10 305.68,465.92 301.86,468.09 299.69,464.26" fill="#3a3028" stroke="#241c16" stroke-width="0.2" id="fence-post-4"/>
-    <polygon points="328.15,505.61 330.32,509.43 326.49,511.60 324.32,507.77" fill="#3a3028" stroke="#241c16" stroke-width="0.2" id="fence-post-5"/>
-    <polygon points="333.08,514.31 335.25,518.14 331.42,520.30 329.25,516.48" fill="#3a3028" stroke="#241c16" stroke-width="0.2" id="fence-post-6"/>
-    <line x1="279.59" y1="419.22" x2="330.09" y2="508.42" stroke="#2c3038" stroke-width="0.55" stroke-linecap="butt" id="gate-rail"/>
-    <line x1="294.56" y1="448.09" x2="296.65" y2="446.91" stroke="#1a1c20" stroke-width="0.7" stroke-linecap="butt" id="gate-roller-1"/>
-    <line x1="313.53" y1="481.60" x2="315.61" y2="480.41" stroke="#1a1c20" stroke-width="0.7" stroke-linecap="butt" id="gate-roller-2"/>
-    <line x1="292.65" y1="444.12" x2="316.10" y2="485.54" stroke="#8a7358" stroke-width="1.15" stroke-linecap="butt" id="gate-leaf-1"/>
-    <line x1="294.22" y1="443.23" x2="317.67" y2="484.65" stroke="#8a7358" stroke-width="1.15" stroke-linecap="butt" id="gate-leaf-2"/>
-    <line x1="329.21" y1="508.69" x2="333.15" y2="515.65" stroke="#8a7358" stroke-width="0.7" stroke-linecap="butt" id="wicket-leaf"/>
-    <polygon points="304.55,459.86 306.33,462.99 308.59,461.71 306.81,458.58" fill="#2a2e34" stroke="#1a1a1a" stroke-width="0.35" id="gate-drive"/>
-    <circle cx="305.09" cy="461.63" r="0.72" fill="#c5c8cc" stroke="#1a1a1a" stroke-width="0.25" id="gate-pinion"/>
+    <polygon points="301.88,459.19 304.04,463.02 300.21,465.19 298.05,461.36" fill="#3a3028" stroke="#241c16" stroke-width="0.2" id="fence-post-4"/>
+    <polygon points="321.58,494.00 323.75,497.83 319.92,500.00 317.75,496.17" fill="#3a3028" stroke="#241c16" stroke-width="0.2" id="fence-post-5"/>
+    <polygon points="326.51,502.70 328.68,506.53 324.85,508.70 322.68,504.87" fill="#3a3028" stroke="#241c16" stroke-width="0.2" id="fence-post-6"/>
+    <line x1="279.57" y1="419.19" x2="323.17" y2="496.20" stroke="#2c3038" stroke-width="0.55" stroke-linecap="butt" id="gate-rail"/>
+    <line x1="283.21" y1="428.05" x2="285.30" y2="426.86" stroke="#1a1c20" stroke-width="0.7" stroke-linecap="butt" id="gate-roller-1"/>
+    <line x1="298.48" y1="455.02" x2="300.57" y2="453.84" stroke="#1a1c20" stroke-width="0.7" stroke-linecap="butt" id="gate-roller-2"/>
+    <line x1="281.25" y1="423.98" x2="300.96" y2="458.79" stroke="#8a7358" stroke-width="1.15" stroke-linecap="butt" id="gate-leaf-1"/>
+    <line x1="282.82" y1="423.10" x2="302.53" y2="457.90" stroke="#8a7358" stroke-width="1.15" stroke-linecap="butt" id="gate-leaf-2"/>
+    <line x1="322.64" y1="497.08" x2="326.58" y2="504.04" stroke="#8a7358" stroke-width="0.7" stroke-linecap="butt" id="wicket-leaf"/>
+    <polygon points="303.81,458.55 305.59,461.69 307.85,460.41 306.08,457.27" fill="#2a2e34" stroke="#1a1a1a" stroke-width="0.35" id="gate-drive"/>
+    <circle cx="304.35" cy="460.32" r="0.72" fill="#c5c8cc" stroke="#1a1a1a" stroke-width="0.25" id="gate-pinion"/>
   </g>
   <g id="house-v2">
     <style id="style118">

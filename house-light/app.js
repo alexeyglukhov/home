@@ -7,14 +7,14 @@ import { FURNITURE_D } from "./furniture-d.js?v=6";
 import { WALL_LINES } from "./wall-sketch.js?v=2";
 import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=19";
 import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=18";
-import { buildVariantD2, d2WalkBoxes, d2FenceSegments } from "./variant-d2.js?v=84";
-import { buildVariantD3, d3WalkBoxes, d3FenceSegments } from "./variant-d3.js?v=6";
-import { buildVariantD4, d4WalkBoxes, d4FenceSegments, D4_WINDOWS } from "./variant-d4.js?v=8";
-import { createD2Tour, createTourDaylight, d2TourPose, D3_WINDOWS } from "./tour-d2.js?v=20";
-import { syncPrintSheets } from "./print-sheets.js?v=10";
+import { buildVariantD2, d2WalkBoxes, d2FenceSegments } from "./variant-d2.js?v=85";
+import { buildVariantD3, d3WalkBoxes, d3FenceSegments } from "./variant-d3.js?v=7";
+import { buildVariantD4, d4WalkBoxes, d4FenceSegments, D4_WINDOWS, D4_BASE } from "./variant-d4.js?v=21";
+import { createD2Tour, createTourDaylight, d2TourPose, D3_WINDOWS } from "./tour-d2.js?v=21";
+import { syncPrintSheets } from "./print-sheets.js?v=16";
 import { mountFurnitureCatalog } from "./furniture-catalog.js?v=5";
-import { mountD2Furniture } from "./furniture-place-d2.js?v=40";
-import { mountD5Furniture } from "./furniture-place-d5.js?v=5";
+import { mountD2Furniture } from "./furniture-place-d2.js?v=41";
+import { mountD5Furniture } from "./furniture-place-d5.js?v=6";
 
 const panel = document.getElementById("panel");
 const dateInput = document.getElementById("date");
@@ -5086,11 +5086,11 @@ function addVariantD4Scene() {
       mountAnyOverlays(
         variantD4Group,
         (x, y, z) => {
-          const [e, n] = planToWorld(x - 1, y);
+          const [e, n] = planToWorld(x + D4_BASE.x, y + D4_BASE.y);
           return [e, z, n];
         },
         (x0, y0, x1, y1, z0, z1, color) => planBox(
-          [[x0 - 1, y0], [x1 - 1, y0], [x1 - 1, y1], [x0 - 1, y1]], z0, z1, color
+          [[x0 + D4_BASE.x, y0 + D4_BASE.y], [x1 + D4_BASE.x, y0 + D4_BASE.y], [x1 + D4_BASE.x, y1 + D4_BASE.y], [x0 + D4_BASE.x, y1 + D4_BASE.y]], z0, z1, color
         ),
         make
       );
@@ -5113,11 +5113,11 @@ function addVariantD5Scene() {
       mountAnyOverlays(
         variantD5Group,
         (x, y, z) => {
-          const [e, n] = planToWorld(x - 1, y);
+          const [e, n] = planToWorld(x + D4_BASE.x, y + D4_BASE.y);
           return [e, z, n];
         },
         (x0, y0, x1, y1, z0, z1, color) => planBox(
-          [[x0 - 1, y0], [x1 - 1, y0], [x1 - 1, y1], [x0 - 1, y1]], z0, z1, color
+          [[x0 + D4_BASE.x, y0 + D4_BASE.y], [x1 + D4_BASE.x, y0 + D4_BASE.y], [x1 + D4_BASE.x, y1 + D4_BASE.y], [x0 + D4_BASE.x, y1 + D4_BASE.y]], z0, z1, color
         ),
         make
       );
@@ -5132,6 +5132,8 @@ function addVariantD5Scene() {
     prismGeometry,
     azX: AZ_X,
     azY: AZ_Y,
+    houseDx: D4_BASE.x,
+    houseDy: D4_BASE.y,
   }).catch((err) => console.warn("d5 furniture", err));
 }
 addVariantD5Scene();
@@ -5482,14 +5484,14 @@ document.getElementById("var-vd5").addEventListener("click", () => { setVariant(
 
 const d2Tour = createD2Tour(planToWorld, d2WalkBoxes(), d2FenceSegments());
 const d3Tour = createD2Tour(planToWorld, d3WalkBoxes(), d3FenceSegments());
-const d4Tour = createD2Tour(planToWorld, d4WalkBoxes(), d4FenceSegments());
+const d4Tour = createD2Tour(planToWorld, d4WalkBoxes(), d4FenceSegments(D4_BASE), D4_BASE);
 function activeTour() {
   if (viewVariant === "vd4" || viewVariant === "vd5") return d4Tour;
   return viewVariant === "vd3" ? d3Tour : d2Tour;
 }
 const tourDaylight = createTourDaylight(planToWorld);
 const tourDaylightD3 = createTourDaylight(planToWorld, D3_WINDOWS);
-const tourDaylightD4 = createTourDaylight(planToWorld, D4_WINDOWS);
+const tourDaylightD4 = createTourDaylight(planToWorld, D4_WINDOWS, D4_BASE);
 scene.add(tourDaylight.object, tourDaylightD3.object, tourDaylightD4.object);
 function activeDaylight() {
   if (viewVariant === "vd4" || viewVariant === "vd5") return tourDaylightD4;

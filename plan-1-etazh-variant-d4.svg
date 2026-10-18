@@ -22,7 +22,7 @@
   #house.mirror .upright { transform: scaleX(-1); transform-box: fill-box; transform-origin: center; }
 </style>
   <rect id="page-bg" x="-149.78459" y="-82.103432" width="404" height="274" fill="#ffffff"/>
-  <path id="rect1904" style="fill:#ececec;stroke:#222222;stroke-width:0.286;stop-color:#000000" d="m -90.428914,-49.384308 118.02863,0 V 67.166794 h -96.658729 z" sodipodi:nodetypes="ccccc"/>
+  <path id="rect1904" style="fill:#ececec;stroke:#222222;stroke-width:0.286;stop-color:#000000" d="M -107.899,-71.078 L 27.601,-71.078 L 27.601,67.162 L -82.320,67.162 Z" sodipodi:nodetypes="ccccc"/>
   <text x="202.21103" y="184.58163" style="font-weight:700;font-size:2.2px;text-anchor:start" id="text6">М 1:100. 1 м = 10 мм</text>
   <rect id="rect8-L" x="27.898731" y="-31.105608" width="93.088112" height="3.8" style="fill:#1a1a1a;stroke:none;stroke-width:0.999996"/>
   <rect id="rect8-R" x="120.98684" y="-31.105608" width="84.859642" height="3.8" style="fill:#1a1a1a;stroke:none;stroke-width:0.999996"/>
@@ -552,10 +552,10 @@
   <line class="dim" x1="206.13103" y1="74.501884" x2="206.13103" y2="76.701881" id="line694"/>
   <text class="dimnum" x="165.67102" y="73.30188" fill="#222" stroke="none" id="text696">8,09 м</text>
   <rect x="-131.65929" y="154.70233" width="61.747524" height="0.80439603" id="rect1868" style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#6b3e24;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1" transform="rotate(-90)"/>
-  <polygon id="drive-path" points="-126.473,49.428 -137.391,-9.564 -88.221,-18.665 -77.313,40.324 " fill="none" stroke="#4e4842" stroke-width="0.45" stroke-linejoin="miter" transform="matrix(1.0565692,0,0,1.0565692,7.7869292,-1.405121)" style="fill:#ececec;font-variation-settings:normal;opacity:1;vector-effect:none;fill-opacity:1;stroke:#222222;stroke-width:0.27068743;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1"/>
-  <line id="gate-rail" x1="-94.738312" y1="-69.491066" x2="-51.140381" y2="166.1051" stroke="#2c3038" stroke-width="1.28566" stroke-linecap="butt" style="stroke-width:0.686;stroke-dasharray:none"/>
-  <line id="gate-leaf-1" x1="-86.76371" y1="-19.630699" x2="-78.102707" y2="27.169302" stroke="#8a7358" stroke-width="1.15" stroke-linecap="butt"/>
-  <line id="gate-leaf-2" x1="-92.135765" y1="-64.065887" x2="-83.475769" y2="-17.264887" stroke="#8a7358" stroke-width="1.15" stroke-linecap="butt"/>
+  <polygon id="drive-path" points="-147.967,-12.815 -138.870,36.350 -89.704,27.253 -98.802,-21.913" fill="none" stroke="#4e4842" stroke-width="0.45" stroke-linejoin="miter" style="fill:#ececec;font-variation-settings:normal;opacity:1;vector-effect:none;fill-opacity:1;stroke:#222222;stroke-width:0.27068743;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1"/>
+  <line id="gate-rail" x1="-105.077" y1="-69.566" x2="-88.975" y2="17.456" stroke="#2c3038" stroke-width="1.28566" stroke-linecap="butt" style="stroke-width:0.686;stroke-dasharray:none"/>
+  <line id="gate-leaf-1" x1="-105.052" y1="-64.486" x2="-97.774" y2="-25.154" stroke="#8a7358" stroke-width="1.15" stroke-linecap="butt"/>
+  <line id="gate-leaf-2" x1="-103.282" y1="-64.814" x2="-96.004" y2="-25.481" stroke="#8a7358" stroke-width="1.15" stroke-linecap="butt"/>
   <line id="canopy-ridge" x1="-35.585999" y1="-11.994" x2="27.451" y2="-12.26" stroke="#c0392b" stroke-width="0.35" stroke-dasharray="1.6, 0.9" stroke-linecap="butt"/>
   <rect id="canopy-post-0" x="-29.179686" y="21.284" width="2.2" height="2.2" fill="#6b3e24" stroke="none"/>
   <rect id="canopy-post-1" x="-41.412777" y="-47.846001" width="2.2" height="2.2" fill="#6b3e24" stroke="none"/>
@@ -566,13 +566,13 @@
   <rect id="canopy-post-6" x="-10.821164" y="21.052" width="2.2" height="2.2" fill="#6b3e24" stroke="none"/>
   <rect id="canopy-post-7" x="-8.1823378" y="-47.902" width="2.2" height="2.2" fill="#6b3e24" stroke="none"/>
   <g id="drive-width" class="dim">
-    <line id="drive-width-ext-1" x1="-88.810997" y1="-18.556" x2="-93.726997" y2="-17.646"/>
-    <line id="drive-width-ext-2" x1="-77.903" y1="40.432999" x2="-82.819" y2="41.342999"/>
-    <line id="drive-width-line" x1="-92.350998" y1="-17.900999" x2="-81.443001" y2="41.088001"/>
-    <line id="drive-width-tick-1" x1="-91.268997" y1="-18.101" x2="-93.431999" y2="-17.700001"/>
-    <line id="drive-width-tick-2" x1="-80.361" y1="40.888" x2="-82.524002" y2="41.289001"/>
+    <line id="drive-width-ext-1" x1="-98.802" y1="-21.913" x2="-107.651" y2="-20.275"/>
+    <line id="drive-width-ext-2" x1="-91.524" y1="17.420" x2="-100.374" y2="19.057"/>
+    <line id="drive-width-line" x1="-107.651" y1="-20.275" x2="-100.374" y2="19.057"/>
+    <line id="drive-width-tick-1" x1="-105.685" y1="-20.639" x2="-109.618" y2="-19.911"/>
+    <line id="drive-width-tick-2" x1="-98.407" y1="18.693" x2="-102.340" y2="19.421"/>
   </g>
-  <text id="drive-width-label" class="dimnum" x="-4.4051104" y="90.155678" transform="rotate(79.52)">6,00 м</text>
+  <text id="drive-width-label" class="dimnum" x="-104.013" y="-0.609" transform="rotate(79.52)">4,00 м</text>
   <path id="canopy-eave" style="fill:none;stroke:#c0392b;stroke-width:0.4;stroke-dasharray:1.6, 0.9" d="m 27.486,24.403 -57.157271,0.003 -13.492386,-73.07 70.618657,-0.003 c -0.01819,24.356682 0.0077,48.71333427 0.031,73.07 z" sodipodi:nodetypes="ccccc"/>
   <rect id="rect1348" x="-25.16897" y="-47.902" width="2.2" height="2.2" fill="#6b3e24" stroke="none"/>
   <line id="line1907" x1="-82.151413" y1="-21.053791" x2="-89.588104" y2="-19.677601" stroke="#2c3038" stroke-width="1.28566" stroke-linecap="butt" style="stroke-width:0.422;stroke-dasharray:none"/>

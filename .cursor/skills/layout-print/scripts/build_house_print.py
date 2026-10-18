@@ -20,6 +20,8 @@ from build_floor_print import (  # noqa: E402
     SVG,
     apply,
     mul,
+    add_outline_dims,
+    promote_dim_labels,
     recolor,
     world_matrix,
 )
@@ -190,6 +192,7 @@ def main():
             if val and "#6b3e24" in val.lower():
                 el.set(attr, re.sub("#6b3e24", "#222222", val, flags=re.I))
 
+    add_outline_dims(root)
     pts = content_points(root)
     if not pts:
         raise SystemExit("на листе не осталось чертежа")
@@ -210,6 +213,7 @@ def main():
     )
     for child in list(root):
         drawing.append(child)
+    promote_dim_labels(drawing, s)
 
     mark = re.search(r"variant-([a-z]\d*)", src.stem, re.I)
     variant = mark.group(1).upper() if mark else src.stem

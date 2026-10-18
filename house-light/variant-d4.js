@@ -3,6 +3,9 @@
 // Координаты плана: x вдоль северного забора на восток, y на север.
 import * as THREE from "three";
 
+// Д4 стоит на 1 м западнее координат плана, как Д2 и Д3.
+export const D4_BASE = { x: -1, y: 0 };
+
 const WALLS = [
   [-4.42, 18.50, 4.89, 18.88],
   [4.89, 18.50, 13.37, 18.88],
@@ -143,7 +146,7 @@ export function d4WalkBoxes() {
 
 // Высокие полотна забора в координатах ходьбы (дом без сдвига). Забор на схеме не едет вместе с домом.
 // Открытый промежуток откатных ворот между полотном и калиткой сюда не входит.
-export function d4FenceSegments() {
+export function d4FenceSegments(houseShift = null) {
   const plot = [[-18, 22.877], [32.835, 22.877], [39.044, -10.647], [-12.963, -4.345]];
   const nw = plot[0];
   const sw = plot[3];
@@ -153,17 +156,21 @@ export function d4FenceSegments() {
   const along = (s) => [nw[0] + dx / len * s, nw[1] + dy / len * s];
   const inward = [-dy / len, dx / len];
   const shift = (p, dist) => [p[0] + inward[0] * dist, p[1] + inward[1] * dist];
-  const gateOff = 0.22;
   const runs = [
     [plot[0], plot[1], 0.06],
     [plot[1], plot[2], 0.06],
     [plot[2], plot[3], 0.06],
-    [along(11.334), plot[3], 0.06],
-    [plot[0], along(5.334), 0.06],
-    [along(10.43), along(11.23), 0.025],
-    [shift(along(3.01), gateOff), shift(along(7.77), gateOff), 0.04],
+    [along(10), plot[3], 0.06],
+    [plot[0], along(5), 0.06],
+    [along(9.10), along(9.90), 0.025],
+    [shift(along(0.70), 0.16), shift(along(4.70), 0.16), 0.04],
+    [shift(along(0.70), 0.34), shift(along(4.70), 0.34), 0.04],
   ];
-  return runs.map(([a, b, half]) => [a[0] + 1, a[1], b[0] + 1, b[1], half]);
+  const mx = houseShift ? houseShift.x : 0;
+  const my = houseShift ? houseShift.y : 0;
+  return runs.map(([a, b, half]) => [
+    a[0] - mx, a[1] - my, b[0] - mx, b[1] - my, half,
+  ]);
 }
 
 const FURNITURE = [
@@ -1428,33 +1435,37 @@ function hit(wall, op) {
 }
 
 export function buildVariantD4(api) {
-  // Дом, крыша, терраса и отмостка на 1 м западнее исходного плана. Забор не едет.
-  // Плитка, навес и машины заданы уже в координатах схемы и HOUSE_DX не получают.
-  const HOUSE_DX = -1;
+  // Отмостка едет вместе с домом: исходный метр на запад, как у Д2 и Д3.
+  const HOUSE_DX = D4_BASE.x;
+  const HOUSE_DY = D4_BASE.y;
   const shiftX = (x) => x + HOUSE_DX;
+  const shiftY = (y) => y + HOUSE_DY;
+  const shiftP = (x, y) => [shiftX(x), shiftY(y)];
   const { addBeam, asRoof, withFinish, geometryFromTriangles, addMesh } = api;
-  const planToWorld = (x, y) => api.planToWorld(shiftX(x), y);
+  const planToWorld = (x, y) => api.planToWorld(shiftX(x), shiftY(y));
   const planBox = (quad, y0, y1, color, cast = true) => api.planBox(
-    quad.map(([x, y]) => [shiftX(x), y]), y0, y1, color, cast
+    quad.map(([x, y]) => shiftP(x, y)), y0, y1, color, cast
   );
   const addFloorNotes = (rooms) => api.addFloorNotes(rooms.map((room) => {
     const next = room.slice();
     const boxes = next[8] || [[next[1], next[2], next[3], next[4]]];
-    next[8] = boxes.map(([x0, y0, x1, y1]) => [shiftX(x0), y0, shiftX(x1), y1]);
+    next[8] = boxes.map(([x0, y0, x1, y1]) => [shiftX(x0), shiftY(y0), shiftX(x1), shiftY(y1)]);
     next[1] = shiftX(next[1]);
+    next[2] = shiftY(next[2]);
     next[3] = shiftX(next[3]);
+    next[4] = shiftY(next[4]);
     return next;
   }));
   const addFloorLines = (site, lines, z, color, opacity, w) => api.addFloorLines(
     (x, y) => {
       const p = site(x, y);
-      return [shiftX(p[0]), p[1]];
+      return shiftP(p[0], p[1]);
     },
     lines, z, color, opacity, w
   );
   const addSlabHole = (outer, hole, y0, h, color) => api.addSlabHole(
-    outer.map(([x, y]) => [shiftX(x), y]),
-    hole.map(([x, y]) => [shiftX(x), y]),
+    outer.map(([x, y]) => shiftP(x, y)),
+    hole.map(([x, y]) => shiftP(x, y)),
     y0, h, color
   );
   const saved = api.sectionHeight();
@@ -2073,16 +2084,15 @@ export function buildVariantD4(api) {
   if (gableTris.length) withFinish("wall", () => addMesh(geometryFromTriangles(gableTris), WALL_C));
 
   // Навес со схемы: трапеция, передняя кромка скошена. Юг 5,72 м, север 7,06 м, глубина 7,31 м.
-  // Пять столбов 22×22 см с севера, четыре с юга. Карниз 2,70 м.
-  // Числа — координаты схемы. planBox и world прибавляют HOUSE_DX, поэтому X возвращается в систему дома.
-  const lx = (x) => x - HOUSE_DX;
-  const cYs = 13.328;
-  const cYn = 20.635;
+  // Столбы 22×22 см: четыре с юга через 1,24 м, пять с севера через 1,27 м.
+  // Крайние в 1 м от края у дома и в 1 м от внешнего края. Карниз 2,70 м.
+  const cYs = 13.329;
+  const cYn = 20.636;
   const cYm = (cYs + cYn) / 2;
-  const cXeS = lx(-5.461);
-  const cXeN = lx(-5.465);
-  const cXwS = lx(-11.177);
-  const cXwN = lx(-12.526);
+  const cXeS = -4.462;
+  const cXeN = -4.465;
+  const cXwS = -10.177;
+  const cXwN = -11.526;
   const cXw = (y) => cXwS + (cXwN - cXwS) * ((y - cYs) / (cYn - cYs));
   const cXe = (y) => cXeS + (cXeN - cXeS) * ((y - cYs) / (cYn - cYs));
   const cEave = 2.70;
@@ -2095,12 +2105,11 @@ export function buildVariantD4(api) {
     return cEave + cRise * dy / cHalf;
   };
   for (const [x, y] of [
-    [-11.018, 13.531], [-9.182, 13.554], [-7.372, 13.552], [-5.673, 13.557],
-    [-12.241, 20.444], [-10.617, 20.449], [-8.918, 20.449], [-7.289, 20.418], [-5.678, 20.435],
+    [-5.462, 13.549], [-6.700, 13.549], [-7.939, 13.549], [-9.177, 13.549],
+    [-5.465, 20.416], [-6.730, 20.416], [-7.996, 20.416], [-9.261, 20.416], [-10.526, 20.416],
   ]) {
-    const cx = lx(x);
     planBox(
-      [[cx - 0.11, y - 0.11], [cx + 0.11, y - 0.11], [cx + 0.11, y + 0.11], [cx - 0.11, y + 0.11]],
+      [[x - 0.11, y - 0.11], [x + 0.11, y - 0.11], [x + 0.11, y + 0.11], [x - 0.11, y + 0.11]],
       0.05, canopyZ(y) - cDrop, 0x6b3e24
     );
   }
@@ -2120,12 +2129,19 @@ export function buildVariantD4(api) {
   };
   withFinish("roof", () => asRoof(addMesh(geometryFromTriangles(shellOf(canopyTris, lowerCanopy)), ROOF_C)));
   const tanC = Math.tan(15 * Math.PI / 180);
-  const dCanS = runDrop(cXeS, cYs, cXwS, cYs);
-  const dCanN = runDrop(cXeN, cYn, cXwN, cYn);
-  eaveLine(cXeS, cYs, cXwS, cYs, cEave, cEave, 0, 1, tanC, 0, dCanS);
-  eaveLine(cXeN, cYn, cXwN, cYn, cEave, cEave, 0, -1, tanC, 0, dCanN);
-  spout(cXwS, cYs - GW / 2, cXwS - 0.04, cYs, outletZ(cEave, dCanS, tanC), 0.20);
-  spout(cXwN, cYn + GW / 2, cXwN - 0.04, cYn, outletZ(cEave, dCanN, tanC), 0.20);
+  const postS = [-9.177, 13.549];
+  const postN = [-10.526, 20.416];
+  // Труба по наружной грани крайнего внешнего столба, желоб понижается к нему.
+  const dPostS = runDrop(cXeS, cYs, postS[0], cYs);
+  const dTipS = runDrop(postS[0], cYs, cXwS, cYs);
+  const dPostN = runDrop(cXeN, cYn, postN[0], cYn);
+  const dTipN = runDrop(postN[0], cYn, cXwN, cYn);
+  eaveLine(cXeS, cYs, postS[0], cYs, cEave, cEave, 0, 1, tanC, 0, dPostS);
+  eaveLine(postS[0], cYs, cXwS, cYs, cEave, cEave, 0, 1, tanC, dPostS, dPostS - dTipS);
+  eaveLine(cXeN, cYn, postN[0], cYn, cEave, cEave, 0, -1, tanC, 0, dPostN);
+  eaveLine(postN[0], cYn, cXwN, cYn, cEave, cEave, 0, -1, tanC, dPostN, dPostN - dTipN);
+  spout(postS[0], cYs - GW / 2, postS[0], postS[1] - 0.11, outletZ(cEave, dPostS, tanC), 0.20);
+  spout(postN[0], cYn + GW / 2, postN[0], postN[1] + 0.11, outletZ(cEave, dPostN, tanC), 0.20);
   snow(cXwS, cYs, cXeS, cYs, cEave, cEave, 0, 1, tanC, 0.45);
   snow(cXwN, cYn, cXeN, cYn, cEave, cEave, 0, -1, tanC, 0.45);
 
@@ -2140,16 +2156,7 @@ export function buildVariantD4(api) {
     blind.material.polygonOffsetUnits = -2;
   }
 
-  // Плитка: от западной стены до забора, на 2 м севернее северной стены и на 1 м южнее крыльца.
-  api.addSlab([
-    [-17.6305, 20.88], [-5.42, 20.88], [-5.42, 8.24], [-15.2917, 8.24],
-  ], 0.03, 0.035, 0xe4ddd2, false);
-  // Въезд от линии дороги до ворот и калитки, перпендикулярно дороге.
-  api.addSlab([
-    [-17.032, 17.635], [-15.941, 11.736], [-20.858, 10.826], [-21.950, 16.725],
-  ], 0.03, 0.035, 0xe4ddd2, false);
-
-  // Забор по контуру, проём ворот и калитки на западной стороне.
+  // Забор по контуру, проём ворот 4 м и калитка на западной стороне.
   const fenceH = 1.5;
   const plot = [[-18, 22.877], [32.835, 22.877], [39.044, -10.647], [-12.963, -4.345]];
   const nw = plot[0];
@@ -2165,48 +2172,51 @@ export function buildVariantD4(api) {
   api.addWallRun(plot[0], plot[1], 0.06, 0, fenceH, 0x7d6a52);
   api.addWallRun(plot[1], plot[2], 0.06, 0, fenceH, 0x7d6a52);
   api.addWallRun(plot[2], plot[3], 0.06, 0, fenceH, 0x7d6a52);
-  api.addWallRun(along(11.334), plot[3], 0.06, 0, fenceH, 0x7d6a52);
-  api.addWallRun(plot[0], along(5.334), 0.06, 0, fenceH, 0x7d6a52);
-  api.addWallRun(along(10.43), along(11.23), 0.025, 0.08, 1.46, 0x8a7358);
-  // Откатные по рельсу, полуоткрыты: полотно в плоскости забора, не вторым контуром внутрь.
-  // Рельс от хвоста отката до ловителя. Привод с шестернёй у зубчатой рейки на полотне.
+  api.addWallRun(along(10), plot[3], 0.06, 0, fenceH, 0x7d6a52);
+  api.addWallRun(plot[0], along(5), 0.06, 0, fenceH, 0x7d6a52);
+  api.addWallRun(along(9.10), along(9.90), 0.025, 0.08, 1.46, 0x8a7358);
+  // Откатные ворота полностью открыты в карман к углу. Проём 4 м, от угла 5 м.
   const inward = [-dy / len, dx / len];
   const shift = (p, dist) => [p[0] + inward[0] * dist, p[1] + inward[1] * dist];
-  const gateOff = 0.22;
-  const g0 = 3.01;
-  const g1 = 7.77;
-  api.addWallRun(shift(along(0.20), gateOff), shift(along(10.45), gateOff), 0.015, 0, 0.025, 0x2c3038);
-  api.addWallRun(shift(along(g0), gateOff), shift(along(g1), gateOff), 0.04, 0.11, 1.48, 0x8a7358);
-  api.addWallRun(shift(along(g0), gateOff + 0.055), shift(along(g1), gateOff + 0.055), 0.012, 0.12, 0.18, 0x5c6168);
-  for (const s of [3.45, 5.40, 7.30]) {
-    api.addWallRun(shift(along(s), gateOff - 0.03), shift(along(s), gateOff + 0.03), 0.045, 0.025, 0.105, 0x1a1c20);
+  const at = (alongM, inn) => shift(along(alongM), inn);
+  api.addWallRun(at(0.20, 0.25), at(9.05, 0.25), 0.015, 0, 0.025, 0x2c3038);
+  api.addWallRun(at(0.70, 0.16), at(4.70, 0.16), 0.04, 0.11, 1.48, 0x8a7358);
+  api.addWallRun(at(0.70, 0.34), at(4.70, 0.34), 0.04, 0.11, 1.48, 0x8a7358);
+  for (const s of [1.15, 4.25]) {
+    api.addWallRun(at(s, 0.13), at(s, 0.37), 0.045, 0.025, 0.105, 0x1a1c20);
   }
-  api.addWallRun(shift(along(4.90), 0.48), shift(along(5.40), 0.48), 0.16, 0, 0.045, 0xc8c4bc);
-  api.addWallRun(shift(along(4.98), 0.46), shift(along(5.32), 0.46), 0.11, 0.045, 0.30, 0x2a2e34);
-  const pin = shift(along(5.15), 0.30);
+  api.addWallRun(at(4.82, 0.42), at(5.18, 0.68), 0.16, 0, 0.045, 0xc8c4bc);
+  const pin = at(5.00, 0.38);
   api.planBox(
     [[pin[0] - 0.04, pin[1] - 0.04], [pin[0] + 0.04, pin[1] - 0.04], [pin[0] + 0.04, pin[1] + 0.04], [pin[0] - 0.04, pin[1] + 0.04]],
     0.10, 0.22, 0xc5c8cc
   );
-  api.addWallRun(along(5.334), shift(along(5.334), gateOff), 0.025, 1.28, 1.48, 0x3a3e44);
-  api.addWallRun(shift(along(10.18), gateOff + 0.02), shift(along(10.48), gateOff + 0.02), 0.02, 0.10, 0.36, 0x3a3e44);
-  for (const s of [0, 5.334, 10.334, 11.334, len]) post(along(s));
+  for (const s of [0, 5, 9, 10, len]) post(along(s));
   post(plot[1]); post(plot[2]);
+
+  // Плитка у дома до северного забора, восточный край по западной стене.
+  api.addSlab([
+    [plot[0][0], plot[0][1]], [-5.45, plot[0][1]], [-5.45, 9.053], [-15.442, 9.053],
+  ], 0.03, 0.035, 0xe4ddd2, false);
+  // Плитка от дороги перпендикулярно забору: на проём ворот и калитку, 5–10 м, не дальше калитки.
+  api.addSlab([
+    at(5, -5), at(10, -5), at(10, 0), at(5, 0),
+  ], 0.03, 0.035, 0xe4ddd2, false);
 
   // Как на схеме: носом к воротам, Кулрей на северном месте, Мазда на южном.
   api.addParkedModel({
     url: "./models/geely-coolray.glb",
     length: 4.33,
     heading: "west",
-    centerE: -8.603,
-    centerN: 18.651,
+    centerE: -8.603 + (HOUSE_DX - D4_BASE.x),
+    centerN: 18.651 + (HOUSE_DY - D4_BASE.y),
   });
   api.addParkedModel({
     url: "./models/mazda-cx5.glb",
     length: 4.55,
     heading: "west",
-    centerE: -8.541,
-    centerN: 15.117,
+    centerE: -8.541 + (HOUSE_DX - D4_BASE.x),
+    centerN: 15.117 + (HOUSE_DY - D4_BASE.y),
   });
 
   addFloorNotes(ROOMS);

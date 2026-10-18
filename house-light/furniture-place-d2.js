@@ -274,6 +274,8 @@ function fitToFootprint(model, boxW, boxD, fitH, mirror, keepAspect, lockHeight 
  * raise/floorY только сдвигают базу.
  */
 async function placeInBox(group, api, item, catalog) {
+  const houseDx = api.houseDx ?? HOUSE_DX;
+  const houseDy = api.houseDy ?? 0;
   const x0 = Math.min(item.x0, item.x1);
   const x1 = Math.max(item.x0, item.x1);
   const y0 = Math.min(item.y0, item.y1);
@@ -362,7 +364,7 @@ async function placeInBox(group, api, item, catalog) {
       orientToPlan(holder, rot, api.azX, api.azY);
       const cx = (x0 + x1) / 2;
       const cy = (y0 + y1) / 2;
-      const [wx, wz] = api.planToWorld(cx + HOUSE_DX, cy);
+      const [wx, wz] = api.planToWorld(cx + houseDx, cy + houseDy);
       const baseY = item.floorY != null ? item.floorY : FLOOR;
       holder.position.set(wx, baseY + (item.raise || 0), wz);
       group.add(holder);
@@ -381,7 +383,7 @@ async function placeInBox(group, api, item, catalog) {
   orientToPlan(holder, rot, api.azX, api.azY);
   const cx = (x0 + x1) / 2;
   const cy = (y0 + y1) / 2;
-  const [wx, wz] = api.planToWorld(cx + HOUSE_DX, cy);
+  const [wx, wz] = api.planToWorld(cx + houseDx, cy + houseDy);
   const baseY = item.floorY != null ? item.floorY : FLOOR;
   holder.position.set(wx, baseY + (item.raise || 0), wz);
   group.add(holder);
@@ -389,10 +391,10 @@ async function placeInBox(group, api, item, catalog) {
 
 function addCounterSlab(group, api, x0, y0, x1, y1, yBot, yTop, color) {
   const quad = [
-    [x0 + HOUSE_DX, y0],
-    [x1 + HOUSE_DX, y0],
-    [x1 + HOUSE_DX, y1],
-    [x0 + HOUSE_DX, y1],
+    [x0 + houseDx, y0 + houseDy],
+    [x1 + houseDx, y0 + houseDy],
+    [x1 + houseDx, y1 + houseDy],
+    [x0 + houseDx, y1 + houseDy],
   ];
   const ring = quad.map(([x, y]) => {
     const [e, n] = api.planToWorld(x, y);

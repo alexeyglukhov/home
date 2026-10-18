@@ -157,15 +157,15 @@ export function d3FenceSegments() {
   const along = (s) => [nw[0] + dx / len * s, nw[1] + dy / len * s];
   const inward = [-dy / len, dx / len];
   const shift = (p, dist) => [p[0] + inward[0] * dist, p[1] + inward[1] * dist];
-  const gateOff = 0.22;
   const runs = [
     [plot[0], plot[1], 0.06],
     [plot[1], plot[2], 0.06],
     [plot[2], plot[3], 0.06],
-    [along(11.334), plot[3], 0.06],
-    [plot[0], along(5.334), 0.06],
-    [along(10.43), along(11.23), 0.025],
-    [shift(along(3.01), gateOff), shift(along(7.77), gateOff), 0.04],
+    [along(10), plot[3], 0.06],
+    [plot[0], along(5), 0.06],
+    [along(9.10), along(9.90), 0.025],
+    [shift(along(0.70), 0.16), shift(along(4.70), 0.16), 0.04],
+    [shift(along(0.70), 0.34), shift(along(4.70), 0.34), 0.04],
   ];
   return runs.map(([a, b, half]) => [a[0] + 1, a[1], b[0] + 1, b[1], half]);
 }
@@ -3474,13 +3474,9 @@ export function buildVariantD3(api) {
     blind.material.polygonOffsetUnits = -2;
   }
 
-  // Плитка: от западной стены до забора, на 2 м севернее северной стены и на 1 м южнее крыльца.
+  // Плитка у дома до северного забора, восточный край по западной стене.
   api.addSlab([
-    [-17.6305, 20.88], [-5.42, 20.88], [-5.42, 8.24], [-15.2917, 8.24],
-  ], 0.03, 0.035, 0xe4ddd2, false);
-  // Въезд от линии дороги до ворот и калитки, перпендикулярно дороге.
-  api.addSlab([
-    [-17.032, 17.635], [-15.941, 11.736], [-20.858, 10.826], [-21.950, 16.725],
+    [-18, 22.877], [-5.45, 22.877], [-5.45, 9.053], [-15.442, 9.053],
   ], 0.03, 0.035, 0xe4ddd2, false);
 
   // Забор по контуру, проём ворот и калитки на западной стороне.
@@ -3499,33 +3495,30 @@ export function buildVariantD3(api) {
   api.addWallRun(plot[0], plot[1], 0.06, 0, fenceH, 0x7d6a52);
   api.addWallRun(plot[1], plot[2], 0.06, 0, fenceH, 0x7d6a52);
   api.addWallRun(plot[2], plot[3], 0.06, 0, fenceH, 0x7d6a52);
-  api.addWallRun(along(11.334), plot[3], 0.06, 0, fenceH, 0x7d6a52);
-  api.addWallRun(plot[0], along(5.334), 0.06, 0, fenceH, 0x7d6a52);
-  api.addWallRun(along(10.43), along(11.23), 0.025, 0.08, 1.46, 0x8a7358);
-  // Откатные по рельсу, полуоткрыты: полотно в плоскости забора, не вторым контуром внутрь.
-  // Рельс от хвоста отката до ловителя. Привод с шестернёй у зубчатой рейки на полотне.
+  api.addWallRun(along(10), plot[3], 0.06, 0, fenceH, 0x7d6a52);
+  api.addWallRun(plot[0], along(5), 0.06, 0, fenceH, 0x7d6a52);
+  api.addWallRun(along(9.10), along(9.90), 0.025, 0.08, 1.46, 0x8a7358);
+  // Откатные ворота полностью открыты в карман к углу. Проём 4 м, от угла 5 м. Калитка 1 м.
   const inward = [-dy / len, dx / len];
   const shift = (p, dist) => [p[0] + inward[0] * dist, p[1] + inward[1] * dist];
-  const gateOff = 0.22;
-  const g0 = 3.01;
-  const g1 = 7.77;
-  api.addWallRun(shift(along(0.20), gateOff), shift(along(10.45), gateOff), 0.015, 0, 0.025, 0x2c3038);
-  api.addWallRun(shift(along(g0), gateOff), shift(along(g1), gateOff), 0.04, 0.11, 1.48, 0x8a7358);
-  api.addWallRun(shift(along(g0), gateOff + 0.055), shift(along(g1), gateOff + 0.055), 0.012, 0.12, 0.18, 0x5c6168);
-  for (const s of [3.45, 5.40, 7.30]) {
-    api.addWallRun(shift(along(s), gateOff - 0.03), shift(along(s), gateOff + 0.03), 0.045, 0.025, 0.105, 0x1a1c20);
+  const at = (alongM, inn) => shift(along(alongM), inn);
+  api.addWallRun(at(0.20, 0.25), at(9.05, 0.25), 0.015, 0, 0.025, 0x2c3038);
+  api.addWallRun(at(0.70, 0.16), at(4.70, 0.16), 0.04, 0.11, 1.48, 0x8a7358);
+  api.addWallRun(at(0.70, 0.34), at(4.70, 0.34), 0.04, 0.11, 1.48, 0x8a7358);
+  for (const s of [1.15, 4.25]) {
+    api.addWallRun(at(s, 0.13), at(s, 0.37), 0.045, 0.025, 0.105, 0x1a1c20);
   }
-  api.addWallRun(shift(along(4.90), 0.48), shift(along(5.40), 0.48), 0.16, 0, 0.045, 0xc8c4bc);
-  api.addWallRun(shift(along(4.98), 0.46), shift(along(5.32), 0.46), 0.11, 0.045, 0.30, 0x2a2e34);
-  const pin = shift(along(5.15), 0.30);
+  api.addWallRun(at(4.82, 0.42), at(5.18, 0.68), 0.16, 0, 0.045, 0xc8c4bc);
+  const pin = at(5.00, 0.38);
   api.planBox(
     [[pin[0] - 0.04, pin[1] - 0.04], [pin[0] + 0.04, pin[1] - 0.04], [pin[0] + 0.04, pin[1] + 0.04], [pin[0] - 0.04, pin[1] + 0.04]],
     0.10, 0.22, 0xc5c8cc
   );
-  api.addWallRun(along(5.334), shift(along(5.334), gateOff), 0.025, 1.28, 1.48, 0x3a3e44);
-  api.addWallRun(shift(along(10.18), gateOff + 0.02), shift(along(10.48), gateOff + 0.02), 0.02, 0.10, 0.36, 0x3a3e44);
-  for (const s of [0, 5.334, 10.334, 11.334, len]) post(along(s));
+  for (const s of [0, 5, 9, 10, len]) post(along(s));
   post(plot[1]); post(plot[2]);
+  api.addSlab([
+    at(5, -5), at(10, -5), at(10, 0), at(5, 0),
+  ], 0.03, 0.035, 0xe4ddd2, false);
 
   // Как на схеме: носом к воротам, Кулрей на северном месте, Мазда на южном.
   api.addParkedModel({

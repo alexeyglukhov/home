@@ -3,51 +3,51 @@ const PRINTS = {
   vd2: [
     {
       label: "Планировка",
-      file: "prints/plan-1-etazh-variant-d2-print.svg",
+      file: "prints/plan-1-etazh-variant-d2-print.svg?v=3",
       name: "планировка-д2",
     },
     {
       label: "2D схема",
-      file: "prints/abrikosovaya-22-layout-variant-d2-1-100-print.svg",
+      file: "prints/abrikosovaya-22-layout-variant-d2-1-100-print.svg?v=3",
       name: "2d-схема-д2",
     },
     {
       label: "Дом",
-      file: "prints/plan-1-etazh-variant-d2-dom-print.svg?v=3",
+      file: "prints/plan-1-etazh-variant-d2-dom-print.svg?v=6",
       name: "дом-д2",
     },
   ],
   vd3: [
     {
       label: "Планировка",
-      file: "prints/plan-1-etazh-variant-d3-print.svg",
+      file: "prints/plan-1-etazh-variant-d3-print.svg?v=3",
       name: "планировка-д3",
     },
     {
       label: "2D схема",
-      file: "prints/abrikosovaya-22-layout-variant-d3-1-100-print.svg",
+      file: "prints/abrikosovaya-22-layout-variant-d3-1-100-print.svg?v=3",
       name: "2d-схема-д3",
     },
     {
       label: "Дом",
-      file: "prints/plan-1-etazh-variant-d3-dom-print.svg?v=3",
+      file: "prints/plan-1-etazh-variant-d3-dom-print.svg?v=6",
       name: "дом-д3",
     },
   ],
   vd4: [
     {
       label: "Планировка",
-      file: "prints/plan-1-etazh-variant-d4-print.svg?v=5",
+      file: "prints/plan-1-etazh-variant-d4-print.svg?v=8",
       name: "планировка-д4",
     },
     {
       label: "2D схема",
-      file: "prints/abrikosovaya-22-layout-variant-d4-1-100-print.svg?v=5",
+      file: "prints/abrikosovaya-22-layout-variant-d4-1-100-print.svg?v=7",
       name: "2d-схема-д4",
     },
     {
       label: "Дом",
-      file: "prints/plan-1-etazh-variant-d4-dom-print.svg?v=5",
+      file: "prints/plan-1-etazh-variant-d4-dom-print.svg?v=8",
       name: "дом-д4",
     },
   ],

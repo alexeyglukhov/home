@@ -32,7 +32,7 @@ KEEP_FILL = {
 }
 GROUND_IDS = {"blind-area", "front-court", "drive-apron"}
 ROAD_IDS = {"polygon18", "polygon20"}
-DROP_IDS = {"g1245", "g1263", "namedview1425", "g4440"}
+DROP_IDS = {"g1245", "g1263", "namedview1425", "g4440", "drive-strip"}
 
 
 def local(tag: str) -> str:
@@ -691,8 +691,15 @@ def build_dims(plot, house, canopy, apron, gate_posts=None):
             for t in ticks:
                 tick(at(e, t, soff(off)), e["u"])
             for p0, p1 in zip(ticks, ticks[1:]):
-                if p1 - p0 >= 8:
-                    label(at(e, (p0 + p1) / 2, soff(off)), e["u"], text_n, fmt(p1 - p0))
+                if p1 - p0 < 8:
+                    continue
+                text = fmt(p1 - p0)
+                width = 8.4 * (0.54 * len(text) + 0.5)
+                mid = (p0 + p1) / 2
+                # Калитка короче подписи: сдвинуть текст за конец отрезка, чтобы не наехать на ворота.
+                if p1 - p0 < width:
+                    mid = p1 + width / 2 + 2.0
+                label(at(e, mid, soff(off)), e["u"], text_n, text)
             for t, gp in gate_ts:
                 line(gp, at(e, t, soff(off) + PAST_DIM), 0.6)
             report.append("ворота/калитка " + " ".join(f"{t/10:.2f}" for t, _ in gate_ts))
@@ -997,8 +1004,12 @@ def main() -> None:
     for i, (lat, lon) in enumerate(geos):
         print(f"  { 'ABCD'[i] } {lat:.6f} {lon:.6f}")
     xml = sheet(body, plot, bbox, geos, variant_name(src), segs)
-    etree.fromstring(xml.encode())
-    out.write_text(xml)
+    tree = etree.fromstring(xml.encode())
+    drawing = tree.find(f".//{{{SVG}}}g[@id='drawing']")
+    scale = float(re.search(r"scale\(([0-9.]+)\)", drawing.get("transform")).group(1))
+    from build_floor_print import promote_dim_labels
+    promote_dim_labels(drawing, scale, plan_dims=False)
+    out.write_bytes(etree.tostring(tree, xml_declaration=True, encoding="UTF-8"))
     print(f"записан {out}")
 
 
