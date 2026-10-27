@@ -63,6 +63,30 @@ const FRONT_AXIS_ID = {
 
 const loader = new GLTFLoader();
 const cache = new Map();
+// Не грузить все GLB сразу: иначе Chromium роняет вкладку (Render process gone).
+const LOAD_LIMIT = 4;
+let loadActive = 0;
+const loadWait = [];
+
+function runLoadQueue() {
+  while (loadActive < LOAD_LIMIT && loadWait.length) {
+    const { start } = loadWait.shift();
+    loadActive += 1;
+    start().finally(() => {
+      loadActive -= 1;
+      runLoadQueue();
+    });
+  }
+}
+
+function enqueueLoad(job) {
+  return new Promise((resolve, reject) => {
+    loadWait.push({
+      start: () => job().then(resolve, reject),
+    });
+    runLoadQueue();
+  });
+}
 
 function fileUrl(file) {
   return new URL("./furniture/" + file, import.meta.url).href;
@@ -71,9 +95,9 @@ function fileUrl(file) {
 function loadModel(file) {
   const hit = cache.get(file);
   if (hit) return hit.then((scene) => scene.clone(true));
-  const job = new Promise((resolve, reject) => {
+  const job = enqueueLoad(() => new Promise((resolve, reject) => {
     loader.load(fileUrl(file), (gltf) => resolve(gltf.scene), undefined, reject);
-  });
+  }));
   cache.set(file, job);
   return job.then((scene) => scene.clone(true));
 }
@@ -390,6 +414,8 @@ async function placeInBox(group, api, item, catalog) {
 }
 
 function addCounterSlab(group, api, x0, y0, x1, y1, yBot, yTop, color) {
+  const houseDx = api.houseDx ?? HOUSE_DX;
+  const houseDy = api.houseDy ?? 0;
   const quad = [
     [x0 + houseDx, y0 + houseDy],
     [x1 + houseDx, y0 + houseDy],

@@ -321,15 +321,28 @@ def boundary_loop(foot: set[tuple[int, int]]) -> list[tuple[int, int]]:
             add((i + 1, j + 1), (i + 1, j))
         if (i, j - 1) not in foot:
             add((i + 1, j), (i, j))
-    start = min(succ)
-    loop = [start]
-    cur = succ[start]
-    while cur != start:
-        loop.append(cur)
-        cur = succ[cur]
-        if len(loop) > len(succ) + 2:
-            raise SystemExit("обход контура дома зациклился")
-    return loop
+    unseen = set(succ)
+    best = []
+    best_area = -1.0
+    while unseen:
+        start = min(unseen)
+        loop = [start]
+        cur = succ[start]
+        unseen.discard(start)
+        guard = 0
+        while cur != start and cur in succ and guard <= len(succ) + 2:
+            loop.append(cur)
+            unseen.discard(cur)
+            cur = succ[cur]
+            guard += 1
+        area = 0.0
+        for i, (x1, y1) in enumerate(loop):
+            x2, y2 = loop[(i + 1) % len(loop)]
+            area += x1 * y2 - x2 * y1
+        if abs(area) > best_area and len(loop) >= 4:
+            best_area = abs(area)
+            best = loop
+    return best
 
 
 def rdp_closed(pts, eps):

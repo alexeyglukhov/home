@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
-# Поднимает 3D-вьювер дома на 127.0.0.1:8766, если он ещё не слушает порт.
+# Поднимает 3D-вьювер дома на 0.0.0.0:8766, если он ещё не слушает порт.
+# Локально открывается как http://127.0.0.1:8766/, с других машин — по LAN-адресу.
 set -euo pipefail
-HOUSE="$(cd "$(dirname "$0")/../../../../house-light" && pwd)"
+DIR="$(cd "$(dirname "$0")" && pwd)"
+HOUSE="$(cd "$DIR/../../../../house-light" && pwd)"
 URL="http://127.0.0.1:8766/"
 LOCK="${XDG_RUNTIME_DIR:-/tmp}/house-light-viewer.lock"
+VIEWER_PASSWORD='algl2510'
 
 viewer_up() {
-  curl -sf -o /dev/null --max-time 2 "$URL"
+  curl -sf -o /dev/null --max-time 2 -u "dom:${VIEWER_PASSWORD}" "$URL"
 }
 
 if viewer_up; then
@@ -24,7 +27,7 @@ if viewer_up; then
 fi
 
 cd "$HOUSE"
-nohup python3 -m http.server 8766 --bind 127.0.0.1 >/dev/null 2>&1 &
+HOUSE_VIEWER_PASSWORD="$VIEWER_PASSWORD" nohup python3 "$DIR/serve-viewer.py" >/dev/null 2>&1 &
 for _ in 1 2 3 4 5 6 7 8 9 10; do
   if viewer_up; then
     echo "started $URL"

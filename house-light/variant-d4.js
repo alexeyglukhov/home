@@ -1454,6 +1454,8 @@ export function buildVariantD4(api) {
     next[2] = shiftY(next[2]);
     next[3] = shiftX(next[3]);
     next[4] = shiftY(next[4]);
+    if (Number.isFinite(next[6])) next[6] = shiftX(next[6]);
+    if (Number.isFinite(next[7])) next[7] = shiftY(next[7]);
     return next;
   }));
   const addFloorLines = (site, lines, z, color, opacity, w) => api.addFloorLines(

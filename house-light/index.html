@@ -28,6 +28,26 @@
   button.active { background: #e4d7bf; border-color: #6b5a45; }
   button:disabled { opacity: 0.45; cursor: default; }
   button:disabled:hover { background: #f4efe4; }
+  html[data-variants] #var-v2,
+  html[data-variants] #var-d2,
+  html[data-variants] #var-b,
+  html[data-variants] #var-c,
+  html[data-variants] #var-vd1,
+  html[data-variants] #var-vd2,
+  html[data-variants] #var-vd3,
+  html[data-variants] #var-vd4,
+  html[data-variants] #var-vd5,
+  html[data-variants] #var-vd6 { display: none; }
+  html[data-variants~="v2"] #var-v2,
+  html[data-variants~="d2"] #var-d2,
+  html[data-variants~="vb"] #var-b,
+  html[data-variants~="vc"] #var-c,
+  html[data-variants~="vd1"] #var-vd1,
+  html[data-variants~="vd2"] #var-vd2,
+  html[data-variants~="vd3"] #var-vd3,
+  html[data-variants~="vd4"] #var-vd4,
+  html[data-variants~="vd5"] #var-vd5,
+  html[data-variants~="vd6"] #var-vd6 { display: inline-block; }
   select { width: 100%; font: inherit; font-size: 12px; margin-top: 4px; padding: 4px; }
   #sun { font-variant-numeric: tabular-nums; }
   #clock { font-weight: 700; }
@@ -153,6 +173,41 @@
   #furniture-catalog-status {
     margin: 0; padding: 0 16px 12px; min-height: 1.2em; font-size: 13px;
   }
+  #menu-toggle {
+    display: none;
+    position: fixed; z-index: 25;
+    top: max(10px, env(safe-area-inset-top));
+    left: max(10px, env(safe-area-inset-left));
+    width: 44px; height: 44px; padding: 0;
+    flex-direction: column; justify-content: center; align-items: center; gap: 5px;
+    background: #fffef9; border: 1px solid #6b5a45; border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(40, 30, 16, .22);
+  }
+  #menu-toggle span {
+    display: block; width: 18px; height: 2px; border-radius: 1px; background: #2a241c;
+  }
+  @media (max-width: 760px) {
+    #menu-toggle { display: flex; }
+    #panel {
+      display: none;
+      top: calc(max(10px, env(safe-area-inset-top)) + 52px);
+      left: 10px; right: 10px; width: auto;
+      max-height: calc(100dvh - max(10px, env(safe-area-inset-top)) - 68px);
+      overflow: auto; z-index: 20;
+      -webkit-overflow-scrolling: touch;
+    }
+    body.panel-open #panel { display: block; }
+    #panel button { padding: 8px 10px; }
+    #prints {
+      top: max(10px, env(safe-area-inset-top));
+      right: 10px;
+      max-width: calc(100vw - 74px);
+      gap: 8px;
+    }
+    #prints button.sheet { width: 88px; }
+    .row:has(#view-side),
+    #furniture-catalog-btn { display: none; }
+  }
   @page { size: A4 landscape; margin: 0; }
   @media print {
     body.sheet-print > *:not(#print-slot) { display: none !important; }
@@ -162,6 +217,9 @@
 </style>
 </head>
 <body>
+<button type="button" id="menu-toggle" aria-expanded="false" aria-controls="panel" aria-label="Панель">
+  <span></span><span></span><span></span>
+</button>
 <div id="panel">
   <h1>Свет на участке</h1>
   <div class="row">
@@ -174,6 +232,7 @@
     <button type="button" id="var-vd3">Вариант Д3</button>
     <button type="button" id="var-vd4">Вариант Д4</button>
     <button type="button" id="var-vd5">Вариант Д5</button>
+    <button type="button" id="var-vd6">Вариант Д6</button>
   </div>
   <label>Отделка
     <select id="facade-style"></select>
@@ -272,9 +331,98 @@
     <path d="M0.015,0.02 C0.28,0.004 0.72,0 0.985,0.018 C0.998,0.08 1,0.45 0.998,0.7 C1,0.9 0.99,0.995 0.97,0.992 C0.72,1 0.28,0.998 0.02,0.985 C0.004,0.95 0,0.55 0.002,0.3 C0,0.1 0.006,0.035 0.015,0.02 Z"/>
   </clipPath>
 </svg>
+<script>
+(function () {
+  var tokenToId = {
+    a: "v2", v2: "v2", a2: "d2",
+    b: "vb", vb: "vb", c: "vc", vc: "vc",
+    d1: "vd1", vd1: "vd1", "д1": "vd1",
+    d2: "vd2", vd2: "vd2", "д2": "vd2",
+    d3: "vd3", vd3: "vd3", "д3": "vd3",
+    d4: "vd4", vd4: "vd4", "д4": "vd4",
+    d5: "vd5", vd5: "vd5", "д5": "vd5",
+    d6: "vd6", vd6: "vd6", "д6": "vd6"
+  };
+  var raw = new URLSearchParams(location.search).get("variants");
+  if (!raw) return;
+  var seen = Object.create(null);
+  var ids = [];
+  raw.replace(/^\[|\]$/g, "").split(/[,;\s]+/).forEach(function (part) {
+    var token = part.trim().toLowerCase().replace(/^["']|["']$/g, "");
+    var id = tokenToId[token];
+    if (!id || seen[id]) return;
+    seen[id] = true;
+    ids.push(id);
+  });
+  if (!ids.length) return;
+  window.__houseAllowedVariants = ids;
+  document.documentElement.setAttribute("data-variants", ids.join(" "));
+  function withVariants(search) {
+    var params = new URLSearchParams(search);
+    params.delete("variants");
+    var rest = params.toString();
+    return rest ? "?variants=" + raw + "&" + rest : "?variants=" + raw;
+  }
+  function pin() {
+    var next = location.pathname + withVariants(location.search) + location.hash;
+    var now = location.pathname + location.search + location.hash;
+    if (next !== now) history.replaceState(history.state, "", next);
+  }
+  var push = history.pushState.bind(history);
+  var replace = history.replaceState.bind(history);
+  function keep(url) {
+    if (url == null) return url;
+    try {
+      var next = new URL(url, location.href);
+      if (next.origin !== location.origin) return url;
+      return next.pathname + withVariants(next.search) + next.hash;
+    } catch (e) {
+      return url;
+    }
+  }
+  history.pushState = function (state, title, url) { return push(state, title, keep(url)); };
+  history.replaceState = function (state, title, url) { return replace(state, title, keep(url)); };
+  document.addEventListener("click", function (event) {
+    var node = event.target;
+    var link = node && node.closest && node.closest("a[href]");
+    if (link && link.target !== "_blank" && !link.hasAttribute("download")) {
+      try {
+        var next = new URL(link.href, location.href);
+        if (next.origin === location.origin) {
+          link.href = next.pathname + withVariants(next.search) + next.hash;
+        }
+      } catch (e) {}
+    }
+    setTimeout(pin, 0);
+  }, true);
+  window.addEventListener("popstate", pin);
+  pin();
+})();
+</script>
+<script>
+(function () {
+  var button = document.getElementById("menu-toggle");
+  var panel = document.getElementById("panel");
+  function setOpen(open) {
+    document.body.classList.toggle("panel-open", open);
+    button.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+  button.addEventListener("click", function () {
+    setOpen(!document.body.classList.contains("panel-open"));
+  });
+  document.addEventListener("pointerdown", function (event) {
+    if (!document.body.classList.contains("panel-open")) return;
+    if (event.target.closest("#panel, #menu-toggle")) return;
+    setOpen(false);
+  });
+  panel.addEventListener("pointerdown", function (event) {
+    event.stopPropagation();
+  });
+})();
+</script>
 <script type="importmap">
 { "imports": { "three": "./vendor/three.module.js" } }
 </script>
-<script type="module" src="./app.js?v=706"></script>
+<script type="module" src="./app.js?v=747"></script>
 </body>
 </html>

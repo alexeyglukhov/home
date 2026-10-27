@@ -2204,6 +2204,7 @@ export function buildVariantD2(api) {
     next[8] = boxes.map(([x0, y0, x1, y1]) => [shiftX(x0), y0, shiftX(x1), y1]);
     next[1] = shiftX(next[1]);
     next[3] = shiftX(next[3]);
+    if (Number.isFinite(next[6])) next[6] = shiftX(next[6]);
     return next;
   }));
   const addFloorLines = (site, lines, z, color, opacity, w) => api.addFloorLines(

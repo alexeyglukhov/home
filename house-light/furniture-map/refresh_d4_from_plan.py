@@ -543,6 +543,27 @@ def main() -> None:
         lab["bw"] = (xs.max() - xs.min() + 1) * CELL / 10
         lab["bh"] = (ys.max() - ys.min() + 1) * CELL / 10
 
+    # Метраж с листа — истина: flood по диагональным стенам иногда раздувает площадь.
+    for lab in labels:
+        parent = lab["el"].getparent()
+        if parent is None:
+            continue
+        meta = None
+        for sib in parent:
+            if "rmeta" in (sib.get("class") or ""):
+                meta = sib
+                break
+        if meta is None:
+            continue
+        raw = "".join(meta.itertext()).strip()
+        am = re.search(r"(\d+[.,]\d+)\s*м²", raw)
+        dm = re.search(r"(\d+[.,]\d+)\s*×\s*(\d+[.,]\d+)", raw)
+        if am:
+            lab["area"] = float(am.group(1).replace(",", "."))
+        if dm:
+            lab["bw"] = float(dm.group(1).replace(",", "."))
+            lab["bh"] = float(dm.group(2).replace(",", "."))
+
     for lab in labels:
         parent = lab["el"].getparent()
         meta = None
@@ -751,20 +772,32 @@ def main() -> None:
             pb = plan_box(lab["svg_box"])
             parts = [pb]
         else:
-            parts = room_rects(i) or [plan_box((
-                minx + np.where(owner == i)[1].min() * CELL,
-                miny + np.where(owner == i)[0].min() * CELL,
-                minx + (np.where(owner == i)[1].max() + 1) * CELL,
-                miny + (np.where(owner == i)[0].max() + 1) * CELL,
-            ))]
+            parts = room_rects(i)
+            if not parts and np.any(owner == i):
+                parts = [plan_box((
+                    minx + np.where(owner == i)[1].min() * CELL,
+                    miny + np.where(owner == i)[0].min() * CELL,
+                    minx + (np.where(owner == i)[1].max() + 1) * CELL,
+                    miny + (np.where(owner == i)[0].max() + 1) * CELL,
+                ))]
+            if not parts and lab["area"] > 0 and lab.get("bw", 0) > 0 and lab.get("bh", 0) > 0:
+                px, py = to_plan(lab["x"], lab["y"])
+                parts = [(
+                    px - lab["bw"] / 2, py - lab["bh"] / 2,
+                    px + lab["bw"] / 2, py + lab["bh"] / 2,
+                )]
+        if not parts:
+            print("нет контура", lab["name"])
+            continue
         x0 = min(p[0] for p in parts)
         y0 = min(p[1] for p in parts)
         x1 = max(p[2] for p in parts)
         y1 = max(p[3] for p in parts)
         largest = max(parts, key=lambda p: (p[2] - p[0]) * (p[3] - p[1]))
         box_txt = ", ".join(f"[{p[0]:.2f}, {p[1]:.2f}, {p[2]:.2f}, {p[3]:.2f}]" for p in parts)
+        # area/bw/bh с плана — 3D не суммирует перекрывающиеся прямоугольники заново.
         rooms_js.append(
-            f'  ["{lab["name"]}", {largest[0]:.2f}, {largest[1]:.2f}, {largest[2]:.2f}, {largest[3]:.2f}, 0.46, null, null, [{box_txt}]],'
+            f'  ["{lab["name"]}", {largest[0]:.2f}, {largest[1]:.2f}, {largest[2]:.2f}, {largest[3]:.2f}, 0.46, null, null, [{box_txt}], {lab["area"]:.2f}, {lab["bw"]:.2f}, {lab["bh"]:.2f}],'
         )
         lab["parts"] = parts
         lab["bbox"] = (x0, y0, x1, y1)

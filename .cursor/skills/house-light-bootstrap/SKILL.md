@@ -29,4 +29,4 @@ description: >-
 Скрипт рисует иконку домика и перечёркнутого домика, пишет оба `.desktop` на рабочий стол (`xdg-user-dir DESKTOP`), помечает их доверенными для Cinnamon и удаляет старый ярлык `Дом.desktop`.
 
 - **Дом-start** вызывает `house-light-viewer/scripts/open-viewer.sh`: один сервер, браузер открывается или поднимается уже открытое окно.
-- **Дом-stop** вызывает `house-light-viewer/scripts/stop-viewer.sh`: завершает только `python3 -m http.server 8766 --bind 127.0.0.1`. Окно браузера не закрывает.
+- **Дом-stop** вызывает `house-light-viewer/scripts/stop-viewer.sh`: завершает только сервер этого вьювера (`serve-viewer.py` или старый `python3 -m http.server 8766`). Окно браузера не закрывает.

@@ -7,14 +7,15 @@ import { FURNITURE_D } from "./furniture-d.js?v=6";
 import { WALL_LINES } from "./wall-sketch.js?v=2";
 import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=19";
 import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=18";
-import { buildVariantD2, d2WalkBoxes, d2FenceSegments } from "./variant-d2.js?v=85";
-import { buildVariantD3, d3WalkBoxes, d3FenceSegments } from "./variant-d3.js?v=7";
-import { buildVariantD4, d4WalkBoxes, d4FenceSegments, D4_WINDOWS, D4_BASE } from "./variant-d4.js?v=21";
+import { buildVariantD2, d2WalkBoxes, d2FenceSegments } from "./variant-d2.js?v=86";
+import { buildVariantD3, d3WalkBoxes, d3FenceSegments } from "./variant-d3.js?v=8";
+import { buildVariantD4, d4WalkBoxes, d4FenceSegments, D4_WINDOWS, D4_BASE } from "./variant-d4.js?v=22";
+import { buildVariantD4 as buildVariantD6, d4WalkBoxes as d6WalkBoxes, d4FenceSegments as d6FenceSegments, D4_WINDOWS as D6_WINDOWS, D4_BASE as D6_BASE } from "./variant-d6.js?v=32";
 import { createD2Tour, createTourDaylight, d2TourPose, D3_WINDOWS } from "./tour-d2.js?v=21";
 import { syncPrintSheets } from "./print-sheets.js?v=16";
 import { mountFurnitureCatalog } from "./furniture-catalog.js?v=5";
-import { mountD2Furniture } from "./furniture-place-d2.js?v=41";
-import { mountD5Furniture } from "./furniture-place-d5.js?v=6";
+import { mountD2Furniture } from "./furniture-place-d2.js?v=43";
+import { mountD5Furniture } from "./furniture-place-d5.js?v=7";
 
 const panel = document.getElementById("panel");
 const dateInput = document.getElementById("date");
@@ -49,7 +50,7 @@ scene.add(fillLight, skyLight);
 
 const sun = new THREE.DirectionalLight(0xfff2d8, 3.2);
 sun.castShadow = true;
-sun.shadow.mapSize.set(4096, 4096);
+sun.shadow.mapSize.set(2048, 2048);
 sun.shadow.bias = -0.00025;
 sun.shadow.normalBias = 0.04;
 const shadow = sun.shadow.camera;
@@ -74,6 +75,7 @@ variantD2Group.add(variantD2Furniture);
 const variantD3Group = new THREE.Group();
 const variantD4Group = new THREE.Group();
 const variantD5Group = new THREE.Group();
+const variantD6Group = new THREE.Group();
 const variantD5Furniture = new THREE.Group();
 variantD5Furniture.name = "d5-furniture";
 variantD5Group.add(variantD5Furniture);
@@ -82,7 +84,7 @@ const houseRig = new THREE.Group();
 let v2House = null;
 let v2HouseD2 = null;
 let roofDims = null;
-scene.add(sharedGroup, northDriveGroup, variant2Group, variantBGroup, variantCGroup, variantD2Group, variantD3Group, variantD4Group, variantD5Group);
+scene.add(sharedGroup, northDriveGroup, variant2Group, variantBGroup, variantCGroup, variantD2Group, variantD3Group, variantD4Group, variantD5Group, variantD6Group);
 variant2Group.visible = true;
 variantBGroup.visible = false;
 variantCGroup.visible = false;
@@ -90,6 +92,7 @@ variantD2Group.visible = false;
 variantD3Group.visible = false;
 variantD4Group.visible = false;
 variantD5Group.visible = false;
+variantD6Group.visible = false;
 let bucket = sharedGroup;
 
 const ground = new THREE.Mesh(
@@ -840,22 +843,34 @@ function addFloorNotes(rooms) {
     new THREE.Vector3(0, 1, 0)
   );
   const specs = [];
-  for (const [name, x0, y0, x1, y1, floorY, lx, ly, boxes] of rooms) {
+  for (const [name, x0, y0, x1, y1, floorY, lx, ly, boxes, areaFixed, bwFixed, bhFixed] of rooms) {
     const parts = boxes || [[x0, y0, x1, y1]];
     let minX = Infinity;
     let minY = Infinity;
     let maxX = -Infinity;
     let maxY = -Infinity;
-    let area = 0;
+    let areaSum = 0;
+    let best = 0;
+    let bw = 0;
+    let bd = 0;
     for (const [a, b, c, d0] of parts) {
       minX = Math.min(minX, a, c);
       maxX = Math.max(maxX, a, c);
       minY = Math.min(minY, b, d0);
       maxY = Math.max(maxY, b, d0);
-      area += Math.abs((c - a) * (d0 - b));
+      const pw = Math.abs(c - a);
+      const pd = Math.abs(d0 - b);
+      const pa = pw * pd;
+      areaSum += pa;
+      if (pa > best) {
+        best = pa;
+        bw = pw;
+        bd = pd;
+      }
     }
-    const w = maxX - minX;
-    const d = maxY - minY;
+    const area = Number.isFinite(areaFixed) ? areaFixed : areaSum;
+    const w = Number.isFinite(bwFixed) ? bwFixed : (bw || maxX - minX);
+    const d = Number.isFinite(bhFixed) ? bhFixed : (bd || maxY - minY);
     const lines = [
       [name, namePx, 700],
       [`${fmtM(w)} × ${fmtM(d)}`, metaPx, 400],
@@ -5040,14 +5055,23 @@ function addVariantD2Scene() {
       sectionHeight = value;
     },
   });
-  mountD2Furniture(variantD2Furniture, {
+}
+addVariantD2Scene();
+
+let d2FurniturePromise = null;
+function ensureD2Furniture() {
+  if (d2FurniturePromise) return d2FurniturePromise;
+  d2FurniturePromise = mountD2Furniture(variantD2Furniture, {
     planToWorld,
     prismGeometry,
     azX: AZ_X,
     azY: AZ_Y,
-  }).catch((err) => console.warn("d2 furniture", err));
+  }).catch((err) => {
+    console.warn("d2 furniture", err);
+    d2FurniturePromise = null;
+  });
+  return d2FurniturePromise;
 }
-addVariantD2Scene();
 
 function addVariantD3Scene() {
   bucket = variantD3Group;
@@ -5127,16 +5151,52 @@ function addVariantD5Scene() {
       sectionHeight = value;
     },
   });
-  mountD5Furniture(variantD5Furniture, {
+}
+addVariantD5Scene();
+
+let d5FurniturePromise = null;
+function ensureD5Furniture() {
+  if (d5FurniturePromise) return d5FurniturePromise;
+  d5FurniturePromise = mountD5Furniture(variantD5Furniture, {
     planToWorld,
     prismGeometry,
     azX: AZ_X,
     azY: AZ_Y,
     houseDx: D4_BASE.x,
     houseDy: D4_BASE.y,
-  }).catch((err) => console.warn("d5 furniture", err));
+  }).catch((err) => {
+    console.warn("d5 furniture", err);
+    d5FurniturePromise = null;
+  });
+  return d5FurniturePromise;
 }
-addVariantD5Scene();
+
+function addVariantD6Scene() {
+  bucket = variantD6Group;
+  buildVariantD6({
+    planBox, addBeam, asRoof, withFinish, addFloorNotes, addFloorLines,
+    planToWorld, geometryFromTriangles, addMesh, addSlab, addSlabHole, addWallRun,
+    addParkedModel, wallFace,
+    mountOverlays(make) {
+      mountAnyOverlays(
+        variantD6Group,
+        (x, y, z) => {
+          const [e, n] = planToWorld(x + D6_BASE.x, y + D6_BASE.y);
+          return [e, z, n];
+        },
+        (x0, y0, x1, y1, z0, z1, color) => planBox(
+          [[x0 + D6_BASE.x, y0 + D6_BASE.y], [x1 + D6_BASE.x, y0 + D6_BASE.y], [x1 + D6_BASE.x, y1 + D6_BASE.y], [x0 + D6_BASE.x, y1 + D6_BASE.y]], z0, z1, color
+        ),
+        make
+      );
+    },
+    sectionHeight(value) {
+      if (arguments.length === 0) return sectionHeight;
+      sectionHeight = value;
+    },
+  });
+}
+addVariantD6Scene();
 
 function buildSectionCap(mesh, worldY) {
   const geom = mesh.geometry;
@@ -5321,8 +5381,30 @@ for (const choice of FACADE_CHOICES) {
   opt.textContent = choice.name;
   facadeSelect.appendChild(opt);
 }
+const VARIANT_IDS = ["v2", "d2", "vb", "vc", "vd1", "vd2", "vd3", "vd4", "vd5", "vd6"];
+const VARIANT_BUTTON = {
+  v2: "var-v2",
+  d2: "var-d2",
+  vb: "var-b",
+  vc: "var-c",
+  vd1: "var-vd1",
+  vd2: "var-vd2",
+  vd3: "var-vd3",
+  vd4: "var-vd4",
+  vd5: "var-vd5",
+  vd6: "var-vd6",
+};
+const allowedVariants = Array.isArray(window.__houseAllowedVariants) && window.__houseAllowedVariants.length
+  ? window.__houseAllowedVariants.filter((id) => VARIANT_IDS.includes(id))
+  : null;
+if (allowedVariants) {
+  for (const id of VARIANT_IDS) {
+    const button = document.getElementById(VARIANT_BUTTON[id]);
+    if (button) button.hidden = !allowedVariants.includes(id);
+  }
+}
 let viewVariant = "v2";
-let pendingVariant = "v2";
+let pendingVariant = allowedVariants ? allowedVariants[0] : "v2";
 const BLURB_2 = "Вариант A. Терраса и гостиная на юг, вход на север, детские на восток. Потолок 3,5 м. Жёлтые окна от 0,80 м, белые панорамные от 0,10 м. Крыша над крыльцом как над террасой.";
 const BLURB_D2 = "Вариант A2. Тот же дом: крыша над террасой и крыльцом — скатная трапеция с прямым передним краем. Средние столбы террасы и крыльца одной высоты с соседними.";
 const BLURB_B = "Вариант Б. Терраса и мастер-спальня на юг, вход на север. Крыльцо-веранда 6,7 × 2 м, двускатный козырёк на всю ширину.";
@@ -5332,8 +5414,78 @@ const BLURB_VD2 = "Вариант Д2. Тот же дом, что Д1, с меб
 const BLURB_VD3 = "Вариант Д3. Тот же дом, что Д2, с другой нарезкой восточного крыла: два гардероба и спальня на север, мастер-ванная у холла, гардероб и мастер-спальня на юг. Контур дома, терраса и крыша как у Д2.";
 const BLURB_VD4 = "Вариант Д4. Тот же контур, терраса и навес, что у Д3. Запад: тамбур, постирочная и кабинет. Север: спальня-1. Восток: один мастер-блок и спальня-2.";
 const BLURB_VD5 = "Вариант Д5. Та же планировка, что у Д4, плюс мебель из каталога.";
+const BLURB_VD6 = "Вариант Д6. Конёк восток-запад от края навеса до края крыши. Конёк юг-север врезается в него ендовами, не сплющивается.";
 
 let tourActive = false;
+
+function roundView(n) {
+  return Math.round(n * 100) / 100;
+}
+
+function camToken() {
+  return [camera.position.x, camera.position.y, camera.position.z, controls.target.x, controls.target.y, controls.target.z]
+    .map((n) => roundView(n).toFixed(2))
+    .join(",");
+}
+
+function scaleToken() {
+  return roundView(camera.position.distanceTo(controls.target)).toFixed(2);
+}
+
+function parseCam(raw) {
+  if (!raw) return null;
+  const parts = raw.split(",").map((part) => Number(part.trim()));
+  if (parts.length !== 6 || parts.some((n) => !Number.isFinite(n) || Math.abs(n) > 1000)) return null;
+  return parts;
+}
+
+function applyCamQuery(cam, scale) {
+  const target = new THREE.Vector3(cam[3], cam[4], cam[5]);
+  const offset = new THREE.Vector3(cam[0], cam[1], cam[2]).sub(target);
+  if (offset.lengthSq() < 1e-6) offset.set(14.55, 9.5, -17.49);
+  const dist = Number.isFinite(scale) && scale >= 0.3 && scale <= 400 ? scale : offset.length();
+  offset.setLength(dist);
+  controls.target.copy(target);
+  camera.position.copy(target).add(offset);
+  controls.update();
+}
+
+function timeToken() {
+  const minutes = Number(timeInput.value);
+  const hour = Math.floor(minutes / 60);
+  const minute = minutes % 60;
+  return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+}
+
+function parseTime(raw) {
+  if (!raw) return null;
+  const match = /^(\d{1,2}):(\d{2})$/.exec(raw.trim());
+  if (!match) return null;
+  const hour = Number(match[1]);
+  const minute = Number(match[2]);
+  if (hour > 23 || minute > 59) return null;
+  const total = Math.min(1320, Math.max(240, Math.round((hour * 60 + minute) / 10) * 10));
+  return total;
+}
+
+function writeViewQuery() {
+  if (tourActive) return;
+  const params = new URLSearchParams(location.search);
+  const style = facadeSelect.value;
+  const cam = camToken();
+  const scale = scaleToken();
+  const date = /^\d{4}-\d{2}-\d{2}$/.test(dateInput.value) ? dateInput.value : "";
+  const time = timeToken();
+  if (params.get("style") === style && params.get("cam") === cam && params.get("scale") === scale && params.get("date") === date && params.get("time") === time) return;
+  params.set("style", style);
+  params.set("cam", cam);
+  params.set("scale", scale);
+  if (date) params.set("date", date);
+  params.set("time", time);
+  const next = location.pathname + "?" + params.toString() + location.hash;
+  const now = location.pathname + location.search + location.hash;
+  if (next !== now) history.replaceState(history.state, "", next);
+}
 
 function saveView() {
   if (tourActive) return;
@@ -5354,33 +5506,52 @@ function saveView() {
   } catch {
     // браузер может запретить localStorage
   }
+  writeViewQuery();
 }
 
+let cameraLockedByUrl = false;
+
 function loadView() {
+  const params = new URLSearchParams(location.search);
+  const queryStyle = params.get("style");
+  const queryCam = parseCam(params.get("cam"));
+  const queryScale = Number(params.get("scale"));
+  const queryDate = params.get("date");
+  const queryMinutes = parseTime(params.get("time"));
+  let cameraOk = false;
   try {
     const saved = JSON.parse(localStorage.getItem(VIEW_KEY) || "null");
-    if (!saved) return false;
-    const nums = [saved.px, saved.py, saved.pz, saved.tx, saved.ty, saved.tz];
-    const known = saved.variant === "v2" || saved.variant === "d2" || saved.variant === "vb" || saved.variant === "vc" || saved.variant === "vd1" || saved.variant === "vd2" || saved.variant === "vd3" || saved.variant === "vd4" || saved.variant === "vd5";
-    const cameraOk = known && nums.every((n) => Number.isFinite(n));
-    if (known) pendingVariant = saved.variant;
-    if (cameraOk) {
-      camera.position.set(saved.px, saved.py, saved.pz);
-      controls.target.set(saved.tx, saved.ty, saved.tz);
-      controls.update();
+    if (saved) {
+      const nums = [saved.px, saved.py, saved.pz, saved.tx, saved.ty, saved.tz];
+      const known = VARIANT_IDS.includes(saved.variant);
+      const variantOk = known && (!allowedVariants || allowedVariants.includes(saved.variant));
+      cameraOk = variantOk && nums.every((n) => Number.isFinite(n));
+      if (variantOk) pendingVariant = saved.variant;
+      if (cameraOk) {
+        camera.position.set(saved.px, saved.py, saved.pz);
+        controls.target.set(saved.tx, saved.ty, saved.tz);
+        controls.update();
+      }
+      if (typeof saved.roof === "boolean") {
+        roofToggle.checked = saved.roof;
+        showRoofs(saved.roof);
+      }
+      if (/^\d{4}-\d{2}-\d{2}$/.test(saved.date)) dateInput.value = saved.date;
+      if (Number.isFinite(saved.minutes)) timeInput.value = String(saved.minutes);
+      if (FACADE_CHOICES.some((s) => s.id === saved.style)) facadeSelect.value = saved.style;
     }
-    if (typeof saved.roof === "boolean") {
-      roofToggle.checked = saved.roof;
-      showRoofs(saved.roof);
-    }
-    if (/^\d{4}-\d{2}-\d{2}$/.test(saved.date)) dateInput.value = saved.date;
-    if (Number.isFinite(saved.minutes)) timeInput.value = String(saved.minutes);
-    if (FACADE_CHOICES.some((s) => s.id === saved.style)) facadeSelect.value = saved.style;
-    return cameraOk;
   } catch {
     // битая запись не мешает обычному виду
   }
-  return false;
+  if (queryStyle && FACADE_CHOICES.some((s) => s.id === queryStyle)) facadeSelect.value = queryStyle;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(queryDate || "")) dateInput.value = queryDate;
+  if (queryMinutes != null) timeInput.value = String(queryMinutes);
+  if (queryCam) {
+    applyCamQuery(queryCam, queryScale);
+    cameraLockedByUrl = true;
+    return true;
+  }
+  return cameraOk;
 }
 
 const restoredCamera = loadView();
@@ -5407,7 +5578,7 @@ const blurb = document.getElementById("blurb");
 
 function focusPoint(id) {
   // Д2 стоит в другом месте плана, чем дом А. Крутить нужно вокруг него, а не вокруг пустой точки.
-  if (id === "vd1" || id === "vd2" || id === "vd3" || id === "vd4" || id === "vd5") return new THREE.Vector3(3.56, 1.5, -0.94);
+  if (id === "vd1" || id === "vd2" || id === "vd3" || id === "vd4" || id === "vd5" || id === "vd6") return new THREE.Vector3(3.56, 1.5, -0.94);
   return new THREE.Vector3(-3.69, 1.5, -3.45);
 }
 
@@ -5417,6 +5588,7 @@ function retargetKeepOffset(id) {
   controls.target.copy(focus);
   camera.position.copy(focus).add(offset);
   controls.update();
+  saveView();
 }
 
 function placeCamera(id, kind) {
@@ -5427,15 +5599,21 @@ function placeCamera(id, kind) {
   controls.target.copy(focus);
   camera.position.copy(focus).add(offset);
   controls.update();
+  saveView();
 }
 
 greenhouseGroup.visible = false;
 if (location.hash) history.replaceState(null, "", location.pathname + location.search);
 
 function setVariant(id) {
+  let next = id === "vb" || id === "vc" || id === "d2" || id === "vd1" || id === "vd2" || id === "vd3" || id === "vd4" || id === "vd5" || id === "vd6" ? id : "v2";
+  if (allowedVariants && !allowedVariants.includes(next)) {
+    if (allowedVariants.includes(viewVariant)) return false;
+    next = allowedVariants[0];
+  }
   if (tourActive) stopTour(false);
-  viewVariant = id === "vb" || id === "vc" || id === "d2" || id === "vd1" || id === "vd2" || id === "vd3" || id === "vd4" || id === "vd5" ? id : "v2";
-  const eastHouse = viewVariant === "vd1" || viewVariant === "vd2" || viewVariant === "vd3" || viewVariant === "vd4" || viewVariant === "vd5";
+  viewVariant = next;
+  const eastHouse = viewVariant === "vd1" || viewVariant === "vd2" || viewVariant === "vd3" || viewVariant === "vd4" || viewVariant === "vd5" || viewVariant === "vd6";
   variant2Group.visible = !eastHouse;
   if (v2House) v2House.visible = viewVariant === "v2";
   if (v2HouseD2) v2HouseD2.visible = viewVariant === "d2";
@@ -5447,6 +5625,9 @@ function setVariant(id) {
   variantD3Group.visible = viewVariant === "vd3";
   variantD4Group.visible = viewVariant === "vd4";
   variantD5Group.visible = viewVariant === "vd5";
+  variantD6Group.visible = viewVariant === "vd6";
+  if (viewVariant === "vd2") ensureD2Furniture();
+  if (viewVariant === "vd5") ensureD5Furniture();
   northDriveGroup.visible = !eastHouse;
   blurb.textContent = viewVariant === "vb" ? BLURB_B
     : viewVariant === "vc" ? BLURB_C
@@ -5456,6 +5637,7 @@ function setVariant(id) {
             : viewVariant === "vd3" ? BLURB_VD3
               : viewVariant === "vd4" ? BLURB_VD4
                 : viewVariant === "vd5" ? BLURB_VD5
+                  : viewVariant === "vd6" ? BLURB_VD6
               : BLURB_2;
   document.getElementById("var-v2").classList.toggle("active", viewVariant === "v2");
   document.getElementById("var-d2").classList.toggle("active", viewVariant === "d2");
@@ -5466,35 +5648,46 @@ function setVariant(id) {
   document.getElementById("var-vd3").classList.toggle("active", viewVariant === "vd3");
   document.getElementById("var-vd4").classList.toggle("active", viewVariant === "vd4");
   document.getElementById("var-vd5").classList.toggle("active", viewVariant === "vd5");
+  document.getElementById("var-vd6").classList.toggle("active", viewVariant === "vd6");
   showRoofs(roofToggle.checked);
   saveView();
   syncPrintSheets(viewVariant);
   syncTourButton();
+  return true;
 }
 
-document.getElementById("var-v2").addEventListener("click", () => { setVariant("v2"); retargetKeepOffset("v2"); });
-document.getElementById("var-d2").addEventListener("click", () => { setVariant("d2"); retargetKeepOffset("v2"); });
-document.getElementById("var-b").addEventListener("click", () => { setVariant("vb"); retargetKeepOffset("v2"); });
-document.getElementById("var-c").addEventListener("click", () => { setVariant("vc"); retargetKeepOffset("v2"); });
-document.getElementById("var-vd1").addEventListener("click", () => { setVariant("vd1"); retargetKeepOffset("vd1"); });
-document.getElementById("var-vd2").addEventListener("click", () => { setVariant("vd2"); retargetKeepOffset("vd2"); });
-document.getElementById("var-vd3").addEventListener("click", () => { setVariant("vd3"); retargetKeepOffset("vd3"); });
-document.getElementById("var-vd4").addEventListener("click", () => { setVariant("vd4"); retargetKeepOffset("vd4"); });
-document.getElementById("var-vd5").addEventListener("click", () => { setVariant("vd5"); retargetKeepOffset("vd5"); });
+function chooseVariant(id, focusId) {
+  if (setVariant(id)) retargetKeepOffset(focusId);
+}
+
+document.getElementById("var-v2").addEventListener("click", () => chooseVariant("v2", "v2"));
+document.getElementById("var-d2").addEventListener("click", () => chooseVariant("d2", "v2"));
+document.getElementById("var-b").addEventListener("click", () => chooseVariant("vb", "v2"));
+document.getElementById("var-c").addEventListener("click", () => chooseVariant("vc", "v2"));
+document.getElementById("var-vd1").addEventListener("click", () => chooseVariant("vd1", "vd1"));
+document.getElementById("var-vd2").addEventListener("click", () => chooseVariant("vd2", "vd2"));
+document.getElementById("var-vd3").addEventListener("click", () => chooseVariant("vd3", "vd3"));
+document.getElementById("var-vd4").addEventListener("click", () => chooseVariant("vd4", "vd4"));
+document.getElementById("var-vd5").addEventListener("click", () => chooseVariant("vd5", "vd5"));
+document.getElementById("var-vd6").addEventListener("click", () => chooseVariant("vd6", "vd6"));
 
 const d2Tour = createD2Tour(planToWorld, d2WalkBoxes(), d2FenceSegments());
 const d3Tour = createD2Tour(planToWorld, d3WalkBoxes(), d3FenceSegments());
 const d4Tour = createD2Tour(planToWorld, d4WalkBoxes(), d4FenceSegments(D4_BASE), D4_BASE);
+const d6Tour = createD2Tour(planToWorld, d6WalkBoxes(), d6FenceSegments(D6_BASE), D6_BASE);
 function activeTour() {
   if (viewVariant === "vd4" || viewVariant === "vd5") return d4Tour;
+  if (viewVariant === "vd6") return d6Tour;
   return viewVariant === "vd3" ? d3Tour : d2Tour;
 }
 const tourDaylight = createTourDaylight(planToWorld);
 const tourDaylightD3 = createTourDaylight(planToWorld, D3_WINDOWS);
 const tourDaylightD4 = createTourDaylight(planToWorld, D4_WINDOWS, D4_BASE);
-scene.add(tourDaylight.object, tourDaylightD3.object, tourDaylightD4.object);
+const tourDaylightD6 = createTourDaylight(planToWorld, D6_WINDOWS, D6_BASE);
+scene.add(tourDaylight.object, tourDaylightD3.object, tourDaylightD4.object, tourDaylightD6.object);
 function activeDaylight() {
   if (viewVariant === "vd4" || viewVariant === "vd5") return tourDaylightD4;
+  if (viewVariant === "vd6") return tourDaylightD6;
   return viewVariant === "vd3" ? tourDaylightD3 : tourDaylight;
 }
 const tourButton = document.getElementById("tour");
@@ -5551,7 +5744,7 @@ function collectWalkPolys(kind) {
 }
 
 function syncTourButton() {
-  const ready = roofToggle.checked && (viewVariant === "vd1" || viewVariant === "vd2" || viewVariant === "vd3" || viewVariant === "vd4" || viewVariant === "vd5" || tourPoseOf[viewVariant]);
+  const ready = roofToggle.checked && (viewVariant === "vd1" || viewVariant === "vd2" || viewVariant === "vd3" || viewVariant === "vd4" || viewVariant === "vd5" || viewVariant === "vd6" || tourPoseOf[viewVariant]);
   tourButton.disabled = tourActive ? false : !ready;
   tourButton.classList.toggle("active", tourActive);
   tourButton.textContent = tourActive ? "Стоп" : "Экскурсия";
@@ -5569,7 +5762,7 @@ function hideDoorLeaves() {
 }
 
 function startTour() {
-  const keepHouse = viewVariant === "vd1" || viewVariant === "vd2" || viewVariant === "vd3" || viewVariant === "vd4" || viewVariant === "vd5";
+  const keepHouse = viewVariant === "vd1" || viewVariant === "vd2" || viewVariant === "vd3" || viewVariant === "vd4" || viewVariant === "vd5" || viewVariant === "vd6";
   const pose = keepHouse ? d2TourPose(planToWorld) : tourPoseOf[viewVariant];
   if (tourActive || !roofToggle.checked || !pose) return;
   savedTourView = {
@@ -5692,7 +5885,8 @@ tourButton.addEventListener("click", () => {
 
 setVariant(pendingVariant);
 if (!restoredCamera) placeCamera(viewVariant, "side");
-else if ((viewVariant === "vd1" || viewVariant === "vd2" || viewVariant === "vd3" || viewVariant === "vd4" || viewVariant === "vd5") && controls.target.distanceTo(focusPoint(viewVariant)) > 4) retargetKeepOffset(viewVariant);
+else if (!cameraLockedByUrl && (viewVariant === "vd1" || viewVariant === "vd2" || viewVariant === "vd3" || viewVariant === "vd4" || viewVariant === "vd5" || viewVariant === "vd6") && controls.target.distanceTo(focusPoint(viewVariant)) > 4) retargetKeepOffset(viewVariant);
+else saveView();
 dateInput.addEventListener("input", () => {
   applySun(geo);
   saveView();

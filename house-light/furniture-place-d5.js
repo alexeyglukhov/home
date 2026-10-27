@@ -1,6 +1,6 @@
 // Расстановка Д5. Источник — furniture-map-d4.svg.
 // Карту правьте там, затем: python3 furniture-map/sync_map_to_place.py d5
-import { mountFurniture, CAB_H, COUNTER_H, RAISE } from "./furniture-place-d2.js?v=41";
+import { mountFurniture, CAB_H, COUNTER_H, RAISE } from "./furniture-place-d2.js?v=43";
 
 export const D5_FURNITURE = [
   { id: "K06", x0: -1.222, y0: 11.716, x1: -0.717, y1: 12.666, footW: 0.950, footD: 0.504, frontDeg: 90, fromMap: true, wall: "W" },
