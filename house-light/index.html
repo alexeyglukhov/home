@@ -118,13 +118,28 @@
     min-height: 1.2em; margin: 0; color: #fffef9; font-size: 13px;
   }
   #print-slot { display: none; }
-  #furniture-catalog-btn {
+  #corner-actions {
     position: fixed; right: 16px; bottom: 16px; z-index: 8;
+    display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end;
+    max-width: calc(100vw - 32px);
+  }
+  #style-examples-btn,
+  #furniture-catalog-btn {
     padding: 8px 14px; font-size: 14px; font-weight: 600;
     background: #fffef9; border: 1px solid #6b5a45; border-radius: 6px;
     box-shadow: 0 2px 8px rgba(40, 30, 16, .22);
+    color: #222; text-decoration: none; font-family: inherit; cursor: pointer;
   }
+  #style-examples-btn:hover,
+  #furniture-catalog-btn:hover { background: #efe6d4; }
   #furniture-catalog-btn[hidden] { display: none; }
+  #style-examples-layer {
+    position: fixed; inset: 0; z-index: 50; background: #ece7dc;
+  }
+  #style-examples-layer[hidden] { display: none; }
+  #style-examples-frame {
+    display: block; width: 100%; height: 100%; border: 0; background: #ece7dc;
+  }
   #furniture-catalog {
     position: fixed; inset: 0; z-index: 40;
     display: flex; align-items: stretch; justify-content: center;
@@ -206,7 +221,7 @@
     }
     #prints button.sheet { width: 88px; }
     .row:has(#view-side),
-    #furniture-catalog-btn { display: none; }
+    #corner-actions { display: none; }
   }
   @page { size: A4 landscape; margin: 0; }
   @media print {
@@ -310,7 +325,13 @@
   </div>
 </div>
 <div id="print-slot"><img id="print-slot-img" alt=""></div>
-<button type="button" id="furniture-catalog-btn">Каталог мебели</button>
+<div id="corner-actions">
+  <button type="button" id="style-examples-btn">Стили домов</button>
+  <button type="button" id="furniture-catalog-btn">Каталог мебели</button>
+</div>
+<div id="style-examples-layer" hidden>
+  <iframe id="style-examples-frame" title="Стили одноэтажных домов"></iframe>
+</div>
 <div id="furniture-catalog" hidden>
   <div class="catalog-panel">
     <div class="catalog-head">
@@ -421,8 +442,27 @@
 })();
 </script>
 <script type="importmap">
-{ "imports": { "three": "./vendor/three.module.js" } }
+{ "imports": { "three": "./vendor/three.module.js?v=2" } }
 </script>
-<script type="module" src="./app.js?v=747"></script>
+<script>
+window.addEventListener("pageshow", function (event) {
+  if (event.persisted) location.reload();
+});
+// Ссылка с #styles открывает каталог без WebGL — иначе вместе с моделью бывает серый экран.
+window.__houseOpenStyles = location.hash === "#styles";
+if (window.__houseOpenStyles) {
+  var styleParams = new URLSearchParams(location.search);
+  var styleNext = new URLSearchParams();
+  ["like", "only", "variants"].forEach(function (key) {
+    var value = styleParams.get(key);
+    if (value) styleNext.set(key, value);
+  });
+  styleNext.set("back", location.pathname + location.search);
+  location.replace(new URL("style-examples.html?" + styleNext.toString(), location.href).href);
+}
+</script>
+<script type="module">
+if (!window.__houseOpenStyles) import("./app.js?v=755");
+</script>
 </body>
 </html>

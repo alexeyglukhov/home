@@ -13,7 +13,7 @@ import { buildVariantD4, d4WalkBoxes, d4FenceSegments, D4_WINDOWS, D4_BASE } fro
 import { buildVariantD4 as buildVariantD6, d4WalkBoxes as d6WalkBoxes, d4FenceSegments as d6FenceSegments, D4_WINDOWS as D6_WINDOWS, D4_BASE as D6_BASE } from "./variant-d6.js?v=32";
 import { createD2Tour, createTourDaylight, d2TourPose, D3_WINDOWS } from "./tour-d2.js?v=21";
 import { syncPrintSheets } from "./print-sheets.js?v=16";
-import { mountFurnitureCatalog } from "./furniture-catalog.js?v=5";
+import { mountFurnitureCatalog } from "./furniture-catalog.js?v=8";
 import { mountD2Furniture } from "./furniture-place-d2.js?v=43";
 import { mountD5Furniture } from "./furniture-place-d5.js?v=7";
 
@@ -24,7 +24,32 @@ const clock = document.getElementById("clock");
 const sunInfo = document.getElementById("sun");
 const roofToggle = document.getElementById("roof");
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const GL_RETRY_KEY = "house-gl-retry";
+function scheduleGlRetry() {
+  const n = Number(sessionStorage.getItem(GL_RETRY_KEY) || 0);
+  if (n >= 3) return;
+  sessionStorage.setItem(GL_RETRY_KEY, String(n + 1));
+  let note = document.getElementById("gl-retry");
+  if (!note) {
+    note = document.createElement("p");
+    note.id = "gl-retry";
+    note.style.cssText = "position:fixed;left:16px;bottom:16px;z-index:20;margin:0;padding:8px 10px;background:#fff;color:#222;font:14px sans-serif";
+    document.body.appendChild(note);
+  }
+  note.textContent = "Видеокарта перезапускается, модель откроется снова.";
+  setTimeout(() => location.reload(), [700, 1600, 2800][n]);
+}
+function createRenderer() {
+  try {
+    const created = new THREE.WebGLRenderer({ antialias: true });
+    sessionStorage.removeItem(GL_RETRY_KEY);
+    return created;
+  } catch (error) {
+    scheduleGlRetry();
+    throw error;
+  }
+}
+const renderer = createRenderer();
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.localClippingEnabled = true;
@@ -32,6 +57,26 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.setClearColor(0xd5e2ef);
 document.body.appendChild(renderer.domElement);
+let pageLeaving = false;
+let stylesOpen = false;
+let frameHandle = 0;
+function stopDrawing() {
+  pageLeaving = true;
+  cancelAnimationFrame(frameHandle);
+  frameHandle = 0;
+}
+// Не вызывать dispose/forceContextLoss: на этой сцене это рвёт процесс отрисовки,
+// и следующая страница получает WebGL «Render process gone».
+window.addEventListener("pagehide", stopDrawing);
+window.addEventListener("freeze", stopDrawing);
+window.addEventListener("pageshow", (event) => {
+  if (event.persisted) location.reload();
+});
+renderer.domElement.addEventListener("webglcontextlost", (event) => {
+  event.preventDefault();
+  // Пока открыты стили, тоже чиним: иначе после закрытия цикл крутит мёртвый контекст.
+  scheduleGlRetry();
+});
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 400);
@@ -5603,7 +5648,10 @@ function placeCamera(id, kind) {
 }
 
 greenhouseGroup.visible = false;
-if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+// Старые якоря сбрасываем, но #styles оставляем — по этой ссылке снова открывается каталог.
+if (location.hash && location.hash !== "#styles") {
+  history.replaceState(null, "", location.pathname + location.search);
+}
 
 function setVariant(id) {
   let next = id === "vb" || id === "vc" || id === "d2" || id === "vd1" || id === "vd2" || id === "vd3" || id === "vd4" || id === "vd5" || id === "vd6" ? id : "v2";
@@ -5915,6 +5963,7 @@ document.getElementById("view-top").addEventListener("click", () => setView("top
 applySun(geo);
 
 function frame() {
+  if (pageLeaving || stylesOpen) return;
   const now = performance.now();
   const dt = tourStamp ? Math.min(0.05, (now - tourStamp) / 1000) : 0;
   tourStamp = now;
@@ -5923,13 +5972,128 @@ function frame() {
     if (!activeTour().step(dt)) stopTour(true);
   } else controls.update();
   renderer.render(scene, camera);
-  requestAnimationFrame(frame);
+  frameHandle = requestAnimationFrame(frame);
 }
-frame();
+frameHandle = requestAnimationFrame(frame);
 syncTourButton();
 
 window.__house = { camera, controls, scene, THREE };
 mountFurnitureCatalog();
+
+(function mountStyleExamples() {
+  const button = document.getElementById("style-examples-btn");
+  const layer = document.getElementById("style-examples-layer");
+  const frameEl = document.getElementById("style-examples-frame");
+  if (!button || !layer || !frameEl) return;
+  let open = false;
+  let pushed = false;
+  function stylesUrl() {
+    const params = new URLSearchParams(location.search);
+    const next = new URLSearchParams();
+    next.set("embed", "1");
+    const variants = params.get("variants");
+    if (variants) next.set("variants", variants);
+    const like = params.get("like");
+    if (like) next.set("like", like);
+    if (params.get("only") === "1") next.set("only", "1");
+    return "./style-examples.html?" + next.toString();
+  }
+  function syncStylesQuery(like, only) {
+    const params = new URLSearchParams(location.search);
+    if (like) params.set("like", like);
+    else params.delete("like");
+    if (only) params.set("only", "1");
+    else params.delete("only");
+    const hash = open || location.hash === "#styles" ? "#styles" : "";
+    const next = location.pathname + "?" + params.toString() + hash;
+    const now = location.pathname + location.search + location.hash;
+    if (next !== now) history.replaceState(history.state, "", next);
+  }
+  function readFrameQuery() {
+    try {
+      const href = frameEl.contentWindow && frameEl.contentWindow.location.href;
+      if (!href || href === "about:blank") return;
+      const page = new URL(href);
+      if (page.origin !== location.origin) return;
+      syncStylesQuery(page.searchParams.get("like") || "", page.searchParams.get("only") === "1");
+    } catch {
+      // iframe ещё не готов
+    }
+  }
+  function clearOrbitPointers() {
+    try {
+      for (const id of [...(controls._pointers || [])]) {
+        try { renderer.domElement.releasePointerCapture(id); } catch { /* уже отпущен */ }
+      }
+    } catch { /* нет захвата */ }
+    controls._pointers = [];
+    controls.state = -1;
+    if (!tourActive) controls.enabled = true;
+  }
+  function resumeDrawing() {
+    stylesOpen = false;
+    pageLeaving = false;
+    clearOrbitPointers();
+    const gl = renderer.getContext();
+    if (!gl || gl.isContextLost()) {
+      scheduleGlRetry();
+      return;
+    }
+    cancelAnimationFrame(frameHandle);
+    frameHandle = requestAnimationFrame(frame);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+  function setOpen(next, fromHistory) {
+    if (open === next) return;
+    open = next;
+    layer.hidden = !open;
+    button.hidden = open;
+    if (open) {
+      stylesOpen = true;
+      cancelAnimationFrame(frameHandle);
+      frameHandle = 0;
+      clearOrbitPointers();
+      controls.enabled = false;
+      frameEl.src = stylesUrl();
+      if (!fromHistory && location.hash !== "#styles") {
+        history.pushState({ houseStyles: true }, "", location.pathname + location.search + "#styles");
+        pushed = true;
+      } else {
+        pushed = location.hash === "#styles";
+      }
+    } else {
+      frameEl.src = "about:blank";
+      pushed = false;
+      if (!fromHistory && location.hash === "#styles") {
+        const params = new URLSearchParams(location.search);
+        history.replaceState(history.state, "", location.pathname + "?" + params.toString());
+      }
+      resumeDrawing();
+    }
+  }
+  button.addEventListener("click", () => setOpen(true, false));
+  frameEl.addEventListener("load", () => {
+    if (!open) return;
+    readFrameQuery();
+  });
+  window.addEventListener("message", (event) => {
+    if (event.origin !== location.origin) return;
+    if (!event.data || !event.data.type) return;
+    if (event.data.type === "house-close-styles") {
+      setOpen(false, false);
+      return;
+    }
+    if (event.data.type === "house-styles-query") {
+      syncStylesQuery(event.data.like || "", event.data.only === true || event.data.only === "1");
+    }
+  });
+  window.addEventListener("popstate", () => {
+    if (open) setOpen(false, true);
+  });
+  // Холодный заход с #styles перехватывает inline-скрипт в index.html.
+})();
 
 window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;

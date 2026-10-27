@@ -13,29 +13,37 @@ export function mountFurnitureCatalog() {
   const status = document.getElementById("furniture-catalog-status");
   if (!openButton || !root || !filters || !grid) return;
 
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
-  renderer.setSize(400, 280, false);
-  renderer.setPixelRatio(1);
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
-  renderer.setClearColor(0xe7e0d2, 1);
-  renderer.domElement.setAttribute("aria-hidden", "true");
-  renderer.domElement.style.cssText = "position:fixed;left:-2000px;top:0;width:400px;height:280px;pointer-events:none";
-  document.body.appendChild(renderer.domElement);
+  let renderer = null;
+  let stage = null;
+  let camera = null;
 
-  const stage = new THREE.Scene();
-  stage.add(new THREE.HemisphereLight(0xfff6ea, 0x9aa3aa, 1.15));
-  const key = new THREE.DirectionalLight(0xfffaf2, 1.7);
-  key.position.set(2.4, 3.6, 2.1);
-  stage.add(key);
-  const fill = new THREE.DirectionalLight(0xd7e6f6, 0.55);
-  fill.position.set(-2.2, 1.4, -1.2);
-  stage.add(fill);
-
-  const camera = new THREE.PerspectiveCamera(32, 400 / 280, 0.02, 40);
-  camera.position.set(2.35, 1.42, 2.55);
-  camera.lookAt(0, 0.42, 0);
+  function ensureRenderer() {
+    if (renderer) return;
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+    renderer.setSize(400, 280, false);
+    renderer.setPixelRatio(1);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
+    renderer.setClearColor(0xe7e0d2, 1);
+    renderer.domElement.setAttribute("aria-hidden", "true");
+    renderer.domElement.style.cssText = "position:fixed;left:-2000px;top:0;width:400px;height:280px;pointer-events:none";
+    document.body.appendChild(renderer.domElement);
+    stage = new THREE.Scene();
+    stage.add(new THREE.HemisphereLight(0xfff6ea, 0x9aa3aa, 1.15));
+    const key = new THREE.DirectionalLight(0xfffaf2, 1.7);
+    key.position.set(2.4, 3.6, 2.1);
+    stage.add(key);
+    const fill = new THREE.DirectionalLight(0xd7e6f6, 0.55);
+    fill.position.set(-2.2, 1.4, -1.2);
+    stage.add(fill);
+    camera = new THREE.PerspectiveCamera(32, 400 / 280, 0.02, 40);
+    camera.position.set(2.35, 1.42, 2.55);
+    camera.lookAt(0, 0.42, 0);
+    window.addEventListener("pagehide", () => {
+      running = false;
+    });
+  }
 
   const cards = [];
   let catalog = null;
@@ -203,6 +211,7 @@ export function mountFurnitureCatalog() {
     openButton.hidden = open;
     document.body.classList.toggle("catalog-open", open);
     if (open) {
+      ensureRenderer();
       if (!running) {
         running = true;
         last = 0;

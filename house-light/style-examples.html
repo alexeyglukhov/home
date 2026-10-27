@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-store">
+<meta http-equiv="Pragma" content="no-cache">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Стили одноэтажных домов</title>
+<style>
+  html, body { margin: 0; background: #d5e2ef; color: #222; font-family: "DejaVu Sans", "Liberation Sans", sans-serif; }
+  a { color: #3a342c; }
+  header, main, .top { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+  header { padding: 8px 0; }
+  .bar {
+    position: sticky; top: 0; z-index: 6;
+    background: #d5e2ef;
+    padding: 14px 0 12px;
+    box-shadow: 0 1px 0 rgba(60, 50, 30, .16);
+  }
+  .top { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+  h1 { margin: 0; font-size: 28px; font-weight: 700; }
+  .controls { display: flex; align-items: center; gap: 8px; flex: none; }
+  .only, .back {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 14px; font-size: 14px; font-weight: 600;
+    background: #fffef9; border: 1px solid #6b5a45; border-radius: 6px;
+    color: #222; box-shadow: 0 2px 8px rgba(40, 30, 16, .12);
+  }
+  .only { cursor: pointer; user-select: none; }
+  .only input { width: 16px; height: 16px; margin: 0; accent-color: #6b5a45; }
+  .back { text-decoration: none; }
+  .back:hover, .only:hover { background: #efe6d4; }
+  header p { margin: 12px 0 0; max-width: 68ch; font-size: 15px; line-height: 1.45; }
+  nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 6px; }
+  nav a {
+    padding: 4px 10px; background: #fffef9; border: 1px solid #cfc8b8; border-radius: 4px;
+    text-decoration: none; font-size: 13px;
+  }
+  nav a:hover { background: #efe6d4; }
+  section {
+    margin: 22px 0 8px; padding: 16px 16px 18px;
+    background: #fffef9; border: 1px solid #cfc8b8; border-radius: 8px;
+  }
+  h2 { margin: 0; font-size: 22px; }
+  .about {
+    display: grid; grid-template-columns: 7.4em 1fr; gap: 5px 12px;
+    margin: 10px 0 14px; max-width: 78ch;
+    font-size: 14.5px; line-height: 1.45;
+  }
+  .about dt { margin: 0; font-weight: 700; }
+  .about dd { margin: 0; color: #3c3428; }
+  .finishes { margin: 2px 0 8px; font-size: 13px; font-weight: 700; color: #5c5348; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+  figure { position: relative; margin: 0; }
+  figure[hidden], section[hidden], nav a[hidden], #none[hidden] { display: none; }
+  button.like {
+    position: absolute; top: 8px; right: 8px; z-index: 1;
+    width: 34px; height: 34px; padding: 0;
+    border: 0; border-radius: 50%;
+    background: rgba(255, 254, 249, .94); color: #6b5a45;
+    box-shadow: 0 1px 4px rgba(40, 30, 16, .2);
+    cursor: pointer;
+  }
+  button.like svg { display: block; width: 18px; height: 18px; margin: 0 auto; }
+  button.like path { fill: none; stroke: currentColor; stroke-width: 2; }
+  button.like[aria-pressed="true"] { color: #a33b32; }
+  button.like[aria-pressed="true"] path { fill: currentColor; }
+  #none {
+    margin: 22px 0; padding: 16px;
+    background: #fffef9; border: 1px solid #cfc8b8; border-radius: 8px;
+    font-size: 15px;
+  }
+  button.shot {
+    display: block; width: 100%; margin: 0; padding: 0; border: 0; border-radius: 6px;
+    background: #e7e0d2; cursor: zoom-in; overflow: hidden;
+  }
+  button.shot img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+  figcaption { margin-top: 6px; font-size: 14px; font-weight: 600; line-height: 1.3; }
+  footer { width: min(1180px, calc(100% - 32px)); margin: 8px auto 28px; font-size: 13px; color: #3c3428; }
+  #zoom {
+    position: fixed; inset: 0; z-index: 20;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 10px; padding: 24px;
+    background: rgba(22, 26, 30, .86);
+  }
+  #zoom[hidden] { display: none; }
+  #zoom img { max-width: min(1100px, 94vw); max-height: calc(100vh - 120px); background: #fff; }
+  #zoom p {
+    margin: 0; padding: 4px 12px;
+    background: #fffef9; color: #222; border-radius: 4px;
+    font-size: 16px; font-weight: 600;
+  }
+  @media (max-width: 800px) {
+    .grid { grid-template-columns: 1fr; }
+    h1 { font-size: 22px; }
+    .top { align-items: flex-start; flex-direction: column-reverse; }
+    .controls { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+<div class="bar">
+  <div class="top">
+    <h1>Стили одноэтажных домов</h1>
+    <div class="controls">
+      <label class="only"><input type="checkbox" id="only-liked">Показывать выбранные</label>
+      <a class="back" id="back" href="./">К модели</a>
+    </div>
+  </div>
+</div>
+<header>
+  <p>Восемнадцать стилей одноэтажных домов около 200 м². Нет мансарды, слуховых окон и цокольного этажа. Под названием — портрет стиля. Три картинки ниже — варианты отделки этого стиля, не отдельные стили. Сердечко отмечает вариант. Отметки запоминаются в этом браузере, поэтому кнопка «Стили домов» открывает их снова. Фильтр «Показывать выбранные» оставляет только отмеченные, и эту ссылку из адресной строки можно отправить.</p>
+  <nav>
+    <a href="#scandi">Скандинавский</a>
+    <a href="#barn">Барнхаус</a>
+    <a href="#modern">Современный</a>
+    <a href="#prairie">Прерии</a>
+    <a href="#finnish">Финский</a>
+    <a href="#classic">Классический</a>
+    <a href="#provence">Прованс</a>
+    <a href="#fachwerk">Фахверк</a>
+    <a href="#ranch">Ранчо</a>
+    <a href="#japan">Японский</a>
+    <a href="#english">Английский</a>
+    <a href="#med">Средиземноморский</a>
+    <a href="#contemporary">Контемпорари</a>
+    <a href="#farm">Фермерский</a>
+    <a href="#chalet">Шале</a>
+    <a href="#log">Бревенчатый</a>
+    <a href="#midcentury">Мид-сенчури</a>
+    <a href="#hitech">Хай-тек</a>
+  </nav>
+</header>
+<main>
+  <p id="none" hidden>Пока ничего не отмечено. Снимите фильтр и нажмите сердечко на понравившихся вариантах.</p>
+  <section id="scandi">
+    <h2>Скандинавский</h2>
+    <dl class="about">
+      <dt>Силуэт</dt><dd>Длинный двускатный дом около 200 м². Крупный глухой щипец, крыльцо, дощатая терраса и открытый навес.</dd>
+      <dt>Кровля</dt><dd>Тёмно-серая или чёрная фальцевая, свес небольшой.</dd>
+      <dt>Стены</dt><dd>Доска: белая вертикальная, светлая натуральная горизонтальная или почти чёрная вертикальная.</dd>
+      <dt>Окна</dt><dd>Простые прямоугольные, белые рамы. Дверь из светлого дерева на крыльце.</dd>
+      <dt>Настроение</dt><dd>Тихий и аккуратный. Близок, если хочется ровной доски, ясных окон и спокойного объёма.</dd>
+    </dl>
+    <p class="finishes">Варианты отделки</p>
+    <div class="grid">
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/scandi-white.jpg" alt="Скандинавский дом с белой вертикальной доской"></button>
+        <figcaption>Белая вертикальная доска</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/scandi-natural.jpg" alt="Скандинавский дом со светлой горизонтальной доской"></button>
+        <figcaption>Светлая горизонтальная доска</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/scandi-dark.jpg" alt="Скандинавский дом с тёмной вертикальной доской"></button>
+        <figcaption>Тёмная вертикальная доска</figcaption>
+      </figure>
+    </div>
+  </section>
+  <section id="barn">
+    <h2>Барнхаус</h2>
+    <dl class="about">
+      <dt>Силуэт</dt><dd>Крупный амбарный дом около 200 м². Высокий глухой щипец на виду, сбоку крытая терраса и навес.</dd>
+      <dt>Кровля</dt><dd>Тёмная фальцевая, скат длинный.</dd>
+      <dt>Стены</dt><dd>Вертикальная доска. Чёрная целиком, светлое дерево целиком или белый планкен над поясом серого кирпича.</dd>
+      <dt>Окна</dt><dd>Тёмные рамы, широкие прямоугольники в один ряд.</dd>
+      <dt>Настроение</dt><dd>Собранный и чуть суровый, с характером хозяйственной постройки. Близок, если нравится тёмная крыша и крупный рисунок вертикальных досок.</dd>
+    </dl>
+    <p class="finishes">Варианты отделки</p>
+    <div class="grid">
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/barn-black.jpg" alt="Чёрный барнхаус"></button>
+        <figcaption>Чёрная вертикальная доска</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/barn-wood.jpg" alt="Барнхаус из светлого дерева"></button>
+        <figcaption>Светлое дерево</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/barn-brick.jpg" alt="Барнхаус с белым планкеном и серым кирпичом"></button>
+        <figcaption>Белый планкен и серый кирпич</figcaption>
+      </figure>
+    </div>
+  </section>
+  <section id="modern">
+    <h2>Современный</h2>
+    <dl class="about">
+      <dt>Силуэт</dt><dd>Дом около 200 м² из смещённых объёмов. Фронтона нет: на переднем плане крытая терраса, сбоку плоский навес.</dd>
+      <dt>Кровля</dt><dd>Плоская, с невысоким парапетом. Навес в том же уровне.</dd>
+      <dt>Стены</dt><dd>Гладкая штукатурка: белая, тёпло-серая с вертикальными деревянными рейками или тёмно-серая.</dd>
+      <dt>Окна</dt><dd>Прямоугольные, тонкие тёмные рамы. У террасы проём шире, дверь утоплена.</dd>
+      <dt>Настроение</dt><dd>Ровный минимализм, мало деталей. Близок, если нужна плоская кровля, гладкая стена и навес без ската.</dd>
+    </dl>
+    <p class="finishes">Варианты отделки</p>
+    <div class="grid">
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/modern-white.jpg" alt="Современный дом с белой штукатуркой"></button>
+        <figcaption>Белая штукатурка</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/modern-wood.jpg" alt="Современный дом с серой штукатуркой и деревянными рейками"></button>
+        <figcaption>Серая штукатурка и деревянные рейки</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/modern-dark.jpg" alt="Современный дом с тёмной штукатуркой"></button>
+        <figcaption>Тёмная штукатурка</figcaption>
+      </figure>
+    </div>
+  </section>
+  <section id="prairie">
+    <h2>Прерии</h2>
+    <dl class="about">
+      <dt>Силуэт</dt><dd>Длинный приземистый дом около 200 м². Широкий карниз накрывает террасу, крыльцо и навес для авто.</dd>
+      <dt>Кровля</dt><dd>Низкая вальмовая. Свесы широкие и закрывают верх стены глубокой тенью.</dd>
+      <dt>Стены</dt><dd>Горизонтальный рисунок: длинный тёплый кирпич, песочная штукатурка с тёмными поясами или светлый камень и тёмное дерево.</dd>
+      <dt>Окна</dt><dd>Обычные, в один ряд, тёмные рамы.</dd>
+      <dt>Настроение</dt><dd>Тёплый и горизонтальный. Близок, если нравятся низкая крыша, широкие карнизы и полосы на фасаде.</dd>
+    </dl>
+    <p class="finishes">Варианты отделки</p>
+    <div class="grid">
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/prairie-brick.jpg" alt="Дом в стиле прерий из горизонтального кирпича"></button>
+        <figcaption>Горизонтальный кирпич</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/prairie-stucco.jpg" alt="Дом в стиле прерий со штукатуркой и поясами"></button>
+        <figcaption>Штукатурка с поясами</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/prairie-stone.jpg" alt="Дом в стиле прерий из камня и дерева"></button>
+        <figcaption>Камень и дерево</figcaption>
+      </figure>
+    </div>
+  </section>
+  <section id="finnish">
+    <h2>Финский</h2>
+    <dl class="about">
+      <dt>Силуэт</dt><dd>Длинный крашеный дом около 200 м². Глухой щипец, белое крыльцо и открытый навес.</dd>
+      <dt>Кровля</dt><dd>Тёмно-серая фальцевая, свес с белой подшивкой.</dd>
+      <dt>Стены</dt><dd>Крашеная горизонтальная доска с белыми углами: светло-серая, красная или тёмно-зелёная.</dd>
+      <dt>Окна</dt><dd>С белыми наличниками. Дверь простая деревянная на крыльце.</dd>
+      <dt>Настроение</dt><dd>Уютный крашеный деревянный дом, цвет стены читается сразу. Близок, если нравятся белые наличники и ясный цвет доски.</dd>
+    </dl>
+    <p class="finishes">Варианты отделки</p>
+    <div class="grid">
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/finnish-pale.jpg" alt="Финский дом со светло-серой доской"></button>
+        <figcaption>Светло-серая доска</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/finnish-red.jpg" alt="Финский дом с красной доской"></button>
+        <figcaption>Красная доска</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/finnish-green.jpg" alt="Финский дом с тёмно-зелёной доской"></button>
+        <figcaption>Тёмно-зелёная доска</figcaption>
+      </figure>
+    </div>
+  </section>
+  <section id="classic">
+    <h2>Классический</h2>
+    <dl class="about">
+      <dt>Силуэт</dt><dd>Крупный симметричный дом около 200 м². По центру крыльцо с колоннами и треугольным фронтоном, сбоку открытый навес.</dd>
+      <dt>Кровля</dt><dd>Вальмовая, спуск на все четыре стороны. Серый фальц или терракотовая черепица.</dd>
+      <dt>Стены</dt><dd>Светлая гладкая штукатурка, светлый кирпич или кремовая штукатурка с кирпичными углами и обводкой окон.</dd>
+      <dt>Окна</dt><dd>Одинаковые вертикальные, белые рамы. Дверь по оси, под фронтоном.</dd>
+      <dt>Настроение</dt><dd>Спокойный парадный дом. Близок, если важны симметрия, карниз и светлый аккуратный фасад.</dd>
+    </dl>
+    <p class="finishes">Варианты отделки</p>
+    <div class="grid">
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/classic-plaster.jpg" alt="Классический дом со светлой штукатуркой"></button>
+        <figcaption>Светлая штукатурка</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/classic-brick.jpg" alt="Классический дом из светлого кирпича"></button>
+        <figcaption>Светлый кирпич</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/classic-quoin.jpg" alt="Классический дом со штукатуркой и кирпичными углами"></button>
+        <figcaption>Штукатурка и кирпичные углы</figcaption>
+      </figure>
+    </div>
+  </section>
+  <section id="provence">
+    <h2>Прованс</h2>
+    <dl class="about">
+      <dt>Силуэт</dt><dd>Крупный невысокий дом около 200 м². Крытая терраса на переднем плане, сбоку навес под той же черепицей.</dd>
+      <dt>Кровля</dt><dd>Терракотовая черепица, вальмовая, тёплого цвета.</dd>
+      <dt>Стены</dt><dd>Штукатурка кремовая, песочная или белая. Камень может обрамлять окна и дверь.</dd>
+      <dt>Окна</dt><dd>Деревянные ставни, зелёные или серо-голубые, рамы светлые.</dd>
+      <dt>Настроение</dt><dd>Тёплый, чуть деревенский, с мягкой стеной и цветной кровлей. Близок, если нравятся черепица, ставни и штукатурка тёплых оттенков.</dd>
+    </dl>
+    <p class="finishes">Варианты отделки</p>
+    <div class="grid">
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/provence-cream.jpg" alt="Прованский дом с кремовой штукатуркой"></button>
+        <figcaption>Кремовая штукатурка</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/provence-stone.jpg" alt="Прованский дом с песочной штукатуркой и камнем"></button>
+        <figcaption>Песочная штукатурка и камень</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/provence-white.jpg" alt="Прованский дом с белой штукатуркой"></button>
+        <figcaption>Белая штукатурка</figcaption>
+      </figure>
+    </div>
+  </section>
+  <section id="fachwerk">
+    <h2>Фахверк</h2>
+    <dl class="about">
+      <dt>Силуэт</dt><dd>Длинный двускатный дом около 200 м². Щипец расчерчен балками и без окон, сбоку крыльцо и деревянный навес.</dd>
+      <dt>Кровля</dt><dd>Тёмная черепица.</dd>
+      <dt>Стены</dt><dd>Тёмный деревянный каркас. Между балками белая штукатурка, красный кирпич или бежевая штукатурка.</dd>
+      <dt>Окна</dt><dd>Небольшие, стоят в клетках каркаса, рамы светлые.</dd>
+      <dt>Настроение</dt><dd>Фасад с ясным рисунком балок. Близок, если нравится видимый деревянный каркас и контраст балок с заполнением.</dd>
+    </dl>
+    <p class="finishes">Варианты отделки</p>
+    <div class="grid">
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/fachwerk-white.jpg" alt="Фахверк с белой забуткой"></button>
+        <figcaption>Белая забутка</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/fachwerk-brick.jpg" alt="Фахверк с кирпичной забуткой"></button>
+        <figcaption>Кирпичная забутка</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/fachwerk-beige.jpg" alt="Фахверк с бежевой забуткой"></button>
+        <figcaption>Бежевая забутка</figcaption>
+      </figure>
+    </div>
+  </section>
+  <section id="ranch">
+    <h2>Ранчо</h2>
+    <dl class="about">
+      <dt>Силуэт</dt><dd>Очень длинный низкий дом около 200 м². Глубокое крыльцо переходит в навес для авто под той же крышей.</dd>
+      <dt>Кровля</dt><dd>Низкая вальмовая, серая. Фронтона почти нет: дом растянут в длину.</dd>
+      <dt>Стены</dt><dd>Светлый кирпич, тёплая штукатурка или горизонтальная доска.</dd>
+      <dt>Окна</dt><dd>Обычные, в один ряд. Дверь на крыльце.</dd>
+      <dt>Настроение</dt><dd>Спокойный растянутый дом, где крыльцо и навес важнее декора. Близок, если нужен низкий силуэт и место для машины под общей крышей.</dd>
+    </dl>
+    <p class="finishes">Варианты отделки</p>
+    <div class="grid">
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/ranch-brick.jpg" alt="Ранчо из светлого кирпича"></button>
+        <figcaption>Светлый кирпич</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/ranch-stucco.jpg" alt="Ранчо с тёплой штукатуркой"></button>
+        <figcaption>Тёплая штукатурка</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/ranch-wood.jpg" alt="Ранчо с горизонтальной доской"></button>
+        <figcaption>Горизонтальная доска</figcaption>
+      </figure>
+    </div>
+  </section>
+  <section id="japan">
+    <h2>Японский</h2>
+    <dl class="about">
+      <dt>Силуэт</dt><dd>Низкий дом около 200 м² с очень глубокими свесами. Вдоль фасада открытая веранда, сбоку лёгкий навес.</dd>
+      <dt>Кровля</dt><dd>Низкая, тёмная. Свес широкий и закрывает веранду.</dd>
+      <dt>Стены</dt><dd>Тёмное дерево и белая штукатурка, светлый кедр или обожжённая чёрная доска.</dd>
+      <dt>Окна</dt><dd>Невысокие, тонкие рамы. Дверь деревянная, веранда без перил.</dd>
+      <dt>Настроение</dt><dd>Тихий и собранный, много линии карниза. Близок, если нравятся глубокие свесы, дерево и открытая веранда.</dd>
+    </dl>
+    <p class="finishes">Варианты отделки</p>
+    <div class="grid">
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/japan-dark.jpg" alt="Японский дом с тёмным деревом и белой штукатуркой"></button>
+        <figcaption>Тёмное дерево и белая штукатурка</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/japan-cedar.jpg" alt="Японский дом из светлого кедра"></button>
+        <figcaption>Светлый кедр</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/japan-charred.jpg" alt="Японский дом из обожжённого дерева"></button>
+        <figcaption>Обожжённое дерево</figcaption>
+      </figure>
+    </div>
+  </section>
+  <section id="english">
+    <h2>Английский</h2>
+    <dl class="about">
+      <dt>Силуэт</dt><dd>Крупный кирпичный дом около 200 м². Крутой глухой щипец и труба на виду, у двери небольшое крыльцо. Навеса нет.</dd>
+      <dt>Кровля</dt><dd>Тёмный сланец, скат крутой.</dd>
+      <dt>Стены</dt><dd>Красный кирпич, тёмный кирпич или красный кирпич с белыми наличниками.</dd>
+      <dt>Окна</dt><dd>Обычные створчатые, белые рамы, один ряд.</dd>
+      <dt>Настроение</dt><dd>Плотный и спокойный. Близок, если важны кирпич, крутая крыша и труба, без доски и без навеса.</dd>
+    </dl>
+    <p class="finishes">Варианты отделки</p>
+    <div class="grid">
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/english-red.jpg" alt="Английский дом из красного кирпича"></button>
+        <figcaption>Красный кирпич</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/english-dark.jpg" alt="Английский дом из тёмного кирпича"></button>
+        <figcaption>Тёмный кирпич</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/english-white.jpg" alt="Английский дом с белыми наличниками"></button>
+        <figcaption>Белые наличники</figcaption>
+      </figure>
+    </div>
+  </section>
+  <section id="med">
+    <h2>Средиземноморский</h2>
+    <dl class="about">
+      <dt>Силуэт</dt><dd>Невысокий дом около 200 м². На переднем плане лоджия с арками, сбоку навес под черепицей.</dd>
+      <dt>Кровля</dt><dd>Пологая терракотовая черепица.</dd>
+      <dt>Стены</dt><dd>Белая штукатурка, тёплая охра или белая стена с каменными арками.</dd>
+      <dt>Окна</dt><dd>Узкие, без ставней. Дверь арочная, под лоджией.</dd>
+      <dt>Настроение</dt><dd>Тёплый и открытый наружу через аркаду. Близок, если нужны арки и черепица, а не ставни прованса.</dd>
+    </dl>
+    <p class="finishes">Варианты отделки</p>
+    <div class="grid">
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/med-white.jpg" alt="Средиземноморский дом с белой штукатуркой"></button>
+        <figcaption>Белая штукатурка</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/med-ochre.jpg" alt="Средиземноморский дом цвета охры"></button>
+        <figcaption>Тёплая охра</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/med-stone.jpg" alt="Средиземноморский дом с каменными арками"></button>
+        <figcaption>Каменные арки</figcaption>
+      </figure>
+    </div>
+  </section>
+  <section id="contemporary">
+    <h2>Контемпорари</h2>
+    <dl class="about">
+      <dt>Силуэт</dt><dd>Дом около 200 м² из двух одноэтажных объёмов. Два щипца, крытая терраса и открытый навес.</dd>
+      <dt>Кровля</dt><dd>Тёмный фальц. В треугольниках щипцов окон нет.</dd>
+      <dt>Стены</dt><dd>Белая штукатурка и кедр, светлый камень и тёмное дерево или графитовая штукатурка со светлыми рейками.</dd>
+      <dt>Окна</dt><dd>Обычные, тёмные рамы, один ряд.</dd>
+      <dt>Настроение</dt><dd>Современный дом со скатами. Близок, если плоская крыша не нужна, а хочется смеси штукатурки, дерева и камня.</dd>
+    </dl>
+    <p class="finishes">Варианты отделки</p>
+    <div class="grid">
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/contemporary-plaster.jpg" alt="Контемпорари с белой штукатуркой и кедром"></button>
+        <figcaption>Белая штукатурка и кедр</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/contemporary-stone.jpg" alt="Контемпорари из камня и тёмного дерева"></button>
+        <figcaption>Камень и тёмное дерево</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/contemporary-dark.jpg" alt="Контемпорари с графитовой штукатуркой и светлыми рейками"></button>
+        <figcaption>Графит и светлые рейки</figcaption>
+      </figure>
+    </div>
+  </section>
+  <section id="farm">
+    <h2>Фермерский</h2>
+    <dl class="about">
+      <dt>Силуэт</dt><dd>Длинный дом около 200 м². Крупный глухой щипец, глубокое крыльцо на колоннах и навес.</dd>
+      <dt>Кровля</dt><dd>Чёрная фальцевая.</dd>
+      <dt>Стены</dt><dd>Вертикальная доска: белая, светло-серая или белая с кирпичными столбами крыльца.</dd>
+      <dt>Окна</dt><dd>Чёрные рамы, дверь тёмная.</dd>
+      <dt>Настроение</dt><dd>Светлый дом с тёмной кровлей и крыльцом. Близок, если нужен фермерский контраст, а не тихая скандинавская доска.</dd>
+    </dl>
+    <p class="finishes">Варианты отделки</p>
+    <div class="grid">
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/farm-white.jpg" alt="Фермерский дом с белой доской"></button>
+        <figcaption>Белая доска</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/farm-grey.jpg" alt="Фермерский дом со светло-серой доской"></button>
+        <figcaption>Светло-серая доска</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/farm-brick.jpg" alt="Фермерский дом с белой доской и кирпичом"></button>
+        <figcaption>Белая доска и кирпич</figcaption>
+      </figure>
+    </div>
+  </section>
+  <section id="chalet">
+    <h2>Шале</h2>
+    <dl class="about">
+      <dt>Силуэт</dt><dd>Широкий дом около 200 м². Очень глубокие свесы и крытая терраса на мощных стойках. Балкона нет.</dd>
+      <dt>Кровля</dt><dd>Пологая двускатная, тёмная, с открытыми стропилами.</dd>
+      <dt>Стены</dt><dd>Светлый камень, тёплое дерево или кремовая штукатурка с тёмным деревом.</dd>
+      <dt>Окна</dt><dd>Обычные, тёмные рамы, один ряд.</dd>
+      <dt>Настроение</dt><dd>Тяжёлая крыша и терраса важнее декора. Близок, если нужны широкие карнизы и камень или массивное дерево.</dd>
+    </dl>
+    <p class="finishes">Варианты отделки</p>
+    <div class="grid">
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/chalet-stone.jpg" alt="Шале из светлого камня"></button>
+        <figcaption>Светлый камень</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/chalet-wood.jpg" alt="Шале из тёплого дерева"></button>
+        <figcaption>Тёплое дерево</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/chalet-plaster.jpg" alt="Шале со штукатуркой и тёмным деревом"></button>
+        <figcaption>Штукатурка и тёмное дерево</figcaption>
+      </figure>
+    </div>
+  </section>
+  <section id="log">
+    <h2>Бревенчатый</h2>
+    <dl class="about">
+      <dt>Силуэт</dt><dd>Длинный дом около 200 м² из горизонтальных брёвен. Глухой щипец и бревенчатое крыльцо.</dd>
+      <dt>Кровля</dt><dd>Тёмная фальцевая.</dd>
+      <dt>Стены</dt><dd>Светлое бревно, тёмное бревно или светлое бревно с каменной трубой и каменными столбами крыльца.</dd>
+      <dt>Окна</dt><dd>Деревянные рамы, один ряд.</dd>
+      <dt>Настроение</dt><dd>Тёплый рубленый дом. Близок, если нужна именно бревенчатая стена, а не доска.</dd>
+    </dl>
+    <p class="finishes">Варианты отделки</p>
+    <div class="grid">
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/log-light.jpg" alt="Дом из светлого бревна"></button>
+        <figcaption>Светлое бревно</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/log-dark.jpg" alt="Дом из тёмного бревна"></button>
+        <figcaption>Тёмное бревно</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/log-stone.jpg" alt="Бревенчатый дом с камнем"></button>
+        <figcaption>Бревно и камень</figcaption>
+      </figure>
+    </div>
+  </section>
+  <section id="midcentury">
+    <h2>Мид-сенчури</h2>
+    <dl class="about">
+      <dt>Силуэт</dt><dd>Низкий длинный дом около 200 м². Пологая крыша с тонким свесом переходит в широкий навес для авто.</dd>
+      <dt>Кровля</dt><dd>Низкий скат. На фасаде почти нет высокого щипца.</dd>
+      <dt>Стены</dt><dd>Дерево и светлый камень, белая штукатурка с деревом или тёмное дерево и камень.</dd>
+      <dt>Окна</dt><dd>Горизонтальные, в один ряд.</dd>
+      <dt>Настроение</dt><dd>Лёгкий и растянутый, навес — часть дома. Близок, если нужна низкая крыша и навес, без классики и без плоского куба.</dd>
+    </dl>
+    <p class="finishes">Варианты отделки</p>
+    <div class="grid">
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/midcentury-stone.jpg" alt="Мид-сенчури из дерева и камня"></button>
+        <figcaption>Дерево и камень</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/midcentury-white.jpg" alt="Мид-сенчури с белой штукатуркой"></button>
+        <figcaption>Белая штукатурка и дерево</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/midcentury-dark.jpg" alt="Мид-сенчури из тёмного дерева"></button>
+        <figcaption>Тёмное дерево и камень</figcaption>
+      </figure>
+    </div>
+  </section>
+  <section id="hitech">
+    <h2>Хай-тек</h2>
+    <dl class="about">
+      <dt>Силуэт</dt><dd>Прямоугольный дом около 200 м². Тонкий металлический козырёк над террасой и отдельный металлический навес.</dd>
+      <dt>Кровля</dt><dd>Плоская.</dd>
+      <dt>Стены</dt><dd>Металлические кассеты с видимыми стыками: серебристые, графитовые или белые с деревянной вставкой.</dd>
+      <dt>Окна</dt><dd>Прямоугольные, тонкие рамы, один ряд.</dd>
+      <dt>Настроение</dt><dd>Точный и техничный. Близок, если нужна плоская крыша, но стена должна быть из панелей, а не гладкой штукатурки.</dd>
+    </dl>
+    <p class="finishes">Варианты отделки</p>
+    <div class="grid">
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/hitech-silver.jpg" alt="Хай-тек с серебристыми панелями"></button>
+        <figcaption>Серебристые панели</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/hitech-dark.jpg" alt="Хай-тек с графитовыми панелями"></button>
+        <figcaption>Графитовые панели</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/hitech-wood.jpg" alt="Хай-тек с белыми панелями и деревом"></button>
+        <figcaption>Белые панели и дерево</figcaption>
+      </figure>
+    </div>
+  </section>
+</main>
+<footer>Это примеры отделки, не фасады модели на участке. В модели отделка по-прежнему выбирается в списке «Отделка».</footer>
+<div id="zoom" hidden>
+  <img id="zoom-img" alt="">
+  <p id="zoom-cap"></p>
+</div>
+<script>
+window.addEventListener("pageshow", function (event) {
+  if (event.persisted) location.reload();
+});
+window.addEventListener("pagehide", function () {
+  document.querySelectorAll("img").forEach(function (img) {
+    img.src = "";
+  });
+});
+</script>
+<script>
+(function () {
+  var heart = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-9a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 4.6-7 9-7 9z"></path></svg>';
+  var figures = {};
+  document.querySelectorAll("figure").forEach(function (fig) {
+    var img = fig.querySelector("img");
+    var id = img && img.getAttribute("src").split("/").pop().replace(/\.jpg$/, "");
+    if (!id) return;
+    fig.dataset.id = id;
+    figures[id] = fig;
+    var like = document.createElement("button");
+    like.type = "button";
+    like.className = "like";
+    like.innerHTML = heart;
+    like.setAttribute("aria-pressed", "false");
+    like.setAttribute("aria-label", "Отметить вариант");
+    fig.appendChild(like);
+  });
+  var STORE = "house-style-likes";
+  function readStored() {
+    try {
+      var parsed = JSON.parse(localStorage.getItem(STORE) || "[]");
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+  function writeStored(ids) {
+    try {
+      if (ids.length) localStorage.setItem(STORE, JSON.stringify(ids));
+      else localStorage.removeItem(STORE);
+    } catch (e) {}
+  }
+  function mark(id) {
+    var fig = figures[id];
+    if (!fig) return;
+    fig.classList.add("liked");
+    var like = fig.querySelector(".like");
+    like.setAttribute("aria-pressed", "true");
+    like.setAttribute("aria-label", "Убрать отметку");
+  }
+  var params = new URLSearchParams(location.search);
+  var variants = params.get("variants");
+  var embedded = window.parent !== window || params.get("embed") === "1";
+  var back = document.getElementById("back");
+  var backTo = params.get("back");
+  if (embedded) {
+    back.href = "#";
+    back.addEventListener("click", function (event) {
+      event.preventDefault();
+      window.parent.postMessage({ type: "house-close-styles" }, "*");
+    });
+  } else if (backTo) {
+    back.href = backTo;
+  } else if (variants) {
+    back.href = "./?variants=" + encodeURIComponent(variants);
+  }
+  var only = document.getElementById("only-liked");
+  var likeParam = params.get("like");
+  var fromUrl = likeParam != null && likeParam !== "";
+  (fromUrl ? likeParam.split(",") : readStored()).forEach(function (id) {
+    if (id) mark(id);
+  });
+  only.checked = params.get("only") === "1";
+  document.querySelectorAll(".shot").forEach(function (shot) {
+    var cap = shot.parentElement.querySelector("figcaption");
+    if (cap) shot.setAttribute("aria-label", cap.textContent);
+  });
+  function selected() {
+    var ids = [];
+    document.querySelectorAll("figure.liked").forEach(function (fig) {
+      ids.push(fig.dataset.id);
+    });
+    return ids;
+  }
+  function writeUrl() {
+    var next = new URLSearchParams(location.search);
+    var ids = selected();
+    if (ids.length) next.set("like", ids.join(","));
+    else next.delete("like");
+    if (only.checked) next.set("only", "1");
+    else next.delete("only");
+    var query = next.toString();
+    history.replaceState(null, "", location.pathname + (query ? "?" + query : "") + location.hash);
+    if (embedded) {
+      window.parent.postMessage({
+        type: "house-styles-query",
+        like: ids.join(","),
+        only: only.checked
+      }, "*");
+    }
+  }
+  function apply() {
+    var on = only.checked;
+    var visible = 0;
+    document.querySelectorAll("main section").forEach(function (sec) {
+      var any = false;
+      sec.querySelectorAll("figure").forEach(function (fig) {
+        var show = !on || fig.classList.contains("liked");
+        fig.hidden = !show;
+        if (show) any = true;
+      });
+      sec.hidden = on && !any;
+      if (any) visible += 1;
+      var link = document.querySelector('nav a[href="#' + sec.id + '"]');
+      if (link) link.hidden = sec.hidden;
+    });
+    document.getElementById("none").hidden = !(on && visible === 0);
+  }
+  document.body.addEventListener("click", function (event) {
+    var like = event.target.closest(".like");
+    if (like) {
+      var fig = like.parentElement;
+      var pressed = like.getAttribute("aria-pressed") !== "true";
+      like.setAttribute("aria-pressed", pressed ? "true" : "false");
+      like.setAttribute("aria-label", pressed ? "Убрать отметку" : "Отметить вариант");
+      fig.classList.toggle("liked", pressed);
+      writeStored(selected());
+      writeUrl();
+      apply();
+      return;
+    }
+    var shot = event.target.closest(".shot");
+    if (shot) {
+      var img = shot.querySelector("img");
+      var cap = shot.parentElement.querySelector("figcaption");
+      zoomImg.src = img.src;
+      zoomImg.alt = img.alt;
+      zoomCap.textContent = cap ? cap.textContent : "";
+      zoom.hidden = false;
+    } else if (event.target === zoom) {
+      zoom.hidden = true;
+    }
+  });
+  only.addEventListener("change", function () {
+    writeUrl();
+    apply();
+  });
+  if (fromUrl) writeStored(selected());
+  else if (selected().length) writeUrl();
+  else if (embedded) writeUrl();
+  apply();
+  var zoom = document.getElementById("zoom");
+  var zoomImg = document.getElementById("zoom-img");
+  var zoomCap = document.getElementById("zoom-cap");
+  window.addEventListener("keydown", function (event) {
+    if (event.key !== "Escape") return;
+    if (!zoom.hidden) {
+      zoom.hidden = true;
+      return;
+    }
+    if (embedded) window.parent.postMessage({ type: "house-close-styles" }, location.origin);
+  });
+})();
+</script>
+</body>
+</html>

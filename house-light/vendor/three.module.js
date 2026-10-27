@@ -48265,16 +48265,52 @@ class ImageBitmapLoader extends Loader {
 		}
 
 		const fetchOptions = {};
-		fetchOptions.credentials = ( this.crossOrigin === 'anonymous' ) ? 'same-origin' : 'include';
+		// blob: rejects fetch when credentials are included. Embedded glTF images use these URLs.
+		fetchOptions.credentials = /^blob:/i.test( url ) ? 'omit' : ( ( this.crossOrigin === 'anonymous' ) ? 'same-origin' : 'include' );
 		fetchOptions.headers = this.requestHeader;
 
+		function bitmapOptions() {
+
+			return Object.assign( scope.options, { colorSpaceConversion: 'none' } );
+
+		}
+
+		function bitmapFromImage() {
+
+			return new Promise( function ( resolve, reject ) {
+
+				const image = document.createElement( 'img' );
+				image.onload = function () {
+
+					createImageBitmap( image, bitmapOptions() ).then( resolve, reject );
+
+				};
+				image.onerror = function () {
+
+					reject( new Error( 'THREE.ImageBitmapLoader: could not decode ' + url ) );
+
+				};
+				image.src = url;
+
+			} );
+
+		}
+
 		const promise = fetch( url, fetchOptions ).then( function ( res ) {
+
+			if ( res.ok !== true ) throw new Error( 'THREE.ImageBitmapLoader: ' + res.status + ' ' + url );
 
 			return res.blob();
 
 		} ).then( function ( blob ) {
 
-			return createImageBitmap( blob, Object.assign( scope.options, { colorSpaceConversion: 'none' } ) );
+			return createImageBitmap( blob, bitmapOptions() );
+
+		} ).catch( function ( error ) {
+
+			if ( /^blob:/i.test( url ) ) return bitmapFromImage();
+
+			throw error;
 
 		} ).then( function ( imageBitmap ) {
 
