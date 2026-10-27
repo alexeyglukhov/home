@@ -40,6 +40,8 @@
   section {
     margin: 22px 0 8px; padding: 16px 16px 18px;
     background: #fffef9; border: 1px solid #cfc8b8; border-radius: 8px;
+    content-visibility: auto;
+    contain-intrinsic-size: 720px;
   }
   h2 { margin: 0; font-size: 22px; }
   .about {
@@ -109,7 +111,7 @@
   </div>
 </div>
 <header>
-  <p>Восемнадцать стилей одноэтажных домов около 200 м². Нет мансарды, слуховых окон и цокольного этажа. Под названием — портрет стиля. Три картинки ниже — варианты отделки этого стиля, не отдельные стили. Сердечко отмечает вариант. Отметки запоминаются в этом браузере, поэтому кнопка «Стили домов» открывает их снова. Фильтр «Показывать выбранные» оставляет только отмеченные, и эту ссылку из адресной строки можно отправить.</p>
+  <p>Восемнадцать стилей одноэтажных домов около 200 м². Нет мансарды, слуховых окон и цокольного этажа. Под названием — портрет стиля. Три картинки ниже — варианты отделки этого стиля, не отдельные стили. Сердечко отмечает вариант. Отметки и галочка «Показывать выбранные» запоминаются в этом браузере. Каталог открывается в соседней вкладке, чтобы 3D-модель не перезагружалась. Фильтр оставляет только отмеченные; ссылку из адресной строки можно отправить.</p>
   <nav>
     <a href="#scandi">Скандинавский</a>
     <a href="#barn">Барнхаус</a>
@@ -618,6 +620,7 @@ window.addEventListener("pagehide", function () {
     fig.appendChild(like);
   });
   var STORE = "house-style-likes";
+  var ONLY_STORE = "house-style-only";
   function readStored() {
     try {
       var parsed = JSON.parse(localStorage.getItem(STORE) || "[]");
@@ -632,6 +635,19 @@ window.addEventListener("pagehide", function () {
       else localStorage.removeItem(STORE);
     } catch (e) {}
   }
+  function readOnlyStored() {
+    try {
+      return localStorage.getItem(ONLY_STORE) === "1";
+    } catch (e) {
+      return false;
+    }
+  }
+  function writeOnlyStored(on) {
+    try {
+      if (on) localStorage.setItem(ONLY_STORE, "1");
+      else localStorage.removeItem(ONLY_STORE);
+    } catch (e) {}
+  }
   function mark(id) {
     var fig = figures[id];
     if (!fig) return;
@@ -642,27 +658,53 @@ window.addEventListener("pagehide", function () {
   }
   var params = new URLSearchParams(location.search);
   var variants = params.get("variants");
-  var embedded = window.parent !== window || params.get("embed") === "1";
+  // Только явный embed=1 (старый iframe). Обычный каталог — отдельная страница с back=.
+  var embedded = params.get("embed") === "1";
   var back = document.getElementById("back");
   var backTo = params.get("back");
-  if (embedded) {
-    back.href = "#";
-    back.addEventListener("click", function (event) {
-      event.preventDefault();
-      window.parent.postMessage({ type: "house-close-styles" }, "*");
-    });
-  } else if (backTo) {
-    back.href = backTo;
-  } else if (variants) {
-    back.href = "./?variants=" + encodeURIComponent(variants);
+  function modelBootUrl() {
+    var u;
+    try {
+      u = new URL(backTo || "./", location.href);
+    } catch (e) {
+      u = new URL("./", location.href);
+    }
+    if (!backTo && variants) u.searchParams.set("variants", variants);
+    u.hash = "";
+    u.searchParams.delete("like");
+    u.searchParams.delete("only");
+    u.searchParams.delete("_reinit");
+    u.searchParams.delete("_gate");
+    return u.href;
   }
+  back.href = modelBootUrl();
+  back.addEventListener("click", function (event) {
+    event.preventDefault();
+    if (embedded) {
+      window.parent.postMessage({ type: "house-close-styles" }, "*");
+      return;
+    }
+    // Обычный путь: стили открыты из модели через window.open — просто закрыть вкладку.
+    if (window.opener && !window.opener.closed) {
+      try { window.opener.focus(); } catch (e) {}
+      window.close();
+      return;
+    }
+    location.assign(modelBootUrl());
+  });
   var only = document.getElementById("only-liked");
   var likeParam = params.get("like");
   var fromUrl = likeParam != null && likeParam !== "";
   (fromUrl ? likeParam.split(",") : readStored()).forEach(function (id) {
     if (id) mark(id);
   });
-  only.checked = params.get("only") === "1";
+  // URL (шаринг) важнее; иначе — localStorage. Раньше only жил только в URL и возвращался через back=.
+  if (params.has("only")) {
+    only.checked = params.get("only") === "1";
+    writeOnlyStored(only.checked);
+  } else {
+    only.checked = readOnlyStored();
+  }
   document.querySelectorAll(".shot").forEach(function (shot) {
     var cap = shot.parentElement.querySelector("figcaption");
     if (cap) shot.setAttribute("aria-label", cap.textContent);
@@ -681,6 +723,7 @@ window.addEventListener("pagehide", function () {
     else next.delete("like");
     if (only.checked) next.set("only", "1");
     else next.delete("only");
+    writeOnlyStored(only.checked);
     var query = next.toString();
     history.replaceState(null, "", location.pathname + (query ? "?" + query : "") + location.hash);
     if (embedded) {
@@ -690,6 +733,37 @@ window.addEventListener("pagehide", function () {
         only: only.checked
       }, "*");
     }
+  }
+  function unloadImg(img) {
+    if (img.getAttribute("src")) {
+      img.dataset.src = img.getAttribute("src");
+      img.removeAttribute("src");
+      img.removeAttribute("srcset");
+    }
+  }
+  function loadImg(img) {
+    if (!img.getAttribute("src") && img.dataset.src) img.src = img.dataset.src;
+  }
+  function parkFarImages() {
+    // Не больше 6 декодированных JPG сразу: браузер кладёт растры в GPU-композитор.
+    var scored = [];
+    document.querySelectorAll("main img").forEach(function (img) {
+      var host = img.closest("figure, section");
+      if (host && host.hidden) {
+        unloadImg(img);
+        return;
+      }
+      var rect = img.getBoundingClientRect();
+      var mid = (rect.top + rect.bottom) / 2;
+      var dist = Math.abs(mid - window.innerHeight / 2);
+      if (rect.bottom < -40 || rect.top > window.innerHeight + 40) dist += 20000;
+      scored.push({ img: img, dist: dist });
+    });
+    scored.sort(function (a, b) { return a.dist - b.dist; });
+    scored.forEach(function (item, index) {
+      if (index < 6) loadImg(item.img);
+      else unloadImg(item.img);
+    });
   }
   function apply() {
     var on = only.checked;
@@ -707,7 +781,10 @@ window.addEventListener("pagehide", function () {
       if (link) link.hidden = sec.hidden;
     });
     document.getElementById("none").hidden = !(on && visible === 0);
+    // Снятие «только выбранные» иначе сразу декодирует десятки JPG → серый WebGL.
+    parkFarImages();
   }
+  window.addEventListener("scroll", parkFarImages, { passive: true });
   document.body.addEventListener("click", function (event) {
     var like = event.target.closest(".like");
     if (like) {
@@ -734,12 +811,12 @@ window.addEventListener("pagehide", function () {
     }
   });
   only.addEventListener("change", function () {
+    writeOnlyStored(only.checked);
     writeUrl();
     apply();
   });
   if (fromUrl) writeStored(selected());
-  else if (selected().length) writeUrl();
-  else if (embedded) writeUrl();
+  writeUrl();
   apply();
   var zoom = document.getElementById("zoom");
   var zoomImg = document.getElementById("zoom-img");
@@ -751,6 +828,13 @@ window.addEventListener("pagehide", function () {
       return;
     }
     if (embedded) window.parent.postMessage({ type: "house-close-styles" }, location.origin);
+  });
+  // Сброс картинок до загрузки WebGL модели — меньше давления на GPU.
+  window.addEventListener("pagehide", function () {
+    document.querySelectorAll("img").forEach(function (img) {
+      img.removeAttribute("src");
+      img.removeAttribute("srcset");
+    });
   });
 })();
 </script>

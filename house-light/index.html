@@ -133,13 +133,6 @@
   #style-examples-btn:hover,
   #furniture-catalog-btn:hover { background: #efe6d4; }
   #furniture-catalog-btn[hidden] { display: none; }
-  #style-examples-layer {
-    position: fixed; inset: 0; z-index: 50; background: #ece7dc;
-  }
-  #style-examples-layer[hidden] { display: none; }
-  #style-examples-frame {
-    display: block; width: 100%; height: 100%; border: 0; background: #ece7dc;
-  }
   #furniture-catalog {
     position: fixed; inset: 0; z-index: 40;
     display: flex; align-items: stretch; justify-content: center;
@@ -329,9 +322,6 @@
   <button type="button" id="style-examples-btn">Стили домов</button>
   <button type="button" id="furniture-catalog-btn">Каталог мебели</button>
 </div>
-<div id="style-examples-layer" hidden>
-  <iframe id="style-examples-frame" title="Стили одноэтажных домов"></iframe>
-</div>
 <div id="furniture-catalog" hidden>
   <div class="catalog-panel">
     <div class="catalog-head">
@@ -448,7 +438,7 @@
 window.addEventListener("pageshow", function (event) {
   if (event.persisted) location.reload();
 });
-// Ссылка с #styles открывает каталог без WebGL — иначе вместе с моделью бывает серый экран.
+// Ссылка с #styles — каталог без загрузки WebGL.
 window.__houseOpenStyles = location.hash === "#styles";
 if (window.__houseOpenStyles) {
   var styleParams = new URLSearchParams(location.search);
@@ -462,7 +452,7 @@ if (window.__houseOpenStyles) {
 }
 </script>
 <script type="module">
-if (!window.__houseOpenStyles) import("./app.js?v=755");
+if (!window.__houseOpenStyles) import("./app.js?v=762");
 </script>
 </body>
 </html>
