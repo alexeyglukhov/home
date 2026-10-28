@@ -6,10 +6,10 @@ DIR="$(cd "$(dirname "$0")" && pwd)"
 HOUSE="$(cd "$DIR/../../../../house-light" && pwd)"
 URL="http://127.0.0.1:8766/"
 LOCK="${XDG_RUNTIME_DIR:-/tmp}/house-light-viewer.lock"
-VIEWER_PASSWORD='algl2510'
+VIEWER_PASSWORD='tlstr2'
 
 viewer_up() {
-  curl -sf -o /dev/null --max-time 2 -u "dom:${VIEWER_PASSWORD}" "$URL"
+  curl -sf -o /dev/null --max-time 2 "$URL"
 }
 
 if viewer_up; then

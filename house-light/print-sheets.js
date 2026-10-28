@@ -1,54 +1,76 @@
 // Печатные листы открытого варианта. Ключ — id варианта вьювера.
 const PRINTS = {
-  vd2: [
+  v2: [
     {
       label: "Планировка",
-      file: "prints/plan-1-etazh-variant-d2-print.svg?v=3",
-      name: "планировка-д2",
+      file: "prints/plan-1-etazh-variant-a-dom-print.svg?v=8",
+      name: "планировка-а",
     },
     {
-      label: "2D схема",
-      file: "prints/abrikosovaya-22-layout-variant-d2-1-100-print.svg?v=3",
-      name: "2d-схема-д2",
+      label: "Участок",
+      file: "prints/abrikosovaya-22-layout-variant-a-1-100-print.svg?v=6",
+      name: "участок-а",
     },
+    {
+      label: "А+Д4",
+      file: "prints/abrikosovaya-22-layout-compare-a-d4-print.svg?v=1",
+      name: "сравнение-а-д4",
+    },
+  ],
+  vd2: [
     {
       label: "Дом",
-      file: "prints/plan-1-etazh-variant-d2-dom-print.svg?v=6",
+      file: "prints/plan-1-etazh-variant-d2-print.svg?v=3",
       name: "дом-д2",
+    },
+    {
+      label: "Участок",
+      file: "prints/abrikosovaya-22-layout-variant-d2-1-100-print.svg?v=3",
+      name: "участок-д2",
+    },
+    {
+      label: "Планировка",
+      file: "prints/plan-1-etazh-variant-d2-dom-print.svg?v=6",
+      name: "планировка-д2",
     },
   ],
   vd3: [
     {
-      label: "Планировка",
-      file: "prints/plan-1-etazh-variant-d3-print.svg?v=3",
-      name: "планировка-д3",
-    },
-    {
-      label: "2D схема",
-      file: "prints/abrikosovaya-22-layout-variant-d3-1-100-print.svg?v=3",
-      name: "2d-схема-д3",
-    },
-    {
       label: "Дом",
-      file: "prints/plan-1-etazh-variant-d3-dom-print.svg?v=6",
+      file: "prints/plan-1-etazh-variant-d3-print.svg?v=3",
       name: "дом-д3",
+    },
+    {
+      label: "Участок",
+      file: "prints/abrikosovaya-22-layout-variant-d3-1-100-print.svg?v=3",
+      name: "участок-д3",
+    },
+    {
+      label: "Планировка",
+      file: "prints/plan-1-etazh-variant-d3-dom-print.svg?v=6",
+      name: "планировка-д3",
     },
   ],
   vd4: [
     {
-      label: "Планировка",
+      label: "Дом",
       file: "prints/plan-1-etazh-variant-d4-print.svg?v=8",
+      name: "дом-д4",
+    },
+    {
+      label: "Участок",
+      file: "prints/abrikosovaya-22-layout-variant-d4-1-100-print.svg?v=7",
+      name: "участок-д4",
+    },
+    {
+      label: "Планировка",
+      file: "prints/plan-1-etazh-variant-d4-dom-print.svg?v=8",
       name: "планировка-д4",
     },
     {
-      label: "2D схема",
-      file: "prints/abrikosovaya-22-layout-variant-d4-1-100-print.svg?v=7",
-      name: "2d-схема-д4",
-    },
-    {
-      label: "Дом",
-      file: "prints/plan-1-etazh-variant-d4-dom-print.svg?v=8",
-      name: "дом-д4",
+      label: "А+Д4",
+      file: "prints/abrikosovaya-22-layout-compare-a-d4-print.svg?v=1",
+      name: "сравнение-а-д4",
     },
   ],
 };

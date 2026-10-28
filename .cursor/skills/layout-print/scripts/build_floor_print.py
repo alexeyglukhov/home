@@ -625,18 +625,28 @@ def main():
     out = Path(sys.argv[2] if len(sys.argv) > 2 else str(src.with_name(src.stem + "-print.svg")))
     root = etree.parse(str(src)).getroot()
 
+    def local_tag(el):
+        tag = el.tag
+        if not isinstance(tag, str):
+            return ""
+        return tag.split("}")[-1]
+
     for el in list(root):
-        tag = el.tag.split("}")[-1]
-        if tag in ("namedview", "metadata", "title") or el.get("id") in ("page-bg", "text6", "namedview498", "drive-strip"):
+        tag = local_tag(el)
+        if not tag or tag in ("namedview", "metadata", "title") or el.get("id") in ("page-bg", "text6", "namedview498", "drive-strip"):
             root.remove(el)
     for el in list(root.iter()):
         if el.getparent() is None:
             continue
-        if el.tag.split("}")[-1] == "image" or el.get("id") in ("sand_bitmap",):
+        tag = local_tag(el)
+        if not tag or tag == "image" or el.get("id") in ("sand_bitmap",):
             el.getparent().remove(el)
     for el in root.iter():
+        tag = local_tag(el)
+        if not tag:
+            continue
         recolor(el)
-        if el.tag.split("}")[-1] == "style" and el.text and re.search(r"(^|\n)\s*text\s*\{", el.text):
+        if tag == "style" and el.text and re.search(r"(^|\n)\s*text\s*\{", el.text):
             el.text = re.sub(r"(^|\n)(\s*)text\s*\{", r"\1\2#drawing text {", el.text)
 
     add_outline_dims(root)

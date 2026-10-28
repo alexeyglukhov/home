@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-author="0">
 <head>
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-store">
@@ -51,8 +51,41 @@
   select { width: 100%; font: inherit; font-size: 12px; margin-top: 4px; padding: 4px; }
   #sun { font-variant-numeric: tabular-nums; }
   #clock { font-weight: 700; }
+  #auth-badge {
+    position: fixed; top: 14px; right: 14px; z-index: 12;
+    width: 42px; height: 42px; padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: #fffef9; border: 1px solid #6b5a45; border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(40, 30, 16, .22); cursor: pointer; color: #2a241c;
+  }
+  #auth-badge svg { width: 22px; height: 22px; display: block; }
+  #auth-badge[data-mode="author"] { color: #6b5a45; border-color: #6b5a45; }
+  #auth-badge .icon-author, #auth-badge .icon-guest { display: none; }
+  #auth-badge[data-mode="author"] .icon-author { display: block; }
+  #auth-badge[data-mode="guest"] .icon-guest { display: block; }
+  #auth-dialog {
+    position: fixed; inset: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(22, 26, 30, .55); padding: 20px;
+  }
+  #auth-dialog[hidden] { display: none; }
+  .auth-card {
+    width: min(360px, 100%); padding: 18px 18px 14px;
+    background: #fffef9; border: 1px solid #cfc8b8; border-radius: 8px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, .28); color: #222;
+  }
+  .auth-card h2 { margin: 0 0 8px; font-size: 18px; }
+  .auth-card p { margin: 0 0 12px; font-size: 13px; line-height: 1.4; color: #3c3428; }
+  .auth-card label { display: block; font-size: 13px; margin-bottom: 4px; }
+  .auth-card input[type="password"] {
+    width: 100%; box-sizing: border-box; font: inherit; font-size: 14px;
+    padding: 8px 10px; margin-bottom: 12px;
+  }
+  .auth-actions { display: flex; gap: 8px; justify-content: flex-end; }
+  #auth-status { min-height: 1.2em; margin: 8px 0 0; font-size: 13px; color: #a33b32; }
+  html:not([data-author="1"]) .author-only { display: none !important; }
   #prints {
-    position: absolute; top: 14px; right: 14px; z-index: 4;
+    position: absolute; top: 64px; right: 14px; z-index: 4;
     display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 16px;
     max-width: min(500px, calc(100vw - 320px));
   }
@@ -124,14 +157,44 @@
     max-width: calc(100vw - 32px);
   }
   #style-examples-btn,
-  #furniture-catalog-btn {
+  #furniture-catalog-btn,
+  #share-link-btn {
     padding: 8px 14px; font-size: 14px; font-weight: 600;
     background: #fffef9; border: 1px solid #6b5a45; border-radius: 6px;
     box-shadow: 0 2px 8px rgba(40, 30, 16, .22);
     color: #222; text-decoration: none; font-family: inherit; cursor: pointer;
   }
   #style-examples-btn:hover,
-  #furniture-catalog-btn:hover { background: #efe6d4; }
+  #furniture-catalog-btn:hover,
+  #share-link-btn:hover { background: #efe6d4; }
+  #share-dialog {
+    position: fixed; inset: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(22, 26, 30, .55); padding: 20px;
+  }
+  #share-dialog[hidden] { display: none; }
+  .share-card {
+    width: min(420px, 100%); padding: 18px 18px 14px;
+    background: #fffef9; border: 1px solid #cfc8b8; border-radius: 8px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, .28); color: #222;
+  }
+  .share-card h2 { margin: 0 0 8px; font-size: 18px; }
+  .share-card > p { margin: 0 0 12px; font-size: 13px; line-height: 1.4; color: #3c3428; }
+  .share-variants {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px;
+    margin: 0 0 14px; max-height: min(40vh, 280px); overflow: auto;
+  }
+  .share-variants label {
+    display: flex; align-items: center; gap: 8px; margin: 0;
+    font-size: 13px; cursor: pointer;
+  }
+  .share-variants input { margin: 0; }
+  #share-preview {
+    margin: 0 0 12px; padding: 8px 10px; word-break: break-all;
+    font-size: 12px; line-height: 1.35; color: #2a241c;
+    background: #f4efe4; border: 1px solid #e0d8c8; border-radius: 4px;
+  }
+  #share-status { min-height: 1.2em; margin: 8px 0 0; font-size: 13px; color: #2f6b3a; }
   #furniture-catalog-btn[hidden] { display: none; }
   #furniture-catalog {
     position: fixed; inset: 0; z-index: 40;
@@ -206,8 +269,12 @@
     }
     body.panel-open #panel { display: block; }
     #panel button { padding: 8px 10px; }
-    #prints {
+    #auth-badge {
       top: max(10px, env(safe-area-inset-top));
+      right: 10px;
+    }
+    #prints {
+      top: calc(max(10px, env(safe-area-inset-top)) + 50px);
       right: 10px;
       max-width: calc(100vw - 74px);
       gap: 8px;
@@ -266,10 +333,37 @@
   <div class="row">
     <button type="button" id="view-side">Сбоку</button>
     <button type="button" id="view-top">Сверху</button>
-    <button type="button" id="tour" disabled>Экскурсия</button>
+    <button type="button" id="tour" class="author-only" disabled>Экскурсия</button>
   </div>
 </div>
-<div id="prints" hidden></div>
+<button type="button" id="auth-badge" data-mode="guest" hidden aria-label="Войти в авторский режим" title="Гостевой режим">
+  <svg class="icon-guest" viewBox="0 0 24 24" aria-hidden="true">
+    <path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" d="M7 11V8a5 5 0 0 1 10 0v3"/>
+    <rect x="5" y="11" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/>
+    <circle cx="12" cy="16" r="1.4" fill="currentColor"/>
+  </svg>
+  <svg class="icon-author" viewBox="0 0 24 24" aria-hidden="true">
+    <path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" d="M8 11V8a4 4 0 0 1 7.5-2"/>
+    <rect x="5" y="11" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/>
+    <path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" d="M12 15v3"/>
+  </svg>
+</button>
+<div id="auth-dialog" hidden>
+  <div class="auth-card" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+    <h2 id="auth-title">Авторский режим</h2>
+    <p>Верный пароль откроет принты, стили, каталог мебели и экскурсию. Неверный — сайт останется в гостевом режиме.</p>
+    <form id="auth-form">
+      <label for="auth-password">Пароль</label>
+      <input id="auth-password" type="password" autocomplete="current-password" required>
+      <div class="auth-actions">
+        <button type="button" id="auth-cancel">Отмена</button>
+        <button type="submit">Войти</button>
+      </div>
+      <p id="auth-status" role="status"></p>
+    </form>
+  </div>
+</div>
+<div id="prints" class="author-only" hidden></div>
 <div id="print-open" hidden>
   <div class="print-stage">
     <div class="leaf">
@@ -318,9 +412,23 @@
   </div>
 </div>
 <div id="print-slot"><img id="print-slot-img" alt=""></div>
-<div id="corner-actions">
+<div id="corner-actions" class="author-only">
+  <button type="button" id="share-link-btn" class="author-only" hidden>Копировать ссылку</button>
   <button type="button" id="style-examples-btn">Стили домов</button>
   <button type="button" id="furniture-catalog-btn">Каталог мебели</button>
+</div>
+<div id="share-dialog" hidden>
+  <div class="share-card" role="dialog" aria-modal="true" aria-labelledby="share-title">
+    <h2 id="share-title">Ссылка на модель</h2>
+    <p>Галочками зафиксируйте варианты в ссылке. Камера, крыша, отделка и время остаются у каждого в браузере и в URL не попадают.</p>
+    <div id="share-variants" class="share-variants"></div>
+    <p id="share-preview"></p>
+    <div class="auth-actions">
+      <button type="button" id="share-cancel">Отмена</button>
+      <button type="button" id="share-copy">Копировать</button>
+    </div>
+    <p id="share-status" role="status"></p>
+  </div>
 </div>
 <div id="furniture-catalog" hidden>
   <div class="catalog-panel">
@@ -354,6 +462,10 @@
     d5: "vd5", vd5: "vd5", "д5": "vd5",
     d6: "vd6", vd6: "vd6", "д6": "vd6"
   };
+  var idToToken = {
+    v2: "a", d2: "a2", vb: "b", vc: "c",
+    vd1: "d1", vd2: "d2", vd3: "d3", vd4: "d4", vd5: "d5", vd6: "d6"
+  };
   var raw = new URLSearchParams(location.search).get("variants");
   if (!raw) return;
   var seen = Object.create(null);
@@ -366,11 +478,15 @@
     ids.push(id);
   });
   if (!ids.length) return;
+  raw = ids.map(function (id) { return idToToken[id]; }).join(",");
   window.__houseAllowedVariants = ids;
   document.documentElement.setAttribute("data-variants", ids.join(" "));
   function withVariants(search) {
     var params = new URLSearchParams(search);
     params.delete("variants");
+    ["style", "cam", "scale", "date", "time", "like", "only", "_reinit", "_gate"].forEach(function (key) {
+      params.delete(key);
+    });
     var rest = params.toString();
     return rest ? "?variants=" + raw + "&" + rest : "?variants=" + raw;
   }
@@ -431,28 +547,32 @@
   });
 })();
 </script>
+<script src="./author-mode.js?v=1"></script>
 <script type="importmap">
 { "imports": { "three": "./vendor/three.module.js?v=2" } }
 </script>
 <script>
+// Имя окна — чтобы «К модели» из каталога стилей могло вернуть фокус.
+if (!window.name) window.name = "house-light-viewer";
 window.addEventListener("pageshow", function (event) {
   if (event.persisted) location.reload();
 });
-// Ссылка с #styles — каталог без загрузки WebGL.
+// Ссылка с #styles — каталог без загрузки WebGL. Лайки на сервере, в URL только only/variants.
 window.__houseOpenStyles = location.hash === "#styles";
 if (window.__houseOpenStyles) {
   var styleParams = new URLSearchParams(location.search);
   var styleNext = new URLSearchParams();
-  ["like", "only", "variants"].forEach(function (key) {
-    var value = styleParams.get(key);
-    if (value) styleNext.set(key, value);
-  });
-  styleNext.set("back", location.pathname + location.search);
+  var only = styleParams.get("only");
+  var variants = styleParams.get("variants");
+  if (only) styleNext.set("only", only);
+  else styleNext.set("only", "1");
+  if (variants) styleNext.set("variants", variants);
+  styleNext.set("back", location.pathname + (variants ? "?variants=" + variants : ""));
   location.replace(new URL("style-examples.html?" + styleNext.toString(), location.href).href);
 }
 </script>
 <script type="module">
-if (!window.__houseOpenStyles) import("./app.js?v=762");
+if (!window.__houseOpenStyles) import("./app.js?v=778");
 </script>
 </body>
 </html>

@@ -12,7 +12,7 @@ import { buildVariantD3, d3WalkBoxes, d3FenceSegments } from "./variant-d3.js?v=
 import { buildVariantD4, d4WalkBoxes, d4FenceSegments, D4_WINDOWS, D4_BASE } from "./variant-d4.js?v=22";
 import { buildVariantD4 as buildVariantD6, d4WalkBoxes as d6WalkBoxes, d4FenceSegments as d6FenceSegments, D4_WINDOWS as D6_WINDOWS, D4_BASE as D6_BASE } from "./variant-d6.js?v=32";
 import { createD2Tour, createTourDaylight, d2TourPose, D3_WINDOWS } from "./tour-d2.js?v=21";
-import { syncPrintSheets } from "./print-sheets.js?v=16";
+import { syncPrintSheets } from "./print-sheets.js?v=28";
 import { mountFurnitureCatalog } from "./furniture-catalog.js?v=8";
 import { mountD2Furniture } from "./furniture-place-d2.js?v=43";
 import { mountD5Furniture } from "./furniture-place-d5.js?v=7";
@@ -5500,24 +5500,51 @@ function parseTime(raw) {
   return total;
 }
 
+const VARIANT_SHARE_TOKEN = {
+  v2: "a",
+  d2: "a2",
+  vb: "b",
+  vc: "c",
+  vd1: "d1",
+  vd2: "d2",
+  vd3: "d3",
+  vd4: "d4",
+  vd5: "d5",
+  vd6: "d6",
+};
+
+function compactVariantsQuery(raw) {
+  if (!raw) return "";
+  const tokenToId = {
+    a: "v2", v2: "v2", a2: "d2",
+    b: "vb", vb: "vb", c: "vc", vc: "vc",
+    d1: "vd1", vd1: "vd1",
+    d2: "vd2", vd2: "vd2",
+    d3: "vd3", vd3: "vd3",
+    d4: "vd4", vd4: "vd4",
+    d5: "vd5", vd5: "vd5",
+    d6: "vd6", vd6: "vd6",
+  };
+  const seen = Object.create(null);
+  const tokens = [];
+  String(raw).replace(/^\[|\]$/g, "").split(/[,;\s]+/).forEach((part) => {
+    const token = part.trim().toLowerCase().replace(/^["']|["']$/g, "");
+    const id = tokenToId[token];
+    if (!id || seen[id] || !VARIANT_SHARE_TOKEN[id]) return;
+    seen[id] = true;
+    tokens.push(VARIANT_SHARE_TOKEN[id]);
+  });
+  return tokens.join(",");
+}
+
 function writeViewQuery() {
   if (tourActive) return;
   const params = new URLSearchParams(location.search);
-  const hadReinit = params.has("_reinit") || params.has("_gate");
-  params.delete("_reinit");
-  params.delete("_gate");
-  const style = facadeSelect.value;
-  const cam = camToken();
-  const scale = scaleToken();
-  const date = /^\d{4}-\d{2}-\d{2}$/.test(dateInput.value) ? dateInput.value : "";
-  const time = timeToken();
-  if (!hadReinit && params.get("style") === style && params.get("cam") === cam && params.get("scale") === scale && params.get("date") === date && params.get("time") === time) return;
-  params.set("style", style);
-  params.set("cam", cam);
-  params.set("scale", scale);
-  if (date) params.set("date", date);
-  params.set("time", time);
-  const next = location.pathname + "?" + params.toString() + location.hash;
+  const variants = compactVariantsQuery(params.get("variants"));
+  const nextParams = new URLSearchParams();
+  if (variants) nextParams.set("variants", variants);
+  const query = nextParams.toString();
+  const next = location.pathname + (query ? `?${query}` : "") + (location.hash === "#styles" ? location.hash : "");
   const now = location.pathname + location.search + location.hash;
   if (next !== now) history.replaceState(history.state, "", next);
 }
@@ -5548,6 +5575,7 @@ let cameraLockedByUrl = false;
 
 function loadView() {
   const params = new URLSearchParams(location.search);
+  // Старые закладки могли держать вид в URL — один раз читаем и дальше только localStorage.
   const queryStyle = params.get("style");
   const queryCam = parseCam(params.get("cam"));
   const queryScale = Number(params.get("scale"));
@@ -5912,7 +5940,7 @@ document.addEventListener("pointerlockchange", () => {
 window.addEventListener("pointerdown", (event) => {
   if (!tourActive) return;
   if (!(event.target instanceof Element)) return;
-  if (event.target.closest("#panel, #prints, #furniture-catalog, button, input, select, label")) return;
+  if (event.target.closest("#panel, #prints, #furniture-catalog, #share-dialog, #auth-dialog, button, input, select, label")) return;
   if (document.pointerLockElement !== renderer.domElement) renderer.domElement.requestPointerLock();
 });
 
@@ -5974,18 +6002,14 @@ mountFurnitureCatalog();
   if (!button) return;
   button.addEventListener("click", () => {
     saveView();
-    const params = new URLSearchParams(location.search);
-    params.delete("_reinit");
-    params.delete("_gate");
-    params.delete("like");
-    params.delete("only");
+    const variants = compactVariantsQuery(new URLSearchParams(location.search).get("variants"));
     const next = new URLSearchParams();
-    const variants = params.get("variants");
     if (variants) next.set("variants", variants);
     // back — если каталог открыли без opener (прямая ссылка).
-    next.set("back", location.pathname + "?" + params.toString());
+    next.set("back", location.pathname + (variants ? `?variants=${variants}` : ""));
     const url = new URL("style-examples.html?" + next.toString(), location.href).href;
     // Именованная вкладка через <a target> — модель не выгружается, без пауз и _gate.
+    if (!window.name) window.name = "house-light-viewer";
     const link = document.createElement("a");
     link.href = url;
     link.target = "house-style-examples";
@@ -5995,6 +6019,124 @@ mountFurnitureCatalog();
     link.click();
     link.remove();
   });
+})();
+
+(function mountShareLink() {
+  const button = document.getElementById("share-link-btn");
+  const dialog = document.getElementById("share-dialog");
+  const list = document.getElementById("share-variants");
+  const preview = document.getElementById("share-preview");
+  const status = document.getElementById("share-status");
+  const cancel = document.getElementById("share-cancel");
+  const copy = document.getElementById("share-copy");
+  if (!button || !dialog || !list || !preview || !status || !cancel || !copy) return;
+
+  const choices = [
+    { id: "v2", label: "Вариант A" },
+    { id: "d2", label: "Вариант A2" },
+    { id: "vb", label: "Вариант Б" },
+    { id: "vc", label: "Вариант В" },
+    { id: "vd1", label: "Вариант Д1" },
+    { id: "vd2", label: "Вариант Д2" },
+    { id: "vd3", label: "Вариант Д3" },
+    { id: "vd4", label: "Вариант Д4" },
+    { id: "vd5", label: "Вариант Д5" },
+    { id: "vd6", label: "Вариант Д6" },
+  ];
+
+  list.innerHTML = "";
+  for (const choice of choices) {
+    const label = document.createElement("label");
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.value = choice.id;
+    input.dataset.shareVariant = choice.id;
+    label.appendChild(input);
+    label.appendChild(document.createTextNode(choice.label));
+    list.appendChild(label);
+  }
+
+  function selectedIds() {
+    return Array.from(list.querySelectorAll("input[type='checkbox']:checked"))
+      .map((node) => node.value)
+      .filter((id) => VARIANT_SHARE_TOKEN[id]);
+  }
+
+  function shareUrl() {
+    const tokens = selectedIds().map((id) => VARIANT_SHARE_TOKEN[id]);
+    const url = new URL(location.pathname, location.href);
+    url.search = "";
+    url.hash = "";
+    if (tokens.length) url.searchParams.set("variants", tokens.join(","));
+    return url.href;
+  }
+
+  function refreshPreview() {
+    preview.textContent = shareUrl();
+  }
+
+  function openDialog() {
+    const pinned = allowedVariants && allowedVariants.length ? allowedVariants : null;
+    list.querySelectorAll("input[type='checkbox']").forEach((input) => {
+      if (pinned) input.checked = pinned.includes(input.value);
+      else input.checked = input.value === viewVariant;
+    });
+    status.textContent = "";
+    refreshPreview();
+    dialog.hidden = false;
+  }
+
+  function closeDialog() {
+    dialog.hidden = true;
+  }
+
+  function syncAuthor(author) {
+    button.hidden = !author;
+    if (!author) closeDialog();
+  }
+
+  list.addEventListener("change", refreshPreview);
+  button.addEventListener("click", () => {
+    if (!window.houseAuthor || !window.houseAuthor.isAuthor) {
+      if (window.houseAuthor) window.houseAuthor.openLogin();
+      return;
+    }
+    openDialog();
+  });
+  cancel.addEventListener("click", closeDialog);
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) closeDialog();
+  });
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !dialog.hidden) {
+      event.preventDefault();
+      closeDialog();
+    }
+  });
+  copy.addEventListener("click", async () => {
+    if (!window.houseAuthor || !window.houseAuthor.isAuthor) {
+      if (window.houseAuthor) window.houseAuthor.openLogin();
+      return;
+    }
+    const url = shareUrl();
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        throw new Error("clipboard");
+      }
+      status.textContent = "Ссылка скопирована";
+    } catch {
+      window.prompt("Ссылка на модель", url);
+      status.textContent = "Скопируйте ссылку из окна";
+    }
+  });
+  if (window.houseAuthor) {
+    syncAuthor(window.houseAuthor.isAuthor);
+    window.houseAuthor.onChange(syncAuthor);
+  } else {
+    button.hidden = true;
+  }
 })();
 
 window.addEventListener("resize", () => {

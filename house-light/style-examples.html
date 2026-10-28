@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-author="0">
 <head>
 <meta charset="utf-8">
 <meta http-equiv="Cache-Control" content="no-store">
@@ -54,24 +54,63 @@
   .finishes { margin: 2px 0 8px; font-size: 13px; font-weight: 700; color: #5c5348; }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
   figure { position: relative; margin: 0; }
-  figure[hidden], section[hidden], nav a[hidden], #none[hidden] { display: none; }
+  figure[hidden], section[hidden], nav a[hidden], #none[hidden], #picked[hidden], #level-pick[hidden] { display: none; }
   button.like {
     position: absolute; top: 8px; right: 8px; z-index: 1;
-    width: 34px; height: 34px; padding: 0;
-    border: 0; border-radius: 50%;
+    min-width: 34px; height: 34px; padding: 0 8px;
+    border: 0; border-radius: 17px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 1px;
     background: rgba(255, 254, 249, .94); color: #6b5a45;
     box-shadow: 0 1px 4px rgba(40, 30, 16, .2);
     cursor: pointer;
   }
-  button.like svg { display: block; width: 18px; height: 18px; margin: 0 auto; }
+  button.like svg { display: block; width: 15px; height: 15px; flex: none; }
   button.like path { fill: none; stroke: currentColor; stroke-width: 2; }
   button.like[aria-pressed="true"] { color: #a33b32; }
   button.like[aria-pressed="true"] path { fill: currentColor; }
+  #level-pick {
+    position: fixed; z-index: 25;
+    display: flex; flex-direction: column; gap: 4px;
+    padding: 8px; min-width: 168px;
+    background: #fffef9; border: 1px solid #6b5a45; border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(40, 30, 16, .22);
+  }
+  #level-pick p {
+    margin: 0 0 2px; padding: 0 4px;
+    font-size: 12px; font-weight: 700; color: #5c5348;
+  }
+  #level-pick button {
+    display: flex; align-items: center; gap: 8px;
+    width: 100%; margin: 0; padding: 8px 10px;
+    border: 1px solid #cfc8b8; border-radius: 6px;
+    background: #f6f1e6; color: #222; font: inherit; font-size: 14px;
+    cursor: pointer; text-align: left;
+  }
+  #level-pick button:hover { background: #efe6d4; border-color: #6b5a45; }
+  #level-pick button .hearts { display: inline-flex; gap: 1px; color: #a33b32; }
+  #level-pick button .hearts svg { width: 16px; height: 16px; }
+  #level-pick button .hearts path { fill: currentColor; stroke: currentColor; stroke-width: 2; }
+  #level-pick button.clear { color: #5c5348; }
   #none {
     margin: 22px 0; padding: 16px;
     background: #fffef9; border: 1px solid #cfc8b8; border-radius: 8px;
     font-size: 15px;
   }
+  body.only-mode header nav { display: none; }
+  body.only-mode main > section { display: none !important; }
+  #picked { margin: 18px 0 28px; }
+  .picked-card {
+    position: relative;
+    width: min(720px, 100%);
+    margin: 0 auto 18px;
+    padding: 14px 14px 16px;
+    background: #fffef9; border: 1px solid #cfc8b8; border-radius: 8px;
+  }
+  .picked-card .picked-head { margin: 0 0 10px; padding-right: 52px; }
+  .picked-card .picked-title { margin: 0; font-size: 16px; font-weight: 700; line-height: 1.35; }
+  .picked-card .picked-title span { font-weight: 600; color: #5c5348; }
+  .picked-card .shot { border-radius: 6px; }
+  .picked-card .like { top: 12px; right: 12px; }
   button.shot {
     display: block; width: 100%; margin: 0; padding: 0; border: 0; border-radius: 6px;
     background: #e7e0d2; cursor: zoom-in; overflow: hidden;
@@ -92,11 +131,52 @@
     background: #fffef9; color: #222; border-radius: 4px;
     font-size: 16px; font-weight: 600;
   }
+  #auth-badge {
+    position: fixed; top: 14px; right: 14px; z-index: 12;
+    width: 42px; height: 42px; padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: #fffef9; border: 1px solid #6b5a45; border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(40, 30, 16, .22); cursor: pointer; color: #2a241c;
+  }
+  #auth-badge svg { width: 22px; height: 22px; display: block; }
+  #auth-badge .icon-author, #auth-badge .icon-guest { display: none; }
+  #auth-badge[data-mode="author"] .icon-author { display: block; }
+  #auth-badge[data-mode="guest"] .icon-guest { display: block; }
+  #auth-dialog {
+    position: fixed; inset: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(22, 26, 30, .55); padding: 20px;
+  }
+  #auth-dialog[hidden] { display: none; }
+  .auth-card {
+    width: min(360px, 100%); padding: 18px 18px 14px;
+    background: #fffef9; border: 1px solid #cfc8b8; border-radius: 8px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, .28); color: #222;
+  }
+  .auth-card h2 { margin: 0 0 8px; font-size: 18px; }
+  .auth-card p { margin: 0 0 12px; font-size: 13px; line-height: 1.4; color: #3c3428; }
+  .auth-card label { display: block; font-size: 13px; margin-bottom: 4px; }
+  .auth-card input[type="password"] {
+    width: 100%; box-sizing: border-box; font: inherit; font-size: 14px;
+    padding: 8px 10px; margin-bottom: 12px;
+  }
+  .auth-actions { display: flex; gap: 8px; justify-content: flex-end; }
+  #auth-status { min-height: 1.2em; margin: 8px 0 0; font-size: 13px; color: #a33b32; }
+  html:not([data-author="1"]) .author-only { display: none !important; }
+  html:not([data-author="1"]) button.like { opacity: .55; }
+  .copy-picked {
+    display: none; align-items: center;
+    padding: 8px 14px; font-size: 14px; font-weight: 600;
+    background: #fffef9; border: 1px solid #6b5a45; border-radius: 6px;
+    color: #222; cursor: pointer;
+  }
+  html[data-author="1"] body.only-mode .copy-picked { display: inline-flex; }
   @media (max-width: 800px) {
     .grid { grid-template-columns: 1fr; }
     h1 { font-size: 22px; }
     .top { align-items: flex-start; flex-direction: column-reverse; }
     .controls { flex-wrap: wrap; }
+    #auth-badge { top: 10px; right: 10px; }
   }
 </style>
 </head>
@@ -105,15 +185,44 @@
   <div class="top">
     <h1>Стили одноэтажных домов</h1>
     <div class="controls">
-      <label class="only"><input type="checkbox" id="only-liked">Показывать выбранные</label>
-      <a class="back" id="back" href="./">К модели</a>
+      <label class="only author-only"><input type="checkbox" id="only-liked">Показывать выбранные</label>
+      <button type="button" class="copy-picked author-only" id="copy-picked">Копировать ссылку</button>
+      <a class="back author-only" id="back" href="./">К модели</a>
     </div>
   </div>
 </div>
+<button type="button" id="auth-badge" data-mode="guest" hidden aria-label="Войти в авторский режим" title="Гостевой режим">
+  <svg class="icon-guest" viewBox="0 0 24 24" aria-hidden="true">
+    <path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" d="M7 11V8a5 5 0 0 1 10 0v3"/>
+    <rect x="5" y="11" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/>
+    <circle cx="12" cy="16" r="1.4" fill="currentColor"/>
+  </svg>
+  <svg class="icon-author" viewBox="0 0 24 24" aria-hidden="true">
+    <path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" d="M8 11V8a4 4 0 0 1 7.5-2"/>
+    <rect x="5" y="11" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/>
+    <path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" d="M12 15v3"/>
+  </svg>
+</button>
+<div id="auth-dialog" hidden>
+  <div class="auth-card" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+    <h2 id="auth-title">Авторский режим</h2>
+    <p>Верный пароль позволит отмечать стили. Каталог и список выбранных открываются и без него.</p>
+    <form id="auth-form">
+      <label for="auth-password">Пароль</label>
+      <input id="auth-password" type="password" autocomplete="current-password" required>
+      <div class="auth-actions">
+        <button type="button" id="auth-cancel">Отмена</button>
+        <button type="submit">Войти</button>
+      </div>
+      <p id="auth-status" role="status"></p>
+    </form>
+  </div>
+</div>
 <header>
-  <p>Девятнадцать стилей одноэтажных домов около 200 м². Нет мансарды, слуховых окон и цокольного этажа. Под названием — портрет стиля. Три картинки ниже — варианты отделки этого стиля, не отдельные стили. Сердечко отмечает вариант. Отметки и галочка «Показывать выбранные» запоминаются в этом браузере. Каталог открывается в соседней вкладке, чтобы 3D-модель не перезагружалась. Фильтр оставляет только отмеченные; ссылку из адресной строки можно отправить.</p>
+  <p>Двадцать два стиля одноэтажных домов около 200 м². Нет мансарды, слуховых окон и цокольного этажа. Под названием — портрет стиля. Три картинки ниже — варианты отделки. Отметки с уровнем (1–3 сердца) хранятся на сервере и доступны по короткой ссылке «Показывать выбранные». Лайкать можно в авторском режиме. В режиме выбранных варианты идут списком по убыванию сердец.</p>
   <nav>
     <a href="#scandi">Скандинавский</a>
+    <a href="#nordic">Сканди-модерн</a>
     <a href="#barn">Барнхаус</a>
     <a href="#modern">Современный</a>
     <a href="#prairie">Прерии</a>
@@ -122,12 +231,14 @@
     <a href="#classic">Классический</a>
     <a href="#provence">Прованс</a>
     <a href="#fachwerk">Фахверк</a>
+    <a href="#bavaria">Баварский</a>
     <a href="#ranch">Ранчо</a>
     <a href="#japan">Японский</a>
     <a href="#english">Английский</a>
     <a href="#med">Средиземноморский</a>
     <a href="#contemporary">Контемпорари</a>
     <a href="#farm">Фермерский</a>
+    <a href="#craftsman">Крафтсман</a>
     <a href="#chalet">Шале</a>
     <a href="#log">Бревенчатый</a>
     <a href="#midcentury">Мид-сенчури</a>
@@ -136,6 +247,7 @@
 </header>
 <main>
   <p id="none" hidden>Пока ничего не отмечено. Снимите фильтр и нажмите сердечко на понравившихся вариантах.</p>
+  <div id="picked" hidden></div>
   <section id="scandi">
     <h2>Скандинавский</h2>
     <dl class="about">
@@ -158,6 +270,31 @@
       <figure>
         <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/scandi-dark.jpg" alt="Скандинавский дом с тёмной вертикальной доской"></button>
         <figcaption>Тёмная вертикальная доска</figcaption>
+      </figure>
+    </div>
+  </section>
+  <section id="nordic">
+    <h2>Сканди-модерн</h2>
+    <dl class="about">
+      <dt>Силуэт</dt><dd>Простой одноэтажный прямоугольник около 200 м². Глухой щипец, терраса под свесом той же двускатной крыши, вход в нише.</dd>
+      <dt>Кровля</dt><dd>Крутая чёрная или графитовая фальцевая, со снегозадержателями, без мансарды и слуховых окон.</dd>
+      <dt>Стены</dt><dd>Светлая штукатурка — белая, серая или тёплая бежевая — и вертикальные деревянные вставки вокруг окон и у двери.</dd>
+      <dt>Окна</dt><dd>Крупные, тонкие чёрные рамы, иногда раздвижные на террасу.</dd>
+      <dt>Настроение</dt><dd>Северный минимализм: штукатурка плюс дерево, а не сплошная доска как у «скандинавского». Близок, если нужна двускатная фальцевая крыша и светлая гладкая стена.</dd>
+    </dl>
+    <p class="finishes">Варианты отделки</p>
+    <div class="grid">
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/nordic-white.jpg" alt="Сканди-модерн с белой штукатуркой и вертикальным деревом"></button>
+        <figcaption>Белая штукатурка и дерево</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/nordic-grey.jpg" alt="Сканди-модерн с серой штукатуркой и вертикальным деревом"></button>
+        <figcaption>Серая штукатурка и дерево</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/nordic-beige.jpg" alt="Сканди-модерн с бежевой штукатуркой и вертикальным деревом"></button>
+        <figcaption>Бежевая штукатурка и дерево</figcaption>
       </figure>
     </div>
   </section>
@@ -361,6 +498,31 @@
       </figure>
     </div>
   </section>
+  <section id="bavaria">
+    <h2>Баварский</h2>
+    <dl class="about">
+      <dt>Силуэт</dt><dd>Приземистый одноэтажный дом около 200 м². Низкая вальма, широкие свесы, крупные окна в один ряд, часто несколько труб.</dd>
+      <dt>Кровля</dt><dd>Тёмная мягкая или композитная черепица, уклон небольшой.</dd>
+      <dt>Стены</dt><dd>Баварская кладка: смесь красно-коричневых оттенков клинкера. Иногда тёмные горизонтальные пояса и тёмный цоколь из того же кирпича.</dd>
+      <dt>Окна</dt><dd>Панорамные, тёмные рамы, без белых наличников.</dd>
+      <dt>Настроение</dt><dd>Кирпичный объём за счёт пестрой кладки, а не за счёт щипца как у английского. Близок к «Райта» по силуэту, но фасад именно баварский клинкер.</dd>
+    </dl>
+    <p class="finishes">Варианты отделки</p>
+    <div class="grid">
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/bavaria-sand.jpg" alt="Баварский дом с песочным клинкером и навесом"></button>
+        <figcaption>Песочный клинкер и навес</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/bavaria-graphite.jpg" alt="Баварский дом с графитовым клинкером и фальцевой кровлей"></button>
+        <figcaption>Графитовый клинкер и фальц</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/bavaria-classic.jpg" alt="Баварский дом с красной кладкой, аркой и деревянной террасой"></button>
+        <figcaption>Красная кладка, арка и терраса</figcaption>
+      </figure>
+    </div>
+  </section>
   <section id="ranch">
     <h2>Ранчо</h2>
     <dl class="about">
@@ -511,6 +673,31 @@
       </figure>
     </div>
   </section>
+  <section id="craftsman">
+    <h2>Крафтсман</h2>
+    <dl class="about">
+      <dt>Силуэт</dt><dd>Широкий одноэтажный дом около 200 м². Центральный или боковой фронтон над глубоким крыльцом на толстых столбах, открытые деревянные балки под свесом.</dd>
+      <dt>Кровля</dt><dd>Невысокая двускатная: тёмная металлочерепица, мягкая кровля или фальц. Слуховых окон нет.</dd>
+      <dt>Стены</dt><dd>Светлая штукатурка с деревянной вставкой под окнами и тёмным цоколем; либо тёплая доска с каменными столбами; либо крашеный гонт.</dd>
+      <dt>Окна</dt><dd>Крупные, тёмные или светлые рамы, дверь на крыльце.</dd>
+      <dt>Настроение</dt><dd>Американское «ремесленное» крыльцо: балки и мощные опоры важнее декора. Не фахверк (нет решётки на всей стене) и не фермерский (там сплошная доска без открытых стропил).</dd>
+    </dl>
+    <p class="finishes">Варианты отделки</p>
+    <div class="grid">
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/craftsman-white.jpg" alt="Крафтсман со светлой штукатуркой, деревянными балками и тёмным цоколем"></button>
+        <figcaption>Штукатурка, балки и тёмный цоколь</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/craftsman-cedar.jpg" alt="Крафтсман из кедровой доски с каменным крыльцом"></button>
+        <figcaption>Кедровая доска и камень</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/craftsman-sage.jpg" alt="Крафтсман с зелёным гонтом и кирпичными столбами"></button>
+        <figcaption>Зелёный гонт и кирпичные столбы</figcaption>
+      </figure>
+    </div>
+  </section>
   <section id="chalet">
     <h2>Шале</h2>
     <dl class="about">
@@ -617,6 +804,13 @@
   <img id="zoom-img" alt="">
   <p id="zoom-cap"></p>
 </div>
+<div id="level-pick" hidden>
+  <p>Насколько нравится?</p>
+  <button type="button" data-level="1"><span class="hearts" data-n="1"></span>Одно сердце</button>
+  <button type="button" data-level="2"><span class="hearts" data-n="2"></span>Два сердца</button>
+  <button type="button" data-level="3"><span class="hearts" data-n="3"></span>Три сердца</button>
+  <button type="button" class="clear" data-level="0">Убрать отметку</button>
+</div>
 <script>
 window.addEventListener("pageshow", function (event) {
   if (event.persisted) location.reload();
@@ -627,39 +821,35 @@ window.addEventListener("pagehide", function () {
   });
 });
 </script>
+<script src="./author-mode.js?v=1"></script>
 <script>
 (function () {
-  var heart = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-9a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 4.6-7 9-7 9z"></path></svg>';
-  var figures = {};
-  document.querySelectorAll("figure").forEach(function (fig) {
-    var img = fig.querySelector("img");
-    var id = img && img.getAttribute("src").split("/").pop().replace(/\.jpg$/, "");
-    if (!id) return;
-    fig.dataset.id = id;
-    figures[id] = fig;
-    var like = document.createElement("button");
-    like.type = "button";
-    like.className = "like";
-    like.innerHTML = heart;
-    like.setAttribute("aria-pressed", "false");
-    like.setAttribute("aria-label", "Отметить вариант");
-    fig.appendChild(like);
-  });
-  var STORE = "house-style-likes";
+  var HEART = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-9a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 4.6-7 9-7 9z"></path></svg>';
   var ONLY_STORE = "house-style-only";
-  function readStored() {
-    try {
-      var parsed = JSON.parse(localStorage.getItem(STORE) || "[]");
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (e) {
-      return [];
-    }
+  var LEGACY_STORE = "house-style-likes";
+  var figures = {};
+  var likes = {};
+  var pickFor = null;
+  var saveTimer = 0;
+  var levelPick = document.getElementById("level-pick");
+  var picked = document.getElementById("picked");
+  var only = document.getElementById("only-liked");
+  var copyPicked = document.getElementById("copy-picked");
+  var zoom = document.getElementById("zoom");
+  var zoomImg = document.getElementById("zoom-img");
+  var zoomCap = document.getElementById("zoom-cap");
+
+  function heartsHtml(n) {
+    var html = "";
+    var count = Math.max(1, n || 1);
+    for (var i = 0; i < count; i += 1) html += HEART;
+    return html;
   }
-  function writeStored(ids) {
-    try {
-      if (ids.length) localStorage.setItem(STORE, JSON.stringify(ids));
-      else localStorage.removeItem(STORE);
-    } catch (e) {}
+  function clampLevel(raw) {
+    var n = Number(raw);
+    if (n === 2 || n === 3) return n;
+    if (n === 1) return 1;
+    return 0;
   }
   function readOnlyStored() {
     try {
@@ -674,17 +864,94 @@ window.addEventListener("pagehide", function () {
       else localStorage.removeItem(ONLY_STORE);
     } catch (e) {}
   }
-  function mark(id) {
-    var fig = figures[id];
-    if (!fig) return;
-    fig.classList.add("liked");
-    var like = fig.querySelector(".like");
-    like.setAttribute("aria-pressed", "true");
-    like.setAttribute("aria-label", "Убрать отметку");
+  function readLegacyLikes() {
+    try {
+      var parsed = JSON.parse(localStorage.getItem(LEGACY_STORE) || "{}");
+      var map = {};
+      if (Array.isArray(parsed)) {
+        parsed.forEach(function (id) { if (id) map[id] = 1; });
+        return map;
+      }
+      if (parsed && typeof parsed === "object") {
+        Object.keys(parsed).forEach(function (id) {
+          var level = clampLevel(parsed[id]);
+          if (level) map[id] = level;
+        });
+      }
+      return map;
+    } catch (e) {
+      return {};
+    }
   }
+  function clearLegacyLikes() {
+    try { localStorage.removeItem(LEGACY_STORE); } catch (e) {}
+  }
+  async function fetchLikes() {
+    var res = await fetch("/api/likes", { credentials: "same-origin", cache: "no-store" });
+    var data = await res.json();
+    return data && data.likes && typeof data.likes === "object" ? data.likes : {};
+  }
+  async function saveLikesToServer(map) {
+    var res = await fetch("/api/likes", {
+      method: "PUT",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ likes: map })
+    });
+    if (res.status === 401) {
+      if (window.houseAuthor) window.houseAuthor.openLogin();
+      throw new Error("author_required");
+    }
+    if (!res.ok) throw new Error("save_failed");
+    var data = await res.json();
+    return data.likes || map;
+  }
+  function scheduleSave() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () {
+      if (!window.houseAuthor || !window.houseAuthor.isAuthor) return;
+      saveLikesToServer(likes).catch(function () {});
+    }, 200);
+  }
+  function paintLikeButton(btn, level) {
+    var n = clampLevel(level);
+    btn.innerHTML = heartsHtml(n || 1);
+    btn.setAttribute("aria-pressed", n ? "true" : "false");
+    btn.setAttribute("aria-label", n ? ("Уровень " + n + ", изменить отметку") : "Отметить вариант");
+    btn.dataset.level = String(n || 0);
+  }
+  function setFigureLevel(fig, level) {
+    var id = fig.dataset.id;
+    var n = clampLevel(level);
+    if (n) likes[id] = n;
+    else delete likes[id];
+    fig.dataset.level = n ? String(n) : "";
+    fig.classList.toggle("liked", !!n);
+    paintLikeButton(fig.querySelector(".like"), n);
+  }
+  document.querySelectorAll("main > section figure").forEach(function (fig) {
+    var img = fig.querySelector("img");
+    var id = img && img.getAttribute("src").split("/").pop().replace(/\.jpg$/, "");
+    if (!id) return;
+    var section = fig.closest("section");
+    var styleName = section && section.querySelector("h2") ? section.querySelector("h2").textContent.trim() : "";
+    var cap = fig.querySelector("figcaption");
+    fig.dataset.id = id;
+    fig.dataset.style = styleName;
+    fig.dataset.variant = cap ? cap.textContent.trim() : id;
+    figures[id] = fig;
+    var like = document.createElement("button");
+    like.type = "button";
+    like.className = "like";
+    paintLikeButton(like, 0);
+    fig.appendChild(like);
+  });
+  levelPick.querySelectorAll(".hearts").forEach(function (slot) {
+    slot.innerHTML = heartsHtml(Number(slot.dataset.n) || 1);
+  });
+
   var params = new URLSearchParams(location.search);
   var variants = params.get("variants");
-  // Только явный embed=1 (старый iframe). Обычный каталог — отдельная страница с back=.
   var embedded = params.get("embed") === "1";
   var back = document.getElementById("back");
   var backTo = params.get("back");
@@ -710,21 +977,27 @@ window.addEventListener("pagehide", function () {
       window.parent.postMessage({ type: "house-close-styles" }, "*");
       return;
     }
-    // Обычный путь: стили открыты из модели через window.open — просто закрыть вкладку.
-    if (window.opener && !window.opener.closed) {
-      try { window.opener.focus(); } catch (e) {}
+    var MODEL_NAME = "house-light-viewer";
+    var openerOk = false;
+    try { openerOk = !!(window.opener && !window.opener.closed); } catch (e) {}
+    if (openerOk) {
+      // open('', name) в жесте клика надёжнее поднимает вкладку, чем один opener.focus().
+      try { window.opener.name = MODEL_NAME; } catch (e) {}
+      var model = window.opener;
+      try {
+        var named = window.open("", MODEL_NAME);
+        if (named && named !== window && !named.closed) model = named;
+      } catch (e) {}
+      try { model.focus(); } catch (e) {}
       window.close();
+      window.setTimeout(function () {
+        if (!window.closed) location.assign(modelBootUrl());
+      }, 120);
       return;
     }
     location.assign(modelBootUrl());
   });
-  var only = document.getElementById("only-liked");
-  var likeParam = params.get("like");
-  var fromUrl = likeParam != null && likeParam !== "";
-  (fromUrl ? likeParam.split(",") : readStored()).forEach(function (id) {
-    if (id) mark(id);
-  });
-  // URL (шаринг) важнее; иначе — localStorage. Раньше only жил только в URL и возвращался через back=.
+
   if (params.has("only")) {
     only.checked = params.get("only") === "1";
     writeOnlyStored(only.checked);
@@ -732,21 +1005,26 @@ window.addEventListener("pagehide", function () {
     only.checked = readOnlyStored();
   }
   document.querySelectorAll(".shot").forEach(function (shot) {
-    var cap = shot.parentElement.querySelector("figcaption");
+    var host = shot.closest("figure");
+    var cap = host && host.querySelector("figcaption");
     if (cap) shot.setAttribute("aria-label", cap.textContent);
   });
-  function selected() {
-    var ids = [];
-    document.querySelectorAll("figure.liked").forEach(function (fig) {
-      ids.push(fig.dataset.id);
+
+  function applyLikesMap(map) {
+    likes = {};
+    Object.keys(figures).forEach(function (id) {
+      setFigureLevel(figures[id], 0);
     });
-    return ids;
+    Object.keys(map || {}).forEach(function (id) {
+      var level = clampLevel(map[id]);
+      if (!level) return;
+      likes[id] = level;
+      if (figures[id]) setFigureLevel(figures[id], level);
+    });
   }
   function writeUrl() {
     var next = new URLSearchParams(location.search);
-    var ids = selected();
-    if (ids.length) next.set("like", ids.join(","));
-    else next.delete("like");
+    next.delete("like");
     if (only.checked) next.set("only", "1");
     else next.delete("only");
     writeOnlyStored(only.checked);
@@ -755,10 +1033,15 @@ window.addEventListener("pagehide", function () {
     if (embedded) {
       window.parent.postMessage({
         type: "house-styles-query",
-        like: ids.join(","),
         only: only.checked
       }, "*");
     }
+  }
+  function pickedShareUrl() {
+    var next = new URLSearchParams();
+    next.set("only", "1");
+    if (variants) next.set("variants", variants);
+    return new URL("style-examples.html?" + next.toString(), location.href).href;
   }
   function unloadImg(img) {
     if (img.getAttribute("src")) {
@@ -771,11 +1054,14 @@ window.addEventListener("pagehide", function () {
     if (!img.getAttribute("src") && img.dataset.src) img.src = img.dataset.src;
   }
   function parkFarImages() {
-    // Не больше 6 декодированных JPG сразу: браузер кладёт растры в GPU-композитор.
     var scored = [];
     document.querySelectorAll("main img").forEach(function (img) {
-      var host = img.closest("figure, section");
+      var host = img.closest("figure, .picked-card, section");
       if (host && host.hidden) {
+        unloadImg(img);
+        return;
+      }
+      if (document.body.classList.contains("only-mode") && img.closest("main > section")) {
         unloadImg(img);
         return;
       }
@@ -791,71 +1077,223 @@ window.addEventListener("pagehide", function () {
       else unloadImg(item.img);
     });
   }
+  function closeLevelPick() {
+    pickFor = null;
+    levelPick.hidden = true;
+  }
+  function openLevelPick(fig, anchor) {
+    pickFor = fig;
+    levelPick.hidden = false;
+    var rect = anchor.getBoundingClientRect();
+    var width = levelPick.offsetWidth || 168;
+    var left = Math.min(window.innerWidth - width - 12, Math.max(12, rect.right - width));
+    var top = rect.bottom + 8;
+    if (top + 220 > window.innerHeight) top = Math.max(12, rect.top - 220);
+    levelPick.style.left = left + "px";
+    levelPick.style.top = top + "px";
+  }
+  function buildPicked() {
+    picked.replaceChildren();
+    var rows = Object.keys(likes).map(function (id) {
+      return { id: id, level: likes[id], fig: figures[id] };
+    }).filter(function (row) {
+      return row.fig && row.level;
+    }).sort(function (a, b) {
+      if (b.level !== a.level) return b.level - a.level;
+      return a.id.localeCompare(b.id, "ru");
+    });
+    rows.forEach(function (row) {
+      var srcFig = row.fig;
+      var img = srcFig.querySelector("img");
+      var src = img.getAttribute("src") || img.dataset.src || "";
+      var card = document.createElement("article");
+      card.className = "picked-card";
+      card.dataset.id = row.id;
+      var head = document.createElement("div");
+      head.className = "picked-head";
+      var title = document.createElement("h3");
+      title.className = "picked-title";
+      title.innerHTML = srcFig.dataset.style + " <span>· " + srcFig.dataset.variant + "</span>";
+      head.appendChild(title);
+      var shot = document.createElement("button");
+      shot.type = "button";
+      shot.className = "shot";
+      shot.setAttribute("aria-label", srcFig.dataset.style + ", " + srcFig.dataset.variant);
+      var picture = document.createElement("img");
+      picture.loading = "lazy";
+      picture.decoding = "async";
+      picture.alt = img.alt || srcFig.dataset.variant;
+      if (src) picture.src = src;
+      else if (img.dataset.src) picture.dataset.src = img.dataset.src;
+      shot.appendChild(picture);
+      var like = document.createElement("button");
+      like.type = "button";
+      like.className = "like";
+      paintLikeButton(like, row.level);
+      card.append(head, shot, like);
+      picked.appendChild(card);
+    });
+    return rows.length;
+  }
   function apply() {
     var on = only.checked;
-    var visible = 0;
-    document.querySelectorAll("main section").forEach(function (sec) {
-      var any = false;
-      sec.querySelectorAll("figure").forEach(function (fig) {
-        var show = !on || fig.classList.contains("liked");
-        fig.hidden = !show;
-        if (show) any = true;
+    document.body.classList.toggle("only-mode", on);
+    closeLevelPick();
+    if (on) {
+      var count = buildPicked();
+      picked.hidden = count === 0;
+      document.getElementById("none").hidden = count !== 0;
+      document.querySelectorAll("main > section").forEach(function (sec) {
+        sec.hidden = true;
+        var link = document.querySelector('nav a[href="#' + sec.id + '"]');
+        if (link) link.hidden = true;
       });
-      sec.hidden = on && !any;
-      if (any) visible += 1;
-      var link = document.querySelector('nav a[href="#' + sec.id + '"]');
-      if (link) link.hidden = sec.hidden;
-    });
-    document.getElementById("none").hidden = !(on && visible === 0);
-    // Снятие «только выбранные» иначе сразу декодирует десятки JPG → серый WebGL.
+    } else {
+      picked.hidden = true;
+      picked.replaceChildren();
+      document.getElementById("none").hidden = true;
+      document.querySelectorAll("main > section").forEach(function (sec) {
+        sec.hidden = false;
+        sec.querySelectorAll("figure").forEach(function (fig) {
+          fig.hidden = false;
+        });
+        var link = document.querySelector('nav a[href="#' + sec.id + '"]');
+        if (link) link.hidden = false;
+      });
+    }
     parkFarImages();
   }
-  window.addEventListener("scroll", parkFarImages, { passive: true });
+  window.addEventListener("scroll", function () {
+    closeLevelPick();
+    parkFarImages();
+  }, { passive: true });
+  window.addEventListener("resize", closeLevelPick);
+
   document.body.addEventListener("click", function (event) {
-    var like = event.target.closest(".like");
-    if (like) {
-      var fig = like.parentElement;
-      var pressed = like.getAttribute("aria-pressed") !== "true";
-      like.setAttribute("aria-pressed", pressed ? "true" : "false");
-      like.setAttribute("aria-label", pressed ? "Убрать отметку" : "Отметить вариант");
-      fig.classList.toggle("liked", pressed);
-      writeStored(selected());
-      writeUrl();
-      apply();
+    var levelBtn = event.target.closest("#level-pick button[data-level]");
+    if (levelBtn) {
+      event.preventDefault();
+      if (pickFor) {
+        if (!window.houseAuthor || !window.houseAuthor.isAuthor) {
+          closeLevelPick();
+          if (window.houseAuthor) window.houseAuthor.openLogin();
+          return;
+        }
+        setFigureLevel(pickFor, levelBtn.dataset.level);
+        scheduleSave();
+        writeUrl();
+        apply();
+      }
+      closeLevelPick();
       return;
     }
+    var like = event.target.closest("button.like");
+    if (like) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (!window.houseAuthor || !window.houseAuthor.isAuthor) {
+        if (window.houseAuthor) window.houseAuthor.openLogin();
+        return;
+      }
+      var host = like.closest("figure, .picked-card");
+      var id = host && host.dataset.id;
+      var fig = id && figures[id];
+      if (!fig) return;
+      if (!levelPick.hidden && pickFor === fig) {
+        closeLevelPick();
+        return;
+      }
+      openLevelPick(fig, like);
+      return;
+    }
+    if (!levelPick.hidden && !event.target.closest("#level-pick")) closeLevelPick();
     var shot = event.target.closest(".shot");
     if (shot) {
       var img = shot.querySelector("img");
-      var cap = shot.parentElement.querySelector("figcaption");
-      zoomImg.src = img.src;
-      zoomImg.alt = img.alt;
-      zoomCap.textContent = cap ? cap.textContent : "";
+      var card = shot.closest(".picked-card");
+      var fig = shot.closest("figure");
+      var label = "";
+      if (card) {
+        var title = card.querySelector(".picked-title");
+        label = title ? title.textContent.replace(/\s+/g, " ").trim() : "";
+      } else if (fig) {
+        label = (fig.dataset.style || "") + " · " + (fig.dataset.variant || "");
+      }
+      zoomImg.src = img.currentSrc || img.src || img.dataset.src || "";
+      zoomImg.alt = img.alt || label;
+      zoomCap.textContent = label;
       zoom.hidden = false;
-    } else if (event.target === zoom) {
-      zoom.hidden = true;
+      return;
     }
+    if (event.target === zoom) zoom.hidden = true;
   });
   only.addEventListener("change", function () {
     writeOnlyStored(only.checked);
     writeUrl();
     apply();
   });
-  if (fromUrl) writeStored(selected());
+  if (copyPicked) {
+    copyPicked.addEventListener("click", function () {
+      if (!window.houseAuthor || !window.houseAuthor.isAuthor) {
+        if (window.houseAuthor) window.houseAuthor.openLogin();
+        return;
+      }
+      var url = pickedShareUrl();
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(function () {
+          copyPicked.textContent = "Ссылка скопирована";
+          setTimeout(function () { copyPicked.textContent = "Копировать ссылку"; }, 1400);
+        }).catch(function () {
+          window.prompt("Ссылка на выбранные", url);
+        });
+      } else {
+        window.prompt("Ссылка на выбранные", url);
+      }
+    });
+  }
   writeUrl();
   apply();
-  var zoom = document.getElementById("zoom");
-  var zoomImg = document.getElementById("zoom-img");
-  var zoomCap = document.getElementById("zoom-cap");
+  fetchLikes().then(async function (serverLikes) {
+    var map = serverLikes || {};
+    var legacy = readLegacyLikes();
+    if (Object.keys(map).length === 0 && Object.keys(legacy).length) {
+      map = legacy;
+      if (window.houseAuthor && window.houseAuthor.isAuthor) {
+        try {
+          map = await saveLikesToServer(legacy);
+          clearLegacyLikes();
+        } catch (e) {}
+      }
+    }
+    applyLikesMap(map);
+    apply();
+  }).catch(function () {});
+  if (window.houseAuthor) {
+    window.houseAuthor.onChange(function (author) {
+      if (!author) closeLevelPick();
+      if (author) {
+        var legacy = readLegacyLikes();
+        if (Object.keys(legacy).length && Object.keys(likes).length === 0) {
+          applyLikesMap(legacy);
+          scheduleSave();
+          clearLegacyLikes();
+          apply();
+        }
+      }
+    });
+  }
   window.addEventListener("keydown", function (event) {
     if (event.key !== "Escape") return;
+    if (!levelPick.hidden) {
+      closeLevelPick();
+      return;
+    }
     if (!zoom.hidden) {
       zoom.hidden = true;
       return;
     }
     if (embedded) window.parent.postMessage({ type: "house-close-styles" }, location.origin);
   });
-  // Сброс картинок до загрузки WebGL модели — меньше давления на GPU.
   window.addEventListener("pagehide", function () {
     document.querySelectorAll("img").forEach(function (img) {
       img.removeAttribute("src");

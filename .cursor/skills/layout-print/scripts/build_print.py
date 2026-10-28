@@ -523,7 +523,44 @@ def text_angle(u) -> float:
     return ang
 
 
-def build_dims(plot, house, canopy, apron, gate_posts=None):
+def unique_corners(pts: list[tuple[float, float]], tol: float = 1.2) -> list[tuple[float, float]]:
+    out: list[tuple[float, float]] = []
+    for p in pts:
+        if any(hypot(sub(p, q)) < tol for q in out):
+            continue
+        out.append(p)
+    return out
+
+
+def yard_buildings(root) -> list[dict]:
+    """Гараж, хозблок и баня со схемы A (и похожих): углы наружного контура."""
+    found: list[dict] = []
+
+    def take(el, name: str) -> None:
+        if el is None:
+            return
+        pts = unique_corners(shape_points(el))
+        # замыкающая точка полилинии
+        if len(pts) >= 2 and hypot(sub(pts[0], pts[-1])) < 1.5:
+            pts = pts[:-1]
+        if len(pts) >= 3:
+            found.append({"name": name, "corners": pts})
+
+    take(root.find(".//svg:polyline[@id='polyline934']", NS), "garage")
+    # Пол бани = наружные стены; отмостка path1129 шире на 1 м.
+    take(root.find(".//svg:polygon[@id='polygon1137']", NS), "bath")
+    if not any(b["name"] == "bath" for b in found):
+        path = root.find(".//svg:path[@id='path1129']", NS)
+        if path is not None:
+            pts = shape_points(path)
+            # первый контур до возврата к старту
+            if len(pts) >= 4:
+                ring = pts[:4]
+                found.append({"name": "bath", "corners": unique_corners(ring)})
+    return found
+
+
+def build_dims(plot, house, canopy, apron, gate_posts=None, yard=None, setback_buildings=None):
     center = (sum(p[0] for p in plot) / 4, sum(p[1] for p in plot) / 4)
     a, b, c, d = plot
     edges = [edge_of(a, b, center), edge_of(b, c, center), edge_of(c, d, center), edge_of(a, d, center)]
@@ -533,6 +570,9 @@ def build_dims(plot, house, canopy, apron, gate_posts=None):
     base = [28.0, 28.0, 28.0, max(32.0, clear + 16.0)]
     objs = [{"name": f"H{i}", "p": p, "kind": "house"} for i, p in enumerate(house)]
     objs += [{"name": f"N{i}", "p": p, "kind": "canopy"} for i, p in enumerate(canopy)]
+    # Гараж/баню в цепочку по забору не ставим — только отступы span_dim ниже,
+    # иначе куча выносок без нормальной размерной линии.
+    yard = yard or []
     parts: list[str] = []
     bbox: list[tuple[float, float]] = []
     segs: list[tuple[tuple[float, float], tuple[float, float]]] = []
@@ -606,7 +646,7 @@ def build_dims(plot, house, canopy, apron, gate_posts=None):
             near = min(interior, key=lambda m: abs(t - m)) if interior else None
             if near is not None and abs(t - near) <= 7:
                 attached[near].append({"o": o, "t": t, "d": dist})
-            elif dist <= 165 or (ei == 1 and o["kind"] == "house"):
+            elif dist <= 165:
                 loose.append({"o": o, "t": t, "d": dist})
         loose.sort(key=lambda item: item["t"])
         clusters = []
@@ -616,13 +656,6 @@ def build_dims(plot, house, canopy, apron, gate_posts=None):
                 clusters[-1]["t"] = sum(x["t"] for x in clusters[-1]["items"]) / len(clusters[-1]["items"])
             else:
                 clusters.append({"t": item["t"], "items": [item]})
-        for o in objs:
-            t, dist, on = proj(o["p"], e)
-            if not on:
-                continue
-            for cl in clusters:
-                if abs(t - cl["t"]) <= 6 and not any(x["o"]["name"] == o["name"] for x in cl["items"]):
-                    cl["items"].append({"o": o, "t": t, "d": dist})
         def span_of(t):
             # Число — от ближнего конца стороны. При равенстве побеждает запад или север:
             # начало AB, BC и AD; на CD (восток в начале) — конец, угол D.
@@ -645,7 +678,13 @@ def build_dims(plot, house, canopy, apron, gate_posts=None):
                     got.append((gt, gp))
             if len(got) == len(gate_posts) and max(t for t, _ in got) - min(t for t, _ in got) > 6:
                 gate_ts = sorted(got, key=lambda item: item[0])
-        n_extra = len(clusters) + (1 if gate_ts else 0)
+        # Только кластеры с подписью — иначе выноска торчит без размерной.
+        labeled = []
+        for cl in clusters:
+            a, b, dist = span_of(cl["t"])
+            if dist > 8:
+                labeled.append((cl, a, b, dist))
+        n_extra = len(labeled) + (1 if gate_ts else 0)
         outer_out = off0 + gap * n_extra
         # Стопка всегда снаружи границы. Внутрь газона линии не ставятся.
         sign, off0, outer = 1.0, off0, outer_out
@@ -654,15 +693,15 @@ def build_dims(plot, house, canopy, apron, gate_posts=None):
         def soff(off):
             return sign * off
 
+        # Выноска от угла объекта до своей размерной (без хвоста за линию).
         for m, cs in attached.items():
             if not cs:
-                line(at(e, m, 0), at(e, m, soff(off0)), 0.6)
+                continue
             for item in cs:
-                line(item["o"]["p"], at(e, item["t"], soff(off0) + PAST_DIM), 0.75)
-        spans = [span_of(cl["t"]) for cl in clusters]
+                line(item["o"]["p"], at(e, item["t"], soff(off0)), 0.75)
         start_reach = off0
         end_reach = off0
-        for i, (a, _b, _dist) in enumerate(spans):
+        for i, (cl, a, _b, _dist) in enumerate(labeled):
             off = off0 + gap * (i + 1)
             if a == 0.0:
                 start_reach = off
@@ -670,32 +709,28 @@ def build_dims(plot, house, canopy, apron, gate_posts=None):
                 end_reach = off
         if gate_ts:
             start_reach = outer
-        for i, cl in enumerate(clusters):
+        for i, (cl, a, b, dist) in enumerate(labeled):
             off = off0 + gap * (i + 1)
             for item in cl["items"]:
-                line(item["o"]["p"], at(e, item["t"], soff(off) + PAST_DIM), 0.75)
-            a, _b, dist = spans[i]
+                line(item["o"]["p"], at(e, item["t"], soff(off)), 0.75)
+            line(at(e, a, soff(off)), at(e, b, soff(off)), 0.6)
+            tick(at(e, a, soff(off)), e["u"])
+            tick(at(e, b, soff(off)), e["u"])
+            label(at(e, (a + b) / 2, soff(off)), e["u"], text_n, fmt(dist))
             end_name = "начала" if a == 0.0 else "конца"
             report.append(
                 f"{ei} +{dist/10:.2f}м от {end_name} "
                 + ",".join(it["o"]["name"] for it in cl["items"])
             )
-        line(at(e, 0, 0), at(e, 0, soff(start_reach + PAST_DIM)), 0.6)
-        line(at(e, e["L"], 0), at(e, e["L"], soff(end_reach + PAST_DIM)), 0.6)
+        # Углы участка — сквозь стопку до крайней размерной, без торчащего хвоста.
+        line(at(e, 0, 0), at(e, 0, soff(start_reach)), 0.6)
+        line(at(e, e["L"], 0), at(e, e["L"], soff(end_reach)), 0.6)
         line(at(e, 0, soff(off0)), at(e, e["L"], soff(off0)), 0.6)
         for m in marks:
             tick(at(e, m, soff(off0)), e["u"])
         for p0, p1 in zip(marks, marks[1:]):
             if p1 - p0 >= 12:
                 label(at(e, (p0 + p1) / 2, soff(off0)), e["u"], text_n, fmt(p1 - p0))
-        for i, cl in enumerate(clusters):
-            off = off0 + gap * (i + 1)
-            a, b, dist = spans[i]
-            line(at(e, a, soff(off)), at(e, b, soff(off)), 0.6)
-            tick(at(e, a, soff(off)), e["u"])
-            tick(at(e, b, soff(off)), e["u"])
-            if dist > 18:
-                label(at(e, (a + b) / 2, soff(off)), e["u"], text_n, fmt(dist))
         if gate_ts:
             off = outer
             last = gate_ts[-1][0]
@@ -714,8 +749,88 @@ def build_dims(plot, house, canopy, apron, gate_posts=None):
                     mid = p1 + width / 2 + 2.0
                 label(at(e, mid, soff(off)), e["u"], text_n, text)
             for t, gp in gate_ts:
-                line(gp, at(e, t, soff(off) + PAST_DIM), 0.6)
+                line(gp, at(e, t, soff(off)), 0.6)
             report.append("ворота/калитка " + " ".join(f"{t/10:.2f}" for t, _ in gate_ts))
+    # Отступы от забора до стен и просветы между постройками — как подписи на 3D.
+    if setback_buildings is not None:
+        buildings = list(setback_buildings)
+    else:
+        buildings = [{"name": "house", "corners": house}]
+        if canopy:
+            buildings.append({"name": "canopy", "corners": canopy})
+        buildings.extend(yard)
+
+    def side_vec(p0, p1):
+        dlt = sub(p1, p0)
+        L = hypot(dlt) or 1.0
+        return (-dlt[1] / L, dlt[0] / L)
+
+    def span_dim(p0, p1, text, side=1.0, gap=5.5):
+        if hypot(sub(p1, p0)) < 8:
+            return
+        n = side_vec(p0, p1)
+        n = mul(n, side)
+        a0 = add(p0, mul(n, gap))
+        a1 = add(p1, mul(n, gap))
+        line(p0, a0, 0.55)
+        line(p1, a1, 0.55)
+        line(a0, a1, 0.7)
+        tick(a0, sub(p1, p0))
+        tick(a1, sub(p1, p0))
+        mid = mul(add(a0, a1), 0.5)
+        u = sub(p1, p0)
+        Lu = hypot(u) or 1.0
+        label(mid, (u[0] / Lu, u[1] / Lu), n, text, size=7.6)
+
+    # К каждой постройке — отступы только до двух ближайших заборов.
+    house_like = {"house", "А", "A", "Д4", "D4"}
+    for bld in buildings:
+        ranked = []
+        for ei, e in enumerate(edges):
+            hits = []
+            for p in bld["corners"]:
+                t, dist, on = proj(p, e)
+                if not on or dist < 8 or dist > 200:
+                    continue
+                if dot(sub(p, e["p0"]), e["out"]) > 0:
+                    continue
+                hits.append((dist, t, p))
+            if not hits:
+                continue
+            hits.sort(key=lambda item: item[0])
+            near = [h for h in hits if h[0] - hits[0][0] <= 4.0]
+            dist, t, p = min(near, key=lambda item: abs(item[1] - sum(h[1] for h in near) / len(near)))
+            ranked.append((dist, ei, t, p))
+        ranked.sort(key=lambda item: item[0])
+        keep_n = 4 if bld["name"] in house_like else 2
+        for dist, ei, t, p in ranked[:keep_n]:
+            foot = at(edges[ei], t, 0)
+            text = fmt(dist)
+            if bld["name"] in ("А", "A", "Д4", "D4"):
+                text = f"{bld['name']} {text}"
+            span_dim(p, foot, text, side=1.0 if ei in (0, 3) else -1.0, gap=4.0)
+            report.append(f"отступ {bld['name']}→ребро{ei} {dist/10:.2f}м")
+
+    def nearest_pair(ca, cb):
+        best = None
+        for p in ca:
+            for q in cb:
+                d = hypot(sub(p, q))
+                if best is None or d < best[0]:
+                    best = (d, p, q)
+        return best
+
+    by_name = {b["name"]: b["corners"] for b in buildings}
+    bath = by_name.get("bath")
+    for hname in ("house", "А", "A"):
+        if hname in by_name and bath:
+            pair = nearest_pair(by_name[hname], bath)
+            if pair and 20 < pair[0] < 250:
+                d, p, q = pair
+                span_dim(p, q, fmt(d), side=1.0, gap=5.0)
+                report.append(f"{hname}→баня {d/10:.2f}м")
+            break
+
     for p in plot:
         parts.append(
             f'<circle cx="{p[0]:.2f}" cy="{p[1]:.2f}" r="2.6" fill="#111111" stroke="#ffffff" stroke-width="0.8"/>'
@@ -799,12 +914,12 @@ def sandwiched(box, segs, reach=7.0):
 
 
 def place_callout(pg, width, height, segs, occupied):
-    """Якорь подписи в ближайшем прямоугольнике, который не задевает линии и чужой текст."""
+    """Якорь подписи в ближайшем прямоугольнике, который не задевает линии, постройки и чужой текст."""
     best = None
     best_score = 1e18
-    for dist in (10, 14, 18, 24, 32, 42, 54):
-        for k in range(24):
-            ang = k * math.tau / 24
+    for dist in (10, 14, 18, 24, 32, 42, 54, 68, 84):
+        for k in range(32):
+            ang = k * math.tau / 32
             ux, uy = math.cos(ang), math.sin(ang)
             anchor = "start" if ux >= 0 else "end"
             x = pg[0] + ux * dist
@@ -830,6 +945,16 @@ def place_callout(pg, width, height, segs, occupied):
         box = (pg[0] + 8, pg[1] + 4, pg[0] + 8 + width, pg[1] + 4 + height)
         return (pg[0] + 8, pg[1] + height / 2, "start", box, 99, True)
     return best
+
+
+def page_obstacle_box(pts, to_page, pad=1.5):
+    """Рамка постройки на листе — подпись координат внутрь не ставить."""
+    if len(pts) < 3:
+        return None
+    pages = [to_page(p) for p in pts]
+    xs = [p[0] for p in pages]
+    ys = [p[1] for p in pages]
+    return (min(xs) - pad, min(ys) - pad, max(xs) + pad, max(ys) + pad)
 
 
 def place_compass(box, page, segs):
@@ -869,7 +994,7 @@ def place_compass(box, page, segs):
     return best
 
 
-def sheet(drawing_xml: str, plot, bbox, geos, variant: str, segs) -> str:
+def sheet(drawing_xml: str, plot, bbox, geos, variant: str, segs, obstacles=None) -> str:
     xs = [p[0] for p in bbox]
     ys = [p[1] for p in bbox]
     pad = 4
@@ -891,7 +1016,12 @@ def sheet(drawing_xml: str, plot, bbox, geos, variant: str, segs) -> str:
     ccx, ccy, comp = place_compass(content, (x0, y0, x1, y1), page_segs)
     names = "ABCD"
     chunks = []
+    # Компас + дома/баня/гараж — подписи углов сюда не класть.
     occupied = [comp]
+    for ring in obstacles or []:
+        box = page_obstacle_box(ring, to_page)
+        if box is not None:
+            occupied.append(box)
     for i, p in enumerate(plot):
         pg = to_page(p)
         lat = f"{geos[i][0]:.6f}° с.ш."
@@ -986,6 +1116,9 @@ def main() -> None:
         print(f"  H{i} {p[0]:.2f},{p[1]:.2f}")
     if canopy:
         print(f"углы навеса: {len(canopy)}")
+    yard = yard_buildings(root)
+    for bld in yard:
+        print(f"  {bld['name']}: {len(bld['corners'])} углов")
     restyle(root)
     gate_posts = []
     for n in (4, 5, 6):
@@ -995,7 +1128,7 @@ def main() -> None:
             break
         pts = parse_points(pel.get("points"))
         gate_posts.append((sum(p[0] for p in pts) / len(pts), sum(p[1] for p in pts) / len(pts)))
-    dims, bbox, report, segs = build_dims(plot, house, canopy, apron, gate_posts or None)
+    dims, bbox, report, segs = build_dims(plot, house, canopy, apron, gate_posts or None, yard)
     print("отдельные размеры:")
     for row in report:
         print(" ", row)
@@ -1005,6 +1138,8 @@ def main() -> None:
         return [(pts[i], pts[(i + 1) % len(pts)]) for i in range(len(pts))]
 
     segs = segs + ring(plot) + ring(house) + ring(canopy) + ring(apron) + ring(front)
+    for bld in yard:
+        segs = segs + ring(bld["corners"])
     for p in plot + apron + front:
         bbox.append(p)
     # выкинуть служебные узлы редактора и собрать чертёж
@@ -1016,7 +1151,11 @@ def main() -> None:
     geos = geo_of(plot)
     for i, (lat, lon) in enumerate(geos):
         print(f"  { 'ABCD'[i] } {lat:.6f} {lon:.6f}")
-    xml = sheet(body, plot, bbox, geos, variant_name(src), segs)
+    obstacles = [house]
+    if canopy:
+        obstacles.append(canopy)
+    obstacles.extend(bld["corners"] for bld in yard)
+    xml = sheet(body, plot, bbox, geos, variant_name(src), segs, obstacles)
     tree = etree.fromstring(xml.encode())
     drawing = tree.find(f".//{{{SVG}}}g[@id='drawing']")
     scale = float(re.search(r"scale\(([0-9.]+)\)", drawing.get("transform")).group(1))
