@@ -1,13 +1,16 @@
 {
   "bavaria-classic": 2,
-  "bavaria-graphite": 3,
+  "bavaria-graphite": 2,
   "bavaria-sand": 2,
   "classic-brick": 1,
   "classic-quoin": 1,
+  "euro-graphite": 2,
+  "euro-sand": 2,
   "nordic-beige": 2,
   "nordic-grey": 2,
-  "nordic-white": 2,
-  "prairie-brick": 1,
+  "nordic-white": 3,
+  "prairie-brick": 2,
   "provence-stone": 2,
-  "wright-warm": 1
+  "wright-plaster": 3,
+  "wright-warm": 2
 }

@@ -219,7 +219,7 @@
   </div>
 </div>
 <header>
-  <p>Двадцать два стиля одноэтажных домов около 200 м². Нет мансарды, слуховых окон и цокольного этажа. Под названием — портрет стиля. Три картинки ниже — варианты отделки. Отметки с уровнем (1–3 сердца) хранятся на сервере и доступны по короткой ссылке «Показывать выбранные». Лайкать можно в авторском режиме. В режиме выбранных варианты идут списком по убыванию сердец.</p>
+  <p>Двадцать три стиля одноэтажных домов около 200 м². Нет мансарды, слуховых окон и цокольного этажа. Под названием — портрет стиля. Три картинки ниже — варианты отделки. Отметки с уровнем (1–3 сердца) хранятся на сервере и доступны по короткой ссылке «Показывать выбранные». Лайкать можно в авторском режиме. В режиме выбранных варианты идут списком по убыванию сердец.</p>
   <nav>
     <a href="#scandi">Скандинавский</a>
     <a href="#nordic">Сканди-модерн</a>
@@ -237,6 +237,7 @@
     <a href="#english">Английский</a>
     <a href="#med">Средиземноморский</a>
     <a href="#contemporary">Контемпорари</a>
+    <a href="#euro">Европейский</a>
     <a href="#farm">Фермерский</a>
     <a href="#craftsman">Крафтсман</a>
     <a href="#chalet">Шале</a>
@@ -648,6 +649,31 @@
       </figure>
     </div>
   </section>
+  <section id="euro">
+    <h2>Европейский</h2>
+    <dl class="about">
+      <dt>Силуэт</dt><dd>Низкий одноэтажный дом около 200 м². Несколько пологих скатов и свесов, утопленный вход, встроенный гараж.</dd>
+      <dt>Кровля</dt><dd>Тёмный металл, низкие многоскатные и односкатные плоскости, широкие карнизы.</dd>
+      <dt>Стены</dt><dd>Контраст клинкера и штукатурки: графитовый кирпич и светлая штукатурка; песочный кирпич и слоновая штукатурка; почти белая штукатурка с тёмным цоколем.</dd>
+      <dt>Окна</dt><dd>Прямоугольные, тёмные рамы, один ряд.</dd>
+      <dt>Настроение</dt><dd>Европейский пригородный модерн. Близок к «Райта» и «контемпорари», но акцент на двухцветный клинкер плюс штукатурка и встроенный гараж, без дерева и без плоской крыши.</dd>
+    </dl>
+    <p class="finishes">Варианты отделки</p>
+    <div class="grid">
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/euro-graphite.jpg?v=2" alt="Европейский дом с графитовым клинкером и светлой штукатуркой"></button>
+        <figcaption>Графитовый клинкер</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/euro-sand.jpg?v=2" alt="Европейский дом с песочным клинкером и светлой штукатуркой"></button>
+        <figcaption>Песочный клинкер</figcaption>
+      </figure>
+      <figure>
+        <button type="button" class="shot"><img loading="lazy" decoding="async" src="style-examples/euro-white.jpg?v=2" alt="Европейский дом с белой штукатуркой и тёмным цоколем"></button>
+        <figcaption>Белая штукатурка и тёмный цоколь</figcaption>
+      </figure>
+    </div>
+  </section>
   <section id="farm">
     <h2>Фермерский</h2>
     <dl class="about">
@@ -931,7 +957,7 @@ window.addEventListener("pagehide", function () {
   }
   document.querySelectorAll("main > section figure").forEach(function (fig) {
     var img = fig.querySelector("img");
-    var id = img && img.getAttribute("src").split("/").pop().replace(/\.jpg$/, "");
+    var id = img && img.getAttribute("src").split("/").pop().split("?")[0].replace(/\.jpe?g$/i, "");
     if (!id) return;
     var section = fig.closest("section");
     var styleName = section && section.querySelector("h2") ? section.querySelector("h2").textContent.trim() : "";
