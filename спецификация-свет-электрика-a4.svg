@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="210.0mm" height="297.0mm" viewBox="0 0 210.0 297.0">
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="9.00" y="13.00" font-family="DejaVu Sans Bold, DejaVu Sans, sans-serif" font-size="5.4" fill="#111">Сводная спецификация: свет и электрика</text>
+<text x="9.00" y="17.50" font-family="DejaVu Sans, sans-serif" font-size="2.7" fill="#444">Источник: чертежи.pdf, листы 12–14. Кол-во без запаса.</text>
+<text x="9.00" y="24.00" font-family="DejaVu Sans Bold, DejaVu Sans, sans-serif" font-size="4.1" fill="#111">1. Светильники и свет</text>
+<rect x="9.00" y="29.00" width="192.00" height="5.00" fill="none" stroke="#111" stroke-width="0.22"/>
+<text x="10.80" y="32.40" text-anchor="start" font-family="DejaVu Sans Bold, DejaVu Sans, sans-serif" font-size="3.3" fill="#111">Тип</text>
+<line x1="27.00" y1="29.00" x2="27.00" y2="34.00" stroke="#111" stroke-width="0.15"/>
+<text x="28.80" y="32.40" text-anchor="start" font-family="DejaVu Sans Bold, DejaVu Sans, sans-serif" font-size="3.3" fill="#111">Вид</text>
+<line x1="43.00" y1="29.00" x2="43.00" y2="34.00" stroke="#111" stroke-width="0.15"/>
+<text x="44.80" y="32.40" text-anchor="start" font-family="DejaVu Sans Bold, DejaVu Sans, sans-serif" font-size="3.3" fill="#111">Наименование</text>
+<line x1="181.00" y1="29.00" x2="181.00" y2="34.00" stroke="#111" stroke-width="0.15"/>
+<text x="199.20" y="32.40" text-anchor="end" font-family="DejaVu Sans Bold, DejaVu Sans, sans-serif" font-size="3.3" fill="#111">Кол-во, шт</text>
+<rect x="9.00" y="34.00" width="192.00" height="10.20" fill="none" stroke="#111" stroke-width="0.15"/>
+<text x="10.80" y="40.32" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">СВ-1</text>
+<line x1="27.00" y1="34.00" x2="27.00" y2="44.20" stroke="#bbb" stroke-width="0.1"/>
+<circle cx="35.00" cy="39.10" r="3.50" fill="#d8dde3" stroke="#444" stroke-width="0.2"/><circle cx="35.00" cy="39.10" r="2.74" fill="#f4f6f8" stroke="#666" stroke-width="0.16000000000000003"/><circle cx="35.00" cy="39.10" r="1.60" fill="#fff4c2" stroke="#c9a84a" stroke-width="0.13999999999999999"/><circle cx="35.00" cy="39.10" r="0.61" fill="#ffe989"/>
+<line x1="43.00" y1="34.00" x2="43.00" y2="44.20" stroke="#bbb" stroke-width="0.1"/>
+<text x="44.80" y="40.32" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Встраиваемый светильник</text>
+<line x1="181.00" y1="34.00" x2="181.00" y2="44.20" stroke="#bbb" stroke-width="0.1"/>
+<text x="199.20" y="40.32" text-anchor="end" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">17</text>
+<rect x="9.00" y="44.20" width="192.00" height="10.20" fill="none" stroke="#111" stroke-width="0.15"/>
+<text x="10.80" y="50.52" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">СВ-2</text>
+<line x1="27.00" y1="44.20" x2="27.00" y2="54.40" stroke="#bbb" stroke-width="0.1"/>
+<circle cx="35.00" cy="49.30" r="3.61" fill="#3a3a3a" stroke="#222" stroke-width="0.2"/><circle cx="35.00" cy="49.30" r="2.96" fill="#cfd4da" stroke="#555" stroke-width="0.16000000000000003"/><circle cx="35.00" cy="49.30" r="1.71" fill="#fff4c2" stroke="#c9a84a" stroke-width="0.13999999999999999"/><circle cx="35.00" cy="49.30" r="0.61" fill="#ffe989"/>
+<line x1="43.00" y1="44.20" x2="43.00" y2="54.40" stroke="#bbb" stroke-width="0.1"/>
+<text x="44.80" y="50.52" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Встраиваемый светильник влагозащищенный</text>
+<line x1="181.00" y1="44.20" x2="181.00" y2="54.40" stroke="#bbb" stroke-width="0.1"/>
+<text x="199.20" y="50.52" text-anchor="end" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">9</text>
+<rect x="9.00" y="54.40" width="192.00" height="10.20" fill="none" stroke="#111" stroke-width="0.15"/>
+<text x="10.80" y="60.72" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">СВ-3</text>
+<line x1="27.00" y1="54.40" x2="27.00" y2="64.60" stroke="#bbb" stroke-width="0.1"/>
+<line x1="31.39" y1="57.41" x2="38.61" y2="57.41" stroke="#888" stroke-width="0.24"/><rect x="32.91" y="57.41" width="4.18" height="4.18" rx="0.25" fill="#e8eaed" stroke="#444" stroke-width="0.2"/><ellipse cx="35.00" cy="61.59" rx="2.09" ry="0.68" fill="#fff4c2" stroke="#c9a84a" stroke-width="0.13999999999999999"/>
+<line x1="43.00" y1="54.40" x2="43.00" y2="64.60" stroke="#bbb" stroke-width="0.1"/>
+<text x="44.80" y="60.72" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Накладной светильник</text>
+<line x1="181.00" y1="54.40" x2="181.00" y2="64.60" stroke="#bbb" stroke-width="0.1"/>
+<text x="199.20" y="60.72" text-anchor="end" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">6</text>
+<rect x="9.00" y="64.60" width="192.00" height="10.20" fill="none" stroke="#111" stroke-width="0.15"/>
+<text x="10.80" y="70.92" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">СВ-4</text>
+<line x1="27.00" y1="64.60" x2="27.00" y2="74.80" stroke="#bbb" stroke-width="0.1"/>
+<line x1="31.39" y1="68.37" x2="38.61" y2="68.37" stroke="#888" stroke-width="0.24"/><ellipse cx="35.00" cy="68.83" rx="3.23" ry="1.06" fill="#e8eaed" stroke="#444" stroke-width="0.2"/><ellipse cx="35.00" cy="69.21" rx="2.09" ry="0.61" fill="#fff4c2" stroke="#c9a84a" stroke-width="0.13999999999999999"/>
+<line x1="43.00" y1="64.60" x2="43.00" y2="74.80" stroke="#bbb" stroke-width="0.1"/>
+<text x="44.80" y="70.92" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Накладной светильник</text>
+<line x1="181.00" y1="64.60" x2="181.00" y2="74.80" stroke="#bbb" stroke-width="0.1"/>
+<text x="199.20" y="70.92" text-anchor="end" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">3</text>
+<rect x="9.00" y="74.80" width="192.00" height="10.20" fill="none" stroke="#111" stroke-width="0.15"/>
+<text x="10.80" y="81.12" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">СВ-5</text>
+<line x1="27.00" y1="74.80" x2="27.00" y2="85.00" stroke="#bbb" stroke-width="0.1"/>
+<line x1="32.91" y1="76.48" x2="32.91" y2="83.32" stroke="#888" stroke-width="0.26"/><rect x="32.91" y="79.06" width="1.06" height="1.67" fill="#bbb" stroke="#444" stroke-width="0.16000000000000003"/><line x1="33.97" y1="79.90" x2="35.19" y2="79.90" stroke="#666" stroke-width="0.22000000000000003"/><path d="M 34.81 77.81 Q 38.23 79.90 34.81 81.99 Z" fill="#fff4c2" stroke="#c9a84a" stroke-width="0.2"/>
+<line x1="43.00" y1="74.80" x2="43.00" y2="85.00" stroke="#bbb" stroke-width="0.1"/>
+<text x="44.80" y="81.12" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Бра</text>
+<line x1="181.00" y1="74.80" x2="181.00" y2="85.00" stroke="#bbb" stroke-width="0.1"/>
+<text x="199.20" y="81.12" text-anchor="end" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">4</text>
+<rect x="9.00" y="85.00" width="192.00" height="10.20" fill="none" stroke="#111" stroke-width="0.15"/>
+<text x="10.80" y="91.32" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">СВ-6</text>
+<line x1="27.00" y1="85.00" x2="27.00" y2="95.20" stroke="#bbb" stroke-width="0.1"/>
+<line x1="32.34" y1="86.49" x2="37.66" y2="86.49" stroke="#888" stroke-width="0.24"/><rect x="34.32" y="86.49" width="1.37" height="0.76" fill="#bbb" stroke="#444" stroke-width="0.13999999999999999"/><line x1="35.00" y1="87.25" x2="35.00" y2="90.29" stroke="#555" stroke-width="0.2"/><path d="M 32.34 90.29 L 37.66 90.29 L 36.71 93.33 L 33.29 93.33 Z" fill="#fff4c2" stroke="#c9a84a" stroke-width="0.2"/>
+<line x1="43.00" y1="85.00" x2="43.00" y2="95.20" stroke="#bbb" stroke-width="0.1"/>
+<text x="44.80" y="91.32" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Подвес</text>
+<line x1="181.00" y1="85.00" x2="181.00" y2="95.20" stroke="#bbb" stroke-width="0.1"/>
+<text x="199.20" y="91.32" text-anchor="end" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">1</text>
+<text x="9.00" y="98.20" font-family="DejaVu Sans, sans-serif" font-size="2.7" fill="#333">Картинки светильников — упрощённый вид «как в магазине» (не бренд). На планах также</text>
+<text x="9.00" y="101.50" font-family="DejaVu Sans, sans-serif" font-size="2.7" fill="#333">без количества: подсветка раб. поверхности / потолка / зеркал, треки, ниша скрытой подсветки.</text>
+<text x="9.00" y="110.30" font-family="DejaVu Sans Bold, DejaVu Sans, sans-serif" font-size="4.1" fill="#111">2. Электрика: розетки, выключатели, рамки</text>
+<rect x="9.00" y="115.30" width="192.00" height="5.00" fill="none" stroke="#111" stroke-width="0.22"/>
+<text x="10.80" y="118.70" text-anchor="start" font-family="DejaVu Sans Bold, DejaVu Sans, sans-serif" font-size="3.3" fill="#111">Группа</text>
+<line x1="37.00" y1="115.30" x2="37.00" y2="120.30" stroke="#111" stroke-width="0.15"/>
+<text x="38.80" y="118.70" text-anchor="start" font-family="DejaVu Sans Bold, DejaVu Sans, sans-serif" font-size="3.3" fill="#111">УГО</text>
+<line x1="51.00" y1="115.30" x2="51.00" y2="120.30" stroke="#111" stroke-width="0.15"/>
+<text x="52.80" y="118.70" text-anchor="start" font-family="DejaVu Sans Bold, DejaVu Sans, sans-serif" font-size="3.3" fill="#111">Наименование</text>
+<line x1="181.00" y1="115.30" x2="181.00" y2="120.30" stroke="#111" stroke-width="0.15"/>
+<text x="199.20" y="118.70" text-anchor="end" font-family="DejaVu Sans Bold, DejaVu Sans, sans-serif" font-size="3.3" fill="#111">Кол-во, шт</text>
+<rect x="9.00" y="120.30" width="192.00" height="10.20" fill="none" stroke="#111" stroke-width="0.15"/>
+<text x="10.80" y="126.62" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Выключатели</text>
+<line x1="37.00" y1="120.30" x2="37.00" y2="130.50" stroke="#bbb" stroke-width="0.1"/>
+<rect x="41.95" y="123.35" width="4.10" height="4.10" fill="#fff" stroke="#2a8f4a" stroke-width="0.26"/>
+<line x1="51.00" y1="120.30" x2="51.00" y2="130.50" stroke="#bbb" stroke-width="0.1"/>
+<text x="52.80" y="126.62" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Выключатель одноклавишный</text>
+<line x1="181.00" y1="120.30" x2="181.00" y2="130.50" stroke="#bbb" stroke-width="0.1"/>
+<text x="199.20" y="126.62" text-anchor="end" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">6</text>
+<rect x="9.00" y="130.50" width="192.00" height="10.20" fill="none" stroke="#111" stroke-width="0.15"/>
+<text x="10.80" y="136.82" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Выключатели</text>
+<line x1="37.00" y1="130.50" x2="37.00" y2="140.70" stroke="#bbb" stroke-width="0.1"/>
+<rect x="41.95" y="133.55" width="4.10" height="4.10" fill="#fff" stroke="#2a8f4a" stroke-width="0.26"/><line x1="44.00" y1="133.55" x2="44.00" y2="137.65" stroke="#2a8f4a" stroke-width="0.2"/>
+<line x1="51.00" y1="130.50" x2="51.00" y2="140.70" stroke="#bbb" stroke-width="0.1"/>
+<text x="52.80" y="136.82" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Выключатель двухклавишный</text>
+<line x1="181.00" y1="130.50" x2="181.00" y2="140.70" stroke="#bbb" stroke-width="0.1"/>
+<text x="199.20" y="136.82" text-anchor="end" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">8</text>
+<rect x="9.00" y="140.70" width="192.00" height="10.20" fill="none" stroke="#111" stroke-width="0.15"/>
+<text x="10.80" y="147.02" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Выключатели</text>
+<line x1="37.00" y1="140.70" x2="37.00" y2="150.90" stroke="#bbb" stroke-width="0.1"/>
+<rect x="41.95" y="143.75" width="4.10" height="4.10" fill="#fff" stroke="#2a8f4a" stroke-width="0.26"/><line x1="42.50" y1="144.30" x2="45.50" y2="147.30" stroke="#2a8f4a" stroke-width="0.2"/>
+<line x1="51.00" y1="140.70" x2="51.00" y2="150.90" stroke="#bbb" stroke-width="0.1"/>
+<text x="52.80" y="147.02" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Переключатель одноклавишный</text>
+<line x1="181.00" y1="140.70" x2="181.00" y2="150.90" stroke="#bbb" stroke-width="0.1"/>
+<text x="199.20" y="147.02" text-anchor="end" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">1</text>
+<rect x="9.00" y="150.90" width="192.00" height="10.20" fill="none" stroke="#111" stroke-width="0.15"/>
+<text x="10.80" y="157.22" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Выключатели</text>
+<line x1="37.00" y1="150.90" x2="37.00" y2="161.10" stroke="#bbb" stroke-width="0.1"/>
+<rect x="41.95" y="153.95" width="4.10" height="4.10" fill="#fff" stroke="#2a8f4a" stroke-width="0.26"/><line x1="43.45" y1="154.50" x2="45.50" y2="157.50" stroke="#2a8f4a" stroke-width="0.2"/><line x1="42.50" y1="154.50" x2="44.55" y2="157.50" stroke="#2a8f4a" stroke-width="0.2"/>
+<line x1="51.00" y1="150.90" x2="51.00" y2="161.10" stroke="#bbb" stroke-width="0.1"/>
+<text x="52.80" y="157.22" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Переключатель двухклавишный</text>
+<line x1="181.00" y1="150.90" x2="181.00" y2="161.10" stroke="#bbb" stroke-width="0.1"/>
+<text x="199.20" y="157.22" text-anchor="end" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">3</text>
+<rect x="9.00" y="161.10" width="192.00" height="10.20" fill="none" stroke="#111" stroke-width="0.15"/>
+<text x="10.80" y="167.42" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Выключатели</text>
+<line x1="37.00" y1="161.10" x2="37.00" y2="171.30" stroke="#bbb" stroke-width="0.1"/>
+<rect x="41.95" y="164.15" width="4.10" height="4.10" fill="#fff" stroke="#2a8f4a" stroke-width="0.26"/><line x1="42.63" y1="164.83" x2="45.37" y2="167.57" stroke="#2a8f4a" stroke-width="0.2"/><line x1="45.37" y1="164.83" x2="42.63" y2="167.57" stroke="#2a8f4a" stroke-width="0.2"/>
+<line x1="51.00" y1="161.10" x2="51.00" y2="171.30" stroke="#bbb" stroke-width="0.1"/>
+<text x="52.80" y="167.42" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Перекрестный переключатель двухклавишный</text>
+<line x1="181.00" y1="161.10" x2="181.00" y2="171.30" stroke="#bbb" stroke-width="0.1"/>
+<text x="199.20" y="167.42" text-anchor="end" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">1</text>
+<rect x="9.00" y="171.30" width="192.00" height="10.20" fill="none" stroke="#111" stroke-width="0.15"/>
+<text x="10.80" y="177.62" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Розетки</text>
+<line x1="37.00" y1="171.30" x2="37.00" y2="181.50" stroke="#bbb" stroke-width="0.1"/>
+<rect x="41.95" y="174.35" width="4.10" height="4.10" fill="#f2d6d6" stroke="#b33" stroke-width="0.2"/><circle cx="43.40" cy="176.40" r="0.38" fill="#b33"/><circle cx="44.60" cy="176.40" r="0.38" fill="#b33"/>
+<line x1="51.00" y1="171.30" x2="51.00" y2="181.50" stroke="#bbb" stroke-width="0.1"/>
+<text x="52.80" y="177.62" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Розетка 220V</text>
+<line x1="181.00" y1="171.30" x2="181.00" y2="181.50" stroke="#bbb" stroke-width="0.1"/>
+<text x="199.20" y="177.62" text-anchor="end" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">38</text>
+<rect x="9.00" y="181.50" width="192.00" height="10.20" fill="none" stroke="#111" stroke-width="0.15"/>
+<text x="10.80" y="187.82" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Розетки</text>
+<line x1="37.00" y1="181.50" x2="37.00" y2="191.70" stroke="#bbb" stroke-width="0.1"/>
+<rect x="41.95" y="184.55" width="4.10" height="4.10" fill="#f2d6d6" stroke="#b33" stroke-width="0.2"/><circle cx="44.00" cy="186.60" r="1.15" fill="none" stroke="#b33" stroke-width="0.2"/><circle cx="43.51" cy="186.60" r="0.27" fill="#b33"/><circle cx="44.49" cy="186.60" r="0.27" fill="#b33"/>
+<line x1="51.00" y1="181.50" x2="51.00" y2="191.70" stroke="#bbb" stroke-width="0.1"/>
+<text x="52.80" y="187.82" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Розетка 220V IP44 влагозащищенная</text>
+<line x1="181.00" y1="181.50" x2="181.00" y2="191.70" stroke="#bbb" stroke-width="0.1"/>
+<text x="199.20" y="187.82" text-anchor="end" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">20</text>
+<rect x="9.00" y="191.70" width="192.00" height="10.20" fill="none" stroke="#111" stroke-width="0.15"/>
+<text x="10.80" y="198.02" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Розетки</text>
+<line x1="37.00" y1="191.70" x2="37.00" y2="201.90" stroke="#bbb" stroke-width="0.1"/>
+<rect x="41.95" y="194.75" width="4.10" height="4.10" fill="#d6e4f8" stroke="#36c" stroke-width="0.2"/><path d="M 42.77 196.12 L 43.73 196.80 L 42.77 197.48 Z" fill="#36c"/><path d="M 45.23 196.12 L 44.27 196.80 L 45.23 197.48 Z" fill="#36c"/>
+<line x1="51.00" y1="191.70" x2="51.00" y2="201.90" stroke="#bbb" stroke-width="0.1"/>
+<text x="52.80" y="198.02" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Интернет розетка RJ45 2×</text>
+<line x1="181.00" y1="191.70" x2="181.00" y2="201.90" stroke="#bbb" stroke-width="0.1"/>
+<text x="199.20" y="198.02" text-anchor="end" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">4</text>
+<rect x="9.00" y="201.90" width="192.00" height="10.20" fill="none" stroke="#111" stroke-width="0.15"/>
+<text x="10.80" y="208.22" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Розетки</text>
+<line x1="37.00" y1="201.90" x2="37.00" y2="212.10" stroke="#bbb" stroke-width="0.1"/>
+<rect x="41.95" y="204.95" width="4.10" height="4.10" fill="#f2d6d6" stroke="#b33" stroke-width="0.2"/><circle cx="44.00" cy="207.00" r="1.15" fill="none" stroke="#b33" stroke-width="0.2"/><circle cx="44.00" cy="206.51" r="0.22" fill="#b33"/><circle cx="43.56" cy="207.33" r="0.22" fill="#b33"/><circle cx="44.44" cy="207.33" r="0.22" fill="#b33"/>
+<line x1="51.00" y1="201.90" x2="51.00" y2="212.10" stroke="#bbb" stroke-width="0.1"/>
+<text x="52.80" y="208.22" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Розетка скрытая 3P+E+N 16A 380V IP44</text>
+<line x1="181.00" y1="201.90" x2="181.00" y2="212.10" stroke="#bbb" stroke-width="0.1"/>
+<text x="199.20" y="208.22" text-anchor="end" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">1</text>
+<rect x="9.00" y="212.10" width="192.00" height="10.20" fill="none" stroke="#111" stroke-width="0.15"/>
+<text x="10.80" y="218.42" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Рамки</text>
+<line x1="37.00" y1="212.10" x2="37.00" y2="222.30" stroke="#bbb" stroke-width="0.1"/>
+<rect x="42.85" y="216.05" width="2.30" height="2.30" fill="none" stroke="#b33" stroke-width="0.2"/>
+<line x1="51.00" y1="212.10" x2="51.00" y2="222.30" stroke="#bbb" stroke-width="0.1"/>
+<text x="52.80" y="218.42" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Рамка на 1 пост</text>
+<line x1="181.00" y1="212.10" x2="181.00" y2="222.30" stroke="#bbb" stroke-width="0.1"/>
+<text x="199.20" y="218.42" text-anchor="end" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">14</text>
+<rect x="9.00" y="222.30" width="192.00" height="10.20" fill="none" stroke="#111" stroke-width="0.15"/>
+<text x="10.80" y="228.62" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Рамки</text>
+<line x1="37.00" y1="222.30" x2="37.00" y2="232.50" stroke="#bbb" stroke-width="0.1"/>
+<rect x="41.58" y="226.25" width="2.30" height="2.30" fill="none" stroke="#b33" stroke-width="0.2"/><rect x="44.12" y="226.25" width="2.30" height="2.30" fill="none" stroke="#b33" stroke-width="0.2"/>
+<line x1="51.00" y1="222.30" x2="51.00" y2="232.50" stroke="#bbb" stroke-width="0.1"/>
+<text x="52.80" y="228.62" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Рамка на 2 поста</text>
+<line x1="181.00" y1="222.30" x2="181.00" y2="232.50" stroke="#bbb" stroke-width="0.1"/>
+<text x="199.20" y="228.62" text-anchor="end" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">12</text>
+<rect x="9.00" y="232.50" width="192.00" height="10.20" fill="none" stroke="#111" stroke-width="0.15"/>
+<text x="10.80" y="238.82" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Рамки</text>
+<line x1="37.00" y1="232.50" x2="37.00" y2="242.70" stroke="#bbb" stroke-width="0.1"/>
+<rect x="40.30" y="236.45" width="2.30" height="2.30" fill="none" stroke="#b33" stroke-width="0.2"/><rect x="42.85" y="236.45" width="2.30" height="2.30" fill="none" stroke="#b33" stroke-width="0.2"/><rect x="45.40" y="236.45" width="2.30" height="2.30" fill="none" stroke="#b33" stroke-width="0.2"/>
+<line x1="51.00" y1="232.50" x2="51.00" y2="242.70" stroke="#bbb" stroke-width="0.1"/>
+<text x="52.80" y="238.82" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Рамка на 3 поста</text>
+<line x1="181.00" y1="232.50" x2="181.00" y2="242.70" stroke="#bbb" stroke-width="0.1"/>
+<text x="199.20" y="238.82" text-anchor="end" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">10</text>
+<rect x="9.00" y="242.70" width="192.00" height="10.20" fill="none" stroke="#111" stroke-width="0.15"/>
+<text x="10.80" y="249.02" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Рамки</text>
+<line x1="37.00" y1="242.70" x2="37.00" y2="252.90" stroke="#bbb" stroke-width="0.1"/>
+<rect x="39.03" y="246.65" width="2.30" height="2.30" fill="none" stroke="#b33" stroke-width="0.2"/><rect x="41.58" y="246.65" width="2.30" height="2.30" fill="none" stroke="#b33" stroke-width="0.2"/><rect x="44.12" y="246.65" width="2.30" height="2.30" fill="none" stroke="#b33" stroke-width="0.2"/><rect x="46.67" y="246.65" width="2.30" height="2.30" fill="none" stroke="#b33" stroke-width="0.2"/>
+<line x1="51.00" y1="242.70" x2="51.00" y2="252.90" stroke="#bbb" stroke-width="0.1"/>
+<text x="52.80" y="249.02" text-anchor="start" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">Рамка на 4 поста</text>
+<line x1="181.00" y1="242.70" x2="181.00" y2="252.90" stroke="#bbb" stroke-width="0.1"/>
+<text x="199.20" y="249.02" text-anchor="end" font-family="DejaVu Sans, sans-serif" font-size="3.6" fill="#111">4</text>
+<text x="9.00" y="255.90" font-family="DejaVu Sans, sans-serif" font-size="2.7" fill="#333">Высота розеток 300 мм, выключателей 900 мм от чистого пола (если не указано иное).</text>
+<text x="9.00" y="259.20" font-family="DejaVu Sans, sans-serif" font-size="2.7" fill="#333">Окончательные выводы для кухонной техники — после заказа кухни. Кол-во без запаса.</text>
+<text x="9.00" y="267.00" font-family="DejaVu Sans, sans-serif" font-size="2.7" fill="#555">Дизайнер проекта: Табакина Надежда. Лист для закупки / сверки с подрядчиком.</text>
+</svg>

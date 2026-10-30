@@ -1,3 +1,7 @@
 
 house-light/furniture/.chrome-previews/
 house-light/furniture-map/node_modules/
+.tools/
+_dwg_convert/
+**/__pycache__/
+*.pyc
