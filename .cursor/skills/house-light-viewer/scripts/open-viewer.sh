@@ -18,7 +18,7 @@ if [[ -n "$TITLE" ]] && wmctrl -a "$TITLE"; then
 fi
 
 if command -v google-chrome >/dev/null 2>&1; then
-  nohup google-chrome "$URL" >/dev/null 2>&1 &
+  nohup google-chrome --use-gl=angle --use-angle=vulkan --enable-unsafe-swiftshader "$URL" >/dev/null 2>&1 &
 else
   nohup xdg-open "$URL" >/dev/null 2>&1 &
 fi

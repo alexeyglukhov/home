@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1520" height="1000" viewBox="0 0 1520 1000">
+<defs>
+<style type="text/css"><![CDATA[
+.bg{fill:#f0ebe3}.floor{fill:#fffef9;stroke:#222;stroke-width:2.2}
+.wallu{fill:#e8e0d4;stroke:none}.walll{fill:#e2dacf;stroke:none}
+.wallk{fill:#ddd5c8;stroke:none}.wallr{fill:#d8d0c2;stroke:none}
+.edge{fill:none;stroke:#333;stroke-width:1.8;stroke-linejoin:miter}
+.gas{fill:#90caf9;stroke:#0d47a1;stroke-width:1.3}.el{fill:#a5d6a7;stroke:#1b5e20;stroke-width:1.3}
+.man{fill:#cfd8dc;stroke:#37474f;stroke-width:1.2}.mix{fill:#ffe082;stroke:#f57f17;stroke-width:1.3}
+.exp{fill:#ffcc80;stroke:#ef6c00;stroke-width:1.2}.auto{fill:#b39ddb;stroke:#4527a0;stroke-width:1.2}
+.san{fill:#ce93d8;stroke:#6a1b9a;stroke-width:1.2}.filt{fill:#b2ebf2;stroke:#00838f;stroke-width:1.1}
+.bkn{fill:#9fa8da;stroke:#283593;stroke-width:1.3}.fe{fill:#80deea;stroke:#006064;stroke-width:1.3}
+.tt{fill:#c4a484;stroke:#5a3d1b;stroke-width:1.3}.front{fill:#ffe566;fill-opacity:.5;stroke:#f57f17;stroke-width:1.3;stroke-dasharray:4 3}
+.door{fill:#ffe0b2;stroke:#5d4037;stroke-width:1.5}.window{fill:#81d4fa;stroke:#0277bd;stroke-width:1.3}
+.spot{fill:#bbb;fill-opacity:.28;stroke:#666;stroke-width:1;stroke-dasharray:3 2}
+.gvs{fill:none;stroke:#c62828;stroke-width:2}.hvs{fill:none;stroke:#0277bd;stroke-width:1.9}
+.cold{fill:none;stroke:#0288d1;stroke-width:1.7;stroke-dasharray:4 2}
+.out-rad{fill:none;stroke:#bf360c;stroke-width:2}.out-ufh{fill:none;stroke:#00695c;stroke-width:2}
+.out-san{fill:none;stroke:#6a1b9a;stroke-width:2}.gasline{fill:none;stroke:#f9a825;stroke-width:2}
+.coax{fill:none;stroke:#1565c0;stroke-width:1.8;stroke-dasharray:5 3}
+.title{font-family:DejaVu Sans,Arial,sans-serif;font-size:14px;font-weight:700;fill:#111}
+.note{font-family:DejaVu Sans,Arial,sans-serif;font-size:10.5px;fill:#333}
+.lab{font-family:DejaVu Sans,Arial,sans-serif;font-size:9.5px;fill:#222}
+.tiny{font-family:DejaVu Sans,Arial,sans-serif;font-size:8.5px;fill:#333}
+.call{font-family:DejaVu Sans,Arial,sans-serif;font-size:10px;fill:#111}
+]]></style>
+<marker id="aR" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><polygon points="0 0,5 2.5,0 5" fill="#bf360c"/></marker>
+<marker id="aT" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><polygon points="0 0,5 2.5,0 5" fill="#00695c"/></marker>
+<marker id="aP" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><polygon points="0 0,5 2.5,0 5" fill="#6a1b9a"/></marker>
+<marker id="aB" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><polygon points="0 0,5 2.5,0 5" fill="#0277bd"/></marker>
+<marker id="aG" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><polygon points="0 0,5 2.5,0 5" fill="#c62828"/></marker>
+</defs>
+<rect width="1520" height="1000" class="bg"/>
+<text x="20" y="20" class="title">Топочная v2 — стены с реальными высотами + пятна на полу</text>
+<text x="20" y="38" class="note">На стене: высота = реальный H. Серые пятна на полу = вертикальные проекции у стены; пересечения нормальны (разнос по H).</text>
+
+<!-- Углы: смежные стены делят одно ребро (одна линия угла) -->
+<polygon points="300,400 1000,400 1100,200 200,200" class="wallu"/>
+<text x="650" y="194" text-anchor="middle" class="call">верхняя стена (H комнаты 3000)</text>
+<polygon points="300,796 1000,796 1100,976 200,976" class="walll"/>
+<text x="650" y="992" text-anchor="middle" class="call">нижняя стена</text>
+<polygon points="300,400 300,796 200,976 200,200" class="wallk"/>
+<polygon points="1000,400 1000,796 1100,976 1100,200" class="wallr"/>
+<!-- контур: внешний периметр + углы одной линией + контур пола -->
+<path d="M 200,200 L 1100,200 L 1100,976 L 200,976 Z" class="edge"/>
+<path d="M 300,400 L 200,200 M 1000,400 L 1100,200 M 1000,796 L 1100,976 M 300,796 L 200,976" class="edge"/>
+<rect x="300" y="400" width="700" height="396" class="floor"/>
+<text x="650" y="418" text-anchor="middle" class="call">пол — пятна проекций (у стены, можно пересекать)</text>
+
+<!-- Пятна у стен; объекты одной стены накладываются -->
+<rect x="340" y="400" width="84" height="54" class="spot" rx="2"/>
+<text x="382" y="430" text-anchor="middle" class="tiny">газ</text>
+<rect x="434" y="400" width="82" height="62" class="spot" rx="2"/>
+<text x="475" y="434" text-anchor="middle" class="tiny">эл</text>
+<rect x="340" y="400" width="56" height="20" class="spot" rx="2"/>
+<text x="368" y="414" text-anchor="middle" class="tiny">СО</text>
+<rect x="340" y="400" width="130" height="56" class="spot" rx="2"/>
+<text x="405" y="456" text-anchor="middle" class="tiny">ТП</text>
+<rect x="480" y="400" width="76" height="22" class="spot" rx="2"/>
+<text x="518" y="415" text-anchor="middle" class="tiny">греб</text>
+<rect x="584" y="400" width="112" height="112" class="spot" rx="2"/>
+<text x="640" y="460" text-anchor="middle" class="tiny">БКН</text>
+<rect x="908" y="400" width="92" height="156" class="spot" rx="2"/>
+<text x="954" y="481" text-anchor="middle" class="tiny">ТТ</text>
+<rect x="908" y="556" width="92" height="200" class="spot" rx="2"/>
+<text x="954" y="659" text-anchor="middle" class="tiny">фронт</text>
+<rect x="340" y="772" width="84" height="24" class="spot" rx="2"/>
+<text x="382" y="788" text-anchor="middle" class="tiny">авт</text>
+<rect x="444" y="776" width="20" height="20" class="spot" rx="2"/>
+<text x="454" y="790" text-anchor="middle" class="tiny">Ф1</text>
+<rect x="496" y="735" width="61" height="61" class="spot" rx="2"/>
+<text x="526.5" y="768" text-anchor="middle" class="tiny">Fe</text>
+<rect x="589" y="776" width="20" height="20" class="spot" rx="2"/>
+<text x="599" y="790" text-anchor="middle" class="tiny">Ф2</text>
+
+<!-- верхняя стена: оборудование по H -->
+<polygon points="316.4,293.3 406.8,293.3 399.2,246.7 306.0,246.7" class="gas"/>
+<text x="357.1" y="270.0" text-anchor="middle" class="lab">ГАЗ H700</text>
+<polygon points="418.1,296.7 506.1,296.7 501.4,247.3 410.4,247.3" class="el"/>
+<text x="459.0" y="272.0" text-anchor="middle" class="lab">ЭЛ H740</text>
+<polygon points="323.8,326.7 382.7,326.7 381.2,318.7 322.0,318.7" class="man"/>
+<text x="352.4" y="325.7" text-anchor="middle" class="tiny">СО</text>
+<polygon points="391.4,340.0 422.7,340.0 418.0,310.0 386.1,310.0" class="exp"/>
+<text x="404.5" y="328.0" text-anchor="middle" class="tiny">РБ H450</text>
+<polygon points="331.1,360.0 464.9,360.0 461.9,337.3 326.1,337.3" class="mix"/>
+<text x="396.0" y="348.7" text-anchor="middle" class="tiny">смес. H340</text>
+<polygon points="472.7,340.0 552.0,340.0 551.3,330.0 471.5,330.0" class="san"/>
+<text x="511.9" y="335.0" text-anchor="middle" class="lab">гребёнка H150</text>
+<polygon points="584.0,400.0 696.0,400.0 698.8,313.3 579.9,313.3" class="bkn"/>
+<text x="639.7" y="356.7" text-anchor="middle" class="lab">БКН H1300</text>
+<path d="M 551.6 335.0 L 553.8 366.7 L 582.4 366.7" class="cold" marker-end="url(#aB)"/>
+<text x="553.8" y="361.7" text-anchor="middle" class="tiny">ХВС</text>
+<path d="M 639.4 313.3 L 639.3 303.3 L 532.4 303.3 L 534.5 330.0" class="gvs" marker-end="url(#aG)"/>
+<text x="532.4" y="298.3" text-anchor="middle" class="tiny">ГВС</text>
+<path d="M 322.9 322.7 L 289.1 322.7" class="out-rad" marker-end="url(#aR)"/>
+<path d="M 328.6 348.7 L 295.5 348.7" class="out-ufh" marker-end="url(#aT)"/>
+<path d="M 472.1 335.0 L 292.1 335.0" class="out-san" marker-end="url(#aP)"/>
+
+<!-- левая стена: дверь (угол 200–300) -->
+<polygon points="300,520 300,780 200,800 200,505" class="door"/>
+<text x="250" y="655" text-anchor="middle" class="lab" transform="rotate(-90 250 655)">дверь H2100</text>
+
+<!-- правая стена: ТТ + фронт (угол 1000–1100) -->
+<polygon points="1000,408 1000,564 1092,555 1092,392" class="tt"/>
+<text x="1046" y="482" text-anchor="middle" class="lab" transform="rotate(90 1046 482)">ТТ 460×H805</text>
+<text x="1062" y="482" text-anchor="middle" class="tiny" transform="rotate(90 1062 482)">глубина 780</text>
+<polygon points="1000,564 1000,764 1020,770 1020,562" class="front"/>
+<text x="1010" y="665" text-anchor="middle" class="tiny" transform="rotate(90 1010 665)">фронт ≥1000</text>
+<polygon points="1092,400 1092,432 1100,430 1100,398" class="tt"/>
+<text x="1108" y="418" text-anchor="middle" class="tiny" transform="rotate(90 1108 418)">дымоход</text>
+
+<!-- нижняя стена -->
+<polygon points="322.3,868.0 411.1,868.0 405.7,898.0 314.9,898.0" class="auto"/>
+<text x="363.5" y="883.0" text-anchor="middle" class="lab">автоматика H500</text>
+<polygon points="444.0,796.0 464.0,796.0 460.9,817.0 440.6,817.0" class="filt"/>
+<text x="452.4" y="809.5" text-anchor="middle" class="tiny">Ф1</text>
+<polygon points="496.0,796.0 556.8,796.0 550.9,875.2 486.3,875.2" class="fe"/>
+<text x="522.5" y="835.6" text-anchor="middle" class="lab">Fe H1320</text>
+<polygon points="588.8,796.0 608.8,796.0 608.1,817.0 587.8,817.0" class="filt"/>
+<text x="598.4" y="809.5" text-anchor="middle" class="tiny">Ф2</text>
+<polygon points="891.0,856.0 974.8,856.0 992.5,928.0 904.1,928.0" class="window"/>
+<text x="940.6" y="892.0" text-anchor="middle" class="tiny">окно</text>
+<path d="M 464.0 806.5 L 496.0 806.5" class="hvs" marker-end="url(#aB)"/>
+<text x="480" y="800" text-anchor="middle" class="tiny">вход</text>
+<path d="M 556.8 806.5 L 588.8 806.5" class="hvs" marker-end="url(#aB)"/>
+<text x="572.8" y="800" text-anchor="middle" class="tiny">выход</text>
+<path d="M 454.0 817.0 L 454.0 830.0" class="hvs"/>
+<text x="432.4" y="968.0" class="tiny">ХВС с улицы → Ф1 снизу</text>
+<path d="M 598.8 817.0 L 598.8 830.0" class="hvs"/>
+<text x="612.0" y="840.0" class="tiny">↑ гребёнка</text>
+
+<!-- маркеры углов пола (общие рёбра стен) -->
+<circle cx="300" cy="400" r="3" fill="#333"/>
+<circle cx="1000" cy="400" r="3" fill="#333"/>
+<circle cx="300" cy="796" r="3" fill="#333"/>
+<circle cx="1000" cy="796" r="3" fill="#333"/>
+
+<rect x="1180" y="45" width="310" height="900" fill="#fff" stroke="#333" stroke-width="1.2" rx="6"/>
+<text x="1195" y="68" class="call">v2 — высоты и пятна</text>
+<text x="1195" y="90" class="tiny">На стене высота = каталожный H.</text>
+<text x="1195" y="106" class="tiny">Пятна — вертикальная проекция</text>
+<text x="1195" y="122" class="tiny">у стены; пересечения ОК.</text>
+<text x="1195" y="146" class="call">Углы</text>
+<text x="1195" y="164" class="tiny">Смежные стены делят одно ребро:</text>
+<text x="1195" y="180" class="tiny">угол = одна линия (без разрыва).</text>
+<text x="1195" y="204" class="call">ТТ</text>
+<text x="1195" y="222" class="tiny">Кобальт 25: 460×780×H805.</text>
+<text x="1195" y="238" class="tiny">Правая стена H805; пятно на полу</text>
+<text x="1195" y="254" class="tiny">у правой стены 460×780.</text>
+<text x="1195" y="278" class="call">Высоты (мм от пола)</text>
+<text x="1195" y="296" class="tiny">Газ: 1600–2300 (H700)</text>
+<text x="1195" y="312" class="tiny">Электро: 1550–2290 (H740)</text>
+<text x="1195" y="328" class="tiny">Смес.: 600–940 (H340)</text>
+<text x="1195" y="344" class="tiny">Гребёнка: 900–1050 (H150)</text>
+<text x="1195" y="360" class="tiny">БКН: 0–1300 · Fe: 0–1320</text>
+<text x="1195" y="376" class="tiny">ТТ: 0–805 · дверь: 0–2100</text>
+<text x="1195" y="400" class="call">Fe трубы</text>
+<text x="1195" y="418" class="tiny">Ф1–Fe–Ф2 по одной оси, 90°.</text>
+
+<text x="20" y="988" class="note">topochnaya-1980x3500-tri-kotla-v2-stena.svg / .png</text>
+</svg>
