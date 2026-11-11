@@ -631,6 +631,14 @@ export function wallFace(api, o) {
     eave: o.eave,
     gable,
     place(a, b, z0, z1, color, proud = 0) {
+      if (o.gableOnly) {
+        const cut = o.eave;
+        const lo = Math.min(z0, z1);
+        const hi = Math.max(z0, z1);
+        if (hi <= cut + 0.012) return;
+        z0 = Math.max(lo, cut);
+        z1 = hi;
+      }
       if (Math.abs(b - a) < 0.012 || Math.abs(z1 - z0) < 0.015) return;
       const extra = sign * proud;
       const n0 = (sign < 0 ? outer - t : outer - 0.008) + extra;
@@ -643,6 +651,7 @@ export function wallFace(api, o) {
       else api.rect(Math.min(n0, n1), u0, Math.max(n0, n1), u1, za, zb, color);
     },
     beam(a, z0, b, z1, size, color, proud = 0) {
+      if (o.gableOnly && Math.max(z0, z1) <= o.eave) return;
       const n = nBeam + sign * proud;
       if (alongX) api.beam(a, n, z0, b, n, z1, size, color);
       else api.beam(n, a, z0, n, b, z1, size, color);

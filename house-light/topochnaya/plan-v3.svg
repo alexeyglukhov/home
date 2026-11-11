@@ -22,10 +22,10 @@
      inkscape:deskcolor="#d1d1d1"
      showgrid="false"
      inkscape:zoom="2.3312959"
-     inkscape:cx="436.66701"
-     inkscape:cy="231.20188"
+     inkscape:cx="310.55689"
+     inkscape:cy="231.8453"
      inkscape:window-width="2560"
-     inkscape:window-height="1368"
+     inkscape:window-height="1362"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -125,9 +125,9 @@
        fill="#f7f4ec"
        id="rect25" />
     <rect
-       x="360.0"
+       x="297.0"
        y="385.2"
-       width="56.0"
+       width="112.0"
        height="18"
        fill="#bbdefb"
        stroke="#1565c0"
@@ -230,7 +230,7 @@
      inkscape:groupmode="layer">
     <g
        id="g852"
-       transform="rotate(180,199.98083,246.5566)">
+       transform="rotate(180,195.54673,246.75759)">
       <g
          id="eq-фронт-газа"
          inkscape:label="фронт-газа"
@@ -316,7 +316,7 @@
     </g>
     <g
        id="g894"
-       transform="translate(-618.32375,11.740183)">
+       transform="rotate(180,552.88544,240.5854)">
       <g
          id="eq-фронт-эл"
          inkscape:label="фронт-эл"
@@ -892,7 +892,7 @@
     <g
        id="eq-смес-н-тп"
        inkscape:label="смес.+Н-ТП"
-       transform="rotate(90,47.887661,166.95519)">
+       transform="rotate(90,61.932932,180.35089)">
       <rect
          class="body"
          x="-8.3999996"
@@ -976,7 +976,7 @@
     <g
        id="eq-лапамойка"
        inkscape:label="лапамойка"
-       transform="translate(149.82978,154.65384)">
+       transform="translate(150.92845,149.53589)">
       <rect
          class="body"
          x="-40.599998"
@@ -1103,7 +1103,7 @@
     <g
        id="eq-fe-h1320"
        inkscape:label="Fe H1320"
-       transform="rotate(-90,354.89536,-207.36053)">
+       transform="rotate(-90,352.58717,-210.17208)">
       <rect
          class="body"
          x="-33.599998"
@@ -1146,7 +1146,7 @@
     <g
        id="eq-ф1"
        inkscape:label="Ф1"
-       transform="rotate(-90,402.92296,-183.50627)">
+       transform="rotate(-90,401.89209,-186.31437)">
       <rect
          class="body"
          x="-8.3999996"
@@ -1189,7 +1189,7 @@
     <g
        id="eq-ф2"
        inkscape:label="Ф2"
-       transform="rotate(-90,390.68921,-194.53883)">
+       transform="rotate(-90,390.04519,-198.37716)">
       <rect
          class="body"
          x="-8.3999996"
@@ -1232,12 +1232,12 @@
     <g
        id="eq-окно"
        inkscape:label="окно"
-       transform="translate(388.0,382.4)">
+       transform="translate(353.0,382.4)">
       <rect
          class="body"
-         x="-28.0"
+         x="-56.0"
          y="-4.2"
-         width="56.0"
+         width="112.0"
          height="8.4"
          fill="#bbdefb"
          stroke="#222"
@@ -1246,9 +1246,9 @@
          id="rect292" />
       <rect
          class="wall-mount"
-         x="-28.0"
+         x="-56.0"
          y="-0.8"
-         width="56.0"
+         width="112.0"
          height="5"
          fill="#1565c0"
          id="rect294" />
@@ -1275,7 +1275,7 @@
     <g
        id="eq-ибп"
        inkscape:label="ИБП"
-       transform="translate(222.56526,372.76562)">
+       transform="translate(178.21684,372.39115)">
       <rect
          class="body"
          x="-22.4"
@@ -1318,7 +1318,7 @@
     <g
        id="eq-акб"
        inkscape:label="АКБ"
-       transform="translate(266.14206,372.29958)">
+       transform="translate(133.70238,372.19651)">
       <rect
          class="body"
          x="-21"
@@ -1361,7 +1361,7 @@
     <g
        id="eq-приток"
        inkscape:label="приток"
-       transform="translate(588.3531,247.89417)">
+       transform="translate(590.17533,245.70905)">
       <rect
          class="body"
          x="-7"
@@ -1490,7 +1490,7 @@
     <g
        id="eq-гребёнка"
        inkscape:label="гребёнка"
-       transform="rotate(90,49.914303,168.9502)">
+       transform="rotate(90,58.982574,177.32108)">
       <rect
          class="body"
          x="-8.3999996"

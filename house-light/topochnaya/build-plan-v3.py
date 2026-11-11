@@ -60,7 +60,7 @@ def main() -> None:
     s_rail = z_s - 0.18
     greb_len = 0.26
     greb_z = -0.72 - greb_len / 2
-    win_x = svg_xz(700, 796)[0]
+    win_x = 0.0  # середина южной стены; проём 0,80×0,80
     door_z = door["z"]
 
     W = PAD * 2 + WALL_DRAW * 2 + ROOM_W * SCALE + 40
@@ -106,7 +106,7 @@ def main() -> None:
         f'<rect x="{ox + WALL_DRAW}" y="{oy + WALL_DRAW}" width="{iw}" height="{ih}" '
         f'fill="#eceff1" stroke="#90a4ae" stroke-width="1"/>'
         f'<rect x="{ox}" y="{pz(door_z) - 0.35 * SCALE:.1f}" width="{WALL_DRAW}" height="{0.7 * SCALE:.1f}" fill="#f7f4ec"/>'
-        f'<rect x="{px(win_x) - 0.2 * SCALE:.1f}" y="{oy + WALL_DRAW + ih}" width="{0.4 * SCALE:.1f}" height="{WALL_DRAW}" '
+        f'<rect x="{px(win_x) - 0.4 * SCALE:.1f}" y="{oy + WALL_DRAW + ih}" width="{0.8 * SCALE:.1f}" height="{WALL_DRAW}" '
         f'fill="#bbdefb" stroke="#1565c0" stroke-width="1"/>'
     )
     cx, cy = W - 55, PAD + 40
@@ -309,7 +309,7 @@ def main() -> None:
     unit("Fe H1320", fe["x"], s_rail, 0.48, 0.48, "S", fill="#80deea")
     unit("Ф1", f1["x"], s_rail, 0.12, 0.12, "S", fill="#00838f")
     unit("Ф2", f2["x"], s_rail, 0.12, 0.12, "S", fill="#00838f")
-    unit("окно", win_x, z_s - 0.02, 0.4, 0.06, "S", fill="#bbdefb")
+    unit("окно", win_x, z_s - 0.02, 0.8, 0.06, "S", fill="#bbdefb")
     unit("ИБП", svg_xz(795, 762)[0], z_s - 0.12, 0.32, 0.14, "S", fill="#eceff1")
     unit("АКБ", svg_xz(836, 760)[0], z_s - 0.12, 0.3, 0.14, "S", fill="#eceff1")
     unit("приток", x_e - 0.05, 0.1, 0.1, 0.22, "E", fill="#4fc3f7")

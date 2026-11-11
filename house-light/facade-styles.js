@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { OVERLAY_FIELD } from "./facade-overlay.js?v=19";
+import { OVERLAY_FIELD } from "./facade-overlay.js?v=20";
 
 const cache = new Map();
 
@@ -721,7 +721,8 @@ function paint(mesh, spec) {
     mat.userData.uOn.value = 1;
     mat.userData.uPattern.value = pattern(spec.pattern);
     mat.userData.uScale.value = spec.scale || 1;
-    mat.userData.uHeight.value = spec.height || 4.2;
+    const span = mesh.userData.finishTop;
+    mat.userData.uHeight.value = span && spec.height ? span : (spec.height || 4.2);
     mat.userData.uClamp.value = spec.height ? 1 : 0;
     mat.color.set(0xffffff);
     return;

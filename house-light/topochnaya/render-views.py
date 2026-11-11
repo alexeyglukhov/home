@@ -13,7 +13,7 @@ import websockets
 
 OUT = Path(__file__).resolve().parent / "renders"
 PORT = 9247
-URL = "http://127.0.0.1:8766/?variants=topo3&roof=0&_reinit=topo3r69"
+URL = "http://127.0.0.1:8766/?variants=topo3&roof=0&_reinit=topo3r75"
 VIEWS = ["iso", "north", "south", "west", "east", "top"]
 
 
