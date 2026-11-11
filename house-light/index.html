@@ -53,14 +53,16 @@
   select { width: 100%; font: inherit; font-size: 12px; margin-top: 4px; padding: 4px; }
   #sun { font-variant-numeric: tabular-nums; }
   #clock { font-weight: 700; }
-  #auth-badge {
-    position: fixed; top: 14px; right: 14px; z-index: 12;
+  #auth-badge, #shot-btn {
+    position: fixed; top: 14px; z-index: 12;
     width: 42px; height: 42px; padding: 0;
     display: inline-flex; align-items: center; justify-content: center;
     background: #fffef9; border: 1px solid #6b5a45; border-radius: 8px;
     box-shadow: 0 2px 8px rgba(40, 30, 16, .22); cursor: pointer; color: #2a241c;
   }
-  #auth-badge svg { width: 22px; height: 22px; display: block; }
+  #auth-badge { right: 14px; }
+  #shot-btn { right: 64px; }
+  #auth-badge svg, #shot-btn svg { width: 22px; height: 22px; display: block; }
   #auth-badge[data-mode="author"] { color: #6b5a45; border-color: #6b5a45; }
   #auth-badge .icon-author, #auth-badge .icon-guest { display: none; }
   #auth-badge[data-mode="author"] .icon-author { display: block; }
@@ -271,10 +273,11 @@
     }
     body.panel-open #panel { display: block; }
     #panel button { padding: 8px 10px; }
-    #auth-badge {
+    #auth-badge, #shot-btn {
       top: max(10px, env(safe-area-inset-top));
-      right: 10px;
     }
+    #auth-badge { right: 10px; }
+    #shot-btn { right: 60px; }
     #prints {
       top: calc(max(10px, env(safe-area-inset-top)) + 50px);
       right: 10px;
@@ -339,6 +342,13 @@
     <button type="button" id="tour" class="author-only" disabled>Экскурсия</button>
   </div>
 </div>
+<button type="button" id="shot-btn" aria-label="Сохранить снимок JPEG" title="Снимок вида (JPEG, высокое разрешение)">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"
+      d="M4 9h2.2l1.5-2h8.6l1.5 2H20v10H4z"/>
+    <circle cx="12" cy="13.2" r="3.1" fill="none" stroke="currentColor" stroke-width="1.7"/>
+  </svg>
+</button>
 <button type="button" id="auth-badge" data-mode="guest" hidden aria-label="Войти в авторский режим" title="Гостевой режим">
   <svg class="icon-guest" viewBox="0 0 24 24" aria-hidden="true">
     <path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" d="M7 11V8a5 5 0 0 1 10 0v3"/>
@@ -577,7 +587,7 @@ if (window.__houseOpenStyles) {
 }
 </script>
 <script type="module">
-if (!window.__houseOpenStyles) import("./app.js?v=814");
+if (!window.__houseOpenStyles) import("./app.js?v=835");
 </script>
 </body>
 </html>

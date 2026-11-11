@@ -16,7 +16,7 @@ import { syncPrintSheets } from "./print-sheets.js?v=28";
 import { mountFurnitureCatalog } from "./furniture-catalog.js?v=8";
 import { mountD2Furniture } from "./furniture-place-d2.js?v=43";
 import { mountD5Furniture } from "./furniture-place-d5.js?v=7";
-import { buildTopochnayaV3, topoCameraRigs } from "./topochnaya-v3.js?v=35";
+import { buildTopochnayaV3, topoCameraRigs } from "./topochnaya-v3.js?v=54";
 
 const panel = document.getElementById("panel");
 const dateInput = document.getElementById("date");
@@ -28,7 +28,7 @@ const roofToggle = document.getElementById("roof");
 const GL_RETRY_KEY = "house-gl-retry";
 function createRenderer() {
   try {
-    const created = new THREE.WebGLRenderer({ antialias: true });
+    const created = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
     sessionStorage.removeItem(GL_RETRY_KEY);
     return created;
   } catch (error) {
@@ -5547,12 +5547,22 @@ function compactVariantsQuery(raw) {
   return tokens.join(",");
 }
 
+function parseRoofQuery(raw) {
+  if (raw == null || raw === "") return null;
+  const v = String(raw).trim().toLowerCase();
+  if (v === "0" || v === "off" || v === "false" || v === "no") return false;
+  if (v === "1" || v === "on" || v === "true" || v === "yes") return true;
+  return null;
+}
+
 function writeViewQuery() {
   if (tourActive) return;
   const params = new URLSearchParams(location.search);
   const variants = compactVariantsQuery(params.get("variants"));
   const nextParams = new URLSearchParams();
   if (variants) nextParams.set("variants", variants);
+  // без крыши — явно в ссылке, чтобы открытие всегда было «как отправили»
+  if (!roofToggle.checked) nextParams.set("roof", "0");
   const query = nextParams.toString();
   const next = location.pathname + (query ? `?${query}` : "") + (location.hash === "#styles" ? location.hash : "");
   const now = location.pathname + location.search + location.hash;
@@ -5615,6 +5625,12 @@ function loadView() {
     }
   } catch {
     // битая запись не мешает обычному виду
+  }
+  // roof=0|1 в URL важнее localStorage
+  const queryRoof = parseRoofQuery(params.get("roof"));
+  if (queryRoof != null) {
+    roofToggle.checked = queryRoof;
+    showRoofs(queryRoof);
   }
   if (queryStyle && FACADE_CHOICES.some((s) => s.id === queryStyle)) facadeSelect.value = queryStyle;
   if (/^\d{4}-\d{2}-\d{2}$/.test(queryDate || "")) dateInput.value = queryDate;
@@ -5719,6 +5735,11 @@ function setVariant(id) {
   variantD6Group.visible = viewVariant === "vd6";
   topochnayaGroup.visible = topo;
   renderer.setClearColor(topo ? 0x1c2228 : 0xd5e2ef);
+  // топочная: сразу без «крыши», иначе снаружи глухой ящик
+  if (topo) {
+    roofToggle.checked = false;
+    showRoofs(false);
+  }
   if (viewVariant === "vd2") ensureD2Furniture();
   if (viewVariant === "vd5") ensureD5Furniture();
   blurb.textContent = viewVariant === "vb" ? BLURB_B
@@ -6039,6 +6060,31 @@ function setView(kind) {
 }
 document.getElementById("view-side").addEventListener("click", () => setView("side"));
 document.getElementById("view-top").addEventListener("click", () => setView("top"));
+
+document.getElementById("shot-btn")?.addEventListener("click", () => {
+  const prevPr = renderer.getPixelRatio();
+  const cssW = window.innerWidth;
+  const cssH = window.innerHeight;
+  // длинная сторона ≥3840 px (до 3× экрана), чтобы подписи читались
+  const long = Math.max(cssW, cssH);
+  const scale = Math.min(3, Math.max(2, 3840 / long));
+  const shotW = Math.round(cssW * scale);
+  const shotH = Math.round(cssH * scale);
+  renderer.setPixelRatio(1);
+  renderer.setSize(shotW, shotH, false);
+  camera.aspect = cssW / cssH;
+  camera.updateProjectionMatrix();
+  renderer.render(scene, camera);
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+  const a = document.createElement("a");
+  a.download = `house-${stamp}.jpg`;
+  a.href = renderer.domElement.toDataURL("image/jpeg", 0.95);
+  a.click();
+  renderer.setPixelRatio(prevPr);
+  renderer.setSize(cssW, cssH, true);
+  camera.aspect = cssW / cssH;
+  camera.updateProjectionMatrix();
+});
 
 applySun(geo);
 

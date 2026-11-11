@@ -1,0 +1,1534 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="746"
+   height="623"
+   viewBox="0 0 746 623"
+   version="1.1"
+   id="svg329"
+   sodipodi:docname="plan-v3.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview331"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="0.58282397"
+     inkscape:cx="725.7766"
+     inkscape:cy="322.56738"
+     inkscape:window-width="2560"
+     inkscape:window-height="1368"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer-equipment" />
+  <title
+     id="title2">Топочная Вариант 3 — план (вид сверху)</title>
+  <defs
+     id="defs10">
+    <marker
+       id="arrow"
+       markerWidth="8"
+       markerHeight="8"
+       refX="6"
+       refY="3"
+       orient="auto">
+      <path
+         d="M 0,0 6,3 0,6 Z"
+         fill="#c62828"
+         id="path4" />
+    </marker>
+    <pattern
+       id="frontzone"
+       width="8"
+       height="8"
+       patternUnits="userSpaceOnUse"
+       patternTransform="rotate(45)">
+      <line
+         x1="0"
+         y1="0"
+         x2="0"
+         y2="8"
+         stroke="#f9a825"
+         stroke-width="3"
+         opacity="0.45"
+         id="line7" />
+    </pattern>
+  </defs>
+  <rect
+     width="100%"
+     height="100%"
+     fill="#f7f4ec"
+     id="rect12" />
+  <g
+     id="layer-notes"
+     inkscape:label="заметки"
+     inkscape:groupmode="layer">
+    <text
+       x="90"
+       y="28"
+       font-family="DejaVu Sans, Arial, sans-serif"
+       font-size="16"
+       font-weight="700"
+       fill="#222"
+       id="text14">Топочная Вариант 3 — план 3.50×1.98 м (север вверх)</text>
+    <text
+       x="90"
+       y="46"
+       font-family="DejaVu Sans, Arial, sans-serif"
+       font-size="11"
+       fill="#444"
+       id="text16">Синяя полоса = к стене. Красная стрелка = фронт. Объекты сгруппированы: в Inkscape двигайте/вращайте группу целиком.</text>
+    <text
+       x="90"
+       y="62"
+       font-family="DejaVu Sans, Arial, sans-serif"
+       font-size="11"
+       fill="#37474f"
+       id="text18">ТТ: АОТВ СТЭН mini-11 (660×338×560). У вост. стены, фронт на запад. Паспорт: зад/бок ≥0,10 м; фронт ≥1,25 м.</text>
+  </g>
+  <g
+     id="layer-room"
+     inkscape:label="комната"
+     inkscape:groupmode="layer">
+    <rect
+       x="90"
+       y="90"
+       width="526.0"
+       height="313.2"
+       fill="#cfd8dc"
+       stroke="#546e7a"
+       stroke-width="2"
+       id="rect21" />
+    <rect
+       x="108"
+       y="108"
+       width="490.0"
+       height="277.2"
+       fill="#eceff1"
+       stroke="#90a4ae"
+       stroke-width="1"
+       id="rect23" />
+    <rect
+       x="90"
+       y="197.6"
+       width="18"
+       height="98.0"
+       fill="#f7f4ec"
+       id="rect25" />
+    <rect
+       x="360.0"
+       y="385.2"
+       width="56.0"
+       height="18"
+       fill="#bbdefb"
+       stroke="#1565c0"
+       stroke-width="1"
+       id="rect27" />
+    <g
+       id="compass"
+       inkscape:label="компас"
+       transform="translate(691.0,130)">
+      <circle
+         cx="0"
+         cy="0"
+         r="22"
+         fill="#fff"
+         stroke="#333"
+         stroke-width="1.2"
+         id="circle29" />
+      <polygon
+         points="0,-16 -5,2 5,2"
+         fill="#c62828"
+         id="polygon31" />
+      <text
+         x="0"
+         y="34"
+         text-anchor="middle"
+         font-family="DejaVu Sans, Arial, sans-serif"
+         font-size="12"
+         font-weight="700"
+         id="text33">С</text>
+    </g>
+    <text
+       x="371.21295"
+       y="82.015366"
+       text-anchor="middle"
+       font-size="12px"
+       font-family="'DejaVu Sans', Arial, sans-serif"
+       fill="#37474f"
+       id="text36">север</text>
+    <text
+       x="357.57935"
+       y="425.40295"
+       text-anchor="middle"
+       font-size="12px"
+       font-family="'DejaVu Sans', Arial, sans-serif"
+       fill="#37474f"
+       id="text38">юг</text>
+    <text
+       x="-231.18643"
+       y="66.517494"
+       text-anchor="middle"
+       font-size="12px"
+       font-family="'DejaVu Sans', Arial, sans-serif"
+       fill="#37474f"
+       transform="rotate(-90)"
+       id="text40">запад</text>
+    <text
+       x="257.35184"
+       y="-676.37805"
+       text-anchor="middle"
+       font-size="12px"
+       font-family="'DejaVu Sans', Arial, sans-serif"
+       fill="#37474f"
+       transform="rotate(90)"
+       id="text42">восток</text>
+    <line
+       x1="108"
+       y1="439.2"
+       x2="598.0"
+       y2="439.2"
+       stroke="#333"
+       stroke-width="1"
+       id="line44" />
+    <text
+       x="353.0"
+       y="453.2"
+       text-anchor="middle"
+       font-size="12"
+       font-family="DejaVu Sans, Arial, sans-serif"
+       id="text46">3.50 м</text>
+    <line
+       x1="644.0"
+       y1="108"
+       x2="644.0"
+       y2="385.2"
+       stroke="#333"
+       stroke-width="1"
+       id="line48" />
+    <text
+       x="658.0"
+       y="246.6"
+       text-anchor="middle"
+       font-size="12"
+       font-family="DejaVu Sans, Arial, sans-serif"
+       transform="rotate(90 658.0 246.6)"
+       id="text50">1.98 м</text>
+  </g>
+  <g
+     id="layer-equipment"
+     inkscape:label="оборудование"
+     inkscape:groupmode="layer">
+    <g
+       id="g852"
+       transform="translate(-55.948664,-0.20123208)">
+      <g
+         id="eq-фронт-газа"
+         inkscape:label="фронт-газа"
+         transform="translate(232.64758,224.97864)">
+        <rect
+           x="-29.4"
+           y="-70"
+           width="58.799999"
+           height="140"
+           fill="url(#frontzone)"
+           stroke="#f9a825"
+           stroke-width="0.8"
+           opacity="0.85"
+           id="rect53" />
+      </g>
+      <g
+         id="eq-газ-h700"
+         inkscape:label="ГАЗ H700"
+         transform="translate(232.7491,131.13404)">
+        <rect
+           class="body"
+           x="-28"
+           y="-21"
+           width="56"
+           height="42"
+           fill="#fafafa"
+           stroke="#222222"
+           stroke-width="1.4"
+           rx="2"
+           id="rect59" />
+        <rect
+           class="wall-mount"
+           x="-28"
+           y="-21"
+           width="56"
+           height="5"
+           fill="#1565c0"
+           id="rect61" />
+        <line
+           class="front"
+           x1="0"
+           y1="0"
+           x2="0"
+           y2="30.799999"
+           stroke="#c62828"
+           stroke-width="2"
+           marker-end="url(#arrow)"
+           id="line63" />
+        <text
+           class="caption"
+           x="0"
+           y="4"
+           text-anchor="middle"
+           font-family="'DejaVu Sans', Arial, sans-serif"
+           font-size="11px"
+           fill="#111111"
+           id="text65">ГАЗ H700</text>
+        <g
+           class="safety"
+           inkscape:label="ГБ"
+           transform="translate(25.2,28)"
+           id="g71">
+          <rect
+             x="-6.3000002"
+             y="-6.3000002"
+             width="12.6"
+             height="12.6"
+             fill="#fff3e0"
+             stroke="#e65100"
+             stroke-width="1.4"
+             transform="rotate(45)"
+             id="rect67" />
+          <text
+             x="0"
+             y="16.799999"
+             text-anchor="middle"
+             font-family="'DejaVu Sans', Arial, sans-serif"
+             font-size="10px"
+             fill="#111111"
+             id="text69">ГБ</text>
+        </g>
+      </g>
+    </g>
+    <g
+       id="g894"
+       transform="translate(-633.66328,11.389976)">
+      <g
+         id="eq-фронт-эл"
+         inkscape:label="фронт-эл"
+         transform="translate(884.62096,211.15216)">
+        <rect
+           x="-28.700001"
+           y="-70"
+           width="57.400002"
+           height="140"
+           fill="url(#frontzone)"
+           stroke="#f9a825"
+           stroke-width="0.8"
+           opacity="0.85"
+           id="rect56" />
+      </g>
+      <g
+         id="eq-эл-h740"
+         inkscape:label="ЭЛ H740"
+         transform="translate(884.62096,118.75216)">
+        <rect
+           class="body"
+           x="-26.6"
+           y="-21"
+           width="53.200001"
+           height="42"
+           fill="#f5f5f5"
+           stroke="#222222"
+           stroke-width="1.4"
+           rx="2"
+           id="rect74" />
+        <rect
+           class="wall-mount"
+           x="-26.6"
+           y="-21"
+           width="53.200001"
+           height="5"
+           fill="#1565c0"
+           id="rect76" />
+        <line
+           class="front"
+           x1="0"
+           y1="0"
+           x2="0"
+           y2="30.799999"
+           stroke="#c62828"
+           stroke-width="2"
+           marker-end="url(#arrow)"
+           id="line78" />
+        <text
+           class="caption"
+           x="0"
+           y="4"
+           text-anchor="middle"
+           font-family="'DejaVu Sans', Arial, sans-serif"
+           font-size="11px"
+           fill="#111111"
+           id="text80">ЭЛ H740</text>
+        <g
+           class="safety"
+           inkscape:label="ГБ"
+           transform="translate(22.4,28)"
+           id="g86">
+          <rect
+             x="-6.3000002"
+             y="-6.3000002"
+             width="12.6"
+             height="12.6"
+             fill="#fff3e0"
+             stroke="#e65100"
+             stroke-width="1.4"
+             transform="rotate(45)"
+             id="rect82" />
+          <text
+             x="0"
+             y="16.799999"
+             text-anchor="middle"
+             font-family="'DejaVu Sans', Arial, sans-serif"
+             font-size="10px"
+             fill="#111111"
+             id="text84">ГБ</text>
+        </g>
+      </g>
+    </g>
+    <g
+       id="eq-н-со"
+       inkscape:label="Н-СО"
+       transform="translate(341.35703,120.79073)">
+      <rect
+         class="body"
+         x="-15.4"
+         y="-9.8000002"
+         width="30.799999"
+         height="19.6"
+         fill="#cfd8dc"
+         stroke="#222222"
+         stroke-width="1.4"
+         rx="2"
+         id="rect89" />
+      <rect
+         class="wall-mount"
+         x="-15.4"
+         y="-9.8000002"
+         width="30.799999"
+         height="5"
+         fill="#1565c0"
+         id="rect91" />
+      <line
+         class="front"
+         x1="0"
+         y1="0"
+         x2="0"
+         y2="30.799999"
+         stroke="#c62828"
+         stroke-width="2"
+         marker-end="url(#arrow)"
+         id="line93" />
+      <text
+         class="caption"
+         x="0"
+         y="4"
+         text-anchor="middle"
+         font-family="'DejaVu Sans', Arial, sans-serif"
+         font-size="11px"
+         fill="#111111"
+         id="text95">Н-СО</text>
+    </g>
+    <g
+       id="eq-коллсо"
+       inkscape:label="колл.СО"
+       transform="translate(382.45926,120.78253)">
+      <rect
+         class="body"
+         x="-18.200001"
+         y="-9.8000002"
+         width="36.400002"
+         height="19.6"
+         fill="#cfd8dc"
+         stroke="#222222"
+         stroke-width="1.4"
+         rx="2"
+         id="rect98" />
+      <rect
+         class="wall-mount"
+         x="-18.200001"
+         y="-9.8000002"
+         width="36.400002"
+         height="5"
+         fill="#1565c0"
+         id="rect100" />
+      <line
+         class="front"
+         x1="0"
+         y1="0"
+         x2="0"
+         y2="30.799999"
+         stroke="#c62828"
+         stroke-width="2"
+         marker-end="url(#arrow)"
+         id="line102" />
+      <text
+         class="caption"
+         x="0"
+         y="4"
+         text-anchor="middle"
+         font-family="'DejaVu Sans', Arial, sans-serif"
+         font-size="11px"
+         fill="#111111"
+         id="text104">колл.СО</text>
+    </g>
+    <g
+       id="eq-бкн-h1300"
+       inkscape:label="БКН H1300"
+       transform="translate(439.01471,147.39913)">
+      <circle
+         class="body"
+         cx="0"
+         cy="0"
+         r="35"
+         fill="#9fa8da"
+         stroke="#222222"
+         stroke-width="1.4"
+         id="circle125" />
+      <rect
+         class="wall-mount"
+         x="-35"
+         y="-35"
+         width="70"
+         height="5"
+         fill="#1565c0"
+         id="rect127" />
+      <line
+         class="front"
+         x1="0"
+         y1="0"
+         x2="0"
+         y2="39.200001"
+         stroke="#c62828"
+         stroke-width="2"
+         marker-end="url(#arrow)"
+         id="line129" />
+      <text
+         class="caption"
+         x="0"
+         y="4"
+         text-anchor="middle"
+         font-family="'DejaVu Sans', Arial, sans-serif"
+         font-size="11px"
+         fill="#111111"
+         id="text131">БКН H1300</text>
+    </g>
+    <g
+       id="eq-стэн-mini-11"
+       inkscape:label="СТЭН mini-11"
+       transform="translate(537.8,330.6) rotate(90)">
+      <rect
+         class="rear-gap"
+         x="-23.66"
+         y="-60.2"
+         width="47.32"
+         height="14"
+         fill="#ffcdd2"
+         stroke="#c62828"
+         stroke-width="1"
+         stroke-dasharray="3, 2"
+         id="rect134" />
+      <text
+         x="0"
+         y="-53.2"
+         text-anchor="middle"
+         dy="3"
+         font-size="10px"
+         font-family="'DejaVu Sans', Arial, sans-serif"
+         fill="#111111"
+         id="text136">0,10</text>
+      <rect
+         class="body"
+         x="-23.66"
+         y="-46.2"
+         width="47.32"
+         height="92.4"
+         fill="#6d4c41"
+         stroke="#222222"
+         stroke-width="1.4"
+         rx="2"
+         id="rect138" />
+      <rect
+         class="wall-mount"
+         x="-23.66"
+         y="-46.2"
+         width="47.32"
+         height="5"
+         fill="#1565c0"
+         id="rect140" />
+      <line
+         class="front"
+         x1="0"
+         y1="0"
+         x2="0"
+         y2="40"
+         stroke="#c62828"
+         stroke-width="2"
+         marker-end="url(#arrow)"
+         id="line142" />
+      <text
+         class="caption"
+         x="0"
+         y="4"
+         text-anchor="middle"
+         font-family="'DejaVu Sans', Arial, sans-serif"
+         font-size="11px"
+         fill="#111111"
+         id="text144">СТЭН mini-11</text>
+      <rect
+         class="front-zone"
+         x="-23.66"
+         y="46.2"
+         width="47.32"
+         height="175"
+         fill="url(#frontzone)"
+         stroke="#f9a825"
+         stroke-width="0.8"
+         opacity="0.7"
+         id="rect146" />
+      <text
+         x="39.2"
+         y="133.7"
+         text-anchor="middle"
+         font-size="10px"
+         font-family="'DejaVu Sans', Arial, sans-serif"
+         fill="#111111"
+         id="text148">фронт 1,25</text>
+      <g
+         class="safety"
+         inkscape:label="ГБ"
+         transform="translate(-30.8,52)"
+         id="g154">
+        <rect
+           x="-6.3000002"
+           y="-6.3000002"
+           width="12.6"
+           height="12.6"
+           fill="#fff3e0"
+           stroke="#e65100"
+           stroke-width="1.4"
+           transform="rotate(45)"
+           id="rect150" />
+        <text
+           x="0"
+           y="16.799999"
+           text-anchor="middle"
+           font-family="'DejaVu Sans', Arial, sans-serif"
+           font-size="10px"
+           fill="#111111"
+           id="text152">ГБ</text>
+      </g>
+    </g>
+    <g
+       id="eq-топливо"
+       inkscape:label="топливо"
+       transform="translate(537.44135,267.28516)">
+      <rect
+         class="body"
+         x="-38.5"
+         y="-35"
+         width="77"
+         height="70"
+         fill="#8d6e63"
+         stroke="#222222"
+         stroke-width="1.4"
+         rx="2"
+         id="rect157" />
+      <rect
+         class="wall-mount"
+         x="33.5"
+         y="-35"
+         width="5"
+         height="70"
+         fill="#1565c0"
+         id="rect159" />
+      <line
+         class="front"
+         x1="0"
+         y1="0"
+         x2="-30.799999"
+         y2="0"
+         stroke="#c62828"
+         stroke-width="2"
+         marker-end="url(#arrow)"
+         id="line161" />
+      <text
+         class="caption"
+         x="0"
+         y="4"
+         text-anchor="middle"
+         font-family="'DejaVu Sans', Arial, sans-serif"
+         font-size="11px"
+         fill="#111111"
+         id="text163">топливо</text>
+    </g>
+    <g
+       id="eq-рб-со"
+       inkscape:label="РБ-СО"
+       transform="translate(335.27558,131.93309)"
+       inkscape:transform-center-x="5.5702594"
+       inkscape:transform-center-y="19.692087">
+      <circle
+         class="body"
+         cx="0"
+         cy="0"
+         r="19.6"
+         fill="#c62828"
+         stroke="#222222"
+         stroke-width="1.4"
+         id="circle166" />
+      <rect
+         class="wall-mount"
+         x="-19.6"
+         y="-19.6"
+         width="39.200001"
+         height="5"
+         fill="#1565c0"
+         id="rect168" />
+      <line
+         class="front"
+         x1="0"
+         y1="0"
+         x2="0"
+         y2="25.200001"
+         stroke="#c62828"
+         stroke-width="2"
+         marker-end="url(#arrow)"
+         id="line170" />
+      <text
+         class="caption"
+         x="0"
+         y="4"
+         text-anchor="middle"
+         font-family="'DejaVu Sans', Arial, sans-serif"
+         font-size="11px"
+         fill="#111111"
+         id="text172">РБ-СО</text>
+    </g>
+    <g
+       id="eq-рб-котлы"
+       inkscape:label="РБ-котлы"
+       transform="translate(377.70953,130.30036)">
+      <circle
+         class="body"
+         cx="0"
+         cy="0"
+         r="19.6"
+         fill="#c62828"
+         stroke="#222222"
+         stroke-width="1.4"
+         id="circle175" />
+      <rect
+         class="wall-mount"
+         x="-19.6"
+         y="-19.6"
+         width="39.200001"
+         height="5"
+         fill="#1565c0"
+         id="rect177" />
+      <line
+         class="front"
+         x1="0"
+         y1="0"
+         x2="0"
+         y2="25.200001"
+         stroke="#c62828"
+         stroke-width="2"
+         marker-end="url(#arrow)"
+         id="line179" />
+      <text
+         class="caption"
+         x="0"
+         y="4"
+         text-anchor="middle"
+         font-family="'DejaVu Sans', Arial, sans-serif"
+         font-size="11px"
+         fill="#111111"
+         id="text181">РБ-котлы</text>
+    </g>
+    <g
+       id="eq-н-тт"
+       inkscape:label="Н-ТТ"
+       transform="matrix(1.0130653,0,0,1,488.66309,121.22914)">
+      <rect
+         class="body"
+         x="-9.8000002"
+         y="-9.8000002"
+         width="19.6"
+         height="19.6"
+         fill="#607d8b"
+         stroke="#222222"
+         stroke-width="1.4"
+         rx="2"
+         id="rect184" />
+      <rect
+         class="wall-mount"
+         x="-9.8000002"
+         y="-9.8000002"
+         width="19.6"
+         height="5"
+         fill="#1565c0"
+         id="rect186" />
+      <line
+         class="front"
+         x1="0"
+         y1="0"
+         x2="0"
+         y2="30.799999"
+         stroke="#c62828"
+         stroke-width="2"
+         marker-end="url(#arrow)"
+         id="line188" />
+      <text
+         class="caption"
+         x="0"
+         y="4"
+         text-anchor="middle"
+         font-family="'DejaVu Sans', Arial, sans-serif"
+         font-size="11px"
+         fill="#111111"
+         id="text190">Н-ТТ</text>
+    </g>
+    <g
+       id="eq-н-бкн"
+       inkscape:label="Н-БКН"
+       transform="translate(512.56708,122.38862)">
+      <rect
+         class="body"
+         x="-9.8000002"
+         y="-9.8000002"
+         width="19.6"
+         height="19.6"
+         fill="#607d8b"
+         stroke="#222222"
+         stroke-width="1.4"
+         rx="2"
+         id="rect193" />
+      <rect
+         class="wall-mount"
+         x="-9.8000002"
+         y="-9.8000002"
+         width="19.6"
+         height="5"
+         fill="#1565c0"
+         id="rect195" />
+      <line
+         class="front"
+         x1="0"
+         y1="0"
+         x2="0"
+         y2="30.799999"
+         stroke="#c62828"
+         stroke-width="2"
+         marker-end="url(#arrow)"
+         id="line197" />
+      <text
+         class="caption"
+         x="0"
+         y="4"
+         text-anchor="middle"
+         font-family="'DejaVu Sans', Arial, sans-serif"
+         font-size="11px"
+         fill="#111111"
+         id="text199">Н-БКН</text>
+    </g>
+    <g
+       id="eq-сн4-со"
+       inkscape:label="СН4+СО"
+       transform="translate(300.10575,113.58044)">
+      <rect
+         class="body"
+         x="-8.3999996"
+         y="-3.5"
+         width="16.799999"
+         height="7"
+         fill="#ffcdd2"
+         stroke="#222222"
+         stroke-width="1.4"
+         rx="2"
+         id="rect202" />
+      <rect
+         class="wall-mount"
+         x="-8.3999996"
+         y="-3.5"
+         width="16.799999"
+         height="5"
+         fill="#1565c0"
+         id="rect204" />
+      <line
+         class="front"
+         x1="0"
+         y1="0"
+         x2="0"
+         y2="30.799999"
+         stroke="#c62828"
+         stroke-width="2"
+         marker-end="url(#arrow)"
+         id="line206" />
+      <text
+         class="caption"
+         x="0"
+         y="4"
+         text-anchor="middle"
+         font-family="'DejaVu Sans', Arial, sans-serif"
+         font-size="11px"
+         fill="#111111"
+         id="text208">СН4+СО</text>
+    </g>
+    <g
+       id="eq-гребёнка"
+       inkscape:label="гребёнка"
+       transform="translate(118.93269,145.21958)">
+      <rect
+         class="body"
+         x="-8.3999996"
+         y="-18.200001"
+         width="16.799999"
+         height="36.400002"
+         fill="#b0bec5"
+         stroke="#222222"
+         stroke-width="1.4"
+         rx="2"
+         id="rect211" />
+      <rect
+         class="wall-mount"
+         x="-8.3999996"
+         y="-18.200001"
+         width="5"
+         height="36.400002"
+         fill="#1565c0"
+         id="rect213" />
+      <line
+         class="front"
+         x1="0"
+         y1="0"
+         x2="30.799999"
+         y2="0"
+         stroke="#c62828"
+         stroke-width="2"
+         marker-end="url(#arrow)"
+         id="line215" />
+      <text
+         class="caption"
+         x="0"
+         y="4"
+         text-anchor="middle"
+         font-family="'DejaVu Sans', Arial, sans-serif"
+         font-size="11px"
+         fill="#111111"
+         id="text217">гребёнка</text>
+    </g>
+    <g
+       id="eq-смес-н-тп"
+       inkscape:label="смес.+Н-ТП"
+       transform="translate(118.22083,153.16416)">
+      <rect
+         class="body"
+         x="-8.3999996"
+         y="-18.200001"
+         width="16.799999"
+         height="36.400002"
+         fill="#ffe082"
+         stroke="#f9a825"
+         stroke-width="1.2"
+         stroke-dasharray="4, 3"
+         rx="2"
+         id="rect220" />
+      <line
+         class="front"
+         x1="0"
+         y1="0"
+         x2="25.200001"
+         y2="0"
+         stroke="#c62828"
+         stroke-width="2"
+         marker-end="url(#arrow)"
+         id="line222" />
+      <text
+         x="30.799999"
+         y="-11.2"
+         text-anchor="middle"
+         font-size="11px"
+         font-family="'DejaVu Sans', Arial, sans-serif"
+         id="text224">смес.+Н-ТП</text>
+      <text
+         x="30.799999"
+         y="11.2"
+         text-anchor="middle"
+         font-size="10px"
+         font-family="'DejaVu Sans', Arial, sans-serif"
+         id="text226">(ниже по Y)</text>
+    </g>
+    <g
+       id="eq-дверь"
+       inkscape:label="дверь"
+       transform="translate(110.8,246.6)">
+      <rect
+         class="body"
+         x="-2.8"
+         y="-49.0"
+         width="5.6"
+         height="98.0"
+         fill="#5d4037"
+         stroke="#222"
+         stroke-width="1.4"
+         rx="2"
+         id="rect229" />
+      <rect
+         class="wall-mount"
+         x="-2.8"
+         y="-49.0"
+         width="5"
+         height="98.0"
+         fill="#1565c0"
+         id="rect231" />
+      <line
+         class="front"
+         x1="0"
+         y1="0"
+         x2="30.8"
+         y2="0.0"
+         stroke="#c62828"
+         stroke-width="2"
+         marker-end="url(#arrow)"
+         id="line233" />
+      <text
+         class="caption"
+         x="0"
+         y="4.0"
+         text-anchor="middle"
+         font-family="DejaVu Sans, Arial, sans-serif"
+         font-size="11"
+         fill="#111"
+         id="text235">дверь</text>
+    </g>
+    <g
+       id="eq-лапамойка"
+       inkscape:label="лапамойка"
+       transform="translate(153.97541,340.94439)">
+      <rect
+         class="body"
+         x="-40.599998"
+         y="-40.599998"
+         width="81.199997"
+         height="81.199997"
+         fill="#b0bec5"
+         stroke="#222222"
+         stroke-width="1.4"
+         rx="2"
+         id="rect238" />
+      <rect
+         class="wall-mount"
+         x="-40.599998"
+         y="-40.599998"
+         width="5"
+         height="81.199997"
+         fill="#1565c0"
+         id="rect240" />
+      <line
+         class="front"
+         x1="0"
+         y1="0"
+         x2="30.799999"
+         y2="0"
+         stroke="#c62828"
+         stroke-width="2"
+         marker-end="url(#arrow)"
+         id="line242" />
+      <text
+         class="caption"
+         x="0"
+         y="4"
+         text-anchor="middle"
+         font-family="'DejaVu Sans', Arial, sans-serif"
+         font-size="11px"
+         fill="#111111"
+         id="text244">лапамойка</text>
+    </g>
+    <g
+       id="eq-автоматика"
+       inkscape:label="автоматика"
+       transform="translate(155.7041,374.60728)">
+      <rect
+         class="body"
+         x="-28"
+         y="-8.3999996"
+         width="56"
+         height="16.799999"
+         fill="#eceff1"
+         stroke="#222222"
+         stroke-width="1.4"
+         rx="2"
+         id="rect247" />
+      <rect
+         class="wall-mount"
+         x="-28"
+         y="3.4000001"
+         width="56"
+         height="5"
+         fill="#1565c0"
+         id="rect249" />
+      <line
+         class="front"
+         x1="0"
+         y1="0"
+         x2="0"
+         y2="-30.799999"
+         stroke="#c62828"
+         stroke-width="2"
+         marker-end="url(#arrow)"
+         id="line251" />
+      <text
+         class="caption"
+         x="0"
+         y="4"
+         text-anchor="middle"
+         font-family="'DejaVu Sans', Arial, sans-serif"
+         font-size="11px"
+         fill="#111111"
+         id="text253">автоматика</text>
+    </g>
+    <g
+       id="eq-к1"
+       inkscape:label="К1"
+       transform="translate(304.8058,370.85427)">
+      <circle
+         class="body"
+         cx="0"
+         cy="0"
+         r="11.2"
+         fill="#5d4037"
+         stroke="#222222"
+         stroke-width="1.4"
+         id="circle256" />
+      <rect
+         class="wall-mount"
+         x="-11.2"
+         y="6.1999998"
+         width="22.4"
+         height="5"
+         fill="#1565c0"
+         id="rect258" />
+      <line
+         class="front"
+         x1="0"
+         y1="0"
+         x2="0"
+         y2="-30.799999"
+         stroke="#c62828"
+         stroke-width="2"
+         marker-end="url(#arrow)"
+         id="line260" />
+      <text
+         class="caption"
+         x="0"
+         y="4"
+         text-anchor="middle"
+         font-family="'DejaVu Sans', Arial, sans-serif"
+         font-size="11px"
+         fill="#111111"
+         id="text262">К1</text>
+    </g>
+    <g
+       id="eq-fe-h1320"
+       inkscape:label="Fe H1320"
+       transform="rotate(-90,354.89536,-207.36053)">
+      <rect
+         class="body"
+         x="-33.599998"
+         y="-33.599998"
+         width="67.199997"
+         height="67.199997"
+         fill="#80deea"
+         stroke="#222222"
+         stroke-width="1.4"
+         rx="2"
+         id="rect265" />
+      <rect
+         class="wall-mount"
+         x="-33.599998"
+         y="28.6"
+         width="67.199997"
+         height="5"
+         fill="#1565c0"
+         id="rect267" />
+      <line
+         class="front"
+         x1="0"
+         y1="0"
+         x2="0"
+         y2="-30.799999"
+         stroke="#c62828"
+         stroke-width="2"
+         marker-end="url(#arrow)"
+         id="line269" />
+      <text
+         class="caption"
+         x="0"
+         y="4"
+         text-anchor="middle"
+         font-family="'DejaVu Sans', Arial, sans-serif"
+         font-size="11px"
+         fill="#111111"
+         id="text271">Fe H1320</text>
+    </g>
+    <g
+       id="eq-ф1"
+       inkscape:label="Ф1"
+       transform="rotate(-90,402.92296,-183.50627)">
+      <rect
+         class="body"
+         x="-8.3999996"
+         y="-8.3999996"
+         width="16.799999"
+         height="16.799999"
+         fill="#00838f"
+         stroke="#222222"
+         stroke-width="1.4"
+         rx="2"
+         id="rect274" />
+      <rect
+         class="wall-mount"
+         x="-8.3999996"
+         y="3.4000001"
+         width="16.799999"
+         height="5"
+         fill="#1565c0"
+         id="rect276" />
+      <line
+         class="front"
+         x1="0"
+         y1="0"
+         x2="0"
+         y2="-30.799999"
+         stroke="#c62828"
+         stroke-width="2"
+         marker-end="url(#arrow)"
+         id="line278" />
+      <text
+         class="caption"
+         x="0"
+         y="4"
+         text-anchor="middle"
+         font-family="'DejaVu Sans', Arial, sans-serif"
+         font-size="11px"
+         fill="#111111"
+         id="text280">Ф1</text>
+    </g>
+    <g
+       id="eq-ф2"
+       inkscape:label="Ф2"
+       transform="rotate(-90,390.68921,-194.53883)">
+      <rect
+         class="body"
+         x="-8.3999996"
+         y="-8.3999996"
+         width="16.799999"
+         height="16.799999"
+         fill="#00838f"
+         stroke="#222222"
+         stroke-width="1.4"
+         rx="2"
+         id="rect283" />
+      <rect
+         class="wall-mount"
+         x="-8.3999996"
+         y="3.4000001"
+         width="16.799999"
+         height="5"
+         fill="#1565c0"
+         id="rect285" />
+      <line
+         class="front"
+         x1="0"
+         y1="0"
+         x2="0"
+         y2="-30.799999"
+         stroke="#c62828"
+         stroke-width="2"
+         marker-end="url(#arrow)"
+         id="line287" />
+      <text
+         class="caption"
+         x="0"
+         y="4"
+         text-anchor="middle"
+         font-family="'DejaVu Sans', Arial, sans-serif"
+         font-size="11px"
+         fill="#111111"
+         id="text289">Ф2</text>
+    </g>
+    <g
+       id="eq-окно"
+       inkscape:label="окно"
+       transform="translate(388.0,382.4)">
+      <rect
+         class="body"
+         x="-28.0"
+         y="-4.2"
+         width="56.0"
+         height="8.4"
+         fill="#bbdefb"
+         stroke="#222"
+         stroke-width="1.4"
+         rx="2"
+         id="rect292" />
+      <rect
+         class="wall-mount"
+         x="-28.0"
+         y="-0.8"
+         width="56.0"
+         height="5"
+         fill="#1565c0"
+         id="rect294" />
+      <line
+         class="front"
+         x1="0"
+         y1="0"
+         x2="0.0"
+         y2="-30.8"
+         stroke="#c62828"
+         stroke-width="2"
+         marker-end="url(#arrow)"
+         id="line296" />
+      <text
+         class="caption"
+         x="0"
+         y="4.0"
+         text-anchor="middle"
+         font-family="DejaVu Sans, Arial, sans-serif"
+         font-size="11"
+         fill="#111"
+         id="text298">окно</text>
+    </g>
+    <g
+       id="eq-ибп"
+       inkscape:label="ИБП"
+       transform="translate(222.56526,372.76562)">
+      <rect
+         class="body"
+         x="-22.4"
+         y="-9.8000002"
+         width="44.799999"
+         height="19.6"
+         fill="#eceff1"
+         stroke="#222222"
+         stroke-width="1.4"
+         rx="2"
+         id="rect301" />
+      <rect
+         class="wall-mount"
+         x="-22.4"
+         y="4.8000002"
+         width="44.799999"
+         height="5"
+         fill="#1565c0"
+         id="rect303" />
+      <line
+         class="front"
+         x1="0"
+         y1="0"
+         x2="0"
+         y2="-30.799999"
+         stroke="#c62828"
+         stroke-width="2"
+         marker-end="url(#arrow)"
+         id="line305" />
+      <text
+         class="caption"
+         x="0"
+         y="4"
+         text-anchor="middle"
+         font-family="'DejaVu Sans', Arial, sans-serif"
+         font-size="11px"
+         fill="#111111"
+         id="text307">ИБП</text>
+    </g>
+    <g
+       id="eq-акб"
+       inkscape:label="АКБ"
+       transform="translate(266.14206,372.29958)">
+      <rect
+         class="body"
+         x="-21"
+         y="-9.8000002"
+         width="42"
+         height="19.6"
+         fill="#eceff1"
+         stroke="#222222"
+         stroke-width="1.4"
+         rx="2"
+         id="rect310" />
+      <rect
+         class="wall-mount"
+         x="-21"
+         y="4.8000002"
+         width="42"
+         height="5"
+         fill="#1565c0"
+         id="rect312" />
+      <line
+         class="front"
+         x1="0"
+         y1="0"
+         x2="0"
+         y2="-30.799999"
+         stroke="#c62828"
+         stroke-width="2"
+         marker-end="url(#arrow)"
+         id="line314" />
+      <text
+         class="caption"
+         x="0"
+         y="4"
+         text-anchor="middle"
+         font-family="'DejaVu Sans', Arial, sans-serif"
+         font-size="11px"
+         fill="#111111"
+         id="text316">АКБ</text>
+    </g>
+    <g
+       id="eq-приток"
+       inkscape:label="приток"
+       transform="translate(588.3531,247.89417)">
+      <rect
+         class="body"
+         x="-7"
+         y="-15.4"
+         width="14"
+         height="30.799999"
+         fill="#4fc3f7"
+         stroke="#222222"
+         stroke-width="1.4"
+         rx="2"
+         id="rect319" />
+      <rect
+         class="wall-mount"
+         x="2"
+         y="-15.4"
+         width="5"
+         height="30.799999"
+         fill="#1565c0"
+         id="rect321" />
+      <line
+         class="front"
+         x1="0"
+         y1="0"
+         x2="-30.799999"
+         y2="0"
+         stroke="#c62828"
+         stroke-width="2"
+         marker-end="url(#arrow)"
+         id="line323" />
+      <text
+         class="caption"
+         x="0"
+         y="4"
+         text-anchor="middle"
+         font-family="'DejaVu Sans', Arial, sans-serif"
+         font-size="11px"
+         fill="#111111"
+         id="text325">приток</text>
+    </g>
+    <g
+       id="eq-гс"
+       inkscape:label="ГС"
+       transform="translate(422.56567,120.26766)">
+      <rect
+         class="body"
+         x="-11.2"
+         y="-9.8000002"
+         width="22.4"
+         height="19.6"
+         fill="#cfd8dc"
+         stroke="#222222"
+         stroke-width="1.4"
+         rx="2"
+         id="rect107" />
+      <rect
+         class="wall-mount"
+         x="-11.2"
+         y="-9.8000002"
+         width="22.4"
+         height="5"
+         fill="#1565c0"
+         id="rect109" />
+      <line
+         class="front"
+         x1="0"
+         y1="0"
+         x2="0"
+         y2="30.799999"
+         stroke="#c62828"
+         stroke-width="2"
+         marker-end="url(#arrow)"
+         id="line111" />
+      <text
+         class="caption"
+         x="0"
+         y="4"
+         text-anchor="middle"
+         font-family="'DejaVu Sans', Arial, sans-serif"
+         font-size="11px"
+         fill="#111111"
+         id="text113">ГС</text>
+    </g>
+    <g
+       id="eq-свш"
+       inkscape:label="СВШ"
+       transform="translate(454.63326,120.30877)">
+      <rect
+         class="body"
+         x="-9.8000002"
+         y="-9.8000002"
+         width="19.6"
+         height="19.6"
+         fill="#cfd8dc"
+         stroke="#222222"
+         stroke-width="1.4"
+         rx="2"
+         id="rect116" />
+      <rect
+         class="wall-mount"
+         x="-9.8000002"
+         y="-9.8000002"
+         width="19.6"
+         height="5"
+         fill="#1565c0"
+         id="rect118" />
+      <line
+         class="front"
+         x1="0"
+         y1="0"
+         x2="0"
+         y2="30.799999"
+         stroke="#c62828"
+         stroke-width="2"
+         marker-end="url(#arrow)"
+         id="line120" />
+      <text
+         class="caption"
+         x="0"
+         y="4"
+         text-anchor="middle"
+         font-family="'DejaVu Sans', Arial, sans-serif"
+         font-size="11px"
+         fill="#111111"
+         id="text122">СВШ</text>
+    </g>
+  </g>
+</svg>
