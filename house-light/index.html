@@ -37,7 +37,8 @@
   html[data-variants] #var-vd3,
   html[data-variants] #var-vd4,
   html[data-variants] #var-vd5,
-  html[data-variants] #var-vd6 { display: none; }
+  html[data-variants] #var-vd6,
+  html[data-variants] #var-topo3 { display: none; }
   html[data-variants~="v2"] #var-v2,
   html[data-variants~="d2"] #var-d2,
   html[data-variants~="vb"] #var-b,
@@ -47,7 +48,8 @@
   html[data-variants~="vd3"] #var-vd3,
   html[data-variants~="vd4"] #var-vd4,
   html[data-variants~="vd5"] #var-vd5,
-  html[data-variants~="vd6"] #var-vd6 { display: inline-block; }
+  html[data-variants~="vd6"] #var-vd6,
+  html[data-variants~="topo3"] #var-topo3 { display: inline-block; }
   select { width: 100%; font: inherit; font-size: 12px; margin-top: 4px; padding: 4px; }
   #sun { font-variant-numeric: tabular-nums; }
   #clock { font-weight: 700; }
@@ -308,6 +310,7 @@
     <button type="button" id="var-vd4">Вариант Д4</button>
     <button type="button" id="var-vd5">Вариант Д5</button>
     <button type="button" id="var-vd6">Вариант Д6</button>
+    <button type="button" id="var-topo3">Топочная Вариант 3</button>
   </div>
   <label>Отделка
     <select id="facade-style"></select>
@@ -460,11 +463,13 @@
     d3: "vd3", vd3: "vd3", "д3": "vd3",
     d4: "vd4", vd4: "vd4", "д4": "vd4",
     d5: "vd5", vd5: "vd5", "д5": "vd5",
-    d6: "vd6", vd6: "vd6", "д6": "vd6"
+    d6: "vd6", vd6: "vd6", "д6": "vd6",
+    topo3: "topo3", t3: "topo3"
   };
   var idToToken = {
     v2: "a", d2: "a2", vb: "b", vc: "c",
-    vd1: "d1", vd2: "d2", vd3: "d3", vd4: "d4", vd5: "d5", vd6: "d6"
+    vd1: "d1", vd2: "d2", vd3: "d3", vd4: "d4", vd5: "d5", vd6: "d6",
+    topo3: "topo3"
   };
   var raw = new URLSearchParams(location.search).get("variants");
   if (!raw) return;
@@ -572,7 +577,7 @@ if (window.__houseOpenStyles) {
 }
 </script>
 <script type="module">
-if (!window.__houseOpenStyles) import("./app.js?v=778");
+if (!window.__houseOpenStyles) import("./app.js?v=814");
 </script>
 </body>
 </html>
