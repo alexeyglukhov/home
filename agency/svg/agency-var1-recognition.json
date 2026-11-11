@@ -1,0 +1,133 @@
+{
+  "source": "agency-var1-plan-walls-3.svg",
+  "zhilaya_m2": 101.92,
+  "obshaya_m2": 191.41,
+  "rooms": [
+    {
+      "name": "Хозблок",
+      "area": 7.35,
+      "kind": "heated",
+      "shape": "rect"
+    },
+    {
+      "name": "Кабинет",
+      "area": 12.93,
+      "kind": "heated",
+      "shape": "rect"
+    },
+    {
+      "name": "Гардероб-1",
+      "area": 5.69,
+      "kind": "heated",
+      "shape": "rect"
+    },
+    {
+      "name": "Спальня-1",
+      "area": 14.4,
+      "kind": "heated",
+      "shape": "rect"
+    },
+    {
+      "name": "Спальня-2",
+      "area": 14.14,
+      "kind": "heated",
+      "shape": "rect"
+    },
+    {
+      "name": "Гардероб-2",
+      "area": 6.22,
+      "kind": "heated",
+      "shape": "rect"
+    },
+    {
+      "name": "Котельная",
+      "area": 9.5,
+      "kind": "heated",
+      "shape": "rect"
+    },
+    {
+      "name": "Коридор",
+      "area": 14.97,
+      "kind": "heated",
+      "shape": "rect"
+    },
+    {
+      "name": "Мастер-спальня",
+      "area": 11.94,
+      "kind": "heated",
+      "shape": "rect"
+    },
+    {
+      "name": "Гостиная",
+      "area": 48.51,
+      "kind": "heated",
+      "shape": "poly"
+    },
+    {
+      "name": "Ванная-1",
+      "area": 6.77,
+      "kind": "heated",
+      "shape": "rect"
+    },
+    {
+      "name": "Гардероб-М",
+      "area": 5.94,
+      "kind": "heated",
+      "shape": "poly"
+    },
+    {
+      "name": "Гардероб-вх",
+      "area": 4.99,
+      "kind": "heated",
+      "shape": "rect"
+    },
+    {
+      "name": "С/у",
+      "area": 3.59,
+      "kind": "heated",
+      "shape": "rect"
+    },
+    {
+      "name": "Ванная-2",
+      "area": 5.67,
+      "kind": "heated",
+      "shape": "rect"
+    },
+    {
+      "name": "Тамбур",
+      "area": 3.88,
+      "kind": "heated",
+      "shape": "rect"
+    },
+    {
+      "name": "Постирочная",
+      "area": 8.09,
+      "kind": "heated",
+      "shape": "rect"
+    },
+    {
+      "name": "Кладовая",
+      "area": 6.83,
+      "kind": "heated",
+      "shape": "rect"
+    },
+    {
+      "name": "Навес",
+      "area": 35.16,
+      "kind": "open",
+      "shape": "rect"
+    },
+    {
+      "name": "Крыльцо",
+      "area": 21.66,
+      "kind": "open",
+      "shape": "rect"
+    },
+    {
+      "name": "Терраса",
+      "area": 17.85,
+      "kind": "open",
+      "shape": "rect"
+    }
+  ]
+}

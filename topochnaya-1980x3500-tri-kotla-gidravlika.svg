@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="1280" viewBox="0 0 1680 1280">
+<defs>
+<style type="text/css"><![CDATA[
+.bg{fill:#f3f0e8}
+.card{fill:#fffef9;stroke:#333;stroke-width:1.2}
+.box{fill:#fff;stroke:#333;stroke-width:1.3}
+.gas{fill:#90caf9;stroke:#0d47a1;stroke-width:1.4}
+.el{fill:#a5d6a7;stroke:#1b5e20;stroke-width:1.4}
+.tt{fill:#c4a484;stroke:#5a3d1b;stroke-width:1.4}
+.exp{fill:#ffcc80;stroke:#ef6c00;stroke-width:1.3}
+.sep{fill:#ffccbc;stroke:#bf360c;stroke-width:1.4}
+.hydro{fill:#cfd8dc;stroke:#37474f;stroke-width:1.4}
+.filt{fill:#b2ebf2;stroke:#00838f;stroke-width:1.3}
+.fe{fill:#80deea;stroke:#006064;stroke-width:1.4}
+.ups{fill:#fff59d;stroke:#f9a825;stroke-width:1.4}
+.san{fill:#e1bee7;stroke:#6a1b9a;stroke-width:1.3}
+.mix{fill:#ffe082;stroke:#f57f17;stroke-width:1.3}
+.drainb{fill:#efebe9;stroke:#5d4037;stroke-width:1.3}
+.hvs{fill:none;stroke:#0277bd;stroke-width:2.1}
+.sup{fill:none;stroke:#e65100;stroke-width:2.2}
+.ret{fill:none;stroke:#455a64;stroke-width:2}
+.drn{fill:none;stroke:#6d4c41;stroke-width:1.8;stroke-dasharray:5 3}
+.pwr{fill:none;stroke:#6a1b9a;stroke-width:1.8;stroke-dasharray:4 3}
+.gasl{fill:none;stroke:#f9a825;stroke-width:2}
+.title{font-family:DejaVu Sans,Arial,sans-serif;font-size:16px;font-weight:700;fill:#111}
+.h{font-family:DejaVu Sans,Arial,sans-serif;font-size:13px;font-weight:700;fill:#111}
+.lab{font-family:DejaVu Sans,Arial,sans-serif;font-size:11px;fill:#111}
+.tiny{font-family:DejaVu Sans,Arial,sans-serif;font-size:9.5px;fill:#333}
+.note{font-family:DejaVu Sans,Arial,sans-serif;font-size:10.5px;fill:#333}
+]]></style>
+<marker id="aB" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0 0,7 3.5,0 7" fill="#0277bd"/></marker>
+<marker id="aS" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0 0,7 3.5,0 7" fill="#e65100"/></marker>
+<marker id="aR" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0 0,7 3.5,0 7" fill="#455a64"/></marker>
+<marker id="aD" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0 0,7 3.5,0 7" fill="#6d4c41"/></marker>
+<marker id="aP" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0 0,7 3.5,0 7" fill="#6a1b9a"/></marker>
+</defs>
+<rect width="1680" height="1280" class="bg"/>
+<text x="24" y="26" class="title">Топочная 3500×1980 — гидравлика и резерв питания</text>
+<text x="24" y="46" class="note">Поток слева направо: ввод холодной воды, очистка, котлы, потребители, сброс в канализацию. Стрелка показывает направление.</text>
+
+<rect x="16" y="60" width="1648" height="248" class="card" rx="6"/>
+<text x="32" y="82" class="h">1. Холодная вода: ввод в дом, очистка, разбор и подпитка котлов</text>
+
+<rect x="32" y="100" width="118" height="78" class="box" rx="3"/>
+<text x="91" y="128" text-anchor="middle" class="lab">Скважина</text>
+<text x="91" y="146" text-anchor="middle" class="tiny">или улица</text>
+<text x="91" y="162" text-anchor="middle" class="tiny">до стены дома</text>
+
+<rect x="186" y="100" width="156" height="78" class="filt" rx="3"/>
+<text x="264" y="122" text-anchor="middle" class="lab">ВВОД ХВС В ДОМ</text>
+<text x="264" y="140" text-anchor="middle" class="tiny">кран, редуктор</text>
+<text x="264" y="154" text-anchor="middle" class="tiny">манометр, обратный</text>
+<text x="264" y="168" text-anchor="middle" class="tiny">клапан, грязевик</text>
+
+<rect x="378" y="108" width="78" height="62" class="filt" rx="3"/>
+<text x="417" y="134" text-anchor="middle" class="lab">Ф1</text>
+<text x="417" y="150" text-anchor="middle" class="tiny">сетка 100 мкм</text>
+
+<rect x="492" y="100" width="140" height="78" class="fe" rx="3"/>
+<text x="562" y="124" text-anchor="middle" class="lab">Fe, колонна 1252</text>
+<text x="562" y="142" text-anchor="middle" class="tiny">обезжелезивание</text>
+<text x="562" y="156" text-anchor="middle" class="tiny">воздушная подушка</text>
+<text x="562" y="170" text-anchor="middle" class="tiny">корпус Ø305</text>
+
+<rect x="668" y="108" width="96" height="62" class="filt" rx="3"/>
+<text x="716" y="134" text-anchor="middle" class="lab">Ф2</text>
+<text x="716" y="150" text-anchor="middle" class="tiny">уголь, 20 мкм</text>
+
+<path d="M 150 139 L 186 139" class="hvs" marker-end="url(#aB)"/>
+<path d="M 342 139 L 378 139" class="hvs" marker-end="url(#aB)"/>
+<path d="M 456 139 L 492 139" class="hvs" marker-end="url(#aB)"/>
+<path d="M 632 139 L 668 139" class="hvs" marker-end="url(#aB)"/>
+<path d="M 764 139 L 808 139" class="hvs"/>
+<circle cx="814" cy="139" r="5" fill="#0277bd"/>
+<path d="M 814 139 L 868 98 L 908 98" class="hvs" marker-end="url(#aB)"/>
+<path d="M 814 139 L 908 148" class="hvs" marker-end="url(#aB)"/>
+<path d="M 814 139 L 868 206 L 908 206" class="hvs" marker-end="url(#aB)"/>
+
+<rect x="908" y="76" width="210" height="44" class="san" rx="3"/>
+<text x="1013" y="94" text-anchor="middle" class="lab">Гребёнка ХВС дома</text>
+<text x="1013" y="110" text-anchor="middle" class="tiny">санузлы, кухня</text>
+
+<rect x="908" y="128" width="210" height="44" class="san" rx="3"/>
+<text x="1013" y="146" text-anchor="middle" class="lab">ХВС на БКН</text>
+<text x="1013" y="162" text-anchor="middle" class="tiny">санитарный вход бойлера</text>
+
+<rect x="908" y="182" width="250" height="52" class="mix" rx="3"/>
+<text x="1033" y="202" text-anchor="middle" class="lab">Подпитка отопления</text>
+<text x="1033" y="218" text-anchor="middle" class="tiny">кран и обратный клапан</text>
+<text x="1033" y="230" text-anchor="middle" class="tiny">в обратку перед РБ-СО</text>
+
+<path d="M 562 178 L 562 228 L 186 228" class="drn" marker-end="url(#aD)"/>
+<text x="200" y="222" class="tiny">промывка Fe, 0,6–0,9 м³ за цикл, в канализацию К1</text>
+
+<text x="1188" y="108" class="tiny">В котлы и в краны дома</text>
+<text x="1188" y="124" class="tiny">идёт вода после Ф2.</text>
+<text x="1188" y="148" class="tiny">B: картридж умягчения</text>
+<text x="1188" y="164" class="tiny">только на подпитке.</text>
+<text x="1188" y="188" class="tiny">C: шкаф умягчения</text>
+<text x="1188" y="204" class="tiny">на весь дом после Ф2.</text>
+<text x="1188" y="228" class="tiny">Ввод и слив — разные точки.</text>
+
+<rect x="16" y="322" width="1648" height="560" class="card" rx="6"/>
+<text x="32" y="344" class="h">2. Отопление: бак на каждый котёл, насосы, сепаратор воздуха</text>
+<text x="32" y="362" class="note">Бак котла стоит на его обратке до обратного клапана. Общий РБ-СО стоит на обратке потребителей. Иначе встроенные 6 и 8 л не держат дом.</text>
+
+<rect x="32" y="378" width="250" height="214" class="gas" rx="4"/>
+<text x="157" y="400" text-anchor="middle" class="lab">ГАЗ · BaltGaz Turbo E 24</text>
+<text x="157" y="418" text-anchor="middle" class="tiny">24 кВт, 420×270×H700, коаксиал</text>
+<text x="157" y="434" text-anchor="middle" class="tiny">насос и воздухоотводчик внутри</text>
+<text x="157" y="450" text-anchor="middle" class="tiny">встроенный бак 6 л мал для дома</text>
+<text x="157" y="474" text-anchor="middle" class="lab">РБ-Г 24 л на обратке</text>
+<text x="157" y="492" text-anchor="middle" class="tiny">до обратного клапана</text>
+<text x="157" y="514" text-anchor="middle" class="tiny">Контур ГВС котла закрыт.</text>
+<text x="157" y="530" text-anchor="middle" class="tiny">Горячая вода дома только из БКН.</text>
+<text x="157" y="554" text-anchor="middle" class="tiny">Около 125 Вт, эта линия на ИБП</text>
+<text x="157" y="572" text-anchor="middle" class="tiny">Подача и обратка уходят вниз</text>
+<path d="M 32 430 L 18 430" class="gasl"/>
+
+<rect x="300" y="378" width="250" height="214" class="el" rx="4"/>
+<text x="425" y="400" text-anchor="middle" class="lab">ЭЛЕКТРО · Protherm Скат 14</text>
+<text x="425" y="418" text-anchor="middle" class="tiny">14 кВт, 410×310×H740, сеть 400 В</text>
+<text x="425" y="434" text-anchor="middle" class="tiny">насос, бак 8 л и воздухоотводчик</text>
+<text x="425" y="450" text-anchor="middle" class="tiny">уже в корпусе</text>
+<text x="425" y="474" text-anchor="middle" class="lab">РБ-Э 24 л на обратке</text>
+<text x="425" y="492" text-anchor="middle" class="tiny">до обратного клапана</text>
+<text x="425" y="514" text-anchor="middle" class="tiny">На ИБП не сажается.</text>
+<text x="425" y="530" text-anchor="middle" class="tiny">14 кВт идут отдельным автоматом.</text>
+<text x="425" y="554" text-anchor="middle" class="tiny">Корпус один на весь ряд Скат</text>
+<text x="425" y="572" text-anchor="middle" class="tiny">6–28 кВт, на схеме взято 14</text>
+
+<rect x="568" y="378" width="270" height="214" class="tt" rx="4"/>
+<text x="703" y="400" text-anchor="middle" class="lab">ТТ · СТЭН Кобальт 25</text>
+<text x="703" y="418" text-anchor="middle" class="tiny">25 кВт, 460×780×H805, рубашка 70 л</text>
+<text x="703" y="434" text-anchor="middle" class="tiny">своего насоса и бака нет</text>
+<text x="703" y="458" text-anchor="middle" class="lab">РБ-ТТ 24 л и насос Н-ТТ</text>
+<text x="703" y="476" text-anchor="middle" class="tiny">группа безопасности: клапан 3 бар,</text>
+<text x="703" y="490" text-anchor="middle" class="tiny">манометр, автовоздухоотводчик</text>
+<text x="703" y="512" text-anchor="middle" class="tiny">Клапан термозащиты: если насос</text>
+<text x="703" y="526" text-anchor="middle" class="tiny">встал, а топка ещё горит, сброс</text>
+<text x="703" y="540" text-anchor="middle" class="tiny">теплоносителя идёт в К1, ХВС</text>
+<text x="703" y="554" text-anchor="middle" class="tiny">доливается в котёл.</text>
+<text x="703" y="572" text-anchor="middle" class="tiny">Н-ТТ на ИБП не обязателен</text>
+
+<rect x="868" y="400" width="90" height="168" class="hydro" rx="4"/>
+<text x="913" y="468" text-anchor="middle" class="lab">Гидро-</text>
+<text x="913" y="486" text-anchor="middle" class="lab">стрелка</text>
+<text x="913" y="508" text-anchor="middle" class="tiny">котлы</text>
+<text x="913" y="522" text-anchor="middle" class="tiny">отдельно</text>
+<text x="913" y="536" text-anchor="middle" class="tiny">от полов</text>
+
+<path d="M 157 592 L 157 608 L 856 608 L 856 470 L 868 470" class="sup" marker-end="url(#aS)"/>
+<path d="M 425 592 L 425 608" class="sup"/>
+<path d="M 780 592 L 780 608" class="sup"/>
+<text x="700" y="602" text-anchor="end" class="tiny">подача трёх котлов</text>
+
+<path d="M 868 540 L 856 540 L 856 628 L 157 628 L 157 592" class="ret" marker-end="url(#aR)"/>
+<path d="M 425 628 L 425 592" class="ret"/>
+<path d="M 780 628 L 780 592" class="ret"/>
+<text x="700" y="642" text-anchor="end" class="tiny">обратка, на ней баки</text>
+
+<path d="M 820 500 L 848 500 L 848 656" class="drn" marker-end="url(#aD)"/>
+<text x="854" y="668" class="tiny">клапан термозащиты в К1</text>
+
+<rect x="980" y="418" width="156" height="120" class="sep" rx="4"/>
+<text x="1058" y="444" text-anchor="middle" class="lab">СВШ</text>
+<text x="1058" y="464" text-anchor="middle" class="tiny">сепаратор воздуха</text>
+<text x="1058" y="478" text-anchor="middle" class="tiny">и шлама</text>
+<text x="1058" y="498" text-anchor="middle" class="tiny">узел стравливания</text>
+<text x="1058" y="512" text-anchor="middle" class="tiny">воздуха из контура</text>
+<text x="1058" y="526" text-anchor="middle" class="tiny">после гидрострелки</text>
+<path d="M 958 484 L 980 484" class="sup" marker-end="url(#aS)"/>
+
+<rect x="1168" y="384" width="470" height="64" class="box" rx="3"/>
+<text x="1184" y="406" class="lab">Н-СО, радиаторы</text>
+<text x="1184" y="424" class="tiny">насос на подаче после СВШ</text>
+<text x="1184" y="438" class="tiny">в резерве частотник до 45 Вт</text>
+
+<rect x="1168" y="456" width="470" height="52" class="mix" rx="3"/>
+<text x="1184" y="476" class="lab">Смеситель и Н-ТП, тёплые полы</text>
+<text x="1184" y="494" class="tiny">насос стоит внутри смесительного узла</text>
+
+<rect x="1168" y="516" width="470" height="52" class="san" rx="3"/>
+<text x="1184" y="536" class="lab">Н-БКН, змеевик бойлера, затем ГВС</text>
+<text x="1184" y="554" class="tiny">рециркуляция ГВС только в вариантах B и C</text>
+
+<path d="M 1136 470 L 1168 408" class="sup" marker-end="url(#aS)"/>
+<path d="M 1136 490 L 1168 482" class="sup" marker-end="url(#aS)"/>
+<path d="M 1136 510 L 1168 542" class="sup" marker-end="url(#aS)"/>
+
+<rect x="32" y="688" width="520" height="78" class="exp" rx="4"/>
+<text x="292" y="712" text-anchor="middle" class="lab">РБ-СО 35–50 л, бак потребителей</text>
+<text x="292" y="730" text-anchor="middle" class="tiny">обратка коллектора, до гидрострелки</text>
+<text x="292" y="746" text-anchor="middle" class="tiny">сюда приходит подпитка после Ф2</text>
+<text x="292" y="760" text-anchor="middle" class="tiny">краны Маевского остаются на радиаторах</text>
+
+<rect x="568" y="688" width="1070" height="78" class="box" rx="4"/>
+<text x="584" y="710" class="lab">Воздух выходит в трёх местах</text>
+<text x="584" y="730" class="tiny">1. Автовоздухоотводчик группы безопасности ТТ и встроенные отводчики газа и Ската.</text>
+<text x="584" y="746" class="tiny">2. Сепаратор воздуха и шлама СВШ на общей подаче. Это тот узел, название которого не вспоминалось.</text>
+<text x="584" y="762" class="tiny">3. Отводчики на коллекторах радиаторов и тёплого пола.</text>
+
+<text x="32" y="792" class="note">Сливные краны: с каждого котла, с гидрострелки, со змеевика БКН и с нижних точек коллекторов. Сброс клапанов ведётся трубкой в К1.</text>
+<text x="32" y="812" class="note">Буфер 500–1000 л рядом с Кобальтом не ставится: перед топкой уже занят метр. Вместо буфера короткое котловое кольцо, Н-ТТ и клапан термозащиты.</text>
+<text x="32" y="836" class="tiny">Подача оранжевая, обратка серая, холодная вода синяя, сброс коричневый пунктир, резерв 230 В фиолетовый пунктир.</text>
+<text x="32" y="858" class="tiny">Газ и Скат уже содержат свой насос. Докупаются Н-ТТ, Н-СО, Н-ТП и Н-БКН.</text>
+
+<rect x="16" y="896" width="800" height="348" class="card" rx="6"/>
+<text x="32" y="918" class="h">3. Канализация К1 в полу топочной</text>
+<rect x="32" y="936" width="760" height="168" class="drainb" rx="4"/>
+<text x="412" y="962" text-anchor="middle" class="lab">Трап К1 у нижней стены, вне прохода от двери</text>
+<text x="48" y="990" class="tiny">Сюда сходятся:</text>
+<text x="48" y="1010" class="tiny">промывка обезжелезивателя, самый большой расход;</text>
+<text x="48" y="1028" class="tiny">сброс предохранительных клапанов ТТ, газа и Ската;</text>
+<text x="48" y="1046" class="tiny">клапан термозащиты Кобальта и краны слива котлов;</text>
+<text x="48" y="1064" class="tiny">дренаж шкафа умягчения в варианте C и трап пола.</text>
+<text x="48" y="1088" class="tiny">Ввод ХВС — отдельный проход стены слева от Ф1, с краном внутри комнаты.</text>
+<text x="48" y="1124" class="note">На плане пятно ввода подписано «ВВОД», пятно слива — кружок «К1».</text>
+<text x="48" y="1148" class="note">Промывка фильтра и питьевой ввод не соединяются между собой.</text>
+
+<rect x="832" y="896" width="832" height="348" class="card" rx="6"/>
+<text x="848" y="918" class="h">4. Резерв: при отключении сети работает газ</text>
+<rect x="848" y="936" width="140" height="58" class="box" rx="3"/>
+<text x="918" y="960" text-anchor="middle" class="lab">Щит дома</text>
+<text x="918" y="978" text-anchor="middle" class="tiny">230 и 400 В</text>
+<rect x="1036" y="936" width="170" height="58" class="el" rx="3"/>
+<text x="1121" y="960" text-anchor="middle" class="lab">Скат 14 кВт</text>
+<text x="1121" y="978" text-anchor="middle" class="tiny">мимо ИБП</text>
+<rect x="1252" y="928" width="210" height="74" class="ups" rx="3"/>
+<text x="1357" y="954" text-anchor="middle" class="lab">ИБП, чистый синус</text>
+<text x="1357" y="972" text-anchor="middle" class="tiny">АКБ на полу у двери</text>
+<text x="1357" y="988" text-anchor="middle" class="tiny">западная стена, вне прохода</text>
+<path d="M 988 958 L 1036 958" class="pwr" marker-end="url(#aP)"/>
+<path d="M 988 978 L 1252 968" class="pwr" marker-end="url(#aP)"/>
+
+<rect x="848" y="1020" width="792" height="196" class="box" rx="3"/>
+<text x="864" y="1044" class="lab">На выходе ИБП только это</text>
+<text x="864" y="1066" class="tiny">BaltGaz: плата, вентилятор и встроенный насос, около 125 Вт.</text>
+<text x="864" y="1084" class="tiny">Автоматика топочной и комнатный термостат, около 15 Вт.</text>
+<text x="864" y="1102" class="tiny">Н-СО радиаторов на малой скорости, 45–70 Вт.</text>
+<text x="864" y="1128" class="tiny">Не подключать: электрокотёл, насос полов, насос БКН, клапан Fe, свет дома.</text>
+<text x="864" y="1152" class="tiny">Нагрузка резерва около 185 Вт. Нужна чистая синусоида, иначе плата и насос выходят из строя.</text>
+<text x="864" y="1176" class="tiny">A: один AGM 100 А·ч, около 3 часов. B: три таких параллельно на 12 В, около 8 часов.</text>
+<text x="864" y="1194" class="tiny">C: онлайн-ИБП 36 В, те же три батареи последовательно, переход без паузы.</text>
+
+<text x="24" y="1262" class="note">topochnaya-1980x3500-tri-kotla-gidravlika.svg. Пятна оборудования: topochnaya-1980x3500-tri-kotla.svg и v2-stena.</text>
+</svg>

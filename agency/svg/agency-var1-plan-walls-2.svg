@@ -1,0 +1,1942 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="345.2172mm"
+   height="258.6324mm"
+   viewBox="0 0 345.2172 258.6324"
+   version="1.1"
+   id="svg155"
+   sodipodi:docname="agency-var1-plan-walls-2.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <title
+     id="title2">Агентство · Вариант 1 · 188,09 м²</title>
+  <desc
+     id="desc4">Источник: Screenshot …22-01-52.svg (1 px = 1 см). Масштаб 1:100: 1 м = 10 мм = 10 ед. viewBox. Подложка сохранена до переноса окон.</desc>
+  <defs
+     id="defs8">
+    <style
+       type="text/css"
+       id="style6"><![CDATA[
+    .geom { fill: #1a1a1a; stroke: none; }
+    .geom-int { fill: #1a1a1a; stroke: none; }
+    .post { fill: #222222; stroke: none; }
+    .roombox { fill: none; stroke: #666666; stroke-width: 0.22; stroke-dasharray: 1.2 0.7; }
+    .openbox { fill: none; stroke: #888888; stroke-width: 0.22; stroke-dasharray: 0.9 0.55; }
+    .dim, .ext { fill: none; stroke: #222; stroke-width: 0.16; }
+    .ext { stroke: #8a8a8a; stroke-width: 0.1; }
+    .dimnum { font-family: DejaVu Sans, Liberation Sans, sans-serif; font-size: 2.2px; fill: #1a1a1a; text-anchor: middle; dominant-baseline: middle; }
+    .rname { font-family: DejaVu Sans, Liberation Sans, sans-serif; font-size: 2.2px; font-weight: 700; fill: #1a1a1a; text-anchor: middle; }
+    .rmeta { font-family: DejaVu Sans, Liberation Sans, sans-serif; font-size: 1.6px; fill: #333; text-anchor: middle; }
+    .open-label .rname { fill: #555; font-weight: 600; }
+    .title { font-family: DejaVu Sans, Liberation Sans, sans-serif; font-size: 2.6px; fill: #222; }
+    .note { font-family: DejaVu Sans, Liberation Sans, sans-serif; font-size: 1.8px; fill: #444; }
+    .tot { font-family: DejaVu Sans, Liberation Sans, sans-serif; font-size: 2.2px; font-weight: 700; fill: #1a1a1a; text-anchor: start; }
+  ]]></style>
+  </defs>
+  <sodipodi:namedview
+     id="nv"
+     pagecolor="#ffffff"
+     inkscape:deskcolor="#d1d1d1"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="2.1012611"
+     inkscape:cx="658.41412"
+     inkscape:cy="442.8293"
+     inkscape:window-width="2560"
+     inkscape:window-height="1362"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer-walls" />
+  <rect
+     id="page-bg"
+     width="100%"
+     height="100%"
+     fill="#ffffff"
+     style="opacity:1" />
+  <text
+     class="title"
+     x="15"
+     y="17"
+     id="text12"
+     style="opacity:1">Вариант 1 · М 1:100 · Общая 188,09 м²</text>
+  <text
+     class="note"
+     x="15"
+     y="20"
+     id="text14"
+     style="opacity:1">Подложка: Screenshot 22-01-52 · исходник 1 px = 1 см → ×0,1. Окна/двери/мебель — следующим шагом; подложку пока не удалять.</text>
+  <g
+     id="layer-underlay"
+     inkscape:label="подложка"
+     inkscape:groupmode="layer"
+     opacity="0.45" />
+  <g
+     id="g3080"
+     transform="translate(0.05387041,0.10141283)"
+     style="opacity:1">
+    <rect
+       style="fill:#ffffff;stroke:#000000;stroke-width:0.149207;stroke-dasharray:none"
+       id="rect1132"
+       width="7.8507929"
+       height="1.250793"
+       x="-197.13034"
+       y="-107.24803"
+       transform="scale(-1)" />
+    <rect
+       style="fill:#000000;stroke:none;stroke-width:0.0806812;stroke-dasharray:none"
+       id="rect1134"
+       width="0.63352305"
+       height="7.2968416"
+       x="-114.33918"
+       y="185.46219"
+       transform="matrix(-0.87469778,0.48466874,0.48466772,0.87469835,0,0)"
+       inkscape:transform-center-x="0.20494037"
+       inkscape:transform-center-y="-0.37681204" />
+    <path
+       style="fill:#ffffff;stroke:#000000;stroke-width:0.234885;stroke-dasharray:0.469771, 0.234885;stroke-dashoffset:0"
+       d="m 196.44744,107.47397 c -0.24986,2.98893 -1.22041,4.03604 -3.63036,5.2973"
+       id="path1136"
+       sodipodi:nodetypes="cc" />
+  </g>
+  <g
+     id="layer-walls"
+     inkscape:label="стены"
+     inkscape:groupmode="layer"
+     style="opacity:1">
+    <rect
+       id="rect10277"
+       class="post"
+       x="29.803699"
+       y="43.488899"
+       width="3"
+       height="3"
+       style="opacity:1" />
+    <rect
+       id="rect10698"
+       class="post"
+       x="29.803699"
+       y="79.608101"
+       width="3"
+       height="3"
+       style="opacity:1" />
+    <rect
+       id="rect10700"
+       class="post"
+       x="29.803699"
+       y="116.659"
+       width="3"
+       height="3"
+       style="opacity:1" />
+    <rect
+       id="rect10702"
+       class="post"
+       x="75.9328"
+       y="116.659"
+       width="3"
+       height="3"
+       style="opacity:1" />
+    <rect
+       id="rect10704"
+       class="post"
+       x="75.9328"
+       y="79.589401"
+       width="3"
+       height="3"
+       style="opacity:1" />
+    <rect
+       id="rect10706"
+       class="post"
+       x="75.9328"
+       y="43.6465"
+       width="3"
+       height="3"
+       style="opacity:1" />
+    <rect
+       id="rect10708"
+       class="geom"
+       x="93.497597"
+       y="43.561199"
+       width="173.90781"
+       height="3.8756001"
+       style="opacity:1" />
+    <rect
+       id="rect10710"
+       class="geom"
+       x="93.497597"
+       y="85.279404"
+       width="173.90781"
+       height="3.8756001"
+       style="opacity:1" />
+    <rect
+       id="rect10712"
+       class="geom"
+       x="93.497597"
+       y="206.4769"
+       width="95.502998"
+       height="3.8756001"
+       style="opacity:1" />
+    <rect
+       id="rect10714"
+       class="geom"
+       x="93.608803"
+       y="43.532299"
+       width="3.8756001"
+       height="98.735802"
+       style="opacity:1" />
+    <rect
+       id="rect10716"
+       class="geom"
+       x="93.608803"
+       y="162.3891"
+       width="3.8756001"
+       height="47.947102"
+       style="opacity:1" />
+    <rect
+       id="rect10718"
+       class="geom"
+       x="184.98219"
+       y="106.5944"
+       width="3.8756001"
+       height="103.8181"
+       style="opacity:1" />
+    <rect
+       id="rect10720"
+       class="geom"
+       x="263.41901"
+       y="43.703098"
+       width="3.8756001"
+       height="98.807899"
+       style="opacity:1" />
+    <rect
+       id="rect10722"
+       class="geom"
+       x="185.17101"
+       y="138.4165"
+       width="81.778503"
+       height="3.8756001"
+       style="opacity:1" />
+    <rect
+       id="rect10724"
+       class="geom"
+       x="117.0762"
+       y="43.910099"
+       width="3.8756001"
+       height="44.782101"
+       style="opacity:1" />
+    <rect
+       id="rect10726"
+       class="geom"
+       x="134.6288"
+       y="85.474007"
+       width="3.8756001"
+       height="124.75063"
+       style="stroke-width:1;opacity:1" />
+    <rect
+       id="rect10730"
+       class="geom-int"
+       x="93.5411"
+       y="186.5206"
+       width="43.986301"
+       height="1.392"
+       style="opacity:1" />
+    <rect
+       id="rect10732"
+       class="geom-int"
+       x="103.2117"
+       y="162.7881"
+       width="34.125301"
+       height="1.392"
+       style="opacity:1" />
+    <rect
+       id="rect10734"
+       class="geom"
+       x="93.706497"
+       y="162.9008"
+       width="10.6315"
+       height="3.8756001"
+       style="opacity:1" />
+    <rect
+       id="rect10736"
+       class="geom"
+       x="93.706497"
+       y="138.45621"
+       width="10.6315"
+       height="3.8756001"
+       style="opacity:1" />
+    <rect
+       id="rect10738"
+       class="geom"
+       x="100.6395"
+       y="138.4834"
+       width="3.8756001"
+       height="28.062201"
+       style="opacity:1" />
+    <rect
+       id="rect10740"
+       class="geom-int"
+       x="96.450798"
+       y="114.8267"
+       width="40.8862"
+       height="1.392"
+       style="opacity:1" />
+    <rect
+       id="rect10742"
+       class="geom-int"
+       x="184.98859"
+       y="106.0322"
+       width="43.59642"
+       height="1.392"
+       style="stroke-width:1;opacity:1" />
+    <rect
+       id="rect10744"
+       class="post"
+       x="75.9328"
+       y="162.5638"
+       width="3"
+       height="3"
+       style="opacity:1" />
+    <rect
+       id="rect10746"
+       class="post"
+       x="233.0546"
+       y="168.2939"
+       width="3"
+       height="3"
+       style="opacity:1" />
+    <rect
+       id="rect10748"
+       class="post"
+       x="233.0546"
+       y="202.8277"
+       width="3"
+       height="3"
+       style="opacity:1" />
+    <rect
+       id="rect10750"
+       class="geom-int"
+       x="103.2117"
+       y="140.9574"
+       width="34.125301"
+       height="1.392"
+       style="opacity:1" />
+    <rect
+       id="rect10752"
+       class="geom-int"
+       x="118.5657"
+       y="115.4486"
+       width="1.392"
+       height="26.912901"
+       style="opacity:1" />
+    <rect
+       id="rect10754"
+       class="geom-int"
+       x="154.6132"
+       y="44.647598"
+       width="1.392"
+       height="43.415901"
+       style="opacity:1" />
+    <rect
+       id="rect10756"
+       class="geom-int"
+       x="169.88811"
+       y="44.647598"
+       width="1.392"
+       height="31.764729"
+       style="stroke-width:1;opacity:1" />
+    <rect
+       id="rect10758"
+       class="geom-int"
+       x="208.80051"
+       y="44.647598"
+       width="1.392"
+       height="43.415901"
+       style="opacity:1" />
+    <rect
+       id="rect10760"
+       class="geom-int"
+       x="247.8504"
+       y="44.647598"
+       width="1.392"
+       height="32.066547"
+       style="stroke-width:1;opacity:1" />
+    <rect
+       id="rect10762"
+       class="geom-int"
+       x="224.21719"
+       y="86.061401"
+       width="1.392"
+       height="21.429899"
+       style="opacity:1" />
+    <rect
+       id="rect10764"
+       class="geom-int"
+       x="206.9026"
+       y="106.3697"
+       width="1.392"
+       height="34.259998"
+       style="opacity:1" />
+    <rect
+       id="rect10766"
+       class="geom-int"
+       x="227.2393"
+       y="106.3697"
+       width="1.392"
+       height="34.259998"
+       style="opacity:1" />
+    <rect
+       id="rect3127"
+       class="geom-int"
+       x="237.37524"
+       y="106.0322"
+       width="29.484077"
+       height="1.392"
+       style="stroke-width:1;opacity:1" />
+    <g
+       id="g3109"
+       transform="rotate(180,198.44292,96.446895)"
+       style="opacity:1">
+      <rect
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.149207;stroke-dasharray:none"
+         id="rect3103"
+         width="7.8507929"
+         height="1.250793"
+         x="-197.13034"
+         y="-107.24803"
+         transform="scale(-1)" />
+      <rect
+         style="fill:#000000;stroke:none;stroke-width:0.0806812;stroke-dasharray:none"
+         id="rect3105"
+         width="0.63352305"
+         height="7.2968416"
+         x="-114.33918"
+         y="185.46219"
+         transform="matrix(-0.87469778,0.48466874,0.48466772,0.87469835,0,0)"
+         inkscape:transform-center-x="0.20494037"
+         inkscape:transform-center-y="-0.37681204" />
+      <path
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.234885;stroke-dasharray:0.469771, 0.234885;stroke-dashoffset:0"
+         d="m 196.44744,107.47397 c -0.24986,2.98893 -1.22041,4.03604 -3.63036,5.2973"
+         id="path3107"
+         sodipodi:nodetypes="cc" />
+    </g>
+    <g
+       id="g3117"
+       transform="matrix(1,0,0,-1,22.170592,192.91326)"
+       style="opacity:1">
+      <rect
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.149207;stroke-dasharray:none"
+         id="rect3111"
+         width="7.8507929"
+         height="1.250793"
+         x="-197.13034"
+         y="-107.24803"
+         transform="scale(-1)" />
+      <rect
+         style="fill:#000000;stroke:none;stroke-width:0.0806812;stroke-dasharray:none"
+         id="rect3113"
+         width="0.63352305"
+         height="7.2968416"
+         x="-114.33918"
+         y="185.46219"
+         transform="matrix(-0.87469778,0.48466874,0.48466772,0.87469835,0,0)"
+         inkscape:transform-center-x="0.20494037"
+         inkscape:transform-center-y="-0.37681204" />
+      <path
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.234885;stroke-dasharray:0.469771, 0.234885;stroke-dashoffset:0"
+         d="m 196.44744,107.47397 c -0.24986,2.98893 -1.22041,4.03604 -3.63036,5.2973"
+         id="path3115"
+         sodipodi:nodetypes="cc" />
+    </g>
+    <g
+       id="g3125"
+       transform="rotate(180,171.3979,96.446895)"
+       style="opacity:1">
+      <rect
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.149207;stroke-dasharray:none"
+         id="rect3119"
+         width="7.8507929"
+         height="1.250793"
+         x="-197.13034"
+         y="-107.24803"
+         transform="scale(-1)" />
+      <rect
+         style="fill:#000000;stroke:none;stroke-width:0.0806812;stroke-dasharray:none"
+         id="rect3121"
+         width="0.63352305"
+         height="7.2968416"
+         x="-114.33918"
+         y="185.46219"
+         transform="matrix(-0.87469778,0.48466874,0.48466772,0.87469835,0,0)"
+         inkscape:transform-center-x="0.20494037"
+         inkscape:transform-center-y="-0.37681204" />
+      <path
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.234885;stroke-dasharray:0.469771, 0.234885;stroke-dashoffset:0"
+         d="m 196.44744,107.47397 c -0.24986,2.98893 -1.22041,4.03604 -3.63036,5.2973"
+         id="path3123"
+         sodipodi:nodetypes="cc" />
+    </g>
+    <g
+       id="g3135"
+       transform="matrix(0,-1,-1,0,331.50784,294.23696)"
+       style="opacity:1">
+      <rect
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.149207;stroke-dasharray:none"
+         id="rect3129"
+         width="7.8507929"
+         height="1.250793"
+         x="-197.13034"
+         y="-107.24803"
+         transform="scale(-1)" />
+      <rect
+         style="fill:#000000;stroke:none;stroke-width:0.0806812;stroke-dasharray:none"
+         id="rect3131"
+         width="0.63352305"
+         height="7.2968416"
+         x="-114.33918"
+         y="185.46219"
+         transform="matrix(-0.87469778,0.48466874,0.48466772,0.87469835,0,0)"
+         inkscape:transform-center-x="0.20494037"
+         inkscape:transform-center-y="-0.37681204" />
+      <path
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.234885;stroke-dasharray:0.469771, 0.234885;stroke-dashoffset:0"
+         d="m 196.44744,107.47397 c -0.24986,2.98893 -1.22041,4.03604 -3.63036,5.2973"
+         id="path3133"
+         sodipodi:nodetypes="cc" />
+    </g>
+    <g
+       id="g3143"
+       transform="rotate(90,207.53737,127.01008)"
+       style="opacity:1">
+      <rect
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.149207;stroke-dasharray:none"
+         id="rect3137"
+         width="7.8507929"
+         height="1.250793"
+         x="-197.13034"
+         y="-107.24803"
+         transform="scale(-1)" />
+      <rect
+         style="fill:#000000;stroke:none;stroke-width:0.0806812;stroke-dasharray:none"
+         id="rect3139"
+         width="0.63352305"
+         height="7.2968416"
+         x="-114.33918"
+         y="185.46219"
+         transform="matrix(-0.87469778,0.48466874,0.48466772,0.87469835,0,0)"
+         inkscape:transform-center-x="0.20494037"
+         inkscape:transform-center-y="-0.37681204" />
+      <path
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.234885;stroke-dasharray:0.469771, 0.234885;stroke-dashoffset:0"
+         d="m 196.44744,107.47397 c -0.24986,2.98893 -1.22041,4.03604 -3.63036,5.2973"
+         id="path3141"
+         sodipodi:nodetypes="cc" />
+    </g>
+    <g
+       id="g3151"
+       transform="rotate(90,170.1466,72.174759)"
+       style="opacity:1">
+      <rect
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.149207;stroke-dasharray:none"
+         id="rect3145"
+         width="7.8507929"
+         height="1.250793"
+         x="-197.13034"
+         y="-107.24803"
+         transform="scale(-1)" />
+      <rect
+         style="fill:#000000;stroke:none;stroke-width:0.0806812;stroke-dasharray:none"
+         id="rect3147"
+         width="0.63352305"
+         height="7.2968416"
+         x="-114.33918"
+         y="185.46219"
+         transform="matrix(-0.87469778,0.48466874,0.48466772,0.87469835,0,0)"
+         inkscape:transform-center-x="0.20494037"
+         inkscape:transform-center-y="-0.37681204" />
+      <path
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.234885;stroke-dasharray:0.469771, 0.234885;stroke-dashoffset:0"
+         d="m 196.44744,107.47397 c -0.24986,2.98893 -1.22041,4.03604 -3.63036,5.2973"
+         id="path3149"
+         sodipodi:nodetypes="cc" />
+    </g>
+    <g
+       id="g3159"
+       transform="rotate(-90,209.83947,179.07376)"
+       style="opacity:1">
+      <rect
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.149207;stroke-dasharray:none"
+         id="rect3153"
+         width="7.8507929"
+         height="1.250793"
+         x="-197.13034"
+         y="-107.24803"
+         transform="scale(-1)" />
+      <rect
+         style="fill:#000000;stroke:none;stroke-width:0.0806812;stroke-dasharray:none"
+         id="rect3155"
+         width="0.63352305"
+         height="7.2968416"
+         x="-114.33918"
+         y="185.46219"
+         transform="matrix(-0.87469778,0.48466874,0.48466772,0.87469835,0,0)"
+         inkscape:transform-center-x="0.20494037"
+         inkscape:transform-center-y="-0.37681204" />
+      <path
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.234885;stroke-dasharray:0.469771, 0.234885;stroke-dashoffset:0"
+         d="m 196.44744,107.47397 c -0.24986,2.98893 -1.22041,4.03604 -3.63036,5.2973"
+         id="path3157"
+         sodipodi:nodetypes="cc" />
+    </g>
+    <g
+       id="g3167"
+       transform="rotate(180,153.47926,124.15908)"
+       style="opacity:1">
+      <rect
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.149207;stroke-dasharray:none"
+         id="rect3161"
+         width="7.8507929"
+         height="1.250793"
+         x="-197.13034"
+         y="-107.24803"
+         transform="scale(-1)" />
+      <rect
+         style="fill:#000000;stroke:none;stroke-width:0.0806812;stroke-dasharray:none"
+         id="rect3163"
+         width="0.63352305"
+         height="7.2968416"
+         x="-114.33918"
+         y="185.46219"
+         transform="matrix(-0.87469778,0.48466874,0.48466772,0.87469835,0,0)"
+         inkscape:transform-center-x="0.20494037"
+         inkscape:transform-center-y="-0.37681204" />
+      <path
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.234885;stroke-dasharray:0.469771, 0.234885;stroke-dashoffset:0"
+         d="m 196.44744,107.47397 c -0.24986,2.98893 -1.22041,4.03604 -3.63036,5.2973"
+         id="path3165"
+         sodipodi:nodetypes="cc" />
+    </g>
+    <g
+       id="g3175"
+       transform="matrix(-1,0,0,1,323.13171,35.011167)"
+       style="opacity:1">
+      <rect
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.149207;stroke-dasharray:none"
+         id="rect3169"
+         width="7.8507929"
+         height="1.250793"
+         x="-197.13034"
+         y="-107.24803"
+         transform="scale(-1)" />
+      <rect
+         style="fill:#000000;stroke:none;stroke-width:0.0806812;stroke-dasharray:none"
+         id="rect3171"
+         width="0.63352305"
+         height="7.2968416"
+         x="-114.33918"
+         y="185.46219"
+         transform="matrix(-0.87469778,0.48466874,0.48466772,0.87469835,0,0)"
+         inkscape:transform-center-x="0.20494037"
+         inkscape:transform-center-y="-0.37681204" />
+      <path
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.234885;stroke-dasharray:0.469771, 0.234885;stroke-dashoffset:0"
+         d="m 196.44744,107.47397 c -0.24986,2.98893 -1.22041,4.03604 -3.63036,5.2973"
+         id="path3173"
+         sodipodi:nodetypes="cc" />
+    </g>
+    <g
+       id="g3183"
+       transform="matrix(-1,0,0,1,322.90345,56.834969)"
+       style="opacity:1">
+      <rect
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.149207;stroke-dasharray:none"
+         id="rect3177"
+         width="7.8507929"
+         height="1.250793"
+         x="-197.13034"
+         y="-107.24803"
+         transform="scale(-1)" />
+      <rect
+         style="fill:#000000;stroke:none;stroke-width:0.0806812;stroke-dasharray:none"
+         id="rect3179"
+         width="0.63352305"
+         height="7.2968416"
+         x="-114.33918"
+         y="185.46219"
+         transform="matrix(-0.87469778,0.48466874,0.48466772,0.87469835,0,0)"
+         inkscape:transform-center-x="0.20494037"
+         inkscape:transform-center-y="-0.37681204" />
+      <path
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.234885;stroke-dasharray:0.469771, 0.234885;stroke-dashoffset:0"
+         d="m 196.44744,107.47397 c -0.24986,2.98893 -1.22041,4.03604 -3.63036,5.2973"
+         id="path3181"
+         sodipodi:nodetypes="cc" />
+    </g>
+    <g
+       id="g3191"
+       transform="matrix(0,1.2547514,-1.2524871,0,228.40808,-183.65784)"
+       style="opacity:1;stroke-width:0.797691">
+      <rect
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.119021;stroke-dasharray:none"
+         id="rect3185"
+         width="7.8507929"
+         height="1.250793"
+         x="-197.13034"
+         y="-107.24803"
+         transform="scale(-1)" />
+      <rect
+         style="fill:#000000;stroke:none;stroke-width:0.0643586;stroke-dasharray:none"
+         id="rect3187"
+         width="0.63352305"
+         height="7.2968416"
+         x="-114.33918"
+         y="185.46219"
+         transform="matrix(-0.87469778,0.48466874,0.48466772,0.87469835,0,0)"
+         inkscape:transform-center-x="0.20494037"
+         inkscape:transform-center-y="-0.37681204" />
+      <path
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.187366;stroke-dasharray:0.374732, 0.187366;stroke-dashoffset:0"
+         d="m 196.44744,107.47397 c -0.24986,2.98893 -1.22041,4.03604 -3.63036,5.2973"
+         id="path3189"
+         sodipodi:nodetypes="cc" />
+    </g>
+    <g
+       id="g3199"
+       transform="matrix(0,1.2547514,-1.2524871,0,228.44629,-146.34913)"
+       style="opacity:1;stroke-width:0.797691">
+      <rect
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.119021;stroke-dasharray:none"
+         id="rect3193"
+         width="7.8507929"
+         height="1.250793"
+         x="-197.13034"
+         y="-107.24803"
+         transform="scale(-1)" />
+      <rect
+         style="fill:#000000;stroke:none;stroke-width:0.0643586;stroke-dasharray:none"
+         id="rect3195"
+         width="0.63352305"
+         height="7.2968416"
+         x="-114.33918"
+         y="185.46219"
+         transform="matrix(-0.87469778,0.48466874,0.48466772,0.87469835,0,0)"
+         inkscape:transform-center-x="0.20494037"
+         inkscape:transform-center-y="-0.37681204" />
+      <path
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.187366;stroke-dasharray:0.374732, 0.187366;stroke-dashoffset:0"
+         d="m 196.44744,107.47397 c -0.24986,2.98893 -1.22041,4.03604 -3.63036,5.2973"
+         id="path3197"
+         sodipodi:nodetypes="cc" />
+    </g>
+    <g
+       id="g3207"
+       transform="matrix(0,-1.2547514,-1.2524871,0,235.23622,399.24244)"
+       style="opacity:1;stroke-width:0.797691">
+      <rect
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.119021;stroke-dasharray:none"
+         id="rect3201"
+         width="7.8507929"
+         height="1.250793"
+         x="-197.13034"
+         y="-107.24803"
+         transform="scale(-1)" />
+      <rect
+         style="fill:#000000;stroke:none;stroke-width:0.0643586;stroke-dasharray:none"
+         id="rect3203"
+         width="0.63352305"
+         height="7.2968416"
+         x="-114.33918"
+         y="185.46219"
+         transform="matrix(-0.87469778,0.48466874,0.48466772,0.87469835,0,0)"
+         inkscape:transform-center-x="0.20494037"
+         inkscape:transform-center-y="-0.37681204" />
+      <path
+         style="fill:#ffffff;stroke:#000000;stroke-width:0.187366;stroke-dasharray:0.374732, 0.187366;stroke-dashoffset:0"
+         d="m 196.44744,107.47397 c -0.24986,2.98893 -1.22041,4.03604 -3.63036,5.2973"
+         id="path3205"
+         sodipodi:nodetypes="cc" />
+    </g>
+    <rect
+       style="font-variation-settings:normal;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.26288;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       id="rect1097"
+       width="9.7371197"
+       height="2.7371199"
+       x="-157.7877"
+       y="-209.90051"
+       transform="scale(-1)" />
+    <rect
+       style="font-variation-settings:normal;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.26288;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       id="rect3964"
+       width="9.7371197"
+       height="2.7371199"
+       x="-167.60558"
+       y="-209.90051"
+       transform="scale(-1)" />
+    <rect
+       style="font-variation-settings:normal;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.26288;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       id="rect3966"
+       width="9.7371197"
+       height="2.7371199"
+       x="-177.40662"
+       y="-209.90051"
+       transform="scale(-1)" />
+    <rect
+       style="font-variation-settings:normal;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.26288;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       id="rect3968"
+       width="9.7371197"
+       height="2.7371199"
+       x="-198.99428"
+       y="185.53386"
+       transform="rotate(-90)" />
+    <rect
+       style="font-variation-settings:normal;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.26288;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       id="rect3970"
+       width="9.7371197"
+       height="2.7371199"
+       x="-189.00583"
+       y="185.53386"
+       transform="rotate(-90)" />
+    <rect
+       style="font-variation-settings:normal;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.26288;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       id="rect3972"
+       width="9.7371197"
+       height="2.7371199"
+       x="-164.0367"
+       y="185.53386"
+       transform="rotate(-90)" />
+    <rect
+       style="font-variation-settings:normal;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.26288;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       id="rect3974"
+       width="9.7371197"
+       height="2.7371199"
+       x="-154.0042"
+       y="185.53386"
+       transform="rotate(-90)" />
+    <rect
+       style="font-variation-settings:normal;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.26288;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       id="rect3976"
+       width="9.7371197"
+       height="2.7371199"
+       x="196.10829"
+       y="138.90221" />
+    <rect
+       style="font-variation-settings:normal;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.26288;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       id="rect3978"
+       width="9.7371197"
+       height="2.7371199"
+       x="216.57281"
+       y="138.90221" />
+    <rect
+       style="font-variation-settings:normal;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.26288;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       id="rect3980"
+       width="9.7371197"
+       height="2.7371199"
+       x="111.92626"
+       y="-266.8129"
+       transform="rotate(90)" />
+    <rect
+       style="font-variation-settings:normal;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.26288;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       id="rect3982"
+       width="9.7371197"
+       height="2.7371199"
+       x="94.815598"
+       y="-266.8129"
+       transform="rotate(90)" />
+    <rect
+       style="font-variation-settings:normal;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.26288;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       id="rect3984"
+       width="6.7371202"
+       height="2.7371199"
+       x="125.23015"
+       y="-96.938354"
+       transform="rotate(90)" />
+    <rect
+       style="font-variation-settings:normal;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.26288;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       id="rect3986"
+       width="6.7371202"
+       height="2.7371199"
+       x="101.4546"
+       y="-96.938354"
+       transform="rotate(90)" />
+    <rect
+       style="font-variation-settings:normal;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.26288;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       id="rect3988"
+       width="6.7371202"
+       height="2.7371199"
+       x="173.21761"
+       y="-96.938354"
+       transform="rotate(90)" />
+    <rect
+       style="font-variation-settings:normal;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.26288;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       id="rect3990"
+       width="6.7371202"
+       height="2.7371199"
+       x="193.46109"
+       y="-96.938354"
+       transform="rotate(90)" />
+    <rect
+       style="font-variation-settings:normal;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.26288;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       id="rect3992"
+       width="6.7371202"
+       height="2.7371199"
+       x="-110.55718"
+       y="-46.806545"
+       transform="scale(-1)" />
+    <rect
+       style="font-variation-settings:normal;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.26288;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       id="rect3994"
+       width="6.7371202"
+       height="2.7371199"
+       x="-170.01968"
+       y="-46.806545"
+       transform="scale(-1)" />
+    <rect
+       style="font-variation-settings:normal;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.26288;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       id="rect3996"
+       width="6.7371202"
+       height="2.7371199"
+       x="-257.12335"
+       y="-46.806545"
+       transform="scale(-1)" />
+    <rect
+       style="font-variation-settings:normal;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.26288;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       id="rect3998"
+       width="9.7371197"
+       height="2.7371199"
+       x="-139.20999"
+       y="-46.934639"
+       transform="scale(-1)" />
+    <rect
+       style="font-variation-settings:normal;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.26288;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       id="rect4000"
+       width="9.7371197"
+       height="2.7371199"
+       x="-149.0766"
+       y="-46.934639"
+       transform="scale(-1)" />
+    <rect
+       style="font-variation-settings:normal;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.26288;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       id="rect4002"
+       width="9.7371197"
+       height="2.7371199"
+       x="-194.26161"
+       y="-46.934639"
+       transform="scale(-1)" />
+    <rect
+       style="font-variation-settings:normal;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.26288;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       id="rect4004"
+       width="9.7371197"
+       height="2.7371199"
+       x="-204.18619"
+       y="-46.934639"
+       transform="scale(-1)" />
+    <rect
+       style="font-variation-settings:normal;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.26288;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       id="rect4006"
+       width="9.7371197"
+       height="2.7371199"
+       x="-224.72845"
+       y="-46.934639"
+       transform="scale(-1)" />
+    <rect
+       style="font-variation-settings:normal;vector-effect:none;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.26288;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+       id="rect4008"
+       width="9.7371197"
+       height="2.7371199"
+       x="-234.5536"
+       y="-46.934639"
+       transform="scale(-1)" />
+    <rect
+       style="opacity:0.506362;fill:none;stroke:#000000;stroke-width:0.28575;stop-color:#000000"
+       id="rect4251"
+       width="47.673935"
+       height="37.434177"
+       x="188.59451"
+       y="168.19374" />
+    <rect
+       style="opacity:0.506362;fill:none;stroke:#000000;stroke-width:0.28575;stop-color:#000000"
+       id="rect4305"
+       width="17.693792"
+       height="122.39296"
+       x="75.949837"
+       y="43.545818" />
+    <rect
+       style="opacity:0.506362;fill:none;stroke:#000000;stroke-width:0.285749;stop-color:#000000"
+       id="rect4307"
+       width="46.168636"
+       height="76.152534"
+       x="29.750467"
+       y="43.545818" />
+    <g
+       id="g4846"
+       transform="matrix(-0.99051499,0,0,-0.99051499,294.4057,237.87103)">
+      <rect
+         x="39.599998"
+         y="100.6"
+         width="16"
+         height="21.9"
+         rx="0.40000001"
+         fill="#ffffff"
+         stroke="#000000"
+         stroke-width="0.18"
+         id="rect4832"
+         style="stroke-linejoin:round" />
+      <rect
+         x="40.200001"
+         y="101.2"
+         width="14.8"
+         height="20.700001"
+         fill="none"
+         stroke="#000000"
+         stroke-width="0.11"
+         id="rect4834"
+         style="stroke-linejoin:round" />
+      <rect
+         x="39.599998"
+         y="100.6"
+         width="16"
+         height="1.3"
+         fill="#ffffff"
+         stroke="#000000"
+         stroke-width="0.18"
+         id="rect4836"
+         style="stroke-linejoin:round" />
+      <rect
+         x="44"
+         y="102.6"
+         width="7.1999998"
+         height="4.1999998"
+         rx="0.60000002"
+         fill="#ffffff"
+         stroke="#000000"
+         stroke-width="0.18"
+         id="rect4838"
+         style="stroke-linejoin:round" />
+      <line
+         x1="40.400002"
+         y1="110"
+         x2="54.799999"
+         y2="110"
+         stroke="#000000"
+         stroke-width="0.1"
+         id="line4840"
+         style="fill:#ffffff;stroke-linejoin:round" />
+      <rect
+         x="34.855873"
+         y="100.82619"
+         width="3.9000001"
+         height="3.9000001"
+         fill="#ffffff"
+         stroke="#000000"
+         stroke-width="0.18"
+         id="rect4842"
+         style="stroke-linejoin:round" />
+      <rect
+         x="56.599998"
+         y="100.9"
+         width="3.9000001"
+         height="3.9000001"
+         fill="#ffffff"
+         stroke="#000000"
+         stroke-width="0.18"
+         id="rect4844"
+         style="stroke-linejoin:round" />
+    </g>
+  </g>
+  <g
+     id="layer-dims"
+     inkscape:label="габариты"
+     inkscape:groupmode="layer">
+    <!-- север: ширина отапливаемого -->
+    <line
+       class="ext"
+       x1="93.4976"
+       y1="43.5612"
+       x2="93.4976"
+       y2="35.5612"
+       id="line6512" />
+    <line
+       class="ext"
+       x1="267.4054"
+       y1="43.5612"
+       x2="267.4054"
+       y2="35.5612"
+       id="line6514" />
+    <line
+       class="dim"
+       x1="93.4976"
+       y1="35.5612"
+       x2="267.4054"
+       y2="35.5612"
+       id="line6516" />
+    <line
+       class="dim"
+       x1="93.4976"
+       y1="34.4612"
+       x2="93.4976"
+       y2="36.6612"
+       id="line6518" />
+    <line
+       class="dim"
+       x1="267.4054"
+       y1="34.4612"
+       x2="267.4054"
+       y2="36.6612"
+       id="line6520" />
+    <g
+       transform="translate(180.4515,35.5612)"
+       id="g6526">
+      <rect
+         x="-5"
+         y="-1.8"
+         width="10"
+         height="3.6"
+         fill="#ffffff"
+         stroke="none"
+         id="rect6522" />
+      <text
+         class="dimnum"
+         x="0"
+         y="0"
+         id="text6524">17,39 м</text>
+    </g>
+    <!-- север: навес+дом -->
+    <line
+       class="ext"
+       x1="29.7505"
+       y1="43.5612"
+       x2="29.7505"
+       y2="27.5612"
+       id="line6528" />
+    <line
+       class="ext"
+       x1="267.4054"
+       y1="43.5612"
+       x2="267.4054"
+       y2="27.5612"
+       id="line6530" />
+    <line
+       class="dim"
+       x1="29.7505"
+       y1="27.5612"
+       x2="267.4054"
+       y2="27.5612"
+       id="line6532" />
+    <line
+       class="dim"
+       x1="29.7505"
+       y1="26.4612"
+       x2="29.7505"
+       y2="28.6612"
+       id="line6534" />
+    <line
+       class="dim"
+       x1="267.4054"
+       y1="26.4612"
+       x2="267.4054"
+       y2="28.6612"
+       id="line6536" />
+    <g
+       transform="translate(148.5779,27.5612)"
+       id="g6542">
+      <rect
+         x="-5"
+         y="-1.8"
+         width="10"
+         height="3.6"
+         fill="#ffffff"
+         stroke="none"
+         id="rect6538" />
+      <text
+         class="dimnum"
+         x="0"
+         y="0"
+         id="text6540">23,77 м</text>
+    </g>
+    <!-- запад: высота L -->
+    <line
+       class="ext"
+       x1="93.4976"
+       y1="43.5612"
+       x2="21.7505"
+       y2="43.5612"
+       id="line6544" />
+    <line
+       class="ext"
+       x1="93.4976"
+       y1="210.3525"
+       x2="21.7505"
+       y2="210.3525"
+       id="line6546" />
+    <line
+       class="dim"
+       x1="21.7505"
+       y1="43.5612"
+       x2="21.7505"
+       y2="210.3525"
+       id="line6548" />
+    <line
+       class="dim"
+       x1="20.6505"
+       y1="43.5612"
+       x2="22.8505"
+       y2="43.5612"
+       id="line6550" />
+    <line
+       class="dim"
+       x1="20.6505"
+       y1="210.3525"
+       x2="22.8505"
+       y2="210.3525"
+       id="line6552" />
+    <g
+       transform="translate(21.7505,126.9568)"
+       id="g6558">
+      <rect
+         x="-5"
+         y="-1.8"
+         width="10"
+         height="3.6"
+         fill="#ffffff"
+         stroke="none"
+         id="rect6554" />
+      <text
+         class="dimnum"
+         x="0"
+         y="0"
+         id="text6556">16,68 м</text>
+    </g>
+    <!-- восток: высота крыла -->
+    <line
+       class="ext"
+       x1="267.4054"
+       y1="43.5612"
+       x2="275.4054"
+       y2="43.5612"
+       id="line6560" />
+    <line
+       class="ext"
+       x1="267.4054"
+       y1="142.2921"
+       x2="275.4054"
+       y2="142.2921"
+       id="line6562" />
+    <line
+       class="dim"
+       x1="275.4054"
+       y1="43.5612"
+       x2="275.4054"
+       y2="142.2921"
+       id="line6564" />
+    <line
+       class="dim"
+       x1="274.3054"
+       y1="43.5612"
+       x2="276.5054"
+       y2="43.5612"
+       id="line6566" />
+    <line
+       class="dim"
+       x1="274.3054"
+       y1="142.2921"
+       x2="276.5054"
+       y2="142.2921"
+       id="line6568" />
+    <g
+       transform="translate(275.4054,92.9266)"
+       id="g6574">
+      <rect
+         x="-5"
+         y="-1.8"
+         width="10"
+         height="3.6"
+         fill="#ffffff"
+         stroke="none"
+         id="rect6570" />
+      <text
+         class="dimnum"
+         x="0"
+         y="0"
+         id="text6572">9,87 м</text>
+    </g>
+    <!-- юг: ширина западного крыла -->
+    <line
+       class="ext"
+       x1="93.4976"
+       y1="210.3525"
+       x2="93.4976"
+       y2="218.3525"
+       id="line6576" />
+    <line
+       class="ext"
+       x1="189.0006"
+       y1="210.3525"
+       x2="189.0006"
+       y2="218.3525"
+       id="line6578" />
+    <line
+       class="dim"
+       x1="93.4976"
+       y1="218.3525"
+       x2="189.0006"
+       y2="218.3525"
+       id="line6580" />
+    <line
+       class="dim"
+       x1="93.4976"
+       y1="217.2525"
+       x2="93.4976"
+       y2="219.4525"
+       id="line6582" />
+    <line
+       class="dim"
+       x1="189.0006"
+       y1="217.2525"
+       x2="189.0006"
+       y2="219.4525"
+       id="line6584" />
+    <g
+       transform="translate(141.2491,218.3525)"
+       id="g6590">
+      <rect
+         x="-5"
+         y="-1.8"
+         width="10"
+         height="3.6"
+         fill="#ffffff"
+         stroke="none"
+         id="rect6586" />
+      <text
+         class="dimnum"
+         x="0"
+         y="0"
+         id="text6588">9,55 м</text>
+    </g>
+    <!-- юг восточного крыла -->
+    <line
+       class="ext"
+       x1="185.171"
+       y1="142.2921"
+       x2="185.171"
+       y2="150.2921"
+       id="line6592" />
+    <line
+       class="ext"
+       x1="267.4054"
+       y1="142.2921"
+       x2="267.4054"
+       y2="150.2921"
+       id="line6594" />
+    <line
+       class="dim"
+       x1="185.171"
+       y1="150.2921"
+       x2="267.4054"
+       y2="150.2921"
+       id="line6596" />
+    <line
+       class="dim"
+       x1="185.171"
+       y1="149.1921"
+       x2="185.171"
+       y2="151.3921"
+       id="line6598" />
+    <line
+       class="dim"
+       x1="267.4054"
+       y1="149.1921"
+       x2="267.4054"
+       y2="151.3921"
+       id="line6600" />
+    <g
+       transform="translate(226.2882,150.2921)"
+       id="g6606">
+      <rect
+         x="-5"
+         y="-1.8"
+         width="10"
+         height="3.6"
+         fill="#ffffff"
+         stroke="none"
+         id="rect6602" />
+      <text
+         class="dimnum"
+         x="0"
+         y="0"
+         id="text6604">8,22 м</text>
+    </g>
+    <!-- навес ширина -->
+    <line
+       class="ext"
+       x1="29.7505"
+       y1="43.5458"
+       x2="29.7505"
+       y2="39.1458"
+       id="line6608" />
+    <line
+       class="ext"
+       x1="75.9191"
+       y1="43.5458"
+       x2="75.9191"
+       y2="39.1458"
+       id="line6610" />
+    <line
+       class="dim"
+       x1="29.7505"
+       y1="39.1458"
+       x2="75.9191"
+       y2="39.1458"
+       id="line6612" />
+    <line
+       class="dim"
+       x1="29.7505"
+       y1="38.0458"
+       x2="29.7505"
+       y2="40.2458"
+       id="line6614" />
+    <line
+       class="dim"
+       x1="75.9191"
+       y1="38.0458"
+       x2="75.9191"
+       y2="40.2458"
+       id="line6616" />
+    <g
+       transform="translate(52.8348,39.1458)"
+       id="g6622">
+      <rect
+         x="-5"
+         y="-1.8"
+         width="10"
+         height="3.6"
+         fill="#ffffff"
+         stroke="none"
+         id="rect6618" />
+      <text
+         class="dimnum"
+         x="0"
+         y="0"
+         id="text6620">4,62 м</text>
+    </g>
+    <!-- навес глубина -->
+    <line
+       class="ext"
+       x1="29.7505"
+       y1="43.5458"
+       x2="25.3505"
+       y2="43.5458"
+       id="line6624" />
+    <line
+       class="ext"
+       x1="29.7505"
+       y1="119.6984"
+       x2="25.3505"
+       y2="119.6984"
+       id="line6626" />
+    <line
+       class="dim"
+       x1="25.3505"
+       y1="43.5458"
+       x2="25.3505"
+       y2="119.6984"
+       id="line6628" />
+    <line
+       class="dim"
+       x1="24.2505"
+       y1="43.5458"
+       x2="26.4505"
+       y2="43.5458"
+       id="line6630" />
+    <line
+       class="dim"
+       x1="24.2505"
+       y1="119.6984"
+       x2="26.4505"
+       y2="119.6984"
+       id="line6632" />
+    <g
+       transform="translate(25.3505,81.6221)"
+       id="g6638">
+      <rect
+         x="-5"
+         y="-1.8"
+         width="10"
+         height="3.6"
+         fill="#ffffff"
+         stroke="none"
+         id="rect6634" />
+      <text
+         class="dimnum"
+         x="0"
+         y="0"
+         id="text6636">7,62 м</text>
+    </g>
+  </g>
+  <g
+     id="layer-roomboxes"
+     inkscape:label="контуры помещений"
+     inkscape:groupmode="layer">
+    <rect
+       id="box-Хозблок"
+       class="roombox"
+       x="97.4844"
+       y="47.4368"
+       width="19.5956"
+       height="37.8426" />
+    <rect
+       id="box-Кабинет"
+       class="roombox"
+       x="120.9556"
+       y="47.4368"
+       width="33.6576"
+       height="37.8426" />
+    <rect
+       id="box-Гардероб-1"
+       class="roombox"
+       x="156.0052"
+       y="47.4368"
+       width="13.8829"
+       height="37.8426" />
+    <rect
+       id="box-Спальня-1"
+       class="roombox"
+       x="171.2801"
+       y="47.4368"
+       width="37.5204"
+       height="37.8426" />
+    <rect
+       id="box-Спальня-2"
+       class="roombox"
+       x="210.1925"
+       y="47.4368"
+       width="37.6579"
+       height="37.8426" />
+    <rect
+       id="box-Гардероб-2"
+       class="roombox"
+       x="249.2424"
+       y="47.4368"
+       width="14.1776"
+       height="37.8426" />
+    <rect
+       id="box-Коридор"
+       class="roombox"
+       x="138.5056"
+       y="89.155"
+       width="85.7116"
+       height="16.875" />
+    <rect
+       id="box-Гардероб-М"
+       class="roombox"
+       x="225.6092"
+       y="89.155"
+       width="37.8108"
+       height="16.875" />
+    <rect
+       id="box-Котельная"
+       class="roombox"
+       x="97.4844"
+       y="89.155"
+       width="37.1456"
+       height="25.675" />
+    <rect
+       id="box-Гардероб-вх"
+       class="roombox"
+       x="97.4844"
+       y="116.222"
+       width="21.0813"
+       height="24.738" />
+    <rect
+       id="box-С-у"
+       class="roombox"
+       x="119.9577"
+       y="116.222"
+       width="14.6723"
+       height="24.738" />
+    <rect
+       id="box-Тамбур"
+       class="roombox"
+       x="104.5156"
+       y="142.352"
+       width="30.1144"
+       height="20.438" />
+    <rect
+       id="box-Постирочная"
+       class="roombox"
+       x="97.4844"
+       y="164.182"
+       width="37.1456"
+       height="22.338" />
+    <rect
+       id="box-Кладовая"
+       class="roombox"
+       x="97.4844"
+       y="187.912"
+       width="37.1456"
+       height="18.568" />
+    <rect
+       id="box-Ванная-1"
+       class="roombox"
+       x="188.8556"
+       y="107.422"
+       width="18.047"
+       height="30.998" />
+    <rect
+       id="box-Ванная-2"
+       class="roombox"
+       x="208.2946"
+       y="107.422"
+       width="18.9447"
+       height="30.998" />
+    <rect
+       id="box-Мастер-спальня"
+       class="roombox"
+       x="228.6313"
+       y="107.422"
+       width="34.7887"
+       height="30.998" />
+    <rect
+       id="box-Гостиная"
+       class="roombox"
+       x="138.5056"
+       y="107.422"
+       width="46.4744"
+       height="99.058" />
+  </g>
+  <g
+     id="layer-totals"
+     inkscape:label="итоги"
+     inkscape:groupmode="layer">
+    <text
+       class="tot"
+       x="15"
+       y="226.3525"
+       id="text-zhilaya">Жилая 98,01 м²</text>
+    <text
+       class="tot"
+       x="15"
+       y="229.8525"
+       id="text-obshaya">Общая 188,09 м²</text>
+    <text
+       class="note"
+       x="15"
+       y="233.1525"
+       id="text-scale">М 1:100. 1 м = 10 мм</text>
+    <text
+       class="note"
+       x="15"
+       y="236.1525"
+       id="text-open">Навес 35,16 м² · Крыльцо 21,66 м² · Терраса 17,85 м²</text>
+  </g>
+  <g
+     id="layer-labels"
+     inkscape:label="подписи помещений"
+     inkscape:groupmode="layer"
+     style="opacity:1">
+    <g
+       id="lab-Ванная-1"
+       transform="translate(197.8454,122.9386)">
+      <text
+         class="rname"
+         x="0"
+         y="-1.2"
+         id="text54">Ванная-1</text>
+      <text
+         class="rmeta"
+         x="0"
+         y="1.4"
+         id="text56">1,80×3,10 м · 5,59 м²</text>
+    </g>
+    <g
+       id="lab-Ванная-2"
+       transform="translate(217.7454,122.9386)">
+      <text
+         class="rname"
+         x="0"
+         y="-1.2"
+         id="text59">Ванная-2</text>
+      <text
+         class="rmeta"
+         x="0"
+         y="1.4"
+         id="text61">1,89×3,10 м · 5,87 м²</text>
+    </g>
+    <g
+       id="lab-Гардероб-1"
+       transform="translate(162.9454,66.3386)">
+      <text
+         class="rname"
+         x="0"
+         y="-1.2"
+         id="text64">Гардероб-1</text>
+      <text
+         class="rmeta"
+         x="0"
+         y="1.4"
+         id="text66">1,39×3,78 м · 5,25 м²</text>
+    </g>
+    <g
+       id="lab-Гардероб-2"
+       transform="translate(256.3454,66.3386)">
+      <text
+         class="rname"
+         x="0"
+         y="-1.2"
+         id="text69">Гардероб-2</text>
+      <text
+         class="rmeta"
+         x="0"
+         y="1.4"
+         id="text71">1,42×3,78 м · 5,37 м²</text>
+    </g>
+    <g
+       id="lab-Гардероб-М"
+       transform="translate(244.5454,97.6386)">
+      <text
+         class="rname"
+         x="0"
+         y="-1.2"
+         id="text74">Гардероб-М</text>
+      <text
+         class="rmeta"
+         x="0"
+         y="1.4"
+         id="text76">3,78×1,69 м · 6,38 м²</text>
+    </g>
+    <g
+       id="lab-Гардероб-вх"
+       transform="translate(108.301,128.2369)">
+      <text
+         class="rname"
+         x="0"
+         y="-1.2"
+         id="text79">Гардероб-вх</text>
+      <text
+         class="rmeta"
+         x="0"
+         y="1.4"
+         id="text81">2,11×2,47 м · 5,22 м²</text>
+    </g>
+    <g
+       id="lab-Гостиная"
+       transform="translate(161.7428,156.951)">
+      <text
+         class="rname"
+         x="0"
+         y="-1.2"
+         id="text84">Гостиная</text>
+      <text
+         class="rmeta"
+         x="0"
+         y="1.4"
+         id="text86">46,04 м²</text>
+    </g>
+    <g
+       id="lab-Кабинет"
+       transform="translate(137.8454,66.3386)">
+      <text
+         class="rname"
+         x="0"
+         y="-1.2"
+         id="text89">Кабинет</text>
+      <text
+         class="rmeta"
+         x="0"
+         y="1.4"
+         id="text91">3,37×3,78 м · 12,74 м²</text>
+    </g>
+    <g
+       id="lab-Кладовая"
+       transform="translate(116.0454,197.1386)">
+      <text
+         class="rname"
+         x="0"
+         y="-1.2"
+         id="text94">Кладовая</text>
+      <text
+         class="rmeta"
+         x="0"
+         y="1.4"
+         id="text96">3,71×1,86 м · 6,90 м²</text>
+    </g>
+    <g
+       id="lab-Котельная"
+       transform="translate(116.0454,102.0386)">
+      <text
+         class="rname"
+         x="0"
+         y="-1.2"
+         id="text99">Котельная</text>
+      <text
+         class="rmeta"
+         x="0"
+         y="1.4"
+         id="text101">3,71×2,57 м · 9,54 м²</text>
+    </g>
+    <g
+       id="lab-Постирочная"
+       transform="translate(116.3878,175.56)">
+      <text
+         class="rname"
+         x="0"
+         y="-1.2"
+         id="text109">Постирочная</text>
+      <text
+         class="rmeta"
+         x="0"
+         y="1.4"
+         id="text111">3,71×2,23 м · 8,30 м²</text>
+    </g>
+    <g
+       id="lab-С-у"
+       transform="translate(127.3454,128.6386)">
+      <text
+         class="rname"
+         x="0"
+         y="-1.2"
+         id="text114">С/у</text>
+      <text
+         class="rmeta"
+         x="0"
+         y="1.4"
+         id="text116">1,47×2,47 м · 3,63 м²</text>
+    </g>
+    <g
+       id="lab-Спальня-1"
+       transform="translate(190.0454,66.3386)">
+      <text
+         class="rname"
+         x="0"
+         y="-1.2"
+         id="text119">Спальня-1</text>
+      <text
+         class="rmeta"
+         x="0"
+         y="1.4"
+         id="text121">3,75×3,78 м · 14,20 м²</text>
+    </g>
+    <g
+       id="lab-Спальня-2"
+       transform="translate(229.0454,66.3386)">
+      <text
+         class="rname"
+         x="0"
+         y="-1.2"
+         id="text124">Спальня-2</text>
+      <text
+         class="rmeta"
+         x="0"
+         y="1.4"
+         id="text126">3,77×3,78 м · 14,25 м²</text>
+    </g>
+    <g
+       id="lab-Тамбур"
+       transform="translate(119.5454,152.6386)">
+      <text
+         class="rname"
+         x="0"
+         y="-1.2"
+         id="text129">Тамбур</text>
+      <text
+         class="rmeta"
+         x="0"
+         y="1.4"
+         id="text131">3,01×2,04 м · 6,15 м²</text>
+    </g>
+    <g
+       id="lab-Хозблок"
+       transform="translate(107.2454,66.3386)">
+      <text
+         class="rname"
+         x="0"
+         y="-1.2"
+         id="text134">Хозблок</text>
+      <text
+         class="rmeta"
+         x="0"
+         y="1.4"
+         id="text136">1,96×3,78 м · 7,42 м²</text>
+    </g>
+    <g
+       id="lab-Навес"
+       class="open-label"
+       transform="translate(52.8348,81.6221)">
+      <text
+         class="rname"
+         x="0"
+         y="-1.2"
+         id="text139">Навес</text>
+      <text
+         class="rmeta"
+         x="0"
+         y="1.4"
+         id="text141">4,62×7,62 м · 35,16 м²</text>
+    </g>
+    <g
+       id="lab-Терраса"
+       class="open-label"
+       transform="translate(212.4315,186.9108)">
+      <text
+         class="rname"
+         x="0"
+         y="-1.2"
+         id="text144">Терраса</text>
+      <text
+         class="rmeta"
+         x="0"
+         y="1.4"
+         id="text146">4,77×3,74 м · 17,85 м²</text>
+    </g>
+    <g
+       id="lab-Крыльцо"
+       class="open-label"
+       transform="translate(84.7967,104.7423)">
+      <text
+         class="rname"
+         x="0"
+         y="-1.2"
+         id="text4501">Крыльцо</text>
+      <text
+         class="rmeta"
+         x="0"
+         y="1.4"
+         id="text4503">1,77×12,24 м · 21,66 м²</text>
+    </g>
+    <g
+       id="lab-Коридор"
+       transform="translate(181.3614,97.5925)">
+      <text
+         class="rname"
+         x="0"
+         y="-1.2"
+         id="text4803">Коридор</text>
+      <text
+         class="rmeta"
+         x="0"
+         y="1.4"
+         id="text4805">8,57×1,69 м · 14,46 м²</text>
+    </g>
+    <g
+       id="lab-Мастер-спальня"
+       transform="translate(246.0454,122.9386)">
+      <text
+         class="rname"
+         x="0"
+         y="-1.2"
+         id="text104">Мастер-спальня</text>
+      <text
+         class="rmeta"
+         x="0"
+         y="1.4"
+         id="text106">3,48×3,10 м · 10,78 м²</text>
+    </g>
+  </g>
+</svg>

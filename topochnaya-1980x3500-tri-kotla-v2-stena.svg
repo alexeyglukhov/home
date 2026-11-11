@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="1520" height="1000" viewBox="0 0 1520 1000">
+<svg xmlns="http://www.w3.org/2000/svg" width="1520" height="1100" viewBox="0 0 1520 1100">
 <defs>
 <style type="text/css"><![CDATA[
 .bg{fill:#f0ebe3}.floor{fill:#fffef9;stroke:#222;stroke-width:2.2}
@@ -12,151 +12,293 @@
 .san{fill:#ce93d8;stroke:#6a1b9a;stroke-width:1.2}.filt{fill:#b2ebf2;stroke:#00838f;stroke-width:1.1}
 .bkn{fill:#9fa8da;stroke:#283593;stroke-width:1.3}.fe{fill:#80deea;stroke:#006064;stroke-width:1.3}
 .tt{fill:#c4a484;stroke:#5a3d1b;stroke-width:1.3}.front{fill:#ffe566;fill-opacity:.5;stroke:#f57f17;stroke-width:1.3;stroke-dasharray:4 3}
-.door{fill:#ffe0b2;stroke:#5d4037;stroke-width:1.5}.window{fill:#81d4fa;stroke:#0277bd;stroke-width:1.3}
+.door{fill:#ffe0b2;stroke:#5d4037;stroke-width:1.5}.window{fill:#81d4fa;stroke:#0277bd;stroke-width:2.4}
 .spot{fill:#bbb;fill-opacity:.28;stroke:#666;stroke-width:1;stroke-dasharray:3 2}
 .gvs{fill:none;stroke:#c62828;stroke-width:2}.hvs{fill:none;stroke:#0277bd;stroke-width:1.9}
-.cold{fill:none;stroke:#0288d1;stroke-width:1.7;stroke-dasharray:4 2}
-.out-rad{fill:none;stroke:#bf360c;stroke-width:2}.out-ufh{fill:none;stroke:#00695c;stroke-width:2}
+.hvs-in{fill:none;stroke:#01579b;stroke-width:2.2}
+.cold{fill:none;stroke:#0288d1;stroke-width:1.8}
+.out-rad,.so{fill:none;stroke:#d84315;stroke-width:2.6}.out-ufh{fill:none;stroke:#00695c;stroke-width:2}
 .out-san{fill:none;stroke:#6a1b9a;stroke-width:2}.gasline{fill:none;stroke:#f9a825;stroke-width:2}
 .coax{fill:none;stroke:#1565c0;stroke-width:1.8;stroke-dasharray:5 3}
+.ret{fill:none;stroke:#6d4c41;stroke-width:1.8}
+.drain{fill:none;stroke:#5d4037;stroke-width:2;stroke-dasharray:5 3}
+.so{fill:none;stroke:#d84315;stroke-width:2.6}
 .title{font-family:DejaVu Sans,Arial,sans-serif;font-size:14px;font-weight:700;fill:#111}
 .note{font-family:DejaVu Sans,Arial,sans-serif;font-size:10.5px;fill:#333}
 .lab{font-family:DejaVu Sans,Arial,sans-serif;font-size:9.5px;fill:#222}
-.tiny{font-family:DejaVu Sans,Arial,sans-serif;font-size:8.5px;fill:#333}
+.tiny{font-family:DejaVu Sans,Arial,sans-serif;font-size:10px;fill:#333}
 .call{font-family:DejaVu Sans,Arial,sans-serif;font-size:10px;fill:#111}
+.pump{fill:#c8e6c9;stroke:#2e7d32;stroke-width:1.2}.ups{fill:#fff59d;stroke:#f9a825;stroke-width:1.2}
+.sep{fill:#ffccbc;stroke:#bf360c;stroke-width:1.2}.hydro{fill:#cfd8dc;stroke:#37474f;stroke-width:1.2}
+.drainpt{fill:#efebe9;stroke:#5d4037;stroke-width:1.3}
+.det{fill:#ffcdd2;stroke:#b71c1c;stroke-width:1.1}.vent{fill:#b3e5fc;stroke:#01579b;stroke-width:1.1}
+.chim{fill:#8d6e63;stroke:#3e2723;stroke-width:1.2}
+.sig{fill:none;stroke:#6a1b9a;stroke-width:1.5;stroke-dasharray:3 2}
 ]]></style>
 <marker id="aR" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><polygon points="0 0,5 2.5,0 5" fill="#bf360c"/></marker>
 <marker id="aT" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><polygon points="0 0,5 2.5,0 5" fill="#00695c"/></marker>
 <marker id="aP" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><polygon points="0 0,5 2.5,0 5" fill="#6a1b9a"/></marker>
 <marker id="aB" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><polygon points="0 0,5 2.5,0 5" fill="#0277bd"/></marker>
+<marker id="aSO" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><polygon points="0 0,6 3,0 6" fill="#d84315"/></marker>
+<marker id="aK" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><polygon points="0 0,5 2.5,0 5" fill="#5d4037"/></marker>
+<marker id="aBin" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><polygon points="0 0,5 2.5,0 5" fill="#01579b"/></marker>
+<marker id="aR" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><polygon points="0 0,5 2.5,0 5" fill="#6d4c41"/></marker>
+<marker id="aGas" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><polygon points="0 0,5 2.5,0 5" fill="#f9a825"/></marker>
 <marker id="aG" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><polygon points="0 0,5 2.5,0 5" fill="#c62828"/></marker>
+<marker id="aSig" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><polygon points="0 0,5 2.5,0 5" fill="#6a1b9a"/></marker>
 </defs>
-<rect width="1520" height="1000" class="bg"/>
-<text x="20" y="20" class="title">Топочная v2 — стены с реальными высотами + пятна на полу</text>
-<text x="20" y="38" class="note">На стене: высота = реальный H. Серые пятна на полу = вертикальные проекции у стены; пересечения нормальны (разнос по H).</text>
 
-<!-- Углы: смежные стены делят одно ребро (одна линия угла) -->
+<rect width="1520" height="1100" class="bg"/>
+<text x="20" y="20" class="title">Топочная v2 — стены с высотами + пятна</text>
+<text x="20" y="38" class="note">Раскладка как на плане: РБ у котлов, запад: гребёнка и смес.+Н-ТП на одном месте стены, разнесены по высоте.</text>
 <polygon points="300,400 1000,400 1100,200 200,200" class="wallu"/>
-<text x="650" y="194" text-anchor="middle" class="call">верхняя стена (H комнаты 3000)</text>
+<text x="650" y="194" text-anchor="middle" class="call">верхняя · БКН + РБ над ним</text>
 <polygon points="300,796 1000,796 1100,976 200,976" class="walll"/>
-<text x="650" y="992" text-anchor="middle" class="call">нижняя стена</text>
+<text x="650" y="992" text-anchor="middle" class="call">нижняя · ОКНО по центру</text>
 <polygon points="300,400 300,796 200,976 200,200" class="wallk"/>
 <polygon points="1000,400 1000,796 1100,976 1100,200" class="wallr"/>
-<!-- контур: внешний периметр + углы одной линией + контур пола -->
 <path d="M 200,200 L 1100,200 L 1100,976 L 200,976 Z" class="edge"/>
 <path d="M 300,400 L 200,200 M 1000,400 L 1100,200 M 1000,796 L 1100,976 M 300,796 L 200,976" class="edge"/>
 <rect x="300" y="400" width="700" height="396" class="floor"/>
-<text x="650" y="418" text-anchor="middle" class="call">пол — пятна проекций (у стены, можно пересекать)</text>
 
-<!-- Пятна у стен; объекты одной стены накладываются -->
-<rect x="340" y="400" width="84" height="54" class="spot" rx="2"/>
-<text x="382" y="430" text-anchor="middle" class="tiny">газ</text>
-<rect x="434" y="400" width="82" height="62" class="spot" rx="2"/>
-<text x="475" y="434" text-anchor="middle" class="tiny">эл</text>
-<rect x="340" y="400" width="56" height="20" class="spot" rx="2"/>
-<text x="368" y="414" text-anchor="middle" class="tiny">СО</text>
-<rect x="340" y="400" width="130" height="56" class="spot" rx="2"/>
-<text x="405" y="456" text-anchor="middle" class="tiny">ТП</text>
-<rect x="480" y="400" width="76" height="22" class="spot" rx="2"/>
-<text x="518" y="415" text-anchor="middle" class="tiny">греб</text>
-<rect x="584" y="400" width="112" height="112" class="spot" rx="2"/>
-<text x="640" y="460" text-anchor="middle" class="tiny">БКН</text>
-<rect x="908" y="400" width="92" height="156" class="spot" rx="2"/>
-<text x="954" y="481" text-anchor="middle" class="tiny">ТТ</text>
-<rect x="908" y="556" width="92" height="200" class="spot" rx="2"/>
-<text x="954" y="659" text-anchor="middle" class="tiny">фронт</text>
-<rect x="340" y="772" width="84" height="24" class="spot" rx="2"/>
-<text x="382" y="788" text-anchor="middle" class="tiny">авт</text>
-<rect x="444" y="776" width="20" height="20" class="spot" rx="2"/>
-<text x="454" y="790" text-anchor="middle" class="tiny">Ф1</text>
-<rect x="496" y="735" width="61" height="61" class="spot" rx="2"/>
-<text x="526.5" y="768" text-anchor="middle" class="tiny">Fe</text>
-<rect x="589" y="776" width="20" height="20" class="spot" rx="2"/>
-<text x="599" y="790" text-anchor="middle" class="tiny">Ф2</text>
+<rect x="316.0" y="454.0" width="84.0" height="200.0" class="front"/>
+<text x="358.0" y="554.0" text-anchor="middle" class="tiny">фронт газа ≥1 м</text>
+<rect x="408.0" y="462.0" width="82.0" height="200.0" class="front"/>
+<text x="449.0" y="562.0" text-anchor="middle" class="tiny">фронт эл. ≥1 м</text>
+<rect x="888.0" y="556.0" width="92.0" height="200.0" class="front"/>
+<text x="934.0" y="656.0" text-anchor="middle" class="tiny">фронт ТТ ≥1 м</text>
+<rect x="316.0" y="400" width="84.0" height="54.0" class="spot"/>
+<rect x="408.0" y="400" width="82.0" height="62.0" class="spot"/>
+<rect x="496.0" y="400" width="18.0" height="16.0" class="spot"/>
+<rect x="518.0" y="400" width="12.0" height="16.0" class="spot"/>
+<rect x="532.0" y="400" width="28.0" height="18.0" class="spot"/>
+<rect x="564.0" y="400" width="16.0" height="22.0" class="spot"/>
+<rect x="582.0" y="400" width="14.0" height="20.0" class="spot"/>
+<rect x="604.0" y="436.0" width="112.0" height="112.0" class="spot"/>
+<rect x="604.0" y="400" width="26.0" height="26.0" class="spot"/>
+<rect x="633.0" y="400" width="26.0" height="26.0" class="spot"/>
+<rect x="662.0" y="400" width="26.0" height="26.0" class="spot"/>
+<rect x="691.0" y="400" width="25.0" height="30.0" class="spot"/>
+<rect x="724.0" y="400" width="14.0" height="16.0" class="spot"/>
+<rect x="742.0" y="400" width="14.0" height="16.0" class="spot"/>
+<rect x="888.0" y="400" width="92.0" height="156.0" class="spot"/>
+<rect x="300" y="408.0" width="14.0" height="40.0" class="spot"/>
+<rect x="316.0" y="780.0" width="16.0" height="16.0" class="spot"/>
+<rect x="340.0" y="768.0" width="48.0" height="28.0" class="spot"/>
+<rect x="396.0" y="774.0" width="20.0" height="22.0" class="spot"/>
+<rect x="448.0" y="735.0" width="61.0" height="61.0" class="spot"/>
+<rect x="696.0" y="774.0" width="20.0" height="22.0" class="spot"/>
+<rect x="724.0" y="762.0" width="40.0" height="34.0" class="spot"/>
+<rect x="768.0" y="760.0" width="36.0" height="36.0" class="spot"/>
+<rect x="992.0" y="580.0" width="8.0" height="28.0" class="spot"/>
+<polygon points="290.6,293.3 381.0,293.3 372.6,246.7 279.4,246.7" class="gas"/>
+<text x="330.9" y="273.0" text-anchor="middle" class="tiny">ГАЗ H700</text>
+<polygon points="390.1,296.7 478.2,296.7 472.6,247.3 381.6,247.3" class="el"/>
+<text x="430.6" y="275.0" text-anchor="middle" class="tiny">ЭЛ H740</text>
+<polygon points="477.7,233.3 497.8,233.3 496.5,220.0 476.2,220.0" class="det"/>
+<text x="487.0" y="229.7" text-anchor="middle" class="tiny">СН4+СО</text>
+<polygon points="512.3,340.0 524.9,340.0 523.8,328.0 511.2,328.0" class="pump"/>
+<text x="518.1" y="337.0" text-anchor="middle" class="tiny">Н-СО</text>
+<polygon points="526.4,333.3 555.7,333.3 555.1,323.3 525.5,323.3" class="man"/>
+<text x="540.7" y="331.3" text-anchor="middle" class="tiny">СО</text>
+<polygon points="559.5,326.7 576.3,326.7 574.3,286.7 557.0,286.7" class="hydro"/>
+<text x="566.8" y="309.7" text-anchor="middle" class="tiny">ГС</text>
+<polygon points="578.3,323.3 593.0,323.3 592.1,300.0 577.1,300.0" class="sep"/>
+<text x="585.2" y="314.7" text-anchor="middle" class="tiny">СВШ</text>
+<polygon points="604.0,400.0 716.0,400.0 720.1,313.3 601.2,313.3" class="bkn"/>
+<text x="660.3" y="359.7" text-anchor="middle" class="tiny">БКН H1300</text>
+<polygon points="378.0,310.0 404.0,310.0 402.5,280.0 376.0,280.0" class="exp"/>
+<text x="391.0" y="298.0" text-anchor="middle" class="tiny">РБ-Г</text>
+<polygon points="482.0,310.0 508.0,310.0 507.0,280.0 480.5,280.0" class="exp"/>
+<text x="495.0" y="298.0" text-anchor="middle" class="tiny">РБ-Э</text>
+<polygon points="600.0,310.0 626.0,310.0 625.5,278.0 599.0,278.0" class="exp"/>
+<text x="613.0" y="297.0" text-anchor="middle" class="tiny">РБ-СО</text>
+<polygon points="850.0,310.0 876.0,310.0 878.0,280.0 851.5,280.0" class="exp"/>
+<text x="864.0" y="298.0" text-anchor="middle" class="tiny">РБ-ТТ</text>
+<polygon points="725.1,380.0 739.3,380.0 740.0,368.0 725.7,368.0" class="pump"/>
+<text x="732.5" y="377.0" text-anchor="middle" class="tiny">Н-ТТ</text>
+<polygon points="743.8,373.3 758.0,373.3 758.8,362.7 744.5,362.7" class="pump"/>
+<text x="751.3" y="371.0" text-anchor="middle" class="tiny">Н-БКН</text>
+<polygon points="888.0,400.0 980.0,400.0 992.6,346.3 897.1,346.3" class="tt"/>
+<text x="939.4" y="376.2" text-anchor="middle" class="tiny">ТТ → окно</text>
+<!-- гребёнка H1400: выше = дальше от пола (к наружному краю стены) -->
+<polygon points="245.0,485.0 245.0,545.0 218.0,552.0 218.0,478.0" class="san"/>
+<text x="228.0" y="515.0" text-anchor="middle" class="tiny">гребёнка</text>
+<polygon points="316.0,796.0 332.0,796.0 330.8,800.8 314.7,800.8" class="drainpt"/>
+<text x="323.4" y="801.4" text-anchor="middle" class="tiny">К1</text>
+<polygon points="322.3,868.0 373.0,868.0 366.8,898.0 314.9,898.0" class="auto"/>
+<text x="344.3" y="886.0" text-anchor="middle" class="tiny">авт.</text>
+<polygon points="391.2,820.0 411.5,820.0 409.1,833.2 388.5,833.2" class="filt"/>
+<text x="400.1" y="829.6" text-anchor="middle" class="tiny">Ф1</text>
+<polygon points="448.0,796.0 509.0,796.0 500.1,875.2 435.3,875.2" class="fe"/>
+<text x="473.1" y="838.6" text-anchor="middle" class="tiny">Fe H1320</text>
+<polygon points="696.9,820.0 717.3,820.0 717.9,833.2 697.4,833.2" class="filt"/>
+<text x="707.4" y="829.6" text-anchor="middle" class="tiny">Ф2</text>
+<polygon points="725.4,820.0 766.2,820.0 768.9,850.0 727.2,850.0" class="ups"/>
+<text x="746.9" y="838.0" text-anchor="middle" class="tiny">ИБП</text>
+<polygon points="768.0,796.0 804.0,796.0 805.6,809.2 769.2,809.2" class="man"/>
+<text x="786.7" y="805.6" text-anchor="middle" class="tiny">АКБ</text>
+<!-- смес H600: ниже = ближе к основанию проекции (пол x=300) -->
+<polygon points="298.0,485.0 298.0,545.0 275.0,552.0 275.0,478.0" class="mix"/>
+<text x="286.0" y="515.0" text-anchor="middle" class="tiny">смес.+Н-ТП</text>
+<polygon points="1006.7,578.2 1006.7,608.0 1015.0,607.9 1015.0,575.9" class="vent"/>
+<text x="1010.8" y="595.5" text-anchor="middle" class="tiny">приток</text>
+<polygon points="300.0,580.0 300.0,740.0 230.0,828.4 230.0,560.9" class="door"/>
+<text x="265.0" y="680.3" text-anchor="middle" class="tiny">дверь H2100</text>
+<polygon points="608.5,844.0 691.5,844.0 693.0,892.0 607.0,892.0" class="window"/>
+<text x="650.0" y="871.0" text-anchor="middle" class="tiny">ОКНО центр 0,40×0,80</text>
+<polygon points="930.4,346.3 955.3,346.3 986.0,200.0 958.6,200.0" class="chim"/>
+<text x="957.5" y="276.2" text-anchor="middle" class="tiny">дымоход</text>
+<!-- трубы: короткие = граница→граница без стрелки; шина снаружи корпусов -->
+<path d="M 255.0 270.0 L 376.8 270.0" class="gasline"/>
+<polygon points="369.8,266.8 376.8,270.0 369.8,273.2" fill="#ef6c00"/>
+<path d="M 487.0 220.0 L 487.0 210.0" class="sig"/>
+<path d="M 487.0 210.0 L 255.0 210.0" class="sig"/>
+<path d="M 255.0 210.0 L 255.0 270.0" class="sig"/>
+<circle cx="255.0" cy="270.0" r="4.0" fill="#ce93d8" stroke="#6a1b9a" stroke-width="1.4"/>
+<text x="265" y="205" class="tiny">СН4+СО → отсечка газа</text>
 
-<!-- верхняя стена: оборудование по H -->
-<polygon points="316.4,293.3 406.8,293.3 399.2,246.7 306.0,246.7" class="gas"/>
-<text x="357.1" y="270.0" text-anchor="middle" class="lab">ГАЗ H700</text>
-<polygon points="418.1,296.7 506.1,296.7 501.4,247.3 410.4,247.3" class="el"/>
-<text x="459.0" y="272.0" text-anchor="middle" class="lab">ЭЛ H740</text>
-<polygon points="323.8,326.7 382.7,326.7 381.2,318.7 322.0,318.7" class="man"/>
-<text x="352.4" y="325.7" text-anchor="middle" class="tiny">СО</text>
-<polygon points="391.4,340.0 422.7,340.0 418.0,310.0 386.1,310.0" class="exp"/>
-<text x="404.5" y="328.0" text-anchor="middle" class="tiny">РБ H450</text>
-<polygon points="331.1,360.0 464.9,360.0 461.9,337.3 326.1,337.3" class="mix"/>
-<text x="396.0" y="348.7" text-anchor="middle" class="tiny">смес. H340</text>
-<polygon points="472.7,340.0 552.0,340.0 551.3,330.0 471.5,330.0" class="san"/>
-<text x="511.9" y="335.0" text-anchor="middle" class="lab">гребёнка H150</text>
-<polygon points="584.0,400.0 696.0,400.0 698.8,313.3 579.9,313.3" class="bkn"/>
-<text x="639.7" y="356.7" text-anchor="middle" class="lab">БКН H1300</text>
-<path d="M 551.6 335.0 L 553.8 366.7 L 582.4 366.7" class="cold" marker-end="url(#aB)"/>
-<text x="553.8" y="361.7" text-anchor="middle" class="tiny">ХВС</text>
-<path d="M 639.4 313.3 L 639.3 303.3 L 532.4 303.3 L 534.5 330.0" class="gvs" marker-end="url(#aG)"/>
-<text x="532.4" y="298.3" text-anchor="middle" class="tiny">ГВС</text>
-<path d="M 322.9 322.7 L 289.1 322.7" class="out-rad" marker-end="url(#aR)"/>
-<path d="M 328.6 348.7 L 295.5 348.7" class="out-ufh" marker-end="url(#aT)"/>
-<path d="M 472.1 335.0 L 292.1 335.0" class="out-san" marker-end="url(#aP)"/>
+<!-- ХВС под окном -->
+<path d="M 400.1 854.6 L 400.1 826.6" class="hvs-in"/>
+<path d="M 411.5 826.6 L 443.1 826.6" class="hvs"/>
+<path d="M 505.6 826.6 L 696.9 826.6" class="hvs"/>
+<text x="360.0" y="862.0" class="tiny">ввод ХВС</text>
+<text x="600.0" y="818.0" text-anchor="middle" class="tiny">ХВС под окном</text>
 
-<!-- левая стена: дверь (угол 200–300) -->
-<polygon points="300,520 300,780 200,800 200,505" class="door"/>
-<text x="250" y="655" text-anchor="middle" class="lab" transform="rotate(-90 250 655)">дверь H2100</text>
+<!-- стояк в зазоре гребёнка↔смес -->
+<path d="M 707.4 826.6 L 707.4 910.0" class="hvs"/>
+<path d="M 707.4 910.0 L 267.0 910.0" class="hvs"/>
+<path d="M 267.0 910.0 L 267.0 318.0" class="hvs"/>
 
-<!-- правая стена: ТТ + фронт (угол 1000–1100) -->
-<polygon points="1000,408 1000,564 1092,555 1092,392" class="tt"/>
-<text x="1046" y="482" text-anchor="middle" class="lab" transform="rotate(90 1046 482)">ТТ 460×H805</text>
-<text x="1062" y="482" text-anchor="middle" class="tiny" transform="rotate(90 1062 482)">глубина 780</text>
-<polygon points="1000,564 1000,764 1020,770 1020,562" class="front"/>
-<text x="1010" y="665" text-anchor="middle" class="tiny" transform="rotate(90 1010 665)">фронт ≥1000</text>
-<polygon points="1092,400 1092,432 1100,430 1100,398" class="tt"/>
-<text x="1108" y="418" text-anchor="middle" class="tiny" transform="rotate(90 1108 418)">дымоход</text>
+<!-- ХВС → гребёнка -->
+<path d="M 267.0 500.0 L 245.0 500.0" class="hvs"/>
+<text x="268.0" y="492.0" class="tiny">ХВС→гребёнка</text>
 
-<!-- нижняя стена -->
-<polygon points="322.3,868.0 411.1,868.0 405.7,898.0 314.9,898.0" class="auto"/>
-<text x="363.5" y="883.0" text-anchor="middle" class="lab">автоматика H500</text>
-<polygon points="444.0,796.0 464.0,796.0 460.9,817.0 440.6,817.0" class="filt"/>
-<text x="452.4" y="809.5" text-anchor="middle" class="tiny">Ф1</text>
-<polygon points="496.0,796.0 556.8,796.0 550.9,875.2 486.3,875.2" class="fe"/>
-<text x="522.5" y="835.6" text-anchor="middle" class="lab">Fe H1320</text>
-<polygon points="588.8,796.0 608.8,796.0 608.1,817.0 587.8,817.0" class="filt"/>
-<text x="598.4" y="809.5" text-anchor="middle" class="tiny">Ф2</text>
-<polygon points="891.0,856.0 974.8,856.0 992.5,928.0 904.1,928.0" class="window"/>
-<text x="940.6" y="892.0" text-anchor="middle" class="tiny">окно</text>
-<path d="M 464.0 806.5 L 496.0 806.5" class="hvs" marker-end="url(#aB)"/>
-<text x="480" y="800" text-anchor="middle" class="tiny">вход</text>
-<path d="M 556.8 806.5 L 588.8 806.5" class="hvs" marker-end="url(#aB)"/>
-<text x="572.8" y="800" text-anchor="middle" class="tiny">выход</text>
-<path d="M 454.0 817.0 L 454.0 830.0" class="hvs"/>
-<text x="432.4" y="968.0" class="tiny">ХВС с улицы → Ф1 снизу</text>
-<path d="M 598.8 817.0 L 598.8 830.0" class="hvs"/>
-<text x="612.0" y="840.0" class="tiny">↑ гребёнка</text>
+<!-- ХВС → БКН -->
+<path d="M 267.0 400.0 L 604.0 400.0" class="hvs"/>
+<polygon points="597.0,396.8 604.0,400.0 597.0,403.2" fill="#0277bd"/>
+<text x="450.0" y="392.0" class="tiny">ХВС→БКН</text>
 
-<!-- маркеры углов пола (общие рёбра стен) -->
-<circle cx="300" cy="400" r="3" fill="#333"/>
-<circle cx="1000" cy="400" r="3" fill="#333"/>
-<circle cx="300" cy="796" r="3" fill="#333"/>
-<circle cx="1000" cy="796" r="3" fill="#333"/>
+<!-- подпитка: шина НИЖЕ РБ (снаружи) -->
+<path d="M 267.0 318.0 L 940.0 318.0" class="hvs"/>
 
-<rect x="1180" y="45" width="310" height="900" fill="#fff" stroke="#333" stroke-width="1.2" rx="6"/>
-<text x="1195" y="68" class="call">v2 — высоты и пятна</text>
-<text x="1195" y="90" class="tiny">На стене высота = каталожный H.</text>
-<text x="1195" y="106" class="tiny">Пятна — вертикальная проекция</text>
-<text x="1195" y="122" class="tiny">у стены; пересечения ОК.</text>
-<text x="1195" y="146" class="call">Углы</text>
-<text x="1195" y="164" class="tiny">Смежные стены делят одно ребро:</text>
-<text x="1195" y="180" class="tiny">угол = одна линия (без разрыва).</text>
-<text x="1195" y="204" class="call">ТТ</text>
-<text x="1195" y="222" class="tiny">Кобальт 25: 460×780×H805.</text>
-<text x="1195" y="238" class="tiny">Правая стена H805; пятно на полу</text>
-<text x="1195" y="254" class="tiny">у правой стены 460×780.</text>
-<text x="1195" y="278" class="call">Высоты (мм от пола)</text>
-<text x="1195" y="296" class="tiny">Газ: 1600–2300 (H700)</text>
-<text x="1195" y="312" class="tiny">Электро: 1550–2290 (H740)</text>
-<text x="1195" y="328" class="tiny">Смес.: 600–940 (H340)</text>
-<text x="1195" y="344" class="tiny">Гребёнка: 900–1050 (H150)</text>
-<text x="1195" y="360" class="tiny">БКН: 0–1300 · Fe: 0–1320</text>
-<text x="1195" y="376" class="tiny">ТТ: 0–805 · дверь: 0–2100</text>
-<text x="1195" y="400" class="call">Fe трубы</text>
-<text x="1195" y="418" class="tiny">Ф1–Fe–Ф2 по одной оси, 90°.</text>
+<!-- ХВС → ГАЗ / ЭЛ: короткие вертикали в нижнюю границу котла (не через РБ) -->
+<path d="M 336.0 318.0 L 336.0 293.3" class="hvs"/>
+<path d="M 434.0 318.0 L 434.0 296.7" class="hvs"/>
 
-<text x="20" y="988" class="note">topochnaya-1980x3500-tri-kotla-v2-stena.svg / .png</text>
+<!-- РБ: короткие вертикали с шины в нижнюю границу бака -->
+<path d="M 391.0 318.0 L 391.0 310.0" class="hvs"/>
+<path d="M 495.0 318.0 L 495.0 310.0" class="hvs"/>
+<path d="M 613.0 318.0 L 613.0 310.0" class="hvs"/>
+<path d="M 864.0 318.0 L 864.0 310.0" class="hvs"/>
+<!-- короткие РБ → котлы / ТТ -->
+<path d="M 378.0 295.0 L 379.5 295.0" class="hvs"/>
+<path d="M 482.0 295.0 L 476.9 295.0" class="hvs"/>
+<!-- РБ-ТТ → ТТ: от низа РБ вниз и в левую границу ТТ -->
+<path d="M 876.0 310.0 L 876.0 346.3 L 894.8 346.3" class="hvs"/>
+
+<!-- подпитка ТТ на верхнюю границу -->
+<path d="M 940.0 318.0 L 940.0 346.3" class="hvs"/>
+<text x="500.0" y="298.0" text-anchor="middle" class="tiny">подпитка → котлы</text>
+
+<!-- ГВС: от БКН сразу к правой грани гребёнки, затем вниз вдоль границы -->
+<path d="M 601.2 313.3 L 245.0 313.3 L 245.0 500.0" class="gvs"/>
+<text x="420.0" y="308.0" class="tiny">ГВС→гребёнка</text>
+
+<path d="M 218.0 500.0 L 200.0 500.0" class="out-san"/>
+<path d="M 218.0 515.0 L 200.0 515.0" class="hvs"/>
+<text x="195.0" y="492.0" class="tiny">санузлы</text>
+
+<!-- СО -->
+<path d="M 346.0 293.3 L 346.0 325.0" class="so"/>
+<path d="M 444.0 296.7 L 444.0 325.0" class="so"/>
+<path d="M 346.0 325.0 L 750.0 325.0" class="so"/>
+<path d="M 894.8 360.0 L 732.5 360.0" class="so"/>
+<path d="M 732.5 360.0 L 732.5 325.0" class="so"/>
+<path d="M 732.5 360.0 L 732.5 374.0" class="so"/>
+<path d="M 567.0 325.0 L 567.0 326.7" class="so"/>
+<path d="M 585.2 323.3 L 585.2 334.0" class="so"/>
+<path d="M 585.2 334.0 L 540.7 334.0" class="so"/>
+<path d="M 540.7 334.0 L 540.7 328.0" class="so"/>
+<path d="M 540.7 328.0 L 250.0 328.0" class="so"/>
+<polygon points="257.0,324.8 250.0,328.0 257.0,331.2" fill="#d84315"/>
+<text x="248.0" y="322.0" class="tiny">СО→радиаторы (через Н-СО)</text>
+<path d="M 585.2 334.0 L 751.3 334.0" class="so"/>
+<path d="M 751.3 334.0 L 751.3 390.0" class="so"/>
+<path d="M 751.3 390.0 L 716.0 390.0" class="so"/>
+<polygon points="723.0,386.8 716.0,390.0 723.0,393.2" fill="#d84315"/>
+<path d="M 540.7 334.0 L 320.0 334.0" class="so"/>
+<path d="M 320.0 334.0 L 320.0 530.0" class="so"/>
+<path d="M 320.0 530.0 L 298.0 530.0" class="so"/>
+<text x="330.0" y="500.0" class="tiny">СО→смес.+Н-ТП</text>
+<path d="M 275.0 515.0 L 230.0 515.0" class="out-ufh"/>
+<text x="240.0" y="508.0" class="tiny">→ТП</text>
+
+<!-- дренаж: Fe наружу; смес → К1 мимо двери (x≥312, не через полотно) -->
+<path d="M 467.7 877.5 L 467.7 892.0" class="drain"/>
+<path d="M 467.7 892.0 L 410.0 892.0" class="drain"/>
+<path d="M 410.0 892.0 L 410.0 822.8" class="drain"/>
+<path d="M 410.0 822.8 L 324.0 822.8" class="drain"/>
+<path d="M 324.0 822.8 L 324.0 800.8" class="drain"/>
+<polygon points="320.8,807.8 324.0,800.8 327.2,807.8" fill="#5d4037"/>
+<!-- от смес к полу (мимо двери) и вниз к коридору К1 -->
+<path d="M 298.0 552.0 L 312.0 552.0" class="drain"/>
+<path d="M 312.0 552.0 L 312.0 822.8" class="drain"/>
+<path d="M 312.0 822.8 L 324.0 822.8" class="drain"/>
+<text x="380.0" y="838.0" text-anchor="middle" class="tiny">дренаж: Fe и смес → К1</text>
+
+<text x="650.0" y="788.0" text-anchor="middle" class="tiny">↑ОКНО центр</text>
+
+<rect x="1180" y="20" width="320" height="1050" fill="#fff" stroke="#333" stroke-width="1.2" rx="6"/>
+<text x="1195" y="42" class="call">Легенда — сокращения</text>
+<text x="1195" y="64" class="tiny">ТП — тёплый пол · Н-ТП — насос ТП</text>
+<text x="1195" y="80" class="tiny">смес.+Н-ТП — смеситель ТП</text>
+<text x="1195" y="96" class="tiny">Н-СО — насос радиаторного отопления</text>
+<text x="1195" y="112" class="tiny">Н-ТТ — насос твердотопливного котла</text>
+<text x="1195" y="128" class="tiny">Н-БКН — насос зарядки бойлера</text>
+<text x="1195" y="144" class="tiny">СО — отопление (радиаторы)</text>
+<text x="1195" y="160" class="tiny">ТТ — твердотопливный котёл</text>
+<text x="1195" y="176" class="tiny">ГАЗ — газовый котёл BaltGaz 24</text>
+<text x="1195" y="192" class="tiny">ЭЛ — электрокотёл Protherm Скат</text>
+<text x="1195" y="208" class="tiny">БКН — бойлер косвенного нагрева</text>
+<text x="1195" y="224" class="tiny">ГС — гидрострелка</text>
+<text x="1195" y="240" class="tiny">СВШ — сепаратор воздух/шлам</text>
+<text x="1195" y="256" class="tiny">РБ — расширительный бак (Г/Э/ТТ/СО)</text>
+<text x="1195" y="272" class="tiny">ХВС/ГВС — холодная/горячая вода</text>
+<text x="1195" y="288" class="tiny">Fe — обезжелезивание · Ф1/Ф2 — фильтры</text>
+<text x="1195" y="304" class="tiny">ИБП — бесперебойник · АКБ — аккумулятор</text>
+<text x="1195" y="320" class="tiny">К1 — трап · авто — автомат/клапан Fe</text>
+<text x="1195" y="336" class="tiny">СН4+СО — сигнализатор газа/угарного</text>
+<text x="1195" y="352" class="tiny">колл. СО — коллектор радиаторов</text>
+<text x="1195" y="368" class="tiny">гребёнка — коллектор ХВС+ГВС</text>
+
+<text x="1195" y="396" class="call">Синхрон с планом</text>
+<text x="1195" y="416" class="tiny">РБ-Г у ГАЗ · РБ-Э у ЭЛ</text>
+<text x="1195" y="432" class="tiny">РБ-СО у ГС · РБ-ТТ у ТТ</text>
+<text x="1195" y="448" class="tiny">Гребёнка — запад, выше двери</text>
+<text x="1195" y="464" class="tiny">БКН — северная стена</text>
+<text x="1195" y="488" class="tiny">1. ХВС→Ф1→Fe→Ф2 (под окном)</text>
+<text x="1195" y="504" class="tiny">2. Стояк→гребёнка / БКН</text>
+<text x="1195" y="520" class="tiny">3. Подпитка→РБ-СО→ГАЗ/ЭЛ/ТТ</text>
+<text x="1195" y="536" class="tiny">4. РБ врезаны в свой котёл</text>
+<text x="1195" y="552" class="tiny">5. ГВС БКН→гребёнка (90°)</text>
+<text x="1195" y="568" class="tiny">6. СО котлы→ГС→дом · ТП · К1</text>
+
+<text x="1195" y="596" class="call">Типы линий</text>
+<path d="M 1195 616 L 1260 616" class="hvs" marker-end="url(#aB)"/>
+<text x="1270" y="620" class="tiny">ХВС / подпитка</text>
+<path d="M 1195 636 L 1260 636" class="gvs" marker-end="url(#aG)"/>
+<text x="1270" y="640" class="tiny">ГВС</text>
+<path d="M 1195 656 L 1260 656" class="so" marker-end="url(#aSO)"/>
+<text x="1270" y="660" class="tiny">СО подача</text>
+<path d="M 1195 676 L 1260 676" class="out-ufh" marker-end="url(#aT)"/>
+<text x="1270" y="680" class="tiny">ТП → тёплые полы</text>
+<path d="M 1195 696 L 1260 696" class="drain" marker-end="url(#aK)"/>
+<text x="1270" y="700" class="tiny">дренаж → К1</text>
+<path d="M 1195 716 L 1260 716" class="sig" marker-end="url(#aSig)"/>
+<text x="1270" y="720" class="tiny">сигнал СН4+СО</text>
+<path d="M 1195 736 L 1260 736" class="gasline" marker-end="url(#aGas)"/>
+<text x="1270" y="740" class="tiny">газ → котёл</text>
+
+<text x="20" y="1088" class="note">topochnaya-1980x3500-tri-kotla-v2-stena.svg / .png</text>
 </svg>
