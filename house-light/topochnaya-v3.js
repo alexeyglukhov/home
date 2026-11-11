@@ -289,12 +289,21 @@ function wallExit(group, innerPt, outerPt, r, material) {
   group.add(plate);
 }
 
-/** Вывод за стену: вниз на пол в свою полосу (laneX), затем за пределы комнаты. */
+/** Вывод за западную стену: вниз на пол в полосу laneX, затем +10 см наружу. */
 function floorWallExit(group, fromPt, outX, floorY, r, material, laneX = null) {
   const xLane = laneX == null ? fromPt[0] : laneX;
   const drop = pt(xLane, floorY, fromPt[2]);
   const outer = pt(outX, floorY, fromPt[2]);
   pipeRun(group, [fromPt, pt(fromPt[0], floorY, fromPt[2]), drop, outer], r, material);
+  const plate = meshBox(0.08, 0.08, 0.08, mat(0x455a64, { metalness: 0.45, roughness: 0.4 }));
+  plate.position.set(outer[0], outer[1], outer[2]);
+  group.add(plate);
+}
+
+/** Вывод за северную стену: вниз и прямо наружу по Z (без прогона в СЗ угол). */
+function floorWallExitN(group, fromPt, outZ, floorY, r, material) {
+  const outer = pt(fromPt[0], floorY, outZ);
+  pipeRun(group, [fromPt, pt(fromPt[0], floorY, fromPt[2]), outer], r, material);
   const plate = meshBox(0.08, 0.08, 0.08, mat(0x455a64, { metalness: 0.45, roughness: 0.4 }));
   plate.position.set(outer[0], outer[1], outer[2]);
   group.add(plate);
@@ -327,6 +336,33 @@ function pipeRun(group, points, r, material) {
   }
 }
 
+/**
+ * Горизонталь вдоль западной стены: над дверью, без пересечения проёма.
+ * yLiftOpt — высота над притолокой; zPad — отступ подъёма от дверной коробки по Z
+ * (разные нитки — разный zPad, чтобы вертикали не совпадали; X у плоскости стены).
+ */
+function westRunZ(group, x, yNom, zA, zB, r, material, L, yLiftOpt = null, zPad = 0.08) {
+  const z0 = L.doorZ0;
+  const z1 = L.doorZ1;
+  const yLift = yLiftOpt != null ? yLiftOpt : Math.max(yNom, L.yOverDoor);
+  const zLo = Math.min(zA, zB);
+  const zHi = Math.max(zA, zB);
+  if (zHi <= z0 + EPS || zLo >= z1 - EPS || yNom >= yLift - EPS) {
+    pipeRun(group, [pt(x, yNom, zA), pt(x, yNom, zB)], r, material);
+    return;
+  }
+  const southward = zB > zA;
+  let zEnter = southward ? z0 - zPad : z1 + zPad;
+  let zExit = southward ? z1 + zPad : z0 - zPad;
+  zEnter = THREE.MathUtils.clamp(zEnter, zLo, zHi);
+  zExit = THREE.MathUtils.clamp(zExit, zLo, zHi);
+  const pts = [pt(x, yNom, zA)];
+  if (Math.abs(zA - zEnter) > EPS) pts.push(pt(x, yNom, zEnter));
+  pts.push(pt(x, yLift, zEnter), pt(x, yLift, zExit), pt(x, yNom, zExit));
+  if (Math.abs(zB - zExit) > EPS) pts.push(pt(x, yNom, zB));
+  pipeRun(group, pts, r, material);
+}
+
 /** Общие координаты: синхрон с plan-v3.svg (правки пользователя) + СТЭН mini-11. */
 function layoutPorts() {
   const zN = -ROOM.d / 2;
@@ -334,20 +370,21 @@ function layoutPorts() {
   const xW = -ROOM.w / 2;
   const xE = ROOM.w / 2;
 
-  // пятна с плана (м); ТТ — mini-11 у восточной стены, фронт в комнату (на запад)
-  const gas = { x: -1.259, z: -0.826 };
-  const el = { x: -0.729, z: -0.832 };
-  const bkn = { x: 0.614, z: -0.709 };
+  // пятна с plan-v3.svg (правки пользователя); ТТ — mini-11 у востока
+  const gas = { x: -1.327, z: 0.824 }; // южная стена, фронт на север
+  const el = { x: -0.619, z: -0.829 };
+  const bkn = { x: 0.614, z: -0.709 }; // термоаккумулятор со змеевиком
   const fuel = { x: 1.317, z: 0.148 };
   const fe = { x: 1.495, z: -0.708 };
   const f1 = { x: 1.667, z: -0.194 };
   const f2 = { x: 1.659, z: -0.36 };
-  const lap = { x: -1.422, z: 0.674 };
-  const grebPos = { x: -1.672, z: -0.724 };
-  const mixPos = { x: -1.677, z: -0.667 };
+  const lap = { x: -1.451, z: -0.657 }; // западная стена, фронт на восток
+  const lapRotY = -Math.PI / 2;
+  const grebPos = { x: -0.958, z: -0.911 }; // северная стена
+  const mixPos = { x: -0.987, z: -0.911 };
 
   const grebLen = 0.26;
-  const mixLen = 0.26;
+  const mixLen = 0.34;
   const grebZ = snap(grebPos.z);
   const mixZ = snap(mixPos.z);
   const boilerD = 0.3;
@@ -406,65 +443,80 @@ function layoutPorts() {
   const xRise = snap(-0.55);
   const gasBoilerZ = boilerZ(gas);
   const elBoilerZ = boilerZ(el);
-  const frontZGas = snap(gasBoilerZ + boilerD / 2 - 0.04);
+  // ГАЗ на юге: фронт на −Z; ЭЛ на севере: фронт на +Z
+  const frontZGas = snap(gasBoilerZ - boilerD / 2 + 0.04);
   const frontZEl = snap(elBoilerZ + boilerD / 2 - 0.04);
   const rbZ = snap(zN + 0.12);
   const rbY = Y.rb + 0.14;
   // ТТ: фронт на запад (−X), тыл к восточной стене
   const ttFrontX = snap(tt.x - ttD / 2);
   const ttRearX = snap(tt.x + ttD / 2);
+  // дверь на западе: трубы вдоль wRail не пересекают проём
+  const doorZ = 0;
+  const doorW = 0.7;
+  const doorH = 2.1;
+  const doorZ0 = snap(doorZ - doorW / 2);
+  const doorZ1 = snap(doorZ + doorW / 2);
+  const yOverDoor = snap(doorH + 0.12); // 2,22 — база над притолокой
+  // над дверью: у плоскости стены; разнос по Y и по отступу подъёма от коробки (Z)
+  const xWestPipe = snap(xW + 0.05);
+  const yDoorCold = snap(yOverDoor); // 2,22 ХВС
+  const yDoorHot = snap(yOverDoor + 0.12); // 2,34 СО
+  const zPadCold = 0.06; // подъём ближе к коробке
+  const zPadHot = 0.2; // подъём дальше от коробки
 
   return {
     zN, zS, xW, xE, gas, el, bkn, tt, fe, f1, f2, lap, fuel,
     boilerD, boilerW, boilerZ: gasBoilerZ, gasBoilerZ, elBoilerZ,
     bknZ, bknR, ttZ, ttW, ttD, ttH, ttRotY, ttFrontX, ttRearX,
-    grebZ, mixZ, grebLen, mixLen, grebPos, mixPos,
+    grebZ, mixZ, grebLen, mixLen, grebPos, mixPos, lapRotY,
     nRail, wRail, sRail, eRail, xRise,
     wallOutW, wallOutS, wallOutN, wallOutE, soNodes,
+    doorZ, doorW, doorH, doorZ0, doorZ1, yOverDoor,
+    xWestPipe, yDoorCold, yDoorHot, zPadCold, zPadHot,
     nZ: nRail, wX: wRail,
-    avt: { x: -1.409, z: 0.914 },
+    avt: { x: -1.416, z: -0.927 }, // северная стена, фронт на юг
     ibp: { x: -0.932, z: 0.901 },
     akb: { x: -0.62, z: 0.898 },
     vent: { x: 1.681, z: 0.009 },
     nTt: { x: 0.969, z: -0.896 },
-    nBkn: { x: 1.14, z: -0.887 },
-    ch4: { x: -0.378, z: -0.95 },
+    nBkn: { x: 1.14, z: -0.887 }, // насос термоаккумулятора
+    ch4: { x: -0.298, z: -0.941 },
     port: {
-      // ГАЗ/ЭЛ: все гидравлика снизу корпуса (типовой настенный)
-      // спереди: слева подача СО, справа обратка
-      gasSo: pt(gas.x - 0.1, gasY0 - 0.02, gasBoilerZ),
-      gasFeed: pt(gas.x + 0.1, gasY0 - 0.02, gasBoilerZ),
+      // ГАЗ на юге: смотрим с севера — слева (+X) подача, справа (−X) обратка
+      gasSo: pt(gas.x + 0.1, gasY0 - 0.02, gasBoilerZ),
+      gasFeed: pt(gas.x - 0.1, gasY0 - 0.02, gasBoilerZ),
       gasFuel: pt(gas.x, gasY0 - 0.02, gasBoilerZ),
       elSo: pt(el.x - 0.1, elY0 - 0.02, elBoilerZ),
       elFeed: pt(el.x + 0.1, elY0 - 0.02, elBoilerZ),
-      // БКН: ХВС низ, ГВС верх; змеевик сбоку
+      // ЭЛ-комби: ГВС снизу по центру → гребёнка
+      elGvs: pt(el.x, elY0 - 0.02, elBoilerZ),
+      // термоаккумулятор со змеевиком: ХВС низ, ГВС верх; змеевик сбоку
       bknCold: pt(bkn.x - bknR + 0.02, 0.35, bknZ),
       bknHot: pt(bkn.x - bknR + 0.02, 1.15, bknZ),
       bknHeat: pt(bkn.x + bknR - 0.02, 0.78, bknZ),
       bknRet: pt(bkn.x + bknR - 0.02, 0.45, bknZ),
-      // ТТ СТЭН mini-11: подача сзади сверху; обратка сбоку (север) низко; дымоход сверху
       ttSo: pt(ttRearX, 0.5, tt.z),
       ttFeed: pt(tt.x + ttD / 2 - 0.055, 0.113, tt.z - ttW / 2),
       ttFlue: pt(tt.x + 0.04, 0.04 + ttH * 0.88 + 0.12, tt.z),
-      grebHvs: pt(wRail + 0.05, Y.hvs, grebZ - grebLen * 0.28),
-      grebGvs: pt(wRail + 0.05, Y.gvs, grebZ + grebLen * 0.28),
-      grebOutGvs: pt(wRail, Y.gvs, grebZ + grebLen * 0.38),
-      grebOutHvs: pt(wRail, Y.hvs, grebZ - grebLen * 0.38),
-      mixSoIn: pt(wRail + 0.05, Y.soLo + 0.06, mixZ - mixLen * 0.2),
-      mixUfh: pt(wRail, Y.soLo + 0.06, mixZ + mixLen * 0.35),
-      mixDrain: pt(wRail + 0.08, Y.drain, mixZ),
+      // гребёнка выдвинута (zN+0.28); порты на тыле гребёнки
+      grebHvs: pt(grebPos.x - grebLen * 0.28, Y.hvs, zN + 0.28),
+      grebGvs: pt(grebPos.x + grebLen * 0.28, Y.gvs, zN + 0.28),
+      grebOutGvs: pt(grebPos.x + grebLen * 0.38, Y.gvs, zN + 0.22),
+      grebOutHvs: pt(grebPos.x - grebLen * 0.38, Y.hvs, zN + 0.22),
+      mixSoIn: pt(mixPos.x - mixLen * 0.2, Y.soLo + 0.06, zN + 0.22),
+      mixUfh: pt(mixPos.x + mixLen * 0.35, Y.soLo + 0.06, zN + 0.2),
+      mixDrain: pt(mixPos.x, Y.soLo - 0.02, zN + 0.28),
       gasMain: pt(wallOutW, Y.gas, gas.z),
       ventOut: pt(wallOutE, Y.vent, 0.1),
-      // коаксиал ГАЗ: с верхней крышки котла
-      gasCoax: pt(gas.x, gasY0 + 0.7, gasBoilerZ),
+      // коаксиал: на крышке корпуса ГК (центр верха), затем через южную стену
+      gasCoax: pt(gas.x, gasY0 + 0.68, gasBoilerZ),
       nSoIn: pt(soNodes.nSo, Y.soMid + 0.06, nRail + 0.08),
       manIn: pt(soNodes.man, Y.soMid + 0.08, nRail + 0.08),
       gsIn: pt(soNodes.gs, Y.gs, nRail + 0.08),
       svshIn: pt(soNodes.svsh, Y.svsh, nRail + 0.08),
-      // два РБ
-      rbSo: pt(-0.127, rbY, rbZ),
-      rbKotly: pt(0.176, rbY, rbZ),
-      // Fe/Ф на восточной стене, фронт на запад
+      rbSo: pt(-0.093, rbY, rbZ),
+      rbKotly: pt(0.22, rbY, rbZ),
       f1In: pt(eRail + 0.03, yFil, f1.z),
       f1Out: pt(eRail, yFil, f1.z - 0.04),
       feIn: pt(eRail, yFil, fe.z + 0.18),
@@ -473,10 +525,9 @@ function layoutPorts() {
       f2In: pt(eRail, yFil, f2.z + 0.04),
       f2Out: pt(eRail + 0.03, yFil, f2.z),
       lapDrain: pt(lap.x, Y.drain, lap.z),
-      k1: pt(-0.344, 0.02, 0.888),
-      soOut: pt(wRail, Y.so, grebZ),
+      k1: pt(0.045, 0.02, -0.013),
+      soOut: pt(snap(xW + 0.05), Y.so, sRail),
       gasInWall: pt(wallOutW, Y.gas, gas.z),
-      // ввод ХВС: прямой штуцер через вост. стену (+10 см), без поворотов снаружи
       hvsInWall: pt(wallOutE, yFil, f1.z),
     },
     Y,
@@ -659,6 +710,71 @@ function makePump() {
   return g;
 }
 
+/** Гребёнка ХВС/ГВС: коллектор с вентилями, рукоятки в комнату (+Z). */
+function makeGrebManifold(len, h = 0.32) {
+  const g = new THREE.Group();
+  const brass = mat(0x90a4ae, { metalness: 0.55, roughness: 0.32 });
+  const blue = mat(0x0277bd, { metalness: 0.35, roughness: 0.4 });
+  const red = mat(0xc62828, { metalness: 0.35, roughness: 0.4 });
+  const bar = meshCyl(0.02, 0.02, len, brass, 12);
+  bar.rotation.z = Math.PI / 2;
+  bar.position.set(0, h * 0.4, 0);
+  const plate = meshBox(len + 0.04, h * 0.55, 0.025, mat(0x607d8b, { metalness: 0.4, roughness: 0.4 }));
+  plate.position.set(0, h * 0.4, -0.055);
+  g.add(bar, plate);
+  const n = 6;
+  for (let i = 0; i < n; i++) {
+    const x = -len / 2 + 0.025 + (i / (n - 1)) * (len - 0.05);
+    const col = i < n / 2 ? blue : red;
+    const stem = meshCyl(0.009, 0.009, 0.07, brass, 8);
+    stem.position.set(x, h * 0.4 + 0.035, 0.025);
+    const hand = meshBox(0.038, 0.01, 0.01, col);
+    hand.position.set(x, h * 0.4 + 0.075, 0.025);
+    const drop = meshCyl(0.007, 0.007, 0.1, brass, 8);
+    drop.position.set(x, h * 0.4 - 0.055, 0);
+    g.add(stem, hand, drop);
+  }
+  return g;
+}
+
+/** Смесительный узел ТП: ряд мелких вентилей как гребёнка (+ одна термоголовка). */
+function makeMixValveBlock(len, h = 0.28) {
+  const g = new THREE.Group();
+  const brass = mat(0xd4a017, { metalness: 0.55, roughness: 0.32 });
+  const blue = mat(0x1565c0, { metalness: 0.35, roughness: 0.4 });
+  const red = mat(0xc62828, { metalness: 0.35, roughness: 0.4 });
+  const y0 = h * 0.4;
+  const bar = meshCyl(0.014, 0.014, len, brass, 12);
+  bar.rotation.z = Math.PI / 2;
+  bar.position.set(0, y0, 0);
+  const plate = meshBox(len + 0.03, h * 0.45, 0.02, mat(0x78909c, { metalness: 0.4, roughness: 0.4 }));
+  plate.position.set(0, y0, -0.045);
+  g.add(bar, plate);
+  const n = 10;
+  const thermoIdx = 4;
+  for (let i = 0; i < n; i++) {
+    const x = -len / 2 + 0.02 + (i / (n - 1)) * (len - 0.04);
+    const col = i < n / 2 ? blue : red;
+    const stem = meshCyl(0.006, 0.006, 0.045, brass, 8);
+    stem.position.set(x, y0 + 0.022, 0.018);
+    const hand = meshBox(0.024, 0.007, 0.007, col);
+    hand.position.set(x, y0 + 0.048, 0.018);
+    const drop = meshCyl(0.005, 0.005, 0.07, brass, 8);
+    drop.position.set(x, y0 - 0.04, 0);
+    g.add(stem, hand, drop);
+    if (i === thermoIdx) {
+      const head = meshCyl(0.016, 0.02, 0.032, mat(0xf5f5f5, { roughness: 0.45 }), 10);
+      head.position.set(x, y0 + 0.07, 0.018);
+      g.add(head);
+    }
+  }
+  const gauge = meshCyl(0.012, 0.012, 0.01, mat(0xfafafa, { metalness: 0.2 }), 10);
+  gauge.rotation.x = Math.PI / 2;
+  gauge.position.set(len * 0.28, y0 + 0.06, 0.04);
+  g.add(gauge);
+  return g;
+}
+
 function makeFilter() {
   const g = new THREE.Group();
   const jar = meshCyl(0.05, 0.05, 0.2, mat(0x00838f, { metalness: 0.2, roughness: 0.4 }));
@@ -716,7 +832,7 @@ function makeFe(h = 1.32) {
   return g;
 }
 
-/** Лапамойка: неглубокая чаша, кран на южном борту, слив по центру. */
+/** Лапамойка: неглубокая чаша; кран на борту +Z (после rotY −π/2 — на восток, в комнату). */
 function makeSink() {
   const g = new THREE.Group();
   const outer = mat(0xb0bec5, { roughness: 0.5, metalness: 0.15 });
@@ -843,15 +959,49 @@ function makePanel(w, h, d, _title) {
   return g;
 }
 
-/** Группа безопасности у котла (не РБ). */
+/** Группа безопасности у котла (не РБ) — компактный блок на корпусе. */
 function makeSafetyGroup() {
   const g = new THREE.Group();
-  const base = meshBox(0.08, 0.1, 0.06, mat(0xffe0b2, { metalness: 0.25, roughness: 0.45 }));
-  base.position.y = 0.05;
-  const valve = meshCyl(0.015, 0.015, 0.06, mat(0xb71c1c, { metalness: 0.4, roughness: 0.4 }), 8);
-  valve.position.set(0.02, 0.12, 0);
-  g.add(base, valve);
+  const base = meshBox(0.06, 0.08, 0.045, mat(0xef6c00, { metalness: 0.35, roughness: 0.4 }));
+  base.position.y = 0.04;
+  const gauge = meshCyl(0.014, 0.014, 0.02, mat(0xfafafa, { metalness: 0.25, roughness: 0.35 }), 10);
+  gauge.rotation.x = Math.PI / 2;
+  gauge.position.set(0, 0.05, 0.028);
+  const valve = meshCyl(0.011, 0.011, 0.04, mat(0xb71c1c, { metalness: 0.45, roughness: 0.35 }), 8);
+  valve.position.set(0.016, 0.095, 0);
+  g.add(base, gauge, valve);
   return g;
+}
+
+/**
+ * ГБ на номинальном корпусе (w×h×d), не по bbox GLB.
+ * Локально: низ по центру; фронт = +Z; подача слева = −X; блок на переднем углу.
+ */
+function mountSafetyOnBoiler(asm, w, h, d) {
+  const x = -w / 2 + 0.03;
+  const y = h * 0.58;
+  const z = d / 2 + 0.005; // чуть выступая с фронта, но на корпусе
+  const plate = meshBox(0.05, 0.11, 0.03, mat(0x546e7a, { metalness: 0.5, roughness: 0.4 }));
+  plate.position.set(x, y, z - 0.02);
+  asm.add(plate);
+  const gb = makeSafetyGroup();
+  gb.position.set(x, y - 0.04, z);
+  asm.add(gb);
+  return gb;
+}
+
+/** Сборка настенного котла: GLB (экран/панель), ГБ на номинальном габарите; коробка — только fallback. */
+async function makeWallBoilerAsm(w, h, d, color) {
+  const asm = new THREE.Group();
+  try {
+    asm.add(fitGlb(await loadGltf("./topochnaya/models/boiler-combi.glb"), w, h, d));
+  } catch {
+    const casing = meshBox(w, h, d, mat(color, { roughness: 0.42 }));
+    casing.position.y = h / 2;
+    asm.add(casing);
+  }
+  mountSafetyOnBoiler(asm, w, h, d);
+  return asm;
 }
 
 function buildFronts(group) {
@@ -864,9 +1014,9 @@ function buildFronts(group) {
     depthWrite: false,
   });
   const L = layoutPorts();
-  // фронты газа/эл — к югу от котлов; ТТ mini-11 — к западу от корпуса (≥1,25 м)
+  // ГАЗ на юге — фронт на север; ЭЛ на севере — фронт на юг; ТТ — на запад
   for (const [x, z, w, d, name, face] of [
-    [L.gas.x, L.gas.z + 0.65, 0.42, 1.0, "фронт газа ≥1 м", "N"],
+    [L.gas.x, L.gas.z - 0.65, 0.42, 1.0, "фронт газа ≥1 м", "S"],
     [L.el.x, L.el.z + 0.65, 0.4, 1.0, "фронт эл. ≥1 м", "N"],
     [L.tt.x - L.ttD / 2 - 0.625, L.tt.z, 1.25, 0.4, "фронт ТТ ≥1,25 м", "E"],
   ]) {
@@ -890,7 +1040,7 @@ function buildPipes(group) {
   const so = mat(0xd84315, { metalness: 0.5, roughness: 0.35 });
   const ufh = mat(0x00695c, { metalness: 0.45, roughness: 0.4 });
   const gasM = mat(0xf9a825, { metalness: 0.45, roughness: 0.4 });
-  const drain = mat(0x5d4037, { metalness: 0.35, roughness: 0.5 });
+  const drain = mat(0x78909c, { metalness: 0.4, roughness: 0.45 });
   const outSan = mat(0x6a1b9a, { metalness: 0.4, roughness: 0.4 });
   const flue = mat(0x6d4c41, { metalness: 0.35, roughness: 0.45 });
 
@@ -900,8 +1050,9 @@ function buildPipes(group) {
   portStub(group, P.gasFuel, "y", -1, 0.01, gasM, 0.06);
   portStub(group, P.elFeed, "y", -1, 0.01, hvs, 0.06);
   portStub(group, P.elSo, "y", -1, 0.012, so, 0.06);
-  portStub(group, P.bknCold, "x", 1, 0.014, hvs, 0.1);
-  portStub(group, P.bknHot, "x", 1, 0.014, gvs, 0.1);
+  portStub(group, P.elGvs, "y", -1, 0.012, gvs, 0.06);
+  portStub(group, P.bknCold, "x", -1, 0.014, hvs, 0.08);
+  portStub(group, P.bknHot, "x", -1, 0.014, gvs, 0.08);
   portStub(group, P.bknHeat, "x", -1, 0.014, so, 0.1);
   portStub(group, P.bknRet, "x", -1, 0.012, so, 0.1);
   // ТТ: обратка на северном боку (−Z), подача на тыле (+X)
@@ -910,14 +1061,15 @@ function buildPipes(group) {
   portStub(group, P.ttFlue, "y", 1, 0.057, flue, 0.06);
   portStub(group, P.feIn, "x", 1, 0.012, hvs);
   portStub(group, P.feOut, "x", 1, 0.012, hvs);
-  portStub(group, P.feDrain, "y", 1, 0.012, drain, 0.05);
+  portStub(group, P.feDrain, "y", 1, 0.018, drain, 0.05);
+  portStub(group, P.mixDrain, "y", -1, 0.016, drain, 0.04);
   portStub(group, P.f1In, "x", 1, 0.012, hvs, 0.05);
   portStub(group, P.f1Out, "z", 1, 0.011, hvs, 0.05);
   portStub(group, P.f2In, "z", -1, 0.011, hvs, 0.05);
   portStub(group, P.f2Out, "x", 1, 0.012, hvs, 0.05);
-  portStub(group, P.grebHvs, "x", -1, 0.012, hvs);
-  portStub(group, P.grebGvs, "x", -1, 0.012, gvs);
-  portStub(group, P.mixSoIn, "x", -1, 0.011, so);
+  portStub(group, P.grebHvs, "z", -1, 0.012, hvs);
+  portStub(group, P.grebGvs, "z", -1, 0.012, gvs);
+  portStub(group, P.mixSoIn, "z", -1, 0.011, so);
   for (const rb of [P.rbSo, P.rbKotly]) portStub(group, rb, "y", 1, 0.01, so, 0.05);
 
   // 1. ХВС восток: прямой ввод (+10 см за стену) → Ф1 → Fe → Ф2
@@ -941,40 +1093,49 @@ function buildPipes(group) {
   const bknWest = P.bknCold[0];
   const fl = Y.flHvs;
   const xHvs = rise - 0.06;
-  const xDrain = rise + 0.08;
   pipeRun(group, [
     P.f2Out,
     pt(e, fl, P.f2Out[2]),
-    pt(e, fl, L.grebZ),
-    pt(xHvs, fl, L.grebZ),
-    pt(xHvs, fl, L.grebZ),
-    pt(w + 0.04, fl, L.grebZ),
-    pt(w + 0.04, Y.hvs, L.grebZ),
-    pt(w, Y.hvs, L.grebZ),
-    pt(w, Y.hvs, n),
+    pt(e, fl, n),
+    pt(P.grebHvs[0], fl, n),
+    pt(P.grebHvs[0], Y.hvs, n),
     pt(bknWest, Y.hvs, n),
   ], 0.014, hvs);
   nodeTag(group, "колл. ХВС", L.el.x, Y.hvs, n + 0.05, "N", { y: Y.hvs + 0.18, front: 0.07 });
-  pipeRun(group, [pt(w, Y.hvs, L.grebZ), P.grebHvs], 0.013, hvs);
-  // подпитка БКН: спуск с магистрали у стены прямо в патрубок
+  pipeRun(group, [pt(P.grebHvs[0], Y.hvs, n), P.grebHvs], 0.013, hvs);
+  // подпитка термоаккумулятора
   pipeRun(group, [
     pt(bknWest, Y.hvs, n),
     pt(bknWest, P.bknCold[1], n),
     P.bknCold,
   ], 0.014, hvs);
 
-  // 3. Подпитка → низы ГАЗ/ЭЛ и боковая обратка ТТ
-  pipeRun(group, [pt(w, Y.hvs, n), pt(w, Y.feed, n), pt(P.ttFeed[0], Y.feed, n)], 0.011, hvs);
+  // 3. Подпитка: стояк от коллектора ХВС у гребёнки (без оторванного штуцера в СЗ углу)
+  const xMake = P.grebHvs[0];
+  pipeRun(group, [
+    pt(xMake, Y.hvs, n),
+    pt(xMake, Y.feed, n),
+    pt(P.ttFeed[0], Y.feed, n),
+  ], 0.011, hvs);
   nodeTag(group, "подпитка", L.el.x, Y.feed, n + 0.05, "N", { y: Y.feed + 0.16, front: 0.07 });
-  for (const port of [P.gasFeed, P.elFeed]) {
-    // с магистрали вниз под котёл и в нижний патрубок
-    pipeRun(group, [
-      pt(port[0], Y.feed, n),
-      pt(port[0], port[1] - 0.08, n),
-      pt(port[0], port[1] - 0.08, port[2]),
-      port,
-    ], 0.01, hvs);
-  }
+  // ЭЛ на севере
+  pipeRun(group, [
+    pt(P.elFeed[0], Y.feed, n),
+    pt(P.elFeed[0], P.elFeed[1] - 0.08, n),
+    pt(P.elFeed[0], P.elFeed[1] - 0.08, P.elFeed[2]),
+    P.elFeed,
+  ], 0.01, hvs);
+  // ГАЗ на юге: ХВС у плоскости стены, над дверью ниже СО
+  const xWpipe = L.xWestPipe;
+  pipeRun(group, [pt(xMake, Y.feed, n), pt(xWpipe, Y.feed, n)], 0.01, hvs);
+  westRunZ(group, xWpipe, Y.feed, n, s, 0.01, hvs, L, L.yDoorCold, L.zPadCold);
+  pipeRun(group, [
+    pt(xWpipe, Y.feed, s),
+    pt(P.gasFeed[0], Y.feed, s),
+    pt(P.gasFeed[0], P.gasFeed[1] - 0.08, s),
+    pt(P.gasFeed[0], P.gasFeed[1] - 0.08, P.gasFeed[2]),
+    P.gasFeed,
+  ], 0.01, hvs);
   // обратка ТТ: опуск к низкому боковому патрубку (север), не на фронт
   {
     const xf = P.ttFeed[0];
@@ -988,35 +1149,54 @@ function buildPipes(group) {
     ], 0.011, hvs);
   }
 
-  // 4. ГВС из БКН → магистраль у стены → гребёнка
+  // 4. ГВС: термоаккумулятор + ЭЛ-комби → гребёнка (без обрывов)
+  {
+    const xHot = P.bknHot[0] - 0.06; // от штуцера в комнату, затем к магистрали
+    pipeRun(group, [
+      P.bknHot,
+      pt(xHot, P.bknHot[1], P.bknHot[2]),
+      pt(xHot, P.bknHot[1], n),
+      pt(xHot, Y.gvs, n),
+      pt(P.grebGvs[0], Y.gvs, n),
+      P.grebGvs,
+    ], 0.014, gvs);
+  }
   pipeRun(group, [
-    P.bknHot,
-    pt(bknWest, P.bknHot[1], n),
-    pt(bknWest, Y.gvs, n),
-    pt(w, Y.gvs, n),
-    pt(w, Y.gvs, L.grebZ),
+    P.elGvs,
+    pt(P.elGvs[0], P.elGvs[1] - 0.08, P.elGvs[2]),
+    pt(P.elGvs[0], P.elGvs[1] - 0.08, n),
+    pt(P.elGvs[0], Y.gvs, n),
+    pt(P.grebGvs[0], Y.gvs, n),
     P.grebGvs,
-  ], 0.014, gvs);
-  nodeTag(group, "ГВС", w + 0.08, Y.gvs, L.grebZ, "W", { y: Y.gvs + 0.18, front: 0.07, scale: 0.32 });
-  // выводы после гребёнки — на пол разными полосами (по X), затем за стену
-  floorWallExit(group, P.grebOutGvs, L.wallOutW, Y.flOut, 0.013, outSan, w + 0.02);
-  floorWallExit(group, P.grebOutHvs, L.wallOutW, Y.flOut, 0.012, hvs, w + 0.08);
-  nodeTag(group, "→санузлы", P.grebOutGvs[0], 0.25, P.grebOutGvs[2], "W", { y: 0.38, front: 0.07 });
+  ], 0.012, gvs);
+  nodeTag(group, "ГВС", P.grebGvs[0], Y.gvs, n + 0.05, "N", { y: Y.gvs + 0.22, front: 0.1, scale: 0.32 });
+  // санузлы: от гребёнки → опуск → через северную стену (+10 см)
+  pipeRun(group, [P.grebGvs, P.grebOutGvs], 0.013, gvs);
+  pipeRun(group, [P.grebHvs, P.grebOutHvs], 0.012, hvs);
+  floorWallExitN(group, P.grebOutGvs, L.wallOutN, Y.flOut, 0.013, outSan);
+  floorWallExitN(group, P.grebOutHvs, L.wallOutN, Y.flOut, 0.012, hvs);
+  nodeTag(group, "→санузлы ГВС", P.grebOutGvs[0], 0.35, L.wallFaceN + 0.02, "N", {
+    y: 0.48, front: 0.08, scale: 0.28,
+  });
 
-  // 5. СО коллектор: от низа ГАЗ/ЭЛ вверх к магистрали
-  pipeRun(group, [
-    P.gasSo,
-    pt(P.gasSo[0], P.gasSo[1] - 0.08, P.gasSo[2]),
-    pt(P.gasSo[0], P.gasSo[1] - 0.08, n),
-    pt(P.gasSo[0], Y.so, n),
-    pt(L.bkn.x, Y.so, n),
-  ], 0.014, so);
+  // 5. СО коллектор: ЭЛ с севера; ГАЗ с юга по западной полосе
   pipeRun(group, [
     P.elSo,
     pt(P.elSo[0], P.elSo[1] - 0.08, P.elSo[2]),
     pt(P.elSo[0], P.elSo[1] - 0.08, n),
     pt(P.elSo[0], Y.so, n),
+    pt(L.bkn.x, Y.so, n),
   ], 0.014, so);
+  pipeRun(group, [
+    P.gasSo,
+    pt(P.gasSo[0], P.gasSo[1] - 0.08, P.gasSo[2]),
+    pt(P.gasSo[0], P.gasSo[1] - 0.08, s),
+    pt(xWpipe, P.gasSo[1] - 0.08, s),
+    pt(xWpipe, Y.so, s),
+  ], 0.014, so);
+  // запад: СО у той же стены, над дверью выше ХВС (~12 см)
+  westRunZ(group, xWpipe, Y.so, s, n, 0.014, so, L, L.yDoorHot, L.zPadHot);
+  pipeRun(group, [pt(xWpipe, Y.so, n), pt(L.bkn.x, Y.so, n)], 0.014, so);
   // подача ТТ: вдоль восточной стены, сразу вверх (выше Fe H1320), затем на север
   {
     const ys = P.ttSo[1];
@@ -1031,7 +1211,7 @@ function buildPipes(group) {
     ], 0.014, so);
   }
   nodeTag(group, "колл. СО", L.bkn.x, Y.so, n + 0.05, "N", { y: Y.so + 0.18, front: 0.07 });
-  // зарядка БКН с востока + обратка — короткие опуски у стены
+  // зарядка термоаккумулятора + обратка
   const bknEast = P.bknHeat[0];
   pipeRun(group, [
     pt(bknEast, Y.so, n),
@@ -1044,24 +1224,23 @@ function buildPipes(group) {
     pt(bknEast, Y.soMid, n),
     pt(L.soNodes.man, Y.soMid, n),
   ], 0.011, so);
-  pipeRun(group, [pt(L.el.x, Y.so, n), pt(w, Y.so, n), pt(w, Y.so, P.soOut[2]), P.soOut], 0.014, so);
-  floorWallExit(group, P.soOut, L.wallOutW, Y.flOut, 0.014, so, w + 0.14);
+  pipeRun(group, [pt(L.el.x, Y.so, n), pt(xWpipe, Y.so, n)], 0.014, so);
+  westRunZ(group, xWpipe, Y.so, n, P.soOut[2], 0.014, so, L, L.yDoorHot, L.zPadHot);
+  pipeRun(group, [pt(xWpipe, Y.so, P.soOut[2]), P.soOut], 0.014, so);
+  floorWallExit(group, P.soOut, L.wallOutW, Y.flOut, 0.014, so, xWpipe);
   nodeTag(group, "СО→радиаторы", P.soOut[0], 0.35, P.soOut[2], "W", { y: 0.5, front: 0.07 });
-  // РБ на стене: короткий подъём с магистрали СО (только два бака)
   for (const rb of [P.rbSo, P.rbKotly]) {
     pipeRun(group, [pt(rb[0], Y.so, n), pt(rb[0], rb[1], rb[2])], 0.009, so);
   }
-  // СО→смес: по стене наверху, опуск только у смесителя (не через фронт ЭЛ низом)
+  // СО→смес на севере
   pipeRun(group, [
-    pt(w, Y.so, n),
-    pt(w, Y.so, L.mixZ),
-    pt(w, Y.soLo, L.mixZ),
+    pt(P.mixSoIn[0], Y.so, n),
+    pt(P.mixSoIn[0], Y.soLo, n),
     P.mixSoIn,
   ], 0.012, so);
-  // подпись высоко на западной стене — отдельно от «смес.+Н-ТП»
-  nodeTag(group, "СО→смес", w + 0.08, Y.so, L.mixZ, "W", { y: 1.72, front: 0.07, scale: 0.3 });
+  nodeTag(group, "СО→смес", P.mixSoIn[0], Y.so, n + 0.05, "N", { y: 1.72, front: 0.07, scale: 0.3 });
   floorWallExit(group, P.mixUfh, L.wallOutW, Y.flOut, 0.012, ufh, w + 0.2);
-  nodeTag(group, "→ТП", P.mixUfh[0], 0.2, P.mixUfh[2], "W", { y: 0.32, front: 0.07 });
+  nodeTag(group, "→ТП", P.mixUfh[0], 0.85, P.mixUfh[2], "N", { y: 0.95, front: 0.1 });
 
   // 5b. Врезки колл.СО / Н-СО / ГС / СВШ с магистрали СО (подписи — в equipment)
   portStub(group, P.nSoIn, "z", -1, 0.011, so);
@@ -1076,7 +1255,7 @@ function buildPipes(group) {
     ], 0.011, so);
   }
 
-  // 6. Газопровод: ввод (+10 см) → к низу ГАЗ
+  // 6. Газопровод: ввод (+10 см) → вдоль запада/юга → низ ГАЗ
   pipeRun(group, [
     P.gasMain,
     pt(L.wallFaceW, Y.gas, P.gasFuel[2]),
@@ -1085,64 +1264,55 @@ function buildPipes(group) {
     P.gasFuel,
   ], 0.016, gasM);
   nodeTag(group, "газопровод", L.xW + 0.15, Y.gas, L.gas.z, "W", { y: Y.gas + 0.16, front: 0.07, scale: 0.32 });
-  nodeTag(group, "газ→котёл", L.gas.x, P.gasFuel[1] - 0.15, L.gasBoilerZ + 0.12, "N", {
+  nodeTag(group, "газ→котёл", L.gas.x, P.gasFuel[1] - 0.15, L.gasBoilerZ - 0.12, "S", {
     y: P.gasFuel[1] - 0.05, front: 0.12, scale: 0.28,
   });
 
-  // 6b. Коаксиал ГАЗ Ø60/100: с верхней крышки → потолок → южная стена (+10 см)
+  // 6b. Коаксиал ГАЗ: с крышки корпуса → к южной грани → через стену (+10 см)
   {
     const coaxOut = mat(0x78909c, { metalness: 0.55, roughness: 0.35 });
     const coaxIn = mat(0x455a64, { metalness: 0.6, roughness: 0.3 });
     const cx = P.gasCoax[0];
     const cy = P.gasCoax[1];
     const cz = P.gasCoax[2];
-    const yCeil = snap(ROOM.h - 0.18);
+    const zRear = L.gasBoilerZ + L.boilerD / 2;
+    // воротник на крышке
+    const collar = meshCyl(0.05, 0.05, 0.04, coaxOut, 12);
+    collar.position.set(cx, cy + 0.02, cz);
+    group.add(collar);
     pipeRun(group, [
       P.gasCoax,
-      pt(cx, yCeil, cz),
-      pt(cx, yCeil, L.wallOutS),
+      pt(cx, cy, zRear),
+      pt(cx, cy, L.wallOutS),
     ], 0.042, coaxOut);
     pipeRun(group, [
-      pt(cx, cy + 0.03, cz),
-      pt(cx, yCeil, cz),
-      pt(cx, yCeil, L.wallOutS),
+      pt(cx, cy, cz + 0.02),
+      pt(cx, cy, L.wallOutS),
     ], 0.024, coaxIn);
     const tip = meshCyl(0.048, 0.048, 0.05, coaxOut, 12);
     tip.rotation.x = Math.PI / 2;
-    tip.position.set(cx, yCeil, L.wallOutS);
+    tip.position.set(cx, cy, L.wallOutS);
     group.add(tip);
-    nodeTag(group, "коаксиал (верх ГК)", cx, cy + 0.15, cz, "N", { y: cy + 0.28, front: 0.12, scale: 0.28 });
-    nodeTag(group, "коаксиал→юг", cx, yCeil, L.zS - 0.25, "S", {
-      y: yCeil + 0.12, front: 0.07, scale: 0.3,
+    nodeTag(group, "коаксиал ГК", cx, cy + 0.12, L.gasBoilerZ, "S", {
+      y: cy + 0.22, front: 0.12, scale: 0.28,
     });
   }
 
-  // 7. Дренаж — полоса xDrain; Fe на востоке → к К1 на юге
-  pipeRun(group, [
-    P.feDrain,
-    pt(P.feDrain[0], Y.flDrain, P.feDrain[2]),
-    pt(xDrain, Y.flDrain, P.feDrain[2]),
-    pt(xDrain, Y.flDrain, P.k1[2]),
-    pt(P.k1[0], Y.flDrain, P.k1[2]),
-    P.k1,
-  ], 0.014, drain);
-  pipeRun(group, [
-    P.mixDrain,
-    pt(P.mixDrain[0], Y.flDrain, P.mixDrain[2]),
-    pt(xDrain, Y.flDrain, P.mixDrain[2]),
-    pt(xDrain, Y.flDrain, P.k1[2]),
-    pt(P.k1[0], Y.flDrain, P.k1[2]),
-    P.k1,
-  ], 0.012, drain);
-  pipeRun(group, [
-    P.lapDrain,
-    pt(P.lapDrain[0], Y.flDrain, P.lapDrain[2]),
-    pt(xDrain, Y.flDrain, P.lapDrain[2]),
-    pt(xDrain, Y.flDrain, P.k1[2]),
-    pt(P.k1[0], Y.flDrain, P.k1[2]),
-    P.k1,
-  ], 0.012, drain);
-  nodeTag(group, "дренаж→К1", P.k1[0], 0.05, P.k1[2], "S", { y: 0.42, front: 0.07, scale: 0.3 });
+  // 7. Дренаж → К1 кратчайшим ортогональным путём (опуск → X → Z), без полосы xDrain
+  const rDr = 0.022;
+  const flD = Y.flDrain;
+  const drainToK1 = (from) => {
+    const pts = [from];
+    if (Math.abs(from[1] - flD) > EPS) pts.push(pt(from[0], flD, from[2]));
+    if (Math.abs(from[0] - P.k1[0]) > EPS) pts.push(pt(P.k1[0], flD, from[2]));
+    if (Math.abs(from[2] - P.k1[2]) > EPS) pts.push(pt(P.k1[0], flD, P.k1[2]));
+    pts.push(P.k1);
+    pipeRun(group, pts, rDr, drain);
+  };
+  drainToK1(P.feDrain);
+  drainToK1(P.mixDrain);
+  drainToK1(P.lapDrain);
+  nodeTag(group, "дренаж→К1", P.k1[0], 0.05, P.k1[2], "N", { y: 0.42, front: 0.07, scale: 0.3 });
 
   // 8. Дымоход ТТ mini-11: с крышки котла вертикально вверх и через кровлю (Ø115)
   {
@@ -1168,30 +1338,33 @@ function buildPipes(group) {
 async function buildEquipment(group, shell) {
   const L = layoutPorts();
   const {
-    zN, zS, xW, gas, el, bkn, tt, fe, f1, f2, lap, fuel, boilerD,
+    zN, zS, xW, gas, el, bkn, tt, fe, f1, f2, lap, fuel, boilerD, boilerW,
     gasBoilerZ, elBoilerZ, bknZ, ttZ, grebZ, mixZ, ttW, ttD, ttH, ttRotY, ttFrontX, ttRearX,
   } = L;
 
-  // --- северная стена: настенные котлы ---
-  try {
-    const g1 = fitGlb(await loadGltf("./topochnaya/models/boiler-combi.glb"), 0.4, 0.68, boilerD);
-    add(group, g1, gas.x, 1.15, gasBoilerZ, 0);
-  } catch {
-    add(group, meshBox(0.4, 0.68, boilerD, mat(0xffffff, { roughness: 0.4 })), gas.x, 1.15 + 0.34, gasBoilerZ);
+  // ГАЗ на южной стене (фронт на север); ГБ на корпусе сборки
+  {
+    const gasH = 0.68;
+    const asm = await makeWallBoilerAsm(boilerW, gasH, boilerD, 0xffffff);
+    add(group, asm, gas.x, 1.15, gasBoilerZ, Math.PI);
+    wallTag(group, "ГАЗ H700", [gas.x, 1.7, gasBoilerZ], "S", { y: 1.95, front: boilerD / 2 + 0.07, scale: 0.34 });
+    // подпись у левого верхнего угла корпуса (после π: локальный −X → мир +X)
+    wallTag(group, "ГБ", [gas.x + boilerW / 2 - 0.02, 1.15 + gasH * 0.6, gasBoilerZ - boilerD / 2 + 0.02], "S", {
+      y: 1.15 + gasH * 0.6 + 0.14, front: 0.08, scale: 0.22,
+    });
   }
-  wallTag(group, "ГАЗ H700", [gas.x, 1.7, gasBoilerZ], "N", { y: 1.95, front: boilerD / 2 + 0.07, scale: 0.34 });
-  add(group, makeSafetyGroup(), gas.x + 0.18, 1.55, gasBoilerZ + boilerD / 2 + 0.04);
-  wallTag(group, "ГБ", [gas.x + 0.18, 1.7, gasBoilerZ + boilerD / 2], "N", { y: 1.78, front: 0.12, scale: 0.22 });
 
-  try {
-    const g2 = fitGlb(await loadGltf("./topochnaya/models/boiler-combi.glb"), 0.38, 0.72, boilerD);
-    add(group, g2, el.x, 1.12, elBoilerZ, 0);
-  } catch {
-    add(group, meshBox(0.38, 0.72, boilerD, mat(0xf5f5f5, { roughness: 0.4 })), el.x, 1.12 + 0.36, elBoilerZ);
+  // ЭЛ на северной стене
+  {
+    const elW = 0.38;
+    const elH = 0.72;
+    const asm = await makeWallBoilerAsm(elW, elH, boilerD, 0xf5f5f5);
+    add(group, asm, el.x, 1.12, elBoilerZ, 0);
+    wallTag(group, "ЭЛ H740", [el.x, 1.7, elBoilerZ], "N", { y: 1.95, front: boilerD / 2 + 0.07 });
+    wallTag(group, "ГБ", [el.x - elW / 2 + 0.02, 1.12 + elH * 0.55, elBoilerZ + boilerD / 2 - 0.02], "N", {
+      y: 1.12 + elH * 0.55 + 0.14, front: 0.08, scale: 0.22,
+    });
   }
-  wallTag(group, "ЭЛ H740", [el.x, 1.7, elBoilerZ], "N", { y: 1.95, front: boilerD / 2 + 0.07 });
-  add(group, makeSafetyGroup(), el.x + 0.16, 1.55, elBoilerZ + boilerD / 2 + 0.04);
-  wallTag(group, "ГБ", [el.x + 0.16, 1.7, elBoilerZ + boilerD / 2], "N", { y: 1.78, front: 0.12, scale: 0.22 });
 
   const N = L.soNodes;
   const railZ = zN + 0.14;
@@ -1225,24 +1398,35 @@ async function buildEquipment(group, shell) {
       group.add(nip);
     }
   }
-  wallTag(group, "БКН H1300", [bkn.x, 1.1, bknZ], "N", { y: 1.4, front: L.bknR + 0.07 });
+  wallTag(group, "термоаккумулятор", [bkn.x, 1.1, bknZ], "N", { y: 1.35, front: L.bknR + 0.07, scale: 0.32 });
+  wallTag(group, "со змеевиком", [bkn.x, 1.1, bknZ], "N", { y: 1.12, front: L.bknR + 0.07, scale: 0.28 });
 
   {
     const yP = 0.55;
     add(group, makePump(), L.nTt.x, yP + 0.02, L.nTt.z);
     wallTag(group, "Н-ТТ", [L.nTt.x, yP, L.nTt.z], "N", { y: yP + 0.22, front: 0.07 });
     add(group, makePump(), L.nBkn.x, yP + 0.02, L.nBkn.z);
-    wallTag(group, "Н-БКН", [L.nBkn.x, yP, L.nBkn.z], "N", { y: yP + 0.22, front: 0.07 });
+    wallTag(group, "Н-ТА", [L.nBkn.x, yP, L.nBkn.z], "N", { y: yP + 0.22, front: 0.07 });
   }
 
   // СТЭН mini-11: у восточной стены; вода: подача сзади, обратка сбоку; дверца на запад
-  add(group, makeTt(ttW, ttD, ttH), tt.x, 0, ttZ, ttRotY);
+  {
+    const ttAsm = new THREE.Group();
+    ttAsm.add(makeTt(ttW, ttD, ttH));
+    // ГБ на тыле у подачи: в локали makeTt до rotY −π/2 тыл = +Z? makeTt без поворота: дверца +Z.
+    // После ttRotY=−π/2 дверца на −X; тыл на +X. В локали сборки до поворота крепим на −Z (станет тыл).
+    // тыл = лок. −Z (подача); ttD — глубина корпуса
+    const gb = makeSafetyGroup();
+    gb.position.set(0.02, 0.5, -ttD / 2 + 0.02);
+    const plate = meshBox(0.04, 0.08, 0.02, mat(0x546e7a, { metalness: 0.45, roughness: 0.4 }));
+    plate.position.set(0.02, 0.52, -ttD / 2 + 0.01);
+    ttAsm.add(plate, gb);
+    add(group, ttAsm, tt.x, 0, ttZ, ttRotY);
+  }
   wallTag(group, "СТЭН mini-11", [tt.x, 0.7, ttZ], "E", { y: 0.85, front: ttD / 2 + 0.07, scale: 0.32 });
   wallTag(group, "ТТ обратка", L.port.ttFeed, "N", { y: 0.28, front: 0.1, scale: 0.24 });
   wallTag(group, "ТТ подача", L.port.ttSo, "E", { y: 0.62, front: 0.1, scale: 0.24 });
-  // ГБ на подаче у тыла
-  add(group, makeSafetyGroup(), ttRearX + 0.06, 0.62, ttZ - 0.08);
-  wallTag(group, "ГБ", [ttRearX + 0.06, 0.75, ttZ - 0.08], "E", { y: 0.82, front: 0.08, scale: 0.22 });
+  wallTag(group, "ГБ", [ttRearX - 0.02, 0.55, tt.z], "E", { y: 0.7, front: 0.08, scale: 0.22 });
 
   add(group, makeCrate(), fuel.x, 0, fuel.z);
   wallTag(group, "топливо (уголь)", [fuel.x, 0.45, fuel.z], "E", { y: 0.62, front: 0.275 + 0.07, scale: 0.34 });
@@ -1261,25 +1445,28 @@ async function buildEquipment(group, shell) {
   add(group, meshBox(0.12, 0.07, 0.05, mat(0xffcdd2)), L.ch4.x, 2.35, zN + 0.04);
   wallTag(group, "СН4+СО", [L.ch4.x, 2.35, zN + 0.04], "N", { y: 2.42, front: 0.07, scale: 0.28 });
 
-  try {
-    const manf = fitGlb(await loadGltf("./topochnaya/models/manifold-ufh.glb"), L.grebLen, 0.4, 0.12);
-    add(group, manf, L.wRail + 0.06, L.Y.greb, grebZ, Math.PI / 2);
-  } catch {
-    add(group, meshBox(0.12, 0.4, L.grebLen, mat(0xb0bec5, { metalness: 0.4 })), L.wRail + 0.05, L.Y.greb, grebZ);
-  }
-  wallTag(group, "гребёнка", [L.wRail + 0.06, L.Y.greb, grebZ], "W", { y: L.Y.greb + 0.22, front: 0.07, scale: 0.3 });
+  // гребёнка и смес — перед магистралями на nRail; вентили/ручки в комнату
+  {
+    const grebMountZ = zN + 0.28;
+    const mixMountZ = zN + 0.28;
+    add(group, makeGrebManifold(L.grebLen, 0.36), L.grebPos.x, L.Y.greb - 0.1, grebMountZ);
+    wallTag(group, "гребёнка", [L.grebPos.x, L.Y.greb, grebMountZ], "N", {
+      y: L.Y.greb + 0.22, front: 0.12, scale: 0.3,
+    });
 
-  const mixBox = meshBox(0.12, 0.34, L.mixLen, mat(0xffe082, { roughness: 0.45, metalness: 0.15 }));
-  add(group, mixBox, L.wRail + 0.05, L.Y.soLo, mixZ);
-  add(group, makePump(), L.wRail + 0.16, L.Y.soLo - 0.02, mixZ - L.mixLen * 0.22);
-  add(group, makePump(), L.wRail + 0.16, L.Y.soLo - 0.02, mixZ + L.mixLen * 0.22);
-  wallTag(group, "смес.+Н-ТП", [L.wRail + 0.05, L.Y.soLo, mixZ], "W", { y: 0.55, front: 0.07, scale: 0.3 });
+    add(group, makeMixValveBlock(L.mixLen, 0.28), L.mixPos.x, L.Y.soLo - 0.06, mixMountZ);
+    add(group, makePump(), L.mixPos.x - L.mixLen * 0.38, L.Y.soLo - 0.04, mixMountZ + 0.12);
+    add(group, makePump(), L.mixPos.x + L.mixLen * 0.38, L.Y.soLo - 0.04, mixMountZ + 0.12);
+    wallTag(group, "смес.+Н-ТП", [L.mixPos.x, L.Y.soLo, mixMountZ], "N", {
+      y: 1.05, front: 0.14, scale: 0.3,
+    });
+  }
 
   const door = makeDoorLeaf(shell.doorW - 0.02, shell.doorH - 0.02);
   add(group, door, xW, 0, shell.doorZ, Math.PI / 2);
   wallTag(group, "дверь 0,70×H2100", [xW, 1.4, shell.doorZ], "W", { y: 1.65, front: 0.07 });
 
-  add(group, makeSink(), lap.x, 0, lap.z);
+  add(group, makeSink(), lap.x, 0, lap.z, L.lapRotY);
   wallTag(group, "лапамойка", [lap.x, 0.28, lap.z], "W", { y: 0.4, front: 0.29 + 0.07 });
 
   // Fe / Ф1 / Ф2 на восточной стене (фронт в комнату)
@@ -1293,16 +1480,17 @@ async function buildEquipment(group, shell) {
 
   const avtH = 0.35 * 1.7;
   const avtTop = 1.35 + 0.35;
-  add(group, makePanel(0.4, avtH, 0.12, "автоматика"), L.avt.x, avtTop - avtH, zS - 0.1, Math.PI);
-  wallTag(group, "автоматика", [L.avt.x, avtTop - avtH / 2, zS - 0.1], "S", { y: avtTop - 0.08, front: 0.06 + 0.07 });
+  // северная стена: ширина вдоль X, глубина 0,12, дверца на +Z (в комнату)
+  add(group, makePanel(0.4, avtH, 0.12, "автоматика"), L.avt.x, avtTop - avtH, L.avt.z);
+  wallTag(group, "автоматика", [L.avt.x, avtTop - avtH / 2, L.avt.z], "N", { y: avtTop - 0.08, front: 0.06 + 0.07 });
   add(group, makePanel(0.32, 0.4, 0.14, "ИБП"), L.ibp.x, 0, zS - 0.12, Math.PI);
   add(group, makePanel(0.3, 0.28, 0.14, "АКБ"), L.akb.x, 0, zS - 0.12, Math.PI);
   wallTag(group, "ИБП", [L.ibp.x, 0.3, zS - 0.12], "S", { y: 0.52, front: 0.14 });
   wallTag(group, "АКБ", [L.akb.x, 0.25, zS - 0.12], "S", { y: 0.42, front: 0.14 });
 
-  const k1 = meshCyl(0.08, 0.08, 0.02, mat(0x5d4037, { roughness: 0.8 }));
+  const k1 = meshCyl(0.09, 0.09, 0.025, mat(0x78909c, { roughness: 0.75, metalness: 0.25 }));
   add(group, k1, L.port.k1[0], 0.01, L.port.k1[2]);
-  wallTag(group, "К1", [L.port.k1[0], 0.02, L.port.k1[2]], "S", { y: 0.28, front: 0.07, scale: 0.28 });
+  wallTag(group, "К1", [L.port.k1[0], 0.02, L.port.k1[2]], "N", { y: 0.28, front: 0.07, scale: 0.28 });
 
   const win = makeWindowInWall(shell.winW, shell.winH, WALL * 0.95);
   add(group, win, shell.winX, shell.winSill + shell.winH / 2, shell.zS, Math.PI);

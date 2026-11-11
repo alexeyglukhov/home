@@ -16,7 +16,7 @@ import { syncPrintSheets } from "./print-sheets.js?v=28";
 import { mountFurnitureCatalog } from "./furniture-catalog.js?v=8";
 import { mountD2Furniture } from "./furniture-place-d2.js?v=43";
 import { mountD5Furniture } from "./furniture-place-d5.js?v=7";
-import { buildTopochnayaV3, topoCameraRigs } from "./topochnaya-v3.js?v=54";
+import { buildTopochnayaV3, topoCameraRigs } from "./topochnaya-v3.js?v=77";
 
 const panel = document.getElementById("panel");
 const dateInput = document.getElementById("date");
@@ -5454,7 +5454,7 @@ const BLURB_VD3 = "Вариант Д3. Тот же дом, что Д2, с дру
 const BLURB_VD4 = "Вариант Д4. Тот же контур, терраса и навес, что у Д3. Запад: тамбур, постирочная и кабинет. Север: спальня-1. Восток: один мастер-блок и спальня-2.";
 const BLURB_VD5 = "Вариант Д5. Та же планировка, что у Д4, плюс мебель из каталога.";
 const BLURB_VD6 = "Вариант Д6. Конёк восток-запад от края навеса до края крыши. Конёк юг-север врезается в него ендовами, не сплющивается.";
-const BLURB_TOPO3 = "Топочная Вариант 3. Комната 3,50×1,98×2,70 м: газ, электрокотёл, БКН, ТТ, гребёнка/смеситель, лапамойка, топливо, щиты и трубы. Жёлтым подсвечены фронты ≥1 м перед котлами. Крутите вид мышью; Сбоку/Сверху — ракурсы.";
+const BLURB_TOPO3 = "Топочная Вариант 3. Комната 3,50×1,98×2,70 м: газ, электрокотёл, термоаккумулятор со змеевиком, ТТ, гребёнка/смеситель, лапамойка, топливо, щиты и трубы. Жёлтым подсвечены фронты ≥1 м перед котлами. Крутите вид мышью; Сбоку/Сверху — ракурсы.";
 
 let tourActive = false;
 

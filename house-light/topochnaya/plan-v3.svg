@@ -21,9 +21,9 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      showgrid="false"
-     inkscape:zoom="0.58282397"
-     inkscape:cx="725.7766"
-     inkscape:cy="322.56738"
+     inkscape:zoom="2.3312959"
+     inkscape:cx="436.66701"
+     inkscape:cy="231.20188"
      inkscape:window-width="2560"
      inkscape:window-height="1368"
      inkscape:window-x="0"
@@ -230,7 +230,7 @@
      inkscape:groupmode="layer">
     <g
        id="g852"
-       transform="translate(-55.948664,-0.20123208)">
+       transform="rotate(180,199.98083,246.5566)">
       <g
          id="eq-фронт-газа"
          inkscape:label="фронт-газа"
@@ -316,7 +316,7 @@
     </g>
     <g
        id="g894"
-       transform="translate(-633.66328,11.389976)">
+       transform="translate(-618.32375,11.740183)">
       <g
          id="eq-фронт-эл"
          inkscape:label="фронт-эл"
@@ -488,7 +488,7 @@
     </g>
     <g
        id="eq-бкн-h1300"
-       inkscape:label="БКН H1300"
+       inkscape:label="термоаккумулятор"
        transform="translate(439.01471,147.39913)">
       <circle
          class="body"
@@ -525,7 +525,7 @@
          font-family="'DejaVu Sans', Arial, sans-serif"
          font-size="11px"
          fill="#111111"
-         id="text131">БКН H1300</text>
+         id="text131">термоаккумулятор</text>
     </g>
     <g
        id="eq-стэн-mini-11"
@@ -679,7 +679,7 @@
     <g
        id="eq-рб-со"
        inkscape:label="РБ-СО"
-       transform="translate(335.27558,131.93309)"
+       transform="translate(339.95702,131.5236)"
        inkscape:transform-center-x="5.5702594"
        inkscape:transform-center-y="19.692087">
       <circle
@@ -722,7 +722,7 @@
     <g
        id="eq-рб-котлы"
        inkscape:label="РБ-котлы"
-       transform="translate(377.70953,130.30036)">
+       transform="translate(383.78177,130.66778)">
       <circle
          class="body"
          cx="0"
@@ -805,7 +805,7 @@
     </g>
     <g
        id="eq-н-бкн"
-       inkscape:label="Н-БКН"
+       inkscape:label="Н-ТА"
        transform="translate(512.56708,122.38862)">
       <rect
          class="body"
@@ -844,12 +844,12 @@
          font-family="'DejaVu Sans', Arial, sans-serif"
          font-size="11px"
          fill="#111111"
-         id="text199">Н-БКН</text>
+         id="text199">Н-ТА</text>
     </g>
     <g
        id="eq-сн4-со"
        inkscape:label="СН4+СО"
-       transform="translate(300.10575,113.58044)">
+       transform="translate(311.22237,114.81396)">
       <rect
          class="body"
          x="-8.3999996"
@@ -890,52 +890,9 @@
          id="text208">СН4+СО</text>
     </g>
     <g
-       id="eq-гребёнка"
-       inkscape:label="гребёнка"
-       transform="translate(118.93269,145.21958)">
-      <rect
-         class="body"
-         x="-8.3999996"
-         y="-18.200001"
-         width="16.799999"
-         height="36.400002"
-         fill="#b0bec5"
-         stroke="#222222"
-         stroke-width="1.4"
-         rx="2"
-         id="rect211" />
-      <rect
-         class="wall-mount"
-         x="-8.3999996"
-         y="-18.200001"
-         width="5"
-         height="36.400002"
-         fill="#1565c0"
-         id="rect213" />
-      <line
-         class="front"
-         x1="0"
-         y1="0"
-         x2="30.799999"
-         y2="0"
-         stroke="#c62828"
-         stroke-width="2"
-         marker-end="url(#arrow)"
-         id="line215" />
-      <text
-         class="caption"
-         x="0"
-         y="4"
-         text-anchor="middle"
-         font-family="'DejaVu Sans', Arial, sans-serif"
-         font-size="11px"
-         fill="#111111"
-         id="text217">гребёнка</text>
-    </g>
-    <g
        id="eq-смес-н-тп"
        inkscape:label="смес.+Н-ТП"
-       transform="translate(118.22083,153.16416)">
+       transform="rotate(90,47.887661,166.95519)">
       <rect
          class="body"
          x="-8.3999996"
@@ -1019,7 +976,7 @@
     <g
        id="eq-лапамойка"
        inkscape:label="лапамойка"
-       transform="translate(153.97541,340.94439)">
+       transform="translate(149.82978,154.65384)">
       <rect
          class="body"
          x="-40.599998"
@@ -1062,7 +1019,7 @@
     <g
        id="eq-автоматика"
        inkscape:label="автоматика"
-       transform="translate(155.7041,374.60728)">
+       transform="rotate(180,77.35551,58.431657)">
       <rect
          class="body"
          x="-28"
@@ -1105,7 +1062,7 @@
     <g
        id="eq-к1"
        inkscape:label="К1"
-       transform="translate(304.8058,370.85427)">
+       transform="rotate(180,179.66788,122.42169)">
       <circle
          class="body"
          cx="0"
@@ -1529,6 +1486,49 @@
          font-size="11px"
          fill="#111111"
          id="text122">СВШ</text>
+    </g>
+    <g
+       id="eq-гребёнка"
+       inkscape:label="гребёнка"
+       transform="rotate(90,49.914303,168.9502)">
+      <rect
+         class="body"
+         x="-8.3999996"
+         y="-18.200001"
+         width="16.799999"
+         height="36.400002"
+         fill="#b0bec5"
+         stroke="#222222"
+         stroke-width="1.4"
+         rx="2"
+         id="rect211" />
+      <rect
+         class="wall-mount"
+         x="-8.3999996"
+         y="-18.200001"
+         width="5"
+         height="36.400002"
+         fill="#1565c0"
+         id="rect213" />
+      <line
+         class="front"
+         x1="0"
+         y1="0"
+         x2="30.799999"
+         y2="0"
+         stroke="#c62828"
+         stroke-width="2"
+         marker-end="url(#arrow)"
+         id="line215" />
+      <text
+         class="caption"
+         x="0"
+         y="4"
+         text-anchor="middle"
+         font-family="'DejaVu Sans', Arial, sans-serif"
+         font-size="11px"
+         fill="#111111"
+         id="text217">гребёнка</text>
     </g>
   </g>
 </svg>

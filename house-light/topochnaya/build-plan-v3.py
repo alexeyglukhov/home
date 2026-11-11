@@ -247,7 +247,7 @@ def main() -> None:
     ):
         unit(name, el["x"] + dx, z_n + 0.14, ww, 0.14, "N", fill="#cfd8dc")
 
-    unit("БКН H1300", bkn["x"], bkn_z, bkn_r * 2, bkn_r * 2, "N", fill="#9fa8da", shape="circle", reach=0.28)
+    unit("термоаккумулятор", bkn["x"], bkn_z, bkn_r * 2, bkn_r * 2, "N", fill="#9fa8da", shape="circle", reach=0.28)
 
     # СТЭН mini-7 + отступ + фронт в одной группе
     tt_gap, tt_front = 0.10, 1.25
@@ -284,7 +284,7 @@ def main() -> None:
         unit(name, xx, z_n + 0.12, 0.28, 0.28, "N", fill="#c62828", shape="circle", reach=0.18)
 
     unit("Н-ТТ", svg_xz(732, 400)[0], z_n + 0.2, 0.14, 0.14, "N", fill="#607d8b")
-    unit("Н-БКН", svg_xz(751, 400)[0], z_n + 0.2, 0.14, 0.14, "N", fill="#607d8b")
+    unit("Н-ТА", svg_xz(751, 400)[0], z_n + 0.2, 0.14, 0.14, "N", fill="#607d8b")
     unit("СН4+СО", svg_xz(487, 400)[0], z_n + 0.04, 0.12, 0.05, "N", fill="#ffcdd2")
 
     unit("гребёнка", x_w + 0.18, greb_z, 0.12, greb_len, "W", fill="#b0bec5")
