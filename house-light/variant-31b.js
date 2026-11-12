@@ -2,7 +2,7 @@
 // Посадка: abrikosovaya-22-layout-variant-3.1b-1-100.svg.
 // Координаты — метры плана участка (как у Д4): x на восток, y на север.
 import * as THREE from "three";
-import { addVar31FurnitureFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31-furniture-floor.js?v=3";
+import { addVar31FurnitureFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31-furniture-floor.js?v=6";
 
 export const V31B_BASE = { x: 0, y: 0 };
 
@@ -83,9 +83,10 @@ const OPENINGS = [
   [8.834, 5.335, 9.819, 5.486, 'i'],
   [9.106, 13.437, 10.091, 13.587, 'i'],
   [9.200, 14.864, 10.185, 15.015, 'i'],
+  // Спальня у кабинета → коридор.
   [10.154, 5.501, 10.304, 6.485, 'i'],
   [10.154, 10.017, 10.304, 11.002, 'i'],
-  [10.154, 11.617, 10.304, 12.602, 'i'],
+  // Гардеробная при мастер-спальне → коридор: на плане проёма нет (был 11.617–12.602).
 ];
 
 const COLUMNS = [
@@ -114,6 +115,7 @@ const FRAME_W = 0xf7f6f2;
 const GLASS = 0xb7d4e4;
 const ROOF_C = 0x3a332c;
 const WOOD = 0x6b5344;
+const FLOOR_C = 0xf3f0ea;
 
 function hit(wall, op) {
   const [x0, y0, x1, y1] = wall;
@@ -386,19 +388,18 @@ export function buildVariant31b(api) {
     // Отапливаемый контур.
     base([[-5.41, 7.25], [8.70, 7.25], [8.70, 18.31], [-5.41, 18.31]], 0.02, PLINTH);
     base([[8.22, 0.80], [14.85, 0.80], [14.85, 18.31], [8.22, 18.31]], 0.02, PLINTH);
-    // Южная терраса — rect2279 (полная полоса без выреза).
+    // Основание террасы до цоколя; настил выше — в цвете пола и встык с ним (как 3.1).
     base([
       [TERRACE[0], TERRACE[1]], [TERRACE[2], TERRACE[1]],
       [TERRACE[2], TERRACE[3]], [TERRACE[0], TERRACE[3]],
     ], 0.02, PLINTH);
-    // Крыльцо с севера: три ступени по белым обводкам rect592/590/586.
+    // Две нижние ступени крыльца. Верхняя площадка — настил в уровне пола.
     const porchSteps = [
       [-0.072, 18.297, 8.189, 20.834],
       [0.272, 18.297, 7.795, 20.409],
-      [0.651, 18.298, 7.386, 20.032],
     ];
     porchSteps.forEach((b, i) => {
-      const z1 = PLINTH * (i + 1) / 3;
+      const z1 = FLOOR * (i + 1) / 3;
       base([[b[0], b[1]], [b[2], b[1]], [b[2], b[3]], [b[0], b[3]]], 0.02, z1);
     });
   });
@@ -407,11 +408,26 @@ export function buildVariant31b(api) {
   planBox([
     [V31_FLOOR_WEST[0], V31_FLOOR_WEST[1]], [V31_FLOOR_WEST[2], V31_FLOOR_WEST[1]],
     [V31_FLOOR_WEST[2], V31_FLOOR_WEST[3]], [V31_FLOOR_WEST[0], V31_FLOOR_WEST[3]],
-  ], PLINTH, FLOOR, 0xf3f0ea, false);
+  ], PLINTH, FLOOR, FLOOR_C, false);
   planBox([
     [V31_FLOOR_EAST[0], V31_FLOOR_EAST[1]], [V31_FLOOR_EAST[2], V31_FLOOR_EAST[1]],
     [V31_FLOOR_EAST[2], V31_FLOOR_EAST[3]], [V31_FLOOR_EAST[0], V31_FLOOR_EAST[3]],
-  ], PLINTH, FLOOR, 0xf3f0ea, false);
+  ], PLINTH, FLOOR, FLOOR_C, false);
+  // Настил террасы заходит под край пола: одна плоскость, без щели по стыку.
+  const terraceDeck = planBox([
+    [TERRACE[0], TERRACE[1]], [TERRACE[2], TERRACE[1]],
+    [TERRACE[2], 7.66], [TERRACE[0], 7.66],
+  ], PLINTH, FLOOR, FLOOR_C, false);
+  terraceDeck.material.polygonOffset = true;
+  terraceDeck.material.polygonOffsetFactor = -1;
+  terraceDeck.material.polygonOffsetUnits = -1;
+  // Верхняя площадка крыльца (rect586) в уровне пола, заходит под край у двери.
+  const porchDeck = planBox([
+    [0.651, 17.88], [7.386, 17.88], [7.386, 20.032], [0.651, 20.032],
+  ], FLOOR * 2 / 3, FLOOR, FLOOR_C, false);
+  porchDeck.material.polygonOffset = true;
+  porchDeck.material.polygonOffsetFactor = -1;
+  porchDeck.material.polygonOffsetUnits = -1;
 
   const prevSection = api.sectionHeight();
   api.sectionHeight(null);

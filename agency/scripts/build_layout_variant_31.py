@@ -465,14 +465,16 @@ def furniture_underlay() -> str:
     def loc(px: float, py: float) -> tuple[float, float]:
         return ((cx - px) * u, (py - cy) * u)
 
-    # Локальные uu как у стен (до rotate180 на группе).
+    # Без террасы: за стеной зала (~3.2) юг ≥7.90; восточнее стены — только y≥9.40.
     heated = [
-        loc(-5.00, 17.95),
-        loc(14.50, 17.95),
-        loc(14.50, 1.15),
-        loc(8.45, 1.15),
-        loc(8.45, 7.60),
-        loc(-5.00, 7.60),
+        loc(-4.95, 17.85),
+        loc(14.45, 17.85),
+        loc(14.45, 1.20),
+        loc(8.45, 1.20),
+        loc(8.45, 9.40),
+        loc(3.20, 9.40),
+        loc(3.20, 7.90),
+        loc(-4.95, 7.90),
     ]
     pts = " ".join(f"{x:.2f},{y:.2f}" for x, y in heated)
     png = (ROOT / "house-light" / "var31-furniture-plan.png").read_bytes()

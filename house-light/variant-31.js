@@ -2,7 +2,7 @@
 // Координаты — метры плана участка (как у Д4): x на восток, y на север.
 // Крыша по лекалам: тёмно-синий конёк, белые фронтоны; скаты. Водостоки/снегорезы — позже.
 import * as THREE from "three";
-import { addVar31FurnitureFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31-furniture-floor.js?v=3";
+import { addVar31FurnitureFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31-furniture-floor.js?v=6";
 
 export const V31_BASE = { x: 0, y: 0 };
 
@@ -83,6 +83,7 @@ const OPENINGS = [
   [8.834, 5.335, 9.819, 5.486, 'i'],
   [9.106, 13.437, 10.091, 13.587, 'i'],
   [9.200, 14.864, 10.185, 15.015, 'i'],
+  // Спальня у кабинета → коридор.
   [10.154, 5.501, 10.304, 6.485, 'i'],
   [10.154, 10.017, 10.304, 11.002, 'i'],
 ];

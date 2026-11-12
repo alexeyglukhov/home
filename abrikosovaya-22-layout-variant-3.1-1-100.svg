@@ -268,7 +268,7 @@
 <g id="furniture-underlay" data-role="furniture-plan" transform="rotate(180,-203.4953,52.5567)" opacity="0.45">
 <defs>
 <clipPath id="clip-heated-floor-31" clipPathUnits="userSpaceOnUse">
-<polygon points="-107.04,132.69 -301.30,132.69 -301.30,-34.67 -241.03,-34.67 -241.03,29.58 -107.04,29.58"/>
+<polygon points="-107.54,131.69 -300.81,131.69 -300.81,-34.18 -241.03,-34.18 -241.03,47.51 -188.73,47.51 -188.73,32.57 -107.54,32.57"/>
 </clipPath>
 </defs>
 <g clip-path="url(#clip-heated-floor-31)">
