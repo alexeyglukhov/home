@@ -84,7 +84,6 @@ const OPENINGS = [
   [9.200, 14.864, 10.185, 15.015, 'i'],
   [10.154, 5.501, 10.304, 6.485, 'i'],
   [10.154, 10.017, 10.304, 11.002, 'i'],
-  [10.154, 11.617, 10.304, 12.602, 'i'],
 ];
 
 const COLUMNS = [
@@ -107,6 +106,9 @@ const TERRACE = [-5.35, 4.79, 8.26, 7.44];
 
 const PLINTH = 0.45;
 const FLOOR = PLINTH + 0.12;
+const FLOOR_C = 0xf3f0ea;
+// Терраса и пол дома — одна плоскость и один цвет.
+const TERRACE_TOP = FLOOR;
 const ROOM_H = 3.00;
 const SLAB = 0.20;
 const CEIL_BOT = FLOOR + ROOM_H;
@@ -115,7 +117,7 @@ const WALL_TOP = CEIL_TOP;
 const CANOPY_CEIL = 2.70;
 const HEAD = 2.45;
 const YELL_SILL = 0.80;
-const PAN_SILL = PLINTH + 0.10;
+const PAN_SILL = FLOOR + 0.01;
 const WALL_C = 0xd9d3c8;
 const FRAME_Y = 0xe0b83a;
 const FRAME_W = 0xf7f6f2;
@@ -388,25 +390,39 @@ export function buildVariant31(api) {
     // Отапливаемый контур.
     base([[-5.41, 7.25], [8.70, 7.25], [8.70, 18.31], [-5.41, 18.31]], 0.02, PLINTH);
     base([[8.22, 0.80], [14.85, 0.80], [14.85, 18.31], [8.22, 18.31]], 0.02, PLINTH);
-    // Южная терраса — rect2279 (полная полоса без выреза).
+    // Основание террасы до цоколя; настил выше — в цвете пола и встык с ним.
     base([
       [TERRACE[0], TERRACE[1]], [TERRACE[2], TERRACE[1]],
       [TERRACE[2], TERRACE[3]], [TERRACE[0], TERRACE[3]],
     ], 0.02, PLINTH);
-    // Крыльцо с севера: три ступени по белым обводкам rect592/590/586.
+    // Две нижние ступени крыльца. Верхняя площадка — настил в уровне пола.
     const porchSteps = [
       [0.14, 18.29, 8.59, 20.83],
       [0.52, 18.29, 8.19, 20.45],
-      [1.02, 18.29, 7.79, 20.03],
     ];
     porchSteps.forEach((b, i) => {
-      const z1 = PLINTH * (i + 1) / 3;
+      const z1 = FLOOR * (i + 1) / 3;
       base([[b[0], b[1]], [b[2], b[1]], [b[2], b[3]], [b[0], b[3]]], 0.02, z1);
     });
   });
 
-  planBox([[-5.00, 7.60], [8.35, 7.60], [8.35, 17.95], [-5.00, 17.95]], PLINTH, FLOOR, 0xf3f0ea, false);
-  planBox([[8.55, 1.15], [14.50, 1.15], [14.50, 17.95], [8.55, 17.95]], PLINTH, FLOOR, 0xf3f0ea, false);
+  planBox([[-5.00, 7.60], [8.35, 7.60], [8.35, 17.95], [-5.00, 17.95]], PLINTH, FLOOR, FLOOR_C, false);
+  planBox([[8.55, 1.15], [14.50, 1.15], [14.50, 17.95], [8.55, 17.95]], PLINTH, FLOOR, FLOOR_C, false);
+  // Настил террасы заходит под край пола: одна плоскость, без щели по стыку.
+  const terraceDeck = planBox([
+    [TERRACE[0], TERRACE[1]], [TERRACE[2], TERRACE[1]],
+    [TERRACE[2], 7.66], [TERRACE[0], 7.66],
+  ], PLINTH, FLOOR, FLOOR_C, false);
+  terraceDeck.material.polygonOffset = true;
+  terraceDeck.material.polygonOffsetFactor = -1;
+  terraceDeck.material.polygonOffsetUnits = -1;
+  // Верхняя площадка крыльца (rect586) заходит под пол у входной двери.
+  const porchDeck = planBox([
+    [1.02, 17.88], [7.79, 17.88], [7.79, 20.03], [1.02, 20.03],
+  ], FLOOR * 2 / 3, FLOOR, FLOOR_C, false);
+  porchDeck.material.polygonOffset = true;
+  porchDeck.material.polygonOffsetFactor = -1;
+  porchDeck.material.polygonOffsetUnits = -1;
 
   const prevSection = api.sectionHeight();
   api.sectionHeight(null);
@@ -599,7 +615,7 @@ export function buildVariant31(api) {
     const cy = (y0 + y1) / 2;
     const underCanopy = cx < xPlateW - 0.2;
     // Парковка на плитке (~0.065): колонны навеса от земли, не от цоколя.
-    const zBot = underCanopy ? 0 : (cy > 18.5 ? PLINTH / 3 : PLINTH);
+    const zBot = underCanopy ? 0 : FLOOR;
     const zTop = underCanopy
       ? canCeilZ
       : Math.max(zBot + 0.5, (roofZ(cx, cy) != null ? roofZ(cx, cy) : Ze) - ROOF_THICK);
@@ -698,9 +714,9 @@ export function buildVariant31(api) {
   }
 
   // Фасады для отделки (наружные плоскости).
-  const opening = (u0, u1, kind) => ({
+  const opening = (u0, u1, kind, z0) => ({
     u0, u1,
-    z0: kind === "pan" ? PAN_SILL : kind === "door" ? PLINTH : YELL_SILL,
+    z0: z0 != null ? z0 : kind === "pan" ? PAN_SILL : kind === "door" ? PLINTH : YELL_SILL,
     z1: HEAD,
     kind,
   });
@@ -714,7 +730,8 @@ export function buildVariant31(api) {
     const u1 = Math.min(span1, b);
     if (Math.abs(mid - outer) > 0.45 || u1 - u0 < 0.25) return [];
     const faceKind = k === "p" ? "pan" : k === "d" ? "door" : "win";
-    return [opening(u0, u1, faceKind)];
+    const z0 = k === "d" && y0 > 17.7 ? FLOOR : undefined;
+    return [opening(u0, u1, faceKind, z0)];
   });
   const gableMain = (u0, u1) => ({
     u0, u1, peakU: yR0, peakZ: Zr0 - ROOF_THICK, eave: WALL_TOP, over: 0, drop: 0,
