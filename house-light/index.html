@@ -315,6 +315,7 @@
     <button type="button" id="var-vd6">Вариант Д6</button>
     <button type="button" id="var-v31">Вариант 3.1</button>
     <button type="button" id="var-v31b">Вариант 3.1b</button>
+    <button type="button" id="var-v31c">Вариант 3.1c</button>
     <button type="button" id="var-topo3">Топочная Вариант 3.1</button>
   </div>
   <label>Отделка
@@ -478,6 +479,7 @@
     d6: "vd6", vd6: "vd6", "д6": "vd6",
     v31: "v31", "3.1": "v31",
     v31b: "v31b", "3.1b": "v31b",
+    v31c: "v31c", "3.1c": "v31c",
     topo3: "topo3", t3: "topo3"
   };
   var idToToken = {
@@ -485,6 +487,7 @@
     vd1: "d1", vd2: "d2", vd3: "d3", vd4: "d4", vd5: "d5", vd6: "d6",
     v31: "v31",
     v31b: "v31b",
+    v31c: "v31c",
     topo3: "topo3"
   };
   var raw = new URLSearchParams(location.search).get("variants");
@@ -593,7 +596,7 @@ if (window.__houseOpenStyles) {
 }
 </script>
 <script type="module">
-if (!window.__houseOpenStyles) import("./app.js?v=918");
+if (!window.__houseOpenStyles) import("./app.js?v=922");
 </script>
 </body>
 </html>
