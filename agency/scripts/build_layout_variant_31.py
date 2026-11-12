@@ -450,17 +450,62 @@ def heated_l_display() -> list[tuple[float, float]]:
     ]
 
 
+def furniture_underlay() -> str:
+    """image1546 полупрозрачно на полу дома (clip = отапливаемый L, без террасы).
+
+    Тот же rotate(180), что у layer-walls; clip в локальных uu до поворота.
+    PNG встраивается base64 — внешний href в Inkscape часто не подхватывается.
+    """
+    import base64
+
+    u = U_PER_M
+    # Как WALLS в 3D: привязка по северной стене rect408.
+    cx, cy = -15.7453, 4.6307
+
+    def loc(px: float, py: float) -> tuple[float, float]:
+        return ((cx - px) * u, (py - cy) * u)
+
+    # Локальные uu как у стен (до rotate180 на группе).
+    heated = [
+        loc(-5.00, 17.95),
+        loc(14.50, 17.95),
+        loc(14.50, 1.15),
+        loc(8.45, 1.15),
+        loc(8.45, 7.60),
+        loc(-5.00, 7.60),
+    ]
+    pts = " ".join(f"{x:.2f},{y:.2f}" for x, y in heated)
+    png = (ROOT / "house-light" / "var31-furniture-plan.png").read_bytes()
+    href = "data:image/png;base64," + base64.b64encode(png).decode("ascii")
+    return "\n".join(
+        [
+            # rotate как у стен; clip во внутреннем g в тех же локальных uu.
+            f'<g id="furniture-underlay" data-role="furniture-plan" '
+            f'transform="rotate(180,{LAYER1_CX},{LAYER1_CY})" opacity="0.45">',
+            "<defs>",
+            '<clipPath id="clip-heated-floor-31" clipPathUnits="userSpaceOnUse">',
+            f'<polygon points="{pts}"/>',
+            "</clipPath>",
+            "</defs>",
+            '<g clip-path="url(#clip-heated-floor-31)">',
+            f'<image id="image1546-layout" width="{IMG_W}" height="{IMG_H}" '
+            f'preserveAspectRatio="none" x="{IMG_X}" y="{IMG_Y}" '
+            f'href="{href}"/>',
+            "</g>",
+            "</g>",
+        ]
+    )
+
+
 def build_plan_inner(plan_svg: str) -> str:
     walls = tag_columns(extract_walls_layer(plan_svg))
-    roof = extract_roof_layer(plan_svg)
-
-    # только стены + крыша (без «иное» / помещений / мебели).
-    # Порядок: стены снизу, крыша сверху (позже в SVG = выше).
+    furn = furniture_underlay()
+    # Лекала крыши с плана больше не тащим — мусор на посадке.
     return "\n".join(
         [
             '<g id="p-plan-31">',
+            furn,
             walls,
-            roof,
             "</g>",
         ]
     )
@@ -488,23 +533,34 @@ def refresh_plan_keep_pose() -> bool:
     plan_svg = SRC_PLAN.read_text()
     layout = OUT.read_text()
     walls = tag_columns(extract_walls_layer(plan_svg))
-    roof = extract_roof_layer(plan_svg)
-    # не тащим p-house-pad / иное — только стены + крыша
+    furn = furniture_underlay()
     for eid in INOE_IDS:
-        if eid in walls or eid in roof:
-            raise SystemExit(f"иное id {eid} leaked into walls/roof export")
+        if eid in walls:
+            raise SystemExit(f"иное id {eid} leaked into walls export")
     new_plan = "\n".join(
         [
             f'<g id="p-plan-31" transform="{preserved}">',
+            furn,
             walls,
-            roof,
             "    </g>",
         ]
     )
     layout = replace_group_by_id(layout, "p-plan-31", new_plan)
     layout = upsert_blind_area(layout)
+    layout = re.sub(
+        rf'(id="text1413"[^>]*>)[^<]*',
+        r"\g<1>Масштаб 1:100. Стены + подложка мебели на полу (без террасы). Без лекал крыши.",
+        layout,
+        count=1,
+    )
+    layout = re.sub(
+        rf'(id="text1419"[^>]*>)[^<]*',
+        r"\g<1>Подложка image1546 полупрозрачно внутри отапливаемого контура. Слои: furniture-underlay, layer-walls.",
+        layout,
+        count=1,
+    )
     OUT.write_text(layout)
-    print(f"refreshed walls+roof+blind (no иное) in {OUT}")
+    print(f"refreshed walls+furniture+blind (no roof) in {OUT}")
     print(f"preserve transform: {preserved}")
     return True
 

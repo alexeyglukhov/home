@@ -2,6 +2,7 @@
 // Координаты — метры плана участка (как у Д4): x на восток, y на север.
 // Крыша по лекалам: тёмно-синий конёк, белые фронтоны; скаты. Водостоки/снегорезы — позже.
 import * as THREE from "three";
+import { addVar31FurnitureFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31-furniture-floor.js?v=3";
 
 export const V31_BASE = { x: 0, y: 0 };
 
@@ -406,8 +407,15 @@ export function buildVariant31(api) {
     });
   });
 
-  planBox([[-5.00, 7.60], [8.35, 7.60], [8.35, 17.95], [-5.00, 17.95]], PLINTH, FLOOR, FLOOR_C, false);
-  planBox([[8.55, 1.15], [14.50, 1.15], [14.50, 17.95], [8.55, 17.95]], PLINTH, FLOOR, FLOOR_C, false);
+  // Нахлёст плит в проёме коридор-1 ↔ коридор-2 — без канавы на стыке.
+  planBox([
+    [V31_FLOOR_WEST[0], V31_FLOOR_WEST[1]], [V31_FLOOR_WEST[2], V31_FLOOR_WEST[1]],
+    [V31_FLOOR_WEST[2], V31_FLOOR_WEST[3]], [V31_FLOOR_WEST[0], V31_FLOOR_WEST[3]],
+  ], PLINTH, FLOOR, FLOOR_C, false);
+  planBox([
+    [V31_FLOOR_EAST[0], V31_FLOOR_EAST[1]], [V31_FLOOR_EAST[2], V31_FLOOR_EAST[1]],
+    [V31_FLOOR_EAST[2], V31_FLOOR_EAST[3]], [V31_FLOOR_EAST[0], V31_FLOOR_EAST[3]],
+  ], PLINTH, FLOOR, FLOOR_C, false);
   // Настил террасы заходит под край пола: одна плоскость, без щели по стыку.
   const terraceDeck = planBox([
     [TERRACE[0], TERRACE[1]], [TERRACE[2], TERRACE[1]],
@@ -435,9 +443,17 @@ export function buildVariant31(api) {
     mesh.userData.ceiling = true;
     return mesh;
   };
-  ceilingSlab([[-5.00, 7.60], [8.35, 7.60], [8.35, 17.95], [-5.00, 17.95]]);
-  ceilingSlab([[8.55, 1.15], [14.50, 1.15], [14.50, 17.95], [8.55, 17.95]]);
+  ceilingSlab([
+    [V31_FLOOR_WEST[0], V31_FLOOR_WEST[1]], [V31_FLOOR_WEST[2], V31_FLOOR_WEST[1]],
+    [V31_FLOOR_WEST[2], V31_FLOOR_WEST[3]], [V31_FLOOR_WEST[0], V31_FLOOR_WEST[3]],
+  ]);
+  ceilingSlab([
+    [V31_FLOOR_EAST[0], V31_FLOOR_EAST[1]], [V31_FLOOR_EAST[2], V31_FLOOR_EAST[1]],
+    [V31_FLOOR_EAST[2], V31_FLOOR_EAST[3]], [V31_FLOOR_EAST[0], V31_FLOOR_EAST[3]],
+  ]);
   api.sectionHeight(prevSection);
+
+  addVar31FurnitureFloor(api, FLOOR);
 
   const world = (x, y, z) => {
     const [e, n] = planToWorld(x, y);

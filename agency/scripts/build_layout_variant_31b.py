@@ -18,6 +18,7 @@ from xml.sax.saxutils import escape
 from build_layout_variant_31 import (
     SRC_PLAN,
     extract_walls_layer,
+    furniture_underlay,
     plan_m_to_site,
     poly_points,
     replace_group_by_id,
@@ -55,24 +56,6 @@ def extra_tag_columns(walls: str) -> str:
         out,
         count=1,
     )
-    return out
-
-
-def strip_gables(roof: str) -> str:
-    """Вальма 3.1b — без фронтонов на лекалах."""
-    out = roof
-    for gid in ("roof-gable-0", "roof-gable-1", "roof-gable-2", "roof-gable-3"):
-        out = re.sub(
-            rf'<(?:path|rect)\b(?=[^>]*\bid="{gid}")[^>]*/>',
-            "",
-            out,
-        )
-        out = re.sub(
-            rf'<(?:path|rect)\b(?=[^>]*\bid="{gid}")[^>]*>.*?</(?:path|rect)>',
-            "",
-            out,
-            flags=re.DOTALL,
-        )
     return out
 
 
@@ -146,31 +129,11 @@ def main() -> None:
         raise SystemExit("p-plan-31 not found")
     preserved = m.group(2)
 
-    roof_block = None
-    rm = re.search(r'<g\b[^>]*\bid="layer-roof"[^>]*>', svg)
-    if rm:
-        start = svg.rfind("<g", 0, rm.end())
-        depth = 0
-        for mm in re.finditer(r"<g\b[^>]*/>|</?g\b[^>]*>", svg[start:]):
-            tok = mm.group(0)
-            if tok.startswith("</"):
-                depth -= 1
-                if depth == 0:
-                    roof_block = svg[start : start + mm.end()]
-                    break
-            elif tok.endswith("/>"):
-                continue
-            else:
-                depth += 1
-    if not roof_block:
-        raise SystemExit("layer-roof missing in base layout")
-    roof_block = strip_gables(roof_block)
-
     new_plan = "\n".join(
         [
             f'<g id="p-plan-31" transform="{preserved}">',
+            furniture_underlay(),
             walls,
-            roof_block,
             "  </g>",
         ]
     )
