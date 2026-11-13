@@ -7,13 +7,13 @@ import { FURNITURE_D } from "./furniture-d.js?v=6";
 import { WALL_LINES } from "./wall-sketch.js?v=2";
 import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=30";
 import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=28";
-import { buildVariantD2, d2WalkBoxes, d2FenceSegments } from "./variant-d2.js?v=87";
-import { buildVariantD3, d3WalkBoxes, d3FenceSegments } from "./variant-d3.js?v=9";
-import { buildVariantD4, d4WalkBoxes, d4FenceSegments, D4_WINDOWS, D4_BASE } from "./variant-d4.js?v=23";
-import { buildVariantD4 as buildVariantD6, d4WalkBoxes as d6WalkBoxes, d4FenceSegments as d6FenceSegments, D4_WINDOWS as D6_WINDOWS, D4_BASE as D6_BASE } from "./variant-d6.js?v=33";
-import { buildVariant31, v31WalkBoxes, v31FenceSegments, V31_WINDOWS, V31_BASE } from "./variant-31.js?v=37";
-import { buildVariant31a, v31aWalkBoxes, v31aFenceSegments, V31A_WINDOWS, V31A_BASE } from "./variant-31a.js?v=6";
-import { buildVariant31b, v31bWalkBoxes, v31bFenceSegments, V31B_WINDOWS, V31B_BASE } from "./variant-31b.js?v=20";
+import { buildVariantD2, d2WalkBoxes, d2FenceSegments } from "./variant-d2.js?v=89";
+import { buildVariantD3, d3WalkBoxes, d3FenceSegments } from "./variant-d3.js?v=11";
+import { buildVariantD4, d4WalkBoxes, d4FenceSegments, D4_WINDOWS, D4_BASE } from "./variant-d4.js?v=25";
+import { buildVariantD4 as buildVariantD6, d4WalkBoxes as d6WalkBoxes, d4FenceSegments as d6FenceSegments, D4_WINDOWS as D6_WINDOWS, D4_BASE as D6_BASE } from "./variant-d6.js?v=35";
+import { buildVariant31, v31WalkBoxes, v31FenceSegments, V31_WINDOWS, V31_BASE } from "./variant-31.js?v=39";
+import { buildVariant31a, v31aWalkBoxes, v31aFenceSegments, V31A_WINDOWS, V31A_BASE } from "./variant-31a.js?v=8";
+import { buildVariant31b, v31bWalkBoxes, v31bFenceSegments, V31B_WINDOWS, V31B_BASE } from "./variant-31b.js?v=22";
 import { buildVariant31d, v31dWalkBoxes, v31dFenceSegments, V31D_WINDOWS, V31D_BASE } from "./variant-31d.js?v=69";
 import { createD2Tour, createTourDaylight, D3_WINDOWS } from "./tour-d2.js?v=23";
 import { syncPrintSheets } from "./print-sheets.js?v=28";
@@ -5658,12 +5658,21 @@ function parseCam(raw) {
 
 function applyCamQuery(cam, scale) {
   const target = new THREE.Vector3(cam[3], cam[4], cam[5]);
-  const offset = new THREE.Vector3(cam[0], cam[1], cam[2]).sub(target);
-  if (offset.lengthSq() < 1e-6) offset.set(14.55, 9.5, -17.49);
-  const dist = Number.isFinite(scale) && scale >= 0.3 && scale <= 400 ? scale : offset.length();
-  offset.setLength(dist);
-  controls.target.copy(target);
-  camera.position.copy(target).add(offset);
+  const pos = new THREE.Vector3(cam[0], cam[1], cam[2]);
+  const offset = pos.clone().sub(target);
+  if (offset.lengthSq() < 1e-6) {
+    offset.set(14.55, 9.5, -17.49);
+    controls.target.copy(target);
+    camera.position.copy(target).add(offset);
+  } else if (Number.isFinite(scale) && scale >= 0.3 && scale <= 400) {
+    offset.setLength(scale);
+    controls.target.copy(target);
+    camera.position.copy(target).add(offset);
+  } else {
+    // Точные координаты из URL — без пересчёта длины.
+    controls.target.copy(target);
+    camera.position.copy(pos);
+  }
   controls.update();
 }
 
@@ -5782,7 +5791,7 @@ let cameraLockedByUrl = false;
 
 function loadView() {
   const params = new URLSearchParams(location.search);
-  // Старые закладки могли держать вид в URL — один раз читаем и дальше только localStorage.
+  // cam/style/roof из URL важнее localStorage и перезаписывают его.
   const queryStyle = params.get("style");
   const queryCam = parseCam(params.get("cam"));
   const queryScale = Number(params.get("scale"));
@@ -5797,7 +5806,8 @@ function loadView() {
       const variantOk = known && (!allowedVariants || allowedVariants.includes(saved.variant));
       cameraOk = variantOk && nums.every((n) => Number.isFinite(n));
       if (variantOk) pendingVariant = saved.variant;
-      if (cameraOk) {
+      // Камеру из localStorage ставим только если в URL нет cam.
+      if (cameraOk && !queryCam) {
         camera.position.set(saved.px, saved.py, saved.pz);
         controls.target.set(saved.tx, saved.ty, saved.tz);
         controls.update();
@@ -5834,6 +5844,27 @@ function loadView() {
   if (queryCam) {
     applyCamQuery(queryCam, queryScale);
     cameraLockedByUrl = true;
+    // URL-ракурс сразу пишем в localStorage, чтобы не откатывался к старому виду.
+    try {
+      const prev = JSON.parse(localStorage.getItem(VIEW_KEY) || "{}") || {};
+      localStorage.setItem(VIEW_KEY, JSON.stringify({
+        ...prev,
+        px: camera.position.x,
+        py: camera.position.y,
+        pz: camera.position.z,
+        tx: controls.target.x,
+        ty: controls.target.y,
+        tz: controls.target.z,
+        roof: roofToggle.checked,
+        canopy: canopyToggle ? canopyToggle.checked : true,
+        variant: pendingVariant,
+        date: dateInput.value,
+        minutes: Number(timeInput.value),
+        style: facadeSelect.value,
+      }));
+    } catch {
+      // браузер может запретить localStorage
+    }
     return true;
   }
   return cameraOk;
@@ -6366,6 +6397,10 @@ document.getElementById("copy-url-btn")?.addEventListener("click", async () => {
   if (token) url.searchParams.set("variants", token);
   if (!roofToggle.checked) url.searchParams.set("roof", "0");
   if (canopyToggle && !canopyToggle.checked) url.searchParams.set("canopy", "0");
+  // Ракурс: позиция камеры + точка взгляда (OrbitControls target).
+  url.searchParams.set("cam", camToken());
+  const styleId = facadeSelect?.value;
+  if (styleId && styleId !== "model") url.searchParams.set("style", styleId);
   const href = url.href;
   const done = (ok) => {
     if (!btn) return;
@@ -6484,6 +6519,11 @@ mountFurnitureCatalog();
     url.search = "";
     url.hash = "";
     if (tokens.length) url.searchParams.set("variants", tokens.join(","));
+    if (!roofToggle.checked) url.searchParams.set("roof", "0");
+    if (canopyToggle && !canopyToggle.checked) url.searchParams.set("canopy", "0");
+    url.searchParams.set("cam", camToken());
+    const styleId = facadeSelect?.value;
+    if (styleId && styleId !== "model") url.searchParams.set("style", styleId);
     return url.href;
   }
 

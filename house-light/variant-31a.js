@@ -389,29 +389,25 @@ export function buildVariant31a(api) {
   });
 
   withFinish("plinth", () => {
-    const base = (quad, z0, z1) => {
-      const mesh = planBox(quad, z0, z1, 0xd8d3cb);
-      delete mesh.userData.finish;
-      return mesh;
-    };
-    // Отапливаемый контур.
-    base([[-5.41, 7.25], [8.70, 7.25], [8.70, 18.31], [-5.41, 18.31]], 0.02, PLINTH);
-    base([[8.22, 0.80], [14.85, 0.80], [14.85, 18.31], [8.22, 18.31]], 0.02, PLINTH);
-    // Основание террасы до цоколя; настил выше — в цвете пола и встык с ним.
-    base([
+    // Как 3.1d: роль plinth (в стиле 30 — plinthSoft).
+    planBox([[-5.41, 7.25], [8.70, 7.25], [8.70, 18.31], [-5.41, 18.31]], 0.02, PLINTH, 0x2c3038);
+    planBox([[8.22, 0.80], [14.85, 0.80], [14.85, 18.31], [8.22, 18.31]], 0.02, PLINTH, 0x2c3038);
+    planBox([
       [TERRACE[0], TERRACE[1]], [TERRACE[2], TERRACE[1]],
       [TERRACE[2], TERRACE[3]], [TERRACE[0], TERRACE[3]],
-    ], 0.02, PLINTH);
-    // Две нижние ступени крыльца. Верхняя площадка — настил в уровне пола.
+    ], 0.02, PLINTH, 0x2c3038);
+  });
+  // Ступени крыльца — бетон, не цоколь отделки.
+  {
     const porchSteps = [
       [0.14, 18.29, 8.59, 20.83],
       [0.52, 18.29, 8.19, 20.45],
     ];
     porchSteps.forEach((b, i) => {
       const z1 = FLOOR * (i + 1) / 3;
-      base([[b[0], b[1]], [b[2], b[1]], [b[2], b[3]], [b[0], b[3]]], 0.02, z1);
+      planBox([[b[0], b[1]], [b[2], b[1]], [b[2], b[3]], [b[0], b[3]]], 0.02, z1, 0xd8d3cb);
     });
-  });
+  }
 
   // Нахлёст плит в проёме коридор-1 ↔ коридор-2 — без канавы на стыке.
   planBox([
@@ -589,14 +585,16 @@ export function buildVariant31a(api) {
     });
   }
 
-  // Колонны террасы и крыльца — до низа кровли.
-  for (const [x0, y0, x1, y1] of COLUMNS) {
-    const cx = (x0 + x1) / 2;
-    const cy = (y0 + y1) / 2;
-    const zBot = FLOOR;
-    const zTop = Math.max(zBot + 0.5, (houseZ(cx, cy) != null ? houseZ(cx, cy) : Ze) - ROOF_THICK);
-    planBox([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], zBot, zTop, WOOD);
-  }
+  // Колонны террасы и крыльца — до низа кровли (в стиле 30 — кирпич).
+  withFinish("column", () => {
+    for (const [x0, y0, x1, y1] of COLUMNS) {
+      const cx = (x0 + x1) / 2;
+      const cy = (y0 + y1) / 2;
+      const zBot = FLOOR;
+      const zTop = Math.max(zBot + 0.5, (houseZ(cx, cy) != null ? houseZ(cx, cy) : Ze) - ROOF_THICK);
+      planBox([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], zBot, zTop, WOOD);
+    }
+  });
 
   // Прямоугольный парковочный навес: вплотную к зап. стене, верх чуть ниже низа свеса.
   withCanopy(() => {
@@ -619,9 +617,11 @@ export function buildVariant31a(api) {
     api.sectionHeight(prev);
     const colZ0 = 0;
     const colZ1 = zBot - 0.01;
-    for (const [cx0, cy0, cx1, cy1] of CARPORT_COLUMNS) {
-      planBox([[cx0, cy0], [cx1, cy0], [cx1, cy1], [cx0, cy1]], colZ0, colZ1, WOOD);
-    }
+    withFinish("column", () => {
+      for (const [cx0, cy0, cx1, cy1] of CARPORT_COLUMNS) {
+        planBox([[cx0, cy0], [cx1, cy0], [cx1, cy1], [cx0, cy1]], colZ0, colZ1, WOOD);
+      }
+    });
   });
 
   // Отмостка 1 м по периметру отапливаемого контура (как Д4/Д6).

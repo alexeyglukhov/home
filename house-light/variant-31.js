@@ -382,29 +382,25 @@ export function buildVariant31(api) {
   });
 
   withFinish("plinth", () => {
-    const base = (quad, z0, z1) => {
-      const mesh = planBox(quad, z0, z1, 0xd8d3cb);
-      delete mesh.userData.finish;
-      return mesh;
-    };
-    // Отапливаемый контур.
-    base([[-5.41, 7.25], [8.70, 7.25], [8.70, 18.31], [-5.41, 18.31]], 0.02, PLINTH);
-    base([[8.22, 0.80], [14.85, 0.80], [14.85, 18.31], [8.22, 18.31]], 0.02, PLINTH);
-    // Основание террасы до цоколя; настил выше — в цвете пола и встык с ним.
-    base([
+    // Как 3.1d: роль plinth (в стиле 30 — plinthSoft).
+    planBox([[-5.41, 7.25], [8.70, 7.25], [8.70, 18.31], [-5.41, 18.31]], 0.02, PLINTH, 0x2c3038);
+    planBox([[8.22, 0.80], [14.85, 0.80], [14.85, 18.31], [8.22, 18.31]], 0.02, PLINTH, 0x2c3038);
+    planBox([
       [TERRACE[0], TERRACE[1]], [TERRACE[2], TERRACE[1]],
       [TERRACE[2], TERRACE[3]], [TERRACE[0], TERRACE[3]],
-    ], 0.02, PLINTH);
-    // Две нижние ступени крыльца. Верхняя площадка — настил в уровне пола.
+    ], 0.02, PLINTH, 0x2c3038);
+  });
+  // Ступени крыльца — бетон, не цоколь отделки.
+  {
     const porchSteps = [
       [0.14, 18.29, 8.59, 20.83],
       [0.52, 18.29, 8.19, 20.45],
     ];
     porchSteps.forEach((b, i) => {
       const z1 = FLOOR * (i + 1) / 3;
-      base([[b[0], b[1]], [b[2], b[1]], [b[2], b[3]], [b[0], b[3]]], 0.02, z1);
+      planBox([[b[0], b[1]], [b[2], b[1]], [b[2], b[3]], [b[0], b[3]]], 0.02, z1, 0xd8d3cb);
     });
-  });
+  }
 
   // Нахлёст плит в проёме коридор-1 ↔ коридор-2 — без канавы на стыке.
   planBox([
@@ -617,17 +613,19 @@ export function buildVariant31(api) {
     if (h != null) return h;
     return inCan(x, y) ? zCan(x, y) : null;
   };
-  for (const [x0, y0, x1, y1] of COLUMNS) {
-    const cx = (x0 + x1) / 2;
-    const cy = (y0 + y1) / 2;
-    const underCanopy = cx < xPlateW - 0.2;
-    // Парковка на плитке (~0.065): колонны навеса от земли, не от цоколя.
-    const zBot = underCanopy ? 0 : FLOOR;
-    const zTop = Math.max(zBot + 0.5, (roofZ(cx, cy) != null ? roofZ(cx, cy) : Ze) - ROOF_THICK);
-    const build = () => planBox([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], zBot, zTop, WOOD);
-    if (underCanopy) withCanopy(build);
-    else build();
-  }
+  withFinish("column", () => {
+    for (const [x0, y0, x1, y1] of COLUMNS) {
+      const cx = (x0 + x1) / 2;
+      const cy = (y0 + y1) / 2;
+      const underCanopy = cx < xPlateW - 0.2;
+      // Парковка на плитке (~0.065): колонны навеса от земли, не от цоколя.
+      const zBot = underCanopy ? 0 : FLOOR;
+      const zTop = Math.max(zBot + 0.5, (roofZ(cx, cy) != null ? roofZ(cx, cy) : Ze) - ROOF_THICK);
+      const build = () => planBox([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], zBot, zTop, WOOD);
+      if (underCanopy) withCanopy(build);
+      else build();
+    }
+  });
 
   // Отмостка 1 м по периметру отапливаемого контура (как Д4/Д6).
   {

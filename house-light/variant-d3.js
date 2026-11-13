@@ -2928,12 +2928,13 @@ export function buildVariantD3(api) {
     }
   });
 
-  // Цоколь, терраса и площадка входа светлее отделки: тёмные линии мебели на них читаются.
-  const base = (quad, z0, z1) => {
+  // Цоколь как 3.1d: роль plinth (стиль 30 — plinthSoft). Ступени — бетон без finish.
+  const stepBox = (quad, z0, z1) => {
     const mesh = planBox(quad, z0, z1, 0xd8d3cb);
     delete mesh.userData.finish;
     return mesh;
   };
+  const base = (quad, z0, z1) => planBox(quad, z0, z1, 0x2c3038);
   withFinish("plinth", () => {
     // Выпуск цоколя за наружную грань стены 5 см. Терраса и крыльцо — отдельные площадки.
     base([[-4.47, 2.41], [5.36, 2.41], [5.36, 18.93], [-4.47, 18.93]], 0.02, PLINTH);
@@ -2994,7 +2995,7 @@ export function buildVariantD3(api) {
       quads.forEach((q, i) => {
         const z1 = PLINTH * (i + 1) / 3;
         const zPrev = i === 0 ? 0.02 : PLINTH * i / 3;
-        base(q, 0.02, z1);
+        stepBox(q, 0.02, z1);
         const x0 = q[0][0];
         const y0 = q[0][1];
         const x1 = q[2][0];
@@ -3056,9 +3057,9 @@ export function buildVariantD3(api) {
   ceiling([[5.12, 9.43], [13.02, 9.43], [13.02, 18.50], [5.12, 18.50]]);
   ceiling([[4.93, 12.82], [5.12, 12.82], [5.12, 14.40], [4.93, 14.40]]);
 
-  const column = (x, y, zTop) => planBox(
+  const column = (x, y, zTop) => withFinish("column", () => planBox(
     [[x, y], [x + 0.22, y], [x + 0.22, y + 0.22], [x, y + 0.22]], PLINTH, zTop, 0x6b3e24
-  );
+  ));
 
   const world = (x, y, z) => {
     const [e, n] = planToWorld(x, y);
@@ -3153,10 +3154,10 @@ export function buildVariantD3(api) {
   const zRoofX = (x) => (x <= cx
     ? Ze + rise * (x - xW) / (cx - xW)
     : Ze + rise * (xStep - x) / (xStep - cx));
-  const terraceColumn = (x0, y0, x1, y1) => planBox(
+  const terraceColumn = (x0, y0, x1, y1) => withFinish("column", () => planBox(
     [[x0, y0], [x1, y0], [x1, y1], [x0, y1]],
     PLINTH, zRoofX((x0 + x1) / 2) - roofDrop, 0x6b3e24
-  );
+  ));
   terraceColumn(8.115, 2.487, 8.455, 2.827);
   terraceColumn(8.121, 4.611, 8.461, 4.951);
   terraceColumn(8.114, 6.690, 8.454, 7.030);
