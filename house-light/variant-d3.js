@@ -2766,7 +2766,7 @@ export function buildVariantD3(api) {
   // Плитка, навес и машины заданы уже в координатах схемы и HOUSE_DX не получают.
   const HOUSE_DX = -1;
   const shiftX = (x) => x + HOUSE_DX;
-  const { addBeam, asRoof, withFinish, geometryFromTriangles, addMesh } = api;
+  const { addBeam, asRoof, withFinish, withCanopy, geometryFromTriangles, addMesh } = api;
   const planToWorld = (x, y) => api.planToWorld(shiftX(x), y);
   const planBox = (quad, y0, y1, color, cast = true) => api.planBox(
     quad.map(([x, y]) => [shiftX(x), y]), y0, y1, color, cast
@@ -3429,6 +3429,7 @@ export function buildVariantD3(api) {
     const dy = Math.min(Math.abs(y - cYs), Math.abs(y - cYn));
     return cEave + cRise * dy / cHalf;
   };
+  withCanopy(() => {
   for (const [x, y] of [
     [-11.018, 13.531], [-9.182, 13.554], [-7.372, 13.552], [-5.673, 13.557],
     [-12.241, 20.444], [-10.617, 20.449], [-8.918, 20.449], [-7.289, 20.418], [-5.678, 20.435],
@@ -3463,6 +3464,7 @@ export function buildVariantD3(api) {
   spout(cXwN, cYn + GW / 2, cXwN - 0.04, cYn, outletZ(cEave, dCanN, tanC), 0.20);
   snow(cXwS, cYs, cXeS, cYs, cEave, cEave, 0, 1, tanC, 0.45);
   snow(cXwN, cYn, cXeN, cYn, cEave, cEave, 0, -1, tanC, 0.45);
+  });
 
   const blind = addSlabHole(
     [[-5.42, 19.88], [14.40, 19.88], [14.40, 8.05], [9.50, 8.05], [9.50, 1.46], [-5.42, 1.46], [-5.42, 8.24], [-7.00, 8.24], [-7.00, 13.86], [-5.42, 13.86]],

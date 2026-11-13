@@ -1441,7 +1441,7 @@ export function buildVariantD4(api) {
   const shiftX = (x) => x + HOUSE_DX;
   const shiftY = (y) => y + HOUSE_DY;
   const shiftP = (x, y) => [shiftX(x), shiftY(y)];
-  const { addBeam, asRoof, withFinish, geometryFromTriangles, addMesh } = api;
+  const { addBeam, asRoof, withFinish, withCanopy, geometryFromTriangles, addMesh } = api;
   const planToWorld = (x, y) => api.planToWorld(shiftX(x), shiftY(y));
   const planBox = (quad, y0, y1, color, cast = true) => api.planBox(
     quad.map(([x, y]) => shiftP(x, y)), y0, y1, color, cast
@@ -2106,6 +2106,7 @@ export function buildVariantD4(api) {
     const dy = Math.min(Math.abs(y - cYs), Math.abs(y - cYn));
     return cEave + cRise * dy / cHalf;
   };
+  withCanopy(() => {
   for (const [x, y] of [
     [-5.462, 13.549], [-6.700, 13.549], [-7.939, 13.549], [-9.177, 13.549],
     [-5.465, 20.416], [-6.730, 20.416], [-7.996, 20.416], [-9.261, 20.416], [-10.526, 20.416],
@@ -2146,6 +2147,7 @@ export function buildVariantD4(api) {
   spout(postN[0], cYn + GW / 2, postN[0], postN[1] + 0.11, outletZ(cEave, dPostN, tanC), 0.20);
   snow(cXwS, cYs, cXeS, cYs, cEave, cEave, 0, 1, tanC, 0.45);
   snow(cXwN, cYn, cXeN, cYn, cEave, cEave, 0, -1, tanC, 0.45);
+  });
 
   const blind = addSlabHole(
     [[-5.42, 19.88], [14.40, 19.88], [14.40, 8.05], [9.50, 8.05], [9.50, 1.46], [-5.42, 1.46], [-5.42, 8.24], [-7.00, 8.24], [-7.00, 13.86], [-5.42, 13.86]],

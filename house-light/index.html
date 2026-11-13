@@ -53,7 +53,7 @@
   select { width: 100%; font: inherit; font-size: 12px; margin-top: 4px; padding: 4px; }
   #sun { font-variant-numeric: tabular-nums; }
   #clock { font-weight: 700; }
-  #auth-badge, #shot-btn {
+  #auth-badge, #shot-btn, #copy-url-btn {
     position: fixed; top: 14px; z-index: 12;
     width: 42px; height: 42px; padding: 0;
     display: inline-flex; align-items: center; justify-content: center;
@@ -62,7 +62,8 @@
   }
   #auth-badge { right: 14px; }
   #shot-btn { right: 64px; }
-  #auth-badge svg, #shot-btn svg { width: 22px; height: 22px; display: block; }
+  #copy-url-btn { right: 114px; }
+  #auth-badge svg, #shot-btn svg, #copy-url-btn svg { width: 22px; height: 22px; display: block; }
   #auth-badge[data-mode="author"] { color: #6b5a45; border-color: #6b5a45; }
   #auth-badge .icon-author, #auth-badge .icon-guest { display: none; }
   #auth-badge[data-mode="author"] .icon-author { display: block; }
@@ -273,11 +274,12 @@
     }
     body.panel-open #panel { display: block; }
     #panel button { padding: 8px 10px; }
-    #auth-badge, #shot-btn {
+    #auth-badge, #shot-btn, #copy-url-btn {
       top: max(10px, env(safe-area-inset-top));
     }
     #auth-badge { right: 10px; }
     #shot-btn { right: 60px; }
+    #copy-url-btn { right: 110px; }
     #prints {
       top: calc(max(10px, env(safe-area-inset-top)) + 50px);
       right: 10px;
@@ -316,7 +318,6 @@
     <button type="button" id="var-v31">Вариант 3.1</button>
     <button type="button" id="var-v31a">Вариант 3.1a</button>
     <button type="button" id="var-v31b">Вариант 3.1b</button>
-    <button type="button" id="var-v31c">Вариант 3.1c</button>
     <button type="button" id="var-v31d">Вариант 3.1d</button>
     <button type="button" id="var-topo3">Топочная Вариант 3.1</button>
   </div>
@@ -341,12 +342,21 @@
   </div>
   <p id="sun"></p>
   <label><input id="roof" type="checkbox" checked> Крыша</label>
+  <label><input id="canopy" type="checkbox" checked> Навес</label>
   <div class="row">
     <button type="button" id="view-side">Сбоку</button>
     <button type="button" id="view-top">Сверху</button>
     <button type="button" id="tour" class="author-only" disabled>Экскурсия</button>
   </div>
 </div>
+<button type="button" id="copy-url-btn" aria-label="Копировать ссылку на вариант" title="Копировать URL текущего варианта">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"
+      d="M10 13a5 5 0 0 0 7.54.54l1.9-1.9a5 5 0 0 0-7.07-7.07l-1.1 1.1"/>
+    <path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"
+      d="M14 11a5 5 0 0 0-7.54-.54l-1.9 1.9a5 5 0 0 0 7.07 7.07l1.1-1.1"/>
+  </svg>
+</button>
 <button type="button" id="shot-btn" aria-label="Сохранить снимок JPEG" title="Снимок вида (JPEG, высокое разрешение)">
   <svg viewBox="0 0 24 24" aria-hidden="true">
     <path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"
@@ -482,7 +492,6 @@
     v31: "v31", "3.1": "v31",
     v31a: "v31a", "3.1a": "v31a",
     v31b: "v31b", "3.1b": "v31b",
-    v31c: "v31c", "3.1c": "v31c",
     v31d: "v31d", "3.1d": "v31d",
     topo3: "topo3", t3: "topo3"
   };
@@ -492,7 +501,6 @@
     v31: "v31",
     v31a: "v31a",
     v31b: "v31b",
-    v31c: "v31c",
     v31d: "v31d",
     topo3: "topo3"
   };
@@ -602,7 +610,7 @@ if (window.__houseOpenStyles) {
 }
 </script>
 <script type="module">
-if (!window.__houseOpenStyles) import("./app.js?v=944");
+if (!window.__houseOpenStyles) import("./app.js?v=1008");
 </script>
 </body>
 </html>

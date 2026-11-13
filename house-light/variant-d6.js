@@ -1461,7 +1461,7 @@ export function buildVariantD4(api) {
   const shiftX = (x) => x + HOUSE_DX;
   const shiftY = (y) => y + HOUSE_DY;
   const shiftP = (x, y) => [shiftX(x), shiftY(y)];
-  const { addBeam, asRoof, withFinish, geometryFromTriangles, addMesh } = api;
+  const { addBeam, asRoof, withFinish, withCanopy, geometryFromTriangles, addMesh } = api;
   const planToWorld = (x, y) => api.planToWorld(shiftX(x), shiftY(y));
   const planBox = (quad, y0, y1, color, cast = true) => api.planBox(
     quad.map(([x, y]) => shiftP(x, y)), y0, y1, color, cast
@@ -2177,13 +2177,14 @@ export function buildVariantD4(api) {
     ? Ze + (Zr - Ze) * (y - yCanS) / (cy - yCanS)
     : Ze + (Zr - Ze) * (yN - y) / (yN - cy));
   const zSoffit = (_x, y) => zGable(y) - roofDrop;
+  withCanopy(() => {
   for (const [x0, y0, x1, y1] of CANOPY_COLUMN_BOXES) {
     // Цвет стен; остаются при снятой крыше и режутся сечением 3,5 м.
     withFinish("wall", () => {
       planBox([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], 0, ARMO_BOT, WALL_C);
     });
   }
-  // Плита навеса: asRoof (с «Крыша»), finish wall. Запад вровень с фронтоном (тот же меш торца),
+  // Плита навеса: с чекбоксом «Навес». Запад вровень с фронтоном (тот же меш торца),
   // восток — к наружной грани стены дома.
   {
     const prev = api.sectionHeight();
@@ -2207,7 +2208,7 @@ export function buildVariantD4(api) {
     ceil.userData.ceiling = true;
     api.sectionHeight(prev);
   }
-  // Западная стена дома под навесом: от верха плиты (Ze) по скату — вместе с крышей.
+  // Западная стена дома под навесом: от верха плиты (Ze) по скату — вместе с навесом.
   {
     const x0 = -4.42;
     const x1 = -4.04;
@@ -2235,6 +2236,7 @@ export function buildVariantD4(api) {
       delete mesh.userData.section;
     }
   }
+  });
 
   // Отмостка вокруг дома и навеса; без старого выреза крыльца.
   const BLIND_C = 0xd4cfc4;

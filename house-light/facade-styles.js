@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { OVERLAY_FIELD } from "./facade-overlay.js?v=20";
+import { OVERLAY_FIELD, DARK_CLAD, WOOD_OAK } from "./facade-overlay.js?v=30";
 
 const cache = new Map();
 
@@ -148,6 +148,25 @@ const PATTERN = {
   brick: () => canvas(128, 64, (g, w, h) => mortarBrick(g, w, h, "#a35a45", "#c4aaa0", 4)),
   brickDark: () => canvas(128, 64, (g, w, h) => mortarBrick(g, w, h, ["#6e3a32", "#7a4638", "#5c302c"], "#3a3330", 4)),
   bavaria: () => canvas(128, 64, (g, w, h) => mortarBrick(g, w, h, ["#8d4034", "#a36a45", "#6e5348", "#b5523e"], "#d2c3b4", 4)),
+  // Длинный светлый кирпич как на рендерах agency/roof-d.
+  longBrick: () => canvas(256, 72, (g, w, h) => {
+    const palette = ["#e8e2d6", "#ddd6c8", "#f0e9dc", "#d2cbc0", "#e2dbcf", "#ebe4d8"];
+    g.fillStyle = "#c8c0b4";
+    g.fillRect(0, 0, w, h);
+    const courses = 6;
+    const ch = h / courses;
+    const bw = w / 2.5;
+    for (let row = 0; row < courses; row++) {
+      const shift = row % 2 ? bw * 0.5 : 0;
+      for (let col = -1; col < 5; col++) {
+        const shade = ((row * 7 + col * 11) % 13) / 40;
+        g.fillStyle = palette[(row * 3 + col * 5) % palette.length];
+        g.fillRect(col * bw + shift + 1, row * ch + 1, bw - 2, ch - 2);
+        g.fillStyle = `rgba(60,55,48,${0.04 + shade * 0.08})`;
+        g.fillRect(col * bw + shift + 1, row * ch + ch * 0.55, bw - 2, ch * 0.35);
+      }
+    }
+  }),
   stone: () => canvas(128, 96, (g, w, h) => stoneBlocks(g, w, h, ["#cfc6b6", "#b7b0a2", "#ddd4c6"], "#8d877c")),
   stoneDark: () => canvas(128, 96, (g, w, h) => stoneBlocks(g, w, h, ["#6a655e", "#524e48", "#7c766e"], "#3a3834")),
   siding: () => canvas(32, 48, (g, w, h) => siding(g, w, h, "#e4e0d8", "#b7b2a8", false)),
@@ -542,8 +561,102 @@ const PATTERN = {
   seam: () => canvas(64, 32, (g, w, h) => {
     g.fillStyle = "#2a2e32";
     g.fillRect(0, 0, w, h);
+    const cx = w / 2;
+    g.fillStyle = "#1a1e22";
+    g.fillRect(cx - 3, 0, 1, h);
+    g.fillRect(cx + 2, 0, 1, h);
     g.fillStyle = "#4a5158";
-    g.fillRect(w / 2 - 1, 0, 3, h);
+    g.fillRect(cx - 2, 0, 4, h);
+    g.fillStyle = "rgba(255,255,255,0.12)";
+    g.fillRect(cx - 1, 0, 1.2, h);
+  }),
+  // Серые секции у проёмов (roof-d): фиброцемент / штукатурка с облачной неоднородностью.
+  darkClad: () => canvas(160, 160, (g, w, h) => {
+    g.fillStyle = "#5e666f";
+    g.fillRect(0, 0, w, h);
+    const blot = [
+      "rgba(72,78,86,0.38)",
+      "rgba(108,116,124,0.30)",
+      "rgba(88,94,102,0.26)",
+      "rgba(98,106,114,0.22)",
+      "rgba(64,70,78,0.28)",
+      "rgba(118,124,132,0.18)",
+    ];
+    for (let i = 0; i < 110; i++) {
+      g.fillStyle = blot[i % blot.length];
+      const x = (i * 47 + 13) % w;
+      const y = (i * 73 + 29) % h;
+      const rx = 10 + (i * 5) % 18;
+      const ry = 7 + (i * 3) % 14;
+      g.beginPath();
+      g.ellipse(x, y, rx, ry, ((i * 17) % 40) * 0.05, 0, Math.PI * 2);
+      g.fill();
+    }
+    for (let x = 0; x < w; x += 2) {
+      g.fillStyle = `rgba(0,0,0,${0.015 + (x % 11) * 0.006})`;
+      g.fillRect(x, 0, 1, h);
+    }
+    g.fillStyle = "rgba(255,255,255,0.04)";
+    g.fillRect(0, 0, w, h * 0.35);
+  }),
+  // Цоколь roof-d: чуть темнее серых секций, не чёрный.
+  plinthSoft: () => canvas(96, 64, (g, w, h) => {
+    g.fillStyle = "#4a515a";
+    g.fillRect(0, 0, w, h);
+    for (let i = 0; i < 40; i++) {
+      g.fillStyle = i % 2 ? "rgba(58,64,72,0.28)" : "rgba(82,90,98,0.22)";
+      const x = (i * 29) % w;
+      const y = (i * 41) % h;
+      g.fillRect(x, y, 10 + (i % 6), 4 + (i % 4));
+    }
+    g.fillStyle = "rgba(0,0,0,0.06)";
+    g.fillRect(0, h * 0.55, w, h * 0.45);
+  }),
+  // Сплошной щит из вертикальных досок (без щелей), тёплый дуб как на roof-d.
+  woodBoards: () => canvas(160, 256, (g, w, h) => {
+    const n = 5;
+    const bw = w / n;
+    const tones = ["#a28868", "#967856", "#8c7050", "#9e8264", "#907454", "#a69070"];
+    for (let i = 0; i < n; i++) {
+      g.fillStyle = tones[i % tones.length];
+      g.fillRect(i * bw, 0, bw + 1, h);
+      for (let k = 0; k < 28; k++) {
+        const y = (k * 37 + i * 11) % h;
+        g.fillStyle = `rgba(55,38,22,${0.04 + (k % 4) * 0.015})`;
+        g.fillRect(i * bw + 3 + (k % 3), y, bw - 8, 1.2);
+        g.fillStyle = `rgba(255,220,170,${0.03 + (k % 3) * 0.012})`;
+        g.fillRect(i * bw + 5, (y + 9) % h, bw * 0.35, 1);
+      }
+      if (i > 0) {
+        g.fillStyle = "rgba(48,32,18,0.42)";
+        g.fillRect(i * bw - 1, 0, 2, h);
+        g.fillStyle = "rgba(255,230,190,0.10)";
+        g.fillRect(i * bw + 1, 0, 1.5, h);
+      }
+    }
+  }),
+  // Фальц roof-d: панели одного цвета + заметное ребро шва с контуром (не зебра).
+  seamAnthracite: () => canvas(128, 64, (g, w, h) => {
+    const pan = "#3a4048";
+    g.fillStyle = pan;
+    g.fillRect(0, 0, w, h);
+    // Лёгкая ровная тональность панели (без чередования полос).
+    g.fillStyle = "rgba(0,0,0,0.04)";
+    g.fillRect(0, 0, w, h * 0.5);
+    const cx = w * 0.5;
+    const rib = 7;
+    // Тень/контур по краям ребра.
+    g.fillStyle = "#1c2026";
+    g.fillRect(cx - rib * 0.5 - 1.5, 0, 1.5, h);
+    g.fillRect(cx + rib * 0.5, 0, 1.5, h);
+    // Само ребро — тот же антрацит, чуть светлее сверху.
+    g.fillStyle = "#4a515a";
+    g.fillRect(cx - rib * 0.5, 0, rib, h);
+    g.fillStyle = "#2a3038";
+    g.fillRect(cx - rib * 0.5, 0, 1.2, h);
+    g.fillRect(cx + rib * 0.5 - 1.2, 0, 1.2, h);
+    g.fillStyle = "rgba(255,255,255,0.14)";
+    g.fillRect(cx - 1.2, 0, 2.4, h);
   }),
 };
 
@@ -558,6 +671,7 @@ const SCALE = {
   brick: 0.9,
   brickDark: 0.9,
   bavaria: 0.9,
+  longBrick: 0.75,
   stone: 1.1,
   stoneDark: 1.1,
   siding: 0.55,
@@ -596,6 +710,10 @@ const SCALE = {
   tile: 0.85,
   tileDark: 0.85,
   seam: 0.7,
+  seamAnthracite: 0.55,
+  darkClad: 1.9,
+  plinthSoft: 1.4,
+  woodBoards: 0.8,
 };
 
 const CLAMP = new Set(["skirtStone", "skirtBrick", "skirtSwiss", "belts", "chevron", "louvers", "belgian", "artdeco", "cassettes"]);
@@ -605,7 +723,8 @@ function finish(wall, roof, frame, plinth, base, column, gutter) {
 }
 
 const pat = (id) => ({ pattern: id, scale: SCALE[id], height: CLAMP.has(id) ? 4.2 : 0 });
-const roof = (id) => ({ pattern: id, scale: SCALE[id], height: 0 });
+// align:"fall" — полосы/фальц строго по скату от конька вниз, не зебра по миру.
+const roof = (id) => ({ pattern: id, scale: SCALE[id], height: 0, align: "fall" });
 const flat = (color) => ({ color });
 
 const ZINC = 0x6a7278;
@@ -646,43 +765,61 @@ export const FACADE_CHOICES = [
   { id: "27", name: "27. Ламели", ...finish(pat("louvers"), roof("tileDark"), 0x1e2428, 0x1e2428, COOL_BASE, LIGHT_COL, ZINC) },
   { id: "28", name: "28. Рейки", ...finish(pat("reikiScreen"), roof("seam"), 0x3a3028, 0x2c2926, COOL_BASE, 0xe8dcc8, ZINC) },
   { id: "29", name: "29. Кассеты", ...finish(pat("cassettes"), roof("seam"), 0x1a1e22, 0x1a1e22, COOL_BASE, 0xe4ddd4, ZINC) },
+  // Как рендеры agency/roof-d: секции кирпич/доски цоколь→крыша, проёмы в серых секциях, фальц.
+  {
+    id: "30",
+    name: "30. Рендер roof-d",
+    ...finish(
+      pat("longBrick"),
+      roof("seamAnthracite"),
+      0x5e666f,
+      pat("plinthSoft"),
+      0xc5c1b8,
+      pat("longBrick"),
+      0x5e666f
+    ),
+  },
 ];
 
 const byId = new Map(FACADE_CHOICES.map((s) => [s.id, s]));
 
-const OVERLAY_ALSO = new Set(["12", "23"]);
+const OVERLAY_ALSO = new Set(["12", "23", "30"]);
 for (const choice of FACADE_CHOICES) {
   if (OVERLAY_FIELD[choice.id] != null || OVERLAY_ALSO.has(choice.id)) choice.overlay = choice.id;
 }
 
 function ensureShader(material) {
-  if (material.userData.finishShader) return;
-  material.userData.finishShader = true;
+  if (material.userData.finishShader === "v2") return;
+  material.userData.finishShader = "v2";
   material.userData.uPattern = { value: pattern("plaster") };
   material.userData.uScale = { value: 1 };
   material.userData.uHeight = { value: 4.2 };
   material.userData.uClamp = { value: 0 };
   material.userData.uOn = { value: 0 };
+  material.userData.uAlign = { value: 0 };
   material.onBeforeCompile = (shader) => {
     shader.uniforms.uPattern = material.userData.uPattern;
     shader.uniforms.uScale = material.userData.uScale;
     shader.uniforms.uHeight = material.userData.uHeight;
     shader.uniforms.uClamp = material.userData.uClamp;
     shader.uniforms.uOn = material.userData.uOn;
-    if (shader.vertexShader.includes("vFinishPos")) return;
-    shader.vertexShader = shader.vertexShader
-      .replace(
-        "#include <uv_pars_vertex>",
-        "#include <uv_pars_vertex>\nvarying vec3 vFinishPos;\nvarying vec3 vFinishNorm;"
-      )
-      .replace(
-        "#include <worldpos_vertex>",
-        "#include <worldpos_vertex>\nvFinishPos = (modelMatrix * vec4(transformed, 1.0)).xyz;\nvFinishNorm = normalize(mat3(modelMatrix) * objectNormal);"
-      );
-    shader.fragmentShader = shader.fragmentShader
-      .replace(
-        "#include <uv_pars_fragment>",
-        `#include <uv_pars_fragment>
+    shader.uniforms.uAlign = material.userData.uAlign;
+    if (!shader.vertexShader.includes("vFinishPos")) {
+      shader.vertexShader = shader.vertexShader
+        .replace(
+          "#include <uv_pars_vertex>",
+          "#include <uv_pars_vertex>\nvarying vec3 vFinishPos;\nvarying vec3 vFinishNorm;"
+        )
+        .replace(
+          "#include <worldpos_vertex>",
+          "#include <worldpos_vertex>\nvFinishPos = (modelMatrix * vec4(transformed, 1.0)).xyz;\nvFinishNorm = normalize(mat3(modelMatrix) * objectNormal);"
+        );
+    }
+    if (!shader.fragmentShader.includes("uAlign")) {
+      shader.fragmentShader = shader.fragmentShader
+        .replace(
+          "#include <uv_pars_fragment>",
+          `#include <uv_pars_fragment>
 varying vec3 vFinishPos;
 varying vec3 vFinishNorm;
 uniform sampler2D uPattern;
@@ -690,26 +827,43 @@ uniform float uScale;
 uniform float uHeight;
 uniform float uClamp;
 uniform float uOn;
+uniform float uAlign;
 vec3 sampleFinish(vec2 uv, float upright) {
   vec2 p = (uClamp > 0.5 && upright > 0.5)
     ? vec2(uv.x / uScale, clamp(uv.y / uHeight, 0.0, 0.999))
     : uv / uScale;
   return texture2D(uPattern, p).rgb;
 }`
-      )
-      .replace(
-        "#include <map_fragment>",
-        `#include <map_fragment>
+        )
+        .replace(
+          "#include <map_fragment>",
+          `#include <map_fragment>
 if (uOn > 0.5) {
-  vec3 fn = pow(abs(normalize(vFinishNorm)), vec3(6.0));
-  fn /= fn.x + fn.y + fn.z + 1e-5;
-  diffuseColor.rgb = sampleFinish(vFinishPos.zy, 1.0) * fn.x
-    + sampleFinish(vFinishPos.xz, 0.0) * fn.y
-    + sampleFinish(vFinishPos.xy, 1.0) * fn.z;
+  vec3 n = normalize(vFinishNorm);
+  if (uAlign > 0.5) {
+    // Фальц/полосы: U поперёк ската, V вдоль линии падения — рёбра от конька к карнизу.
+    vec3 up = vec3(0.0, 1.0, 0.0);
+    vec3 down = up - n * dot(n, up);
+    float dl = length(down);
+    if (dl > 1e-3) {
+      down /= dl;
+      vec3 across = normalize(cross(n, down));
+      diffuseColor.rgb = sampleFinish(vec2(dot(vFinishPos, across), dot(vFinishPos, down)), 0.0);
+    } else {
+      diffuseColor.rgb = sampleFinish(vFinishPos.xz, 0.0);
+    }
+  } else {
+    vec3 fn = pow(abs(n), vec3(6.0));
+    fn /= fn.x + fn.y + fn.z + 1e-5;
+    diffuseColor.rgb = sampleFinish(vFinishPos.zy, 1.0) * fn.x
+      + sampleFinish(vFinishPos.xz, 0.0) * fn.y
+      + sampleFinish(vFinishPos.xy, 1.0) * fn.z;
+  }
 }`
-      );
+        );
+    }
   };
-  material.customProgramCacheKey = () => "facade-finish-v1";
+  material.customProgramCacheKey = () => "facade-finish-v2-fall";
   material.needsUpdate = true;
 }
 
@@ -724,10 +878,12 @@ function paint(mesh, spec) {
     const span = mesh.userData.finishTop;
     mat.userData.uHeight.value = span && spec.height ? span : (spec.height || 4.2);
     mat.userData.uClamp.value = spec.height ? 1 : 0;
+    mat.userData.uAlign.value = spec.align === "fall" ? 1 : 0;
     mat.color.set(0xffffff);
     return;
   }
   if (mat.userData.uOn) mat.userData.uOn.value = 0;
+  if (mat.userData.uAlign) mat.userData.uAlign.value = 0;
   if (spec.color != null) mat.color.setHex(spec.color);
 }
 
@@ -737,8 +893,24 @@ export function applyFacadeStyle(root, styleId) {
     if (obj.userData.facadeOverlay) {
       obj.visible = !!(style && style.overlay === obj.userData.facadeOverlay);
     }
-    if (!obj.isMesh || !obj.userData.finish) return;
+    if (!obj.isMesh) return;
     const mat = obj.material;
+    // Overlay 30: серые секции и дощатый щит — текстуры, не плоская заливка.
+    if (obj.userData.overlay) {
+      const base = obj.userData.baseColor;
+      if (style?.id === "30" && base === DARK_CLAD) {
+        paint(obj, pat("darkClad"));
+        return;
+      }
+      if (style?.id === "30" && base === WOOD_OAK) {
+        paint(obj, pat("woodBoards"));
+        return;
+      }
+      if (mat.userData.uOn) mat.userData.uOn.value = 0;
+      if (base != null) mat.color.setHex(base);
+      return;
+    }
+    if (!obj.userData.finish) return;
     if (!style) {
       if (mat.userData.uOn) mat.userData.uOn.value = 0;
       if (obj.userData.baseColor != null) mat.color.setHex(obj.userData.baseColor);

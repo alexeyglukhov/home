@@ -17,6 +17,10 @@ const BEAM_B = 0x2a211c;
 const INK = 0x1c1a17;
 const LOUVER = 0x3a4146;
 const SLAT = 0x5c4a3a;
+export const WOOD_OAK = 0x9a7850;
+const DARK_PANEL = 0x2a2e32;
+// Средне-серая облицовка у проёмов (roof-d); неоднородность — паттерн darkClad в стиле 30.
+export const DARK_CLAD = 0x5e666f;
 const CORTEN = 0x8c4e32;
 const CASS_A = 0xe6e2da;
 const CASS_B = 0xb3aea4;
@@ -78,13 +82,26 @@ function quoins(face, color, w = 0.4) {
 
 function surround(face, op, color, band = 0.15) {
   const { left, right } = sideRoom(face, op, band);
-  const z1 = op.z1 + 0.02;
+  // Косой верх: z1L/z1R; иначе обычный прямоугольник по op.z1.
+  const z1L = (op.z1L != null ? op.z1L : op.z1) + 0.02;
+  const z1R = (op.z1R != null ? op.z1R : op.z1) + 0.02;
+  const slanted = Math.abs(z1L - z1R) > 0.02;
   const top = 0.12;
-  if (left > 0.025) face.place(op.u0 - left, op.u0 - 0.01, op.kind === "door" ? 0.02 : op.z0 - 0.1, z1 + top, color, 0.012);
-  if (right > 0.025) face.place(op.u1 + 0.01, op.u1 + right, op.kind === "door" ? 0.02 : op.z0 - 0.1, z1 + top, color, 0.012);
+  if (left > 0.025) {
+    face.place(op.u0 - left, op.u0 - 0.01, op.kind === "door" ? 0.02 : op.z0 - 0.1, z1L + top, color, 0.012);
+  }
+  if (right > 0.025) {
+    face.place(op.u1 + 0.01, op.u1 + right, op.kind === "door" ? 0.02 : op.z0 - 0.1, z1R + top, color, 0.012);
+  }
   const a = op.u0 - left;
   const b = op.u1 + right;
-  face.place(a, b, z1, z1 + top, color, 0.012);
+  if (slanted) {
+    // Верхняя полка обводки вдоль ската (не горизонтальный прямоугольник).
+    face.beam(a, z1L + top * 0.5, b, z1R + top * 0.5, top, color, 0.012);
+    face.beam(op.u0, z1L + top * 0.35, op.u1, z1R + top * 0.35, top * 0.7, color, 0.01);
+  } else {
+    face.place(a, b, z1L, z1L + top, color, 0.012);
+  }
   if (op.kind !== "door" && op.z0 > 0.12) face.place(a, b, op.z0 - 0.12, op.z0 - 0.01, color, 0.012);
 }
 
@@ -103,27 +120,60 @@ function slopeSpan(g, z) {
   return [g.u0 + (g.peakU - g.u0) * t, g.u1 - (g.u1 - g.peakU) * t];
 }
 
+function opHeadAt(op, u) {
+  if (op.z1L != null && op.z1R != null && op.u1 > op.u0 + 1e-6) {
+    const t = Math.max(0, Math.min(1, (u - op.u0) / (op.u1 - op.u0)));
+    return op.z1L + (op.z1R - op.z1L) * t;
+  }
+  return op.z1;
+}
+
+function roofAt(face, u) {
+  if (!face.gable) return face.eave;
+  // Софит/фронтон: выше карниза стены поднимаемся по скату до низа кровли.
+  const top = gableCeiling(face.gable, u) - 0.012;
+  return Math.max(face.eave, top);
+}
+
+// Вертикальные полосы к скату — без горизонтальных «ступеней» fillAbove.
 function fillAbove(face, a, b, zFrom, color, proud = 0) {
   const g = face.gable;
   if (!g) return;
   const lo = Math.min(a, b);
   const hi = Math.max(a, b);
-  const peak = g.peakZ - 0.05;
-  if (peak <= zFrom + 0.03) return;
-  for (let z = zFrom; z < peak; z += 0.14) {
-    const z1 = Math.min(z + 0.14, peak);
-    const [s0, s1] = slopeSpan(g, z1);
-    const ca = Math.max(lo, s0);
-    const cb = Math.min(hi, s1);
-    if (cb - ca > 0.02) face.place(ca, cb, z, z1, color, proud);
+  const step = 0.045;
+  for (let u = lo; u < hi - 1e-4; u += step) {
+    const u2 = Math.min(u + step, hi);
+    const top = roofAt(face, (u + u2) * 0.5);
+    if (top > zFrom + 0.03) face.place(u, u2, zFrom, top, color, proud);
   }
 }
 
 function placeToRoof(face, a, b, z0, color, proud = 0) {
-  const lo = Math.min(a, b);
-  const hi = Math.max(a, b);
-  if (face.eave - z0 > 0.02) face.place(lo, hi, z0, face.eave, color, proud);
-  fillAbove(face, lo, hi, face.eave, color, proud);
+  cladToRoof(face, Math.min(a, b), Math.max(a, b), z0, color, proud);
+}
+
+// Зашивка до крыши с вырезом проёмов по форме (в т.ч. косой z1L/z1R).
+function cladToRoof(face, u0, u1, zBot, color, proud = 0) {
+  const lo = Math.min(u0, u1);
+  const hi = Math.max(u0, u1);
+  if (hi - lo < 0.04) return;
+  const step = 0.045;
+  for (let u = lo; u < hi - 1e-4; u += step) {
+    const u2 = Math.min(u + step, hi);
+    const um = (u + u2) * 0.5;
+    const top = roofAt(face, um);
+    if (top <= zBot + 0.03) continue;
+    const hit = face.openings.find((op) => um > op.u0 && um < op.u1);
+    if (!hit) {
+      face.place(u, u2, zBot, top, color, proud);
+      continue;
+    }
+    const zLo = hit.z0;
+    const zHi = opHeadAt(hit, um);
+    if (zLo > zBot + 0.025) face.place(u, u2, zBot, Math.min(zLo, top), color, proud);
+    if (top > zHi + 0.025) face.place(u, u2, Math.max(zHi, zBot), top, color, proud);
+  }
 }
 
 function timberPosts(face, color, z0, z1, pw = 0.13, toRoof = false) {
@@ -896,6 +946,45 @@ export function paintFacadeFaces(api, faces) {
     for (let u = g.u0 + 0.25; u < g.u1 - 0.2; u += 0.16) {
       const top = gableTop(g, u + 0.03) - 0.06;
       if (top > f.eave + 0.25) f.place(u, u + 0.045, f.eave, top, SLAT);
+    }
+  }));
+  // Рендер roof-d: тёмные секции у наружных проёмов (+10 см) до ската; внутренние — только вырез.
+  draw("30", () => each(faces, (f) => {
+    const zBot = 0.06;
+    const PAD = 0.10;
+    const ops = sorted(f).filter((op) => !op.inner);
+    const darkBays = [];
+    for (const op of ops) {
+      const u0 = Math.max(f.span0, op.u0 - PAD);
+      const u1 = Math.min(f.span1, op.u1 + PAD);
+      if (u1 - u0 < 0.12) continue;
+      darkBays.push({ u0, u1, op });
+      cladToRoof(f, u0, u1, zBot, DARK_CLAD, 0.014);
+    }
+    const solid = [];
+    let cursor = f.span0;
+    const bays = darkBays.slice().sort((a, b) => a.u0 - b.u0);
+    for (const bay of bays) {
+      if (bay.u0 > cursor + 0.06) solid.push([cursor, bay.u0]);
+      cursor = Math.max(cursor, bay.u1);
+    }
+    if (f.span1 > cursor + 0.06) solid.push([cursor, f.span1]);
+    let wood = false;
+    for (const [a, b] of solid) {
+      if (wood && b - a > 0.35) {
+        cladToRoof(f, a + 0.01, b - 0.01, zBot, WOOD_OAK, 0.012);
+      }
+      wood = !wood;
+    }
+    // Крыльцо: щит досок от окна слева до окна справа входной двери (дверь вырезается).
+    if (f.name === "v31dN") {
+      const door = ops.find((op) => op.kind === "door" && op.u0 > 3.2 && op.u1 < 5.5);
+      const wins = ops.filter((op) => op.kind === "win" || op.kind === "pan");
+      const left = door && wins.filter((w) => w.u1 <= door.u0 + 0.05).sort((a, b) => b.u1 - a.u1)[0];
+      const right = door && wins.filter((w) => w.u0 >= door.u1 - 0.05).sort((a, b) => a.u0 - b.u0)[0];
+      if (door && left && right && right.u0 - left.u1 > 0.4) {
+        cladToRoof(f, left.u1 + 0.02, right.u0 - 0.02, zBot, WOOD_OAK, 0.016);
+      }
     }
   }));
   draw("25", () => each(faces, (f) => {

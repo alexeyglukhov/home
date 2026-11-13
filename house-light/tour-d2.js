@@ -109,6 +109,7 @@ export function createD2Tour(planToWorld, boxes, segments = [], shift = null) {
   let speed = 5;
   let vx = 0;
   let vy = 0;
+  let fallV = 0; // вертикальная скорость при спуске с высоты (м/с, вниз > 0)
   const held = new Set();
   const look = new THREE.Vector3();
   const pos = new THREE.Vector3();
@@ -297,11 +298,16 @@ export function createD2Tour(planToWorld, boxes, segments = [], shift = null) {
       obstacles = (opts.keepHouse === false ? [] : housePolys).concat(opts.obstacles || []);
       for (const poly of obstacles) measure(poly);
       [e, n] = pushOut(e, n);
-      eye = groundFn(e, n) + EYE;
-      pitch = -7 * Math.PI / 180;
+      const floor = groundFn(e, n) + EYE;
+      // Стартуем с высоты/наклона камеры; если высоко — step плавно опустит на пол.
+      eye = pose.eye != null && Number.isFinite(pose.eye) ? pose.eye : floor;
+      pitch = pose.pitch != null && Number.isFinite(pose.pitch)
+        ? Math.max(PITCH_MIN, Math.min(PITCH_MAX, pose.pitch))
+        : -7 * Math.PI / 180;
       speed = 5;
       vx = 0;
       vy = 0;
+      fallV = 0;
       held.clear();
       place();
     },
@@ -310,6 +316,7 @@ export function createD2Tour(planToWorld, boxes, segments = [], shift = null) {
       held.clear();
       vx = 0;
       vy = 0;
+      fallV = 0;
     },
     setSpeed(v) {
       const n = Math.round(Number(v));
@@ -339,8 +346,26 @@ export function createD2Tour(planToWorld, boxes, segments = [], shift = null) {
       if (Math.hypot(vx, vy) < 0.01 && Math.hypot(tx, ty) === 0) { vx = 0; vy = 0; }
       [e, n] = slide(e, n, vx * stepDt, vy * stepDt);
       const floor = groundFn(e, n) + EYE;
-      const rise = 1 - Math.exp(-24 * stepDt);
-      eye += (floor - eye) * rise;
+      const dy = floor - eye;
+      if (dy < -0.05) {
+        // Падение с ускорением (как g), мягкая посадка у пола.
+        const g = 9.8;
+        fallV = Math.min(18, fallV + g * stepDt);
+        const next = eye - fallV * stepDt;
+        if (next <= floor) {
+          eye = floor;
+          fallV = 0;
+        } else {
+          eye = next;
+        }
+      } else if (dy > 0.015) {
+        fallV = 0;
+        const rise = 1 - Math.exp(-24 * stepDt);
+        eye += dy * rise;
+      } else {
+        eye = floor;
+        fallV = 0;
+      }
       place();
       return true;
     },

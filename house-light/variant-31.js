@@ -230,7 +230,7 @@ export function buildVariant31(api) {
   const shiftX = (x) => x + HOUSE_DX;
   const shiftY = (y) => y + HOUSE_DY;
   const shiftP = (x, y) => [shiftX(x), shiftY(y)];
-  const { addBeam, asRoof, withFinish, geometryFromTriangles, addMesh } = api;
+  const { addBeam, asRoof, withFinish, withCanopy, geometryFromTriangles, addMesh } = api;
   const planToWorld = (x, y) => api.planToWorld(shiftX(x), shiftY(y));
   const planBox = (quad, y0, y1, color, cast = true) => api.planBox(
     quad.map(([x, y]) => shiftP(x, y)), y0, y1, color, cast
@@ -255,7 +255,7 @@ export function buildVariant31(api) {
   // Высоты кровли нужны уже для верха стен (фронтон без зазора).
   const pitch = 22 * Math.PI / 180;
   const tanP = Math.tan(pitch);
-  const ROOF_THICK = 0.10;
+  const ROOF_THICK = 0.20;
   const ZeCan = CANOPY_CEIL + ROOF_THICK;
   const yR0 = 12.88;
   const x0W = -6.15, x0E = 15.42;
@@ -269,8 +269,6 @@ export function buildVariant31(api) {
   const yPlateS = 7.30;
   const yPlateN = 18.26;
   const yPlateSE = 0.85;
-  // Фронтон снаружи западных колонн: они целиком под потолком, потолок доходит до фронтона.
-  const xCanGable = -12.11;
   // Восточное крыло: конёк N–S, два ровных ската до ендовы.
   const xR1 = 11.48;
   const y1S = 0.18;
@@ -464,7 +462,7 @@ export function buildVariant31(api) {
   // Кровля ровными скатами (без сетки — край у фронтонов прямой).
   const pushW = (arr, a, b, c) => arr.push([world(...a), world(...b), world(...c)]);
   const quadW = (arr, a, b, c, d) => { pushW(arr, a, b, c); pushW(arr, a, c, d); };
-  const emitShell = (topPolys, openEdges) => {
+  const emitShell = (topPolys, openEdges, opts = {}) => {
     const tops = [];
     const bottoms = [];
     const sides = [];
@@ -481,13 +479,22 @@ export function buildVariant31(api) {
         [x1, y1, z1 - ROOF_THICK], [x0, y0, z0 - ROOF_THICK]
       );
     }
+    const shell = opts.woodSoffit ? tops.concat(sides) : tops.concat(bottoms, sides);
     withFinish("roof", () => {
-      const mesh = asRoof(addMesh(geometryFromTriangles(tops.concat(bottoms, sides)), ROOF_C));
+      const mesh = asRoof(addMesh(geometryFromTriangles(shell), ROOF_C));
       mesh.material.flatShading = true;
       mesh.material.emissive?.setHex(0x151210);
       mesh.material.needsUpdate = true;
       return mesh;
     });
+    // Низ навеса — деревянная обшивка (отдельно от тёмной кровли).
+    if (opts.woodSoffit && bottoms.length) {
+      withFinish("wall", () => {
+        const mesh = asRoof(addMesh(geometryFromTriangles(bottoms), WOOD));
+        mesh.material.flatShading = true;
+        return mesh;
+      });
+    }
   };
   const P = (x, y, z) => [x, y, z];
   const ringEdges = (poly) => poly.map((p, i) => [p, poly[(i + 1) % poly.length]]);
@@ -548,8 +555,8 @@ export function buildVariant31(api) {
       ]
     );
   }
-  // Навес: до наружной грани западной стены, ровные скаты.
-  {
+  // Навес: двускатный без фронтона; низ обшит деревом.
+  withCanopy(() => {
     const wS = P(x2W, y2S, zCan(x2W, y2S));
     const eS = P(xPlateW, y2S, zCan(xPlateW, y2S));
     const wR = P(x2W, yR2, Zr2);
@@ -563,28 +570,12 @@ export function buildVariant31(api) {
       [
         ...ringEdges(south).filter((_, i) => i !== 2),
         ...ringEdges(north).filter((_, i) => i !== 0),
-      ]
+      ],
+      { woodSoffit: true }
     );
-  }
+  });
 
-  // Потолок навеса: 2,70 м от земли.
-  const canCeilZ = CANOPY_CEIL;
-  {
-    const prev = api.sectionHeight();
-    api.sectionHeight(null);
-    const ceil = asRoof(planBox(
-      [[xCanGable + 0.02, y2S + 0.18], [xPlateW - 0.08, y2S + 0.18], [xPlateW - 0.08, y2N - 0.18], [xCanGable + 0.02, y2N - 0.18]],
-      canCeilZ - 0.04, canCeilZ, 0xffffff, false
-    ));
-    delete ceil.userData.finish;
-    delete ceil.userData.section;
-    ceil.material.color.setHex(0xffffff);
-    ceil.material.emissive?.setHex(0x000000);
-    ceil.userData.ceiling = true;
-    api.sectionHeight(prev);
-  }
-
-  // Фронтоны дома и навеса — от верха стены / карниза до низа кровли.
+  // Фронтоны дома — от верха стены / карниза до низа кровли.
   const gableTris = [];
   const gpush = (a, b, c) => gableTris.push([world(...a), world(...b), world(...c)]);
   // out < 0 — нормаль в минус по оси, перпендикулярной фронтону (наружу).
@@ -613,7 +604,6 @@ export function buildVariant31(api) {
   gableFillNS(xPlateW, yPlateS, yPlateN, yR0, Zr0, (y) => zMain(xPlateW, y), westGableBase, -1);
   gableFillNS(xPlateE, yValley(xPlateE), yPlateN, yR0, Zr0, (y) => zMain(xPlateE, y), eastGableBase, 1);
   gableFillEW(yPlateSE, xPlateSpine, xPlateE, xR1, Zr1, (x) => zEast(x), southGableBase, 1);
-  gableFillNS(xCanGable, y2S, y2N, yR2, Zr2, (y) => zCan(xCanGable, y), canCeilZ, -1);
   if (gableTris.length) {
     withFinish("wall", () => {
       const mesh = addMesh(geometryFromTriangles(gableTris), WALL_C);
@@ -621,7 +611,7 @@ export function buildVariant31(api) {
     });
   }
 
-  // Колонны: под навесом — до потолка; терраса/крыльцо — до низа кровли.
+  // Колонны: под навесом — до низа ската; терраса/крыльцо — до низа кровли.
   const roofZ = (x, y) => {
     const h = houseZ(x, y);
     if (h != null) return h;
@@ -633,10 +623,10 @@ export function buildVariant31(api) {
     const underCanopy = cx < xPlateW - 0.2;
     // Парковка на плитке (~0.065): колонны навеса от земли, не от цоколя.
     const zBot = underCanopy ? 0 : FLOOR;
-    const zTop = underCanopy
-      ? canCeilZ
-      : Math.max(zBot + 0.5, (roofZ(cx, cy) != null ? roofZ(cx, cy) : Ze) - ROOF_THICK);
-    planBox([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], zBot, zTop, WOOD);
+    const zTop = Math.max(zBot + 0.5, (roofZ(cx, cy) != null ? roofZ(cx, cy) : Ze) - ROOF_THICK);
+    const build = () => planBox([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], zBot, zTop, WOOD);
+    if (underCanopy) withCanopy(build);
+    else build();
   }
 
   // Отмостка 1 м по периметру отапливаемого контура (как Д4/Д6).
@@ -773,12 +763,6 @@ export function buildVariant31(api) {
           name: "v31W", along: "y", outer: -5.36, sign: -1, span0: 7.30, span1: 18.26, eave: WALL_TOP,
           gable: gableMain(yPlateS, yPlateN),
           openings: fromPlan("y", -5.13, 7.30, 18.26),
-        }),
-        face({
-          name: "v31Can", along: "y", outer: xCanGable, sign: -1, span0: y2S, span1: y2N,
-          eave: canCeilZ, gableOnly: true,
-          gable: { u0: y2S, u1: y2N, peakU: yR2, peakZ: Zr2 - ROOF_THICK, eave: canCeilZ, over: 0, drop: 0 },
-          openings: [],
         }),
       ];
     });

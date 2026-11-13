@@ -1,4 +1,4 @@
-// Вариант 3.1a: клон 3.1 без парковочного навеса; ворота и заезд с севера как у 3.1c.
+// Вариант 3.1a: клон 3.1; парковочный прямоугольный навес; ворота и заезд с севера как у 3.1c.
 // База: agency/var3.1.svg / abrikosovaya-22-layout-variant-3.1a-1-100.svg.
 // Координаты — метры плана участка (как у Д4): x на восток, y на север.
 // Крыша по лекалам: тёмно-синий конёк, белые фронтоны; скаты. Водостоки/снегорезы — позже.
@@ -90,7 +90,7 @@ const OPENINGS = [
 ];
 
 const COLUMNS = [
-  // южная терраса (парковочный навес убран — будет переделан)
+  // южная терраса
   [-5.128, 5.681, -4.725, 6.083],
   [2.789, 5.681, 3.193, 6.083],
   [-1.192, 5.681, -0.788, 6.083],
@@ -98,6 +98,21 @@ const COLUMNS = [
   [1.070, 19.570, 1.470, 19.970],
   [7.310, 19.570, 7.710, 19.970],
 ];
+
+// Парковочный навес: прямоугольник (L без северной полосы), колонны как 3.1d.
+// Восточный край — вплотную к западной стене (−5,36).
+const CARPORT = {
+  x0: -13.470,
+  x1: -5.36,
+  y0: 9.073,
+  y1: 19.50, // чуть длиннее на север, без касания северного свеса/крыльца
+};
+const CARPORT_COLUMNS = [
+  [-12.473, 9.926, -8.865, 10.518],
+  [-12.475, 13.395, -11.883, 14.052],
+  [-12.475, 16.857, -11.883, 17.930],
+];
+const CARPORT_THICK = 0.30;
 
 // Южная терраса по обводке rect2279: без выреза, до x≈8,26.
 const TERRACE = [-5.35, 4.79, 8.26, 7.44];
@@ -189,6 +204,7 @@ export function v31aWalkBoxes() {
     }
   }
   for (const col of COLUMNS) boxes.push(norm(col));
+  for (const col of CARPORT_COLUMNS) boxes.push(norm(col));
   return boxes;
 }
 
@@ -228,7 +244,7 @@ export function buildVariant31a(api) {
   const shiftX = (x) => x + HOUSE_DX;
   const shiftY = (y) => y + HOUSE_DY;
   const shiftP = (x, y) => [shiftX(x), shiftY(y)];
-  const { addBeam, asRoof, withFinish, geometryFromTriangles, addMesh } = api;
+  const { addBeam, asRoof, withFinish, withCanopy, geometryFromTriangles, addMesh } = api;
   const planToWorld = (x, y) => api.planToWorld(shiftX(x), shiftY(y));
   const planBox = (quad, y0, y1, color, cast = true) => api.planBox(
     quad.map(([x, y]) => shiftP(x, y)), y0, y1, color, cast
@@ -250,14 +266,15 @@ export function buildVariant31a(api) {
     withFinish("frame", () => planBox([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], z0, z1, color));
   };
 
-  // Высоты кровли нужны уже для верха стен (фронтон без зазора). Парковочного навеса нет.
+  // Высоты кровли нужны уже для верха стен (фронтон без зазора).
   const pitch = 22 * Math.PI / 180;
   const tanP = Math.tan(pitch);
   const ROOF_THICK = 0.10;
   const yR0 = 12.88;
   const x0W = -6.15, x0E = 15.42;
   const y0N = 19.00, y0S = 5.50;
-  const porch = { x0: 0.52, x1: 8.20, y1: 20.44 };
+  // Навес крыльца дотянут до западного карниза основной крыши.
+  const porch = { x0: x0W, x1: 8.20, y1: 20.44 };
   const run0 = Math.max(porch.y1 - yR0, yR0 - y0S);
   // Наружные грани стен: низ ската садится сюда, стена не пробивает кровлю.
   const xPlateW = -5.36;
@@ -501,7 +518,7 @@ export function buildVariant31a(api) {
     const nE = P(x0E, y0N, zMain(x0E, y0N));
     const pW = P(porch.x0, porch.y1, zMain(porch.x0, porch.y1));
     const pE = P(porch.x1, porch.y1, zMain(porch.x1, porch.y1));
-    const nPW = P(porch.x0, y0N, zMain(porch.x0, y0N));
+    const nPW = P(porch.x0, y0N, zMain(porch.x0, y0N)); // = nW: крыльцо от зап. карниза
     const nPE = P(porch.x1, y0N, zMain(porch.x1, y0N));
     const northMain = [rW, rE, nE, nW];
     const porchRoof = [nPW, nPE, pE, pW];
@@ -510,7 +527,7 @@ export function buildVariant31a(api) {
       [
         [sW, sAt], [sAt, sCorr], [sCorr, vCorr],
         [rW, sW], [nW, rW],
-        [nW, nPW], [nPE, nE],
+        [nPE, nE],
         [nPE, pE], [pE, pW], [pW, nPW],
         [vE, rE], [rE, nE],
       ]
@@ -580,6 +597,32 @@ export function buildVariant31a(api) {
     const zTop = Math.max(zBot + 0.5, (houseZ(cx, cy) != null ? houseZ(cx, cy) : Ze) - ROOF_THICK);
     planBox([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], zBot, zTop, WOOD);
   }
+
+  // Прямоугольный парковочный навес: вплотную к зап. стене, верх чуть ниже низа свеса.
+  withCanopy(() => {
+    const { x0, x1, y0, y1 } = CARPORT;
+    // Чуть выше прежнего; зазор 1 см до верха свеса, без касания.
+    const zTop = Ze - 0.01;
+    const zBot = zTop - CARPORT_THICK;
+    const prev = api.sectionHeight();
+    api.sectionHeight(null);
+    withFinish("roof", () => {
+      const mesh = asRoof(api.addSlab(
+        [[x0, y0], [x1, y0], [x1, y1], [x0, y1]].map(([x, y]) => shiftP(x, y)),
+        zBot, CARPORT_THICK, ROOF_C, false
+      ));
+      mesh.material.flatShading = true;
+      mesh.material.emissive?.setHex(0x151210);
+      mesh.material.needsUpdate = true;
+      return mesh;
+    });
+    api.sectionHeight(prev);
+    const colZ0 = 0;
+    const colZ1 = zBot - 0.01;
+    for (const [cx0, cy0, cx1, cy1] of CARPORT_COLUMNS) {
+      planBox([[cx0, cy0], [cx1, cy0], [cx1, cy1], [cx0, cy1]], colZ0, colZ1, WOOD);
+    }
+  });
 
   // Отмостка 1 м по периметру отапливаемого контура (как Д4/Д6).
   {
@@ -659,6 +702,12 @@ export function buildVariant31a(api) {
     mark(api.addSlab([
       [g.x0, roadNear], [g.ped1, roadNear], [g.ped1, g.y], [g.x0, g.y],
     ], TILE_Y0, TILE_H, 0xe4ddd2, false));
+    // Парковка под навесом — уровень плитки/дороги.
+    const { x0: cx0, x1: cx1, y0: cy0, y1: cy1 } = CARPORT;
+    mark(api.addSlab(
+      [[cx0, cy1], [cx1, cy1], [cx1, cy0], [cx0, cy0]],
+      TILE_Y0, TILE_H, 0xe4ddd2, false
+    ));
   }
 
   // Фасады для отделки (наружные плоскости).
