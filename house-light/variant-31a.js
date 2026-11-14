@@ -97,6 +97,8 @@ const COLUMNS = [
   // северное крыльцо (column-7/8 = rect532/588)
   [1.070, 19.570, 1.470, 19.970],
   [7.310, 19.570, 7.710, 19.970],
+  // опора удлинённого свеса: отступ от зап. карниза как у вост. колонны от вост. края (0,49 м)
+  [-5.660, 19.570, -5.260, 19.970],
 ];
 
 // Парковочный навес: прямоугольник (L без северной полосы), колонны как 3.1d.
@@ -410,10 +412,11 @@ export function buildVariant31a(api) {
     ], 0.02, PLINTH, 0x2c3038);
   });
   // Ступени крыльца — бетон, не цоколь отделки.
+  // Сдвинуты вместе с площадкой: равный отступ от зап./вост. колонн крыльца.
   {
     const porchSteps = [
-      [0.14, 18.29, 8.59, 20.83],
-      [0.52, 18.29, 8.19, 20.45],
+      [0.125, 18.29, 8.575, 20.83],
+      [0.505, 18.29, 8.175, 20.45],
     ];
     porchSteps.forEach((b, i) => {
       const z1 = FLOOR * (i + 1) / 3;
@@ -440,9 +443,9 @@ export function buildVariant31a(api) {
   terraceDeck.material.polygonOffset = true;
   terraceDeck.material.polygonOffsetFactor = -1;
   terraceDeck.material.polygonOffsetUnits = -1;
-  // Верхняя площадка крыльца (rect586) заходит под пол у входной двери.
+  // Верхняя площадка крыльца: равный отступ ~6,5 см от зап. и вост. колонн.
   const porchDeck = planBox([
-    [1.02, 17.88], [7.79, 17.88], [7.79, 20.03], [1.02, 20.03],
+    [1.005, 17.88], [7.775, 17.88], [7.775, 20.03], [1.005, 20.03],
   ], FLOOR * 2 / 3, FLOOR, FLOOR_C, false);
   porchDeck.material.polygonOffset = true;
   porchDeck.material.polygonOffsetFactor = -1;
@@ -614,11 +617,12 @@ export function buildVariant31a(api) {
   }
 
   // Колонны террасы и крыльца — до низа кровли (в стиле 30 — кирпич).
+  // Под удлинённым свесом (западнее стены) — от плитки/земли, не от пола крыльца.
   withFinish("column", () => {
     for (const [x0, y0, x1, y1] of COLUMNS) {
       const cx = (x0 + x1) / 2;
       const cy = (y0 + y1) / 2;
-      const zBot = FLOOR;
+      const zBot = cx < -5.0 ? 0 : FLOOR;
       const zTop = Math.max(zBot + 0.5, (houseZ(cx, cy) != null ? houseZ(cx, cy) : Ze) - ROOF_THICK);
       planBox([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], zBot, zTop, WOOD);
     }

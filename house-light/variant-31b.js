@@ -98,6 +98,8 @@ const COLUMNS = [
   // северное крыльцо (как у 3.1)
   [1.070, 19.570, 1.470, 19.970],
   [7.310, 19.570, 7.710, 19.970],
+  // опора удлинённого свеса: отступ от зап. карниза как у вост. колонны от вост. края (0,49 м)
+  [-5.660, 19.570, -5.260, 19.970],
 ];
 
 // Парковочный навес: как у 3.1a — прямоугольник вплотную к зап. стене.
@@ -424,11 +426,11 @@ export function buildVariant31b(api) {
       [TERRACE[2], TERRACE[3]], [TERRACE[0], TERRACE[3]],
     ], 0.02, PLINTH, 0x2c3038);
   });
-  // Ступени крыльца — бетон, не цоколь отделки.
+  // Ступени крыльца — бетон; сдвинуты на восток вместе с площадкой (равный отступ колонн).
   {
     const porchSteps = [
-      [-0.072, 18.297, 8.189, 20.834],
-      [0.272, 18.297, 7.795, 20.409],
+      [0.300, 18.297, 8.561, 20.834],
+      [0.644, 18.297, 8.167, 20.409],
     ];
     porchSteps.forEach((b, i) => {
       const z1 = FLOOR * (i + 1) / 3;
@@ -455,9 +457,9 @@ export function buildVariant31b(api) {
   terraceDeck.material.polygonOffset = true;
   terraceDeck.material.polygonOffsetFactor = -1;
   terraceDeck.material.polygonOffsetUnits = -1;
-  // Верхняя площадка крыльца (rect586) в уровне пола, заходит под край у двери.
+  // Верхняя площадка: сдвиг на восток — равный отступ от зап. и вост. колонн (~4,8 см).
   const porchDeck = planBox([
-    [0.651, 17.88], [7.386, 17.88], [7.386, 20.032], [0.651, 20.032],
+    [1.023, 17.88], [7.758, 17.88], [7.758, 20.032], [1.023, 20.032],
   ], FLOOR * 2 / 3, FLOOR, FLOOR_C, false);
   porchDeck.material.polygonOffset = true;
   porchDeck.material.polygonOffsetFactor = -1;
@@ -672,13 +674,13 @@ export function buildVariant31b(api) {
     }
   }
 
-  // Колонны: терраса от цоколя; крыльцо — до низа навеса (в стиле 30 — кирпич).
+  // Колонны: терраса от цоколя; крыльцо от пола; под удлинённым свесом — от земли.
   withFinish("column", () => {
     for (const [x0, y0, x1, y1] of COLUMNS) {
       const cx = (x0 + x1) / 2;
       const cy = (y0 + y1) / 2;
       const onPorch = cy > y0N - 0.5;
-      const zBot = onPorch ? FLOOR : PLINTH;
+      const zBot = onPorch ? (cx < -5.0 ? 0 : FLOOR) : PLINTH;
       const zTop = Math.max(zBot + 0.5, (houseZ(cx, cy) != null ? houseZ(cx, cy) : Ze) - ROOF_THICK);
       planBox([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], zBot, zTop, WOOD);
     }
