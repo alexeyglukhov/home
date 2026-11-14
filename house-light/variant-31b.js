@@ -3,7 +3,7 @@
 // Посадка: abrikosovaya-22-layout-variant-3.1b-1-100.svg.
 // Координаты — метры плана участка (как у Д4): x на восток, y на север.
 import * as THREE from "three";
-import { addVar31FurnitureFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31-furniture-floor.js?v=6";
+import { addVar31FurnitureFloor, markHouseFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31-furniture-floor.js?v=7";
 
 export const V31B_BASE = { x: 0, y: 0 };
 
@@ -268,9 +268,11 @@ export function buildVariant31b(api) {
   };
 
   // Вальцевая кровля 22°: L-контур, ендова, полные вальмы; навес над крыльцом как у 3.1.
+  // Толщина как у 3.1d: верх над стеной +10 см, низ софита WALL_TOP − 20 см.
   const pitch = 22 * Math.PI / 180;
   const tanP = Math.tan(pitch);
-  const ROOF_THICK = 0.10;
+  const ROOF_OVER_WALL = 0.10;
+  const ROOF_THICK = 0.30;
   const yR0 = 12.88;
   const x0W = -6.15, x0E = 15.42;
   const y0N = 19.00, y0S = 5.50;
@@ -284,8 +286,8 @@ export function buildVariant31b(api) {
   const y1S = 0.18;
   const x1W = 7.50, x1E = 15.46;
   const run1 = Math.max(xR1 - x1W, x1E - xR1);
-  const Ze = WALL_TOP + ROOF_THICK - tanP * (run0 - Math.abs(yPlateS - yR0));
-  const Ze1 = WALL_TOP + ROOF_THICK - tanP * (run1 - Math.abs(xPlateE - xR1));
+  const Ze = WALL_TOP + ROOF_OVER_WALL - tanP * (run0 - Math.abs(yPlateS - yR0));
+  const Ze1 = WALL_TOP + ROOF_OVER_WALL - tanP * (run1 - Math.abs(xPlateE - xR1));
   const Zr0 = Ze + tanP * run0;
   const Zr1 = Ze1 + tanP * run1;
   const yValley = (x) => yR0 - (run0 - run1) - Math.abs(x - xR1) - (Ze - Ze1) / tanP;
@@ -425,14 +427,14 @@ export function buildVariant31b(api) {
   }
 
   // Нахлёст плит в проёме коридор-1 ↔ коридор-2 — без канавы на стыке.
-  planBox([
+  markHouseFloor(planBox([
     [V31_FLOOR_WEST[0], V31_FLOOR_WEST[1]], [V31_FLOOR_WEST[2], V31_FLOOR_WEST[1]],
     [V31_FLOOR_WEST[2], V31_FLOOR_WEST[3]], [V31_FLOOR_WEST[0], V31_FLOOR_WEST[3]],
-  ], PLINTH, FLOOR, FLOOR_C, false);
-  planBox([
+  ], PLINTH, FLOOR, FLOOR_C, false));
+  markHouseFloor(planBox([
     [V31_FLOOR_EAST[0], V31_FLOOR_EAST[1]], [V31_FLOOR_EAST[2], V31_FLOOR_EAST[1]],
     [V31_FLOOR_EAST[2], V31_FLOOR_EAST[3]], [V31_FLOOR_EAST[0], V31_FLOOR_EAST[3]],
-  ], PLINTH, FLOOR, FLOOR_C, false);
+  ], PLINTH, FLOOR, FLOOR_C, false));
   // Настил террасы заходит под край пола: одна плоскость, без щели по стыку.
   const terraceDeck = planBox([
     [TERRACE[0], TERRACE[1]], [TERRACE[2], TERRACE[1]],
@@ -494,35 +496,80 @@ export function buildVariant31b(api) {
       const z = zAt(x, y);
       return z == null ? null : [x, y, z];
     };
+    const drop = (p) => [p[0], p[1], p[2] - ROOF_THICK];
+    const sideEdge = (p, q) => {
+      if (!p || !q) return;
+      quadW(sides, p, q, drop(q), drop(p));
+    };
+    const at = (i, j) => (
+      i >= 0 && j >= 0 && i < xs.length && j < ys.length ? sample(xs[i], ys[j]) : null
+    );
+    const cellCount = (i, j) => {
+      if (i < 0 || j < 0 || i >= xs.length - 1 || j >= ys.length - 1) return 0;
+      return [at(i, j), at(i + 1, j), at(i + 1, j + 1), at(i, j + 1)].filter(Boolean).length;
+    };
     for (let i = 0; i < xs.length - 1; i++) {
       for (let j = 0; j < ys.length - 1; j++) {
-        const a = sample(xs[i], ys[j]);
-        const b = sample(xs[i + 1], ys[j]);
-        const c = sample(xs[i + 1], ys[j + 1]);
-        const d = sample(xs[i], ys[j + 1]);
-        const pts = [a, b, c, d];
-        const n = pts.filter(Boolean).length;
+        const a = at(i, j);
+        const b = at(i + 1, j);
+        const c = at(i + 1, j + 1);
+        const d = at(i, j + 1);
+        const corners = [a, b, c, d];
+        const n = corners.filter(Boolean).length;
         if (n < 3) continue;
         if (n === 4) {
           pushW(tops, a, b, c);
           pushW(tops, a, c, d);
-          const drop = (p) => [p[0], p[1], p[2] - ROOF_THICK];
           pushW(bottoms, drop(a), drop(c), drop(b));
           pushW(bottoms, drop(a), drop(d), drop(c));
         } else {
-          const tri = pts.filter(Boolean);
+          // Треугольник: устойчивый обход a→b→c→d, без filter-порядка.
+          const tri = [];
+          for (let k = 0; k < 4; k++) if (corners[k]) tri.push(corners[k]);
           pushW(tops, tri[0], tri[1], tri[2]);
-          const bot = tri.map((p) => [p[0], p[1], p[2] - ROOF_THICK]);
-          pushW(bottoms, bot[0], bot[2], bot[1]);
+          pushW(bottoms, drop(tri[0]), drop(tri[2]), drop(tri[1]));
+          // Гипотенуза к отсутствующему углу — иначе торец толщины дырявый.
+          const miss = corners.findIndex((p) => !p);
+          if (miss >= 0) {
+            const p = corners[(miss + 3) % 4];
+            const q = corners[(miss + 1) % 4];
+            sideEdge(p, q);
+          }
         }
       }
     }
+    // Торцы по рёбрам сетки: кровля с одной стороны — грань толщины снаружи.
+    for (let j = 0; j < ys.length; j++) {
+      for (let i = 0; i < xs.length - 1; i++) {
+        const p = at(i, j);
+        const q = at(i + 1, j);
+        if (!p || !q) continue;
+        const lo = cellCount(i, j - 1) >= 3;
+        const hi = cellCount(i, j) >= 3;
+        if (lo === hi) continue;
+        if (hi) sideEdge(p, q);
+        else sideEdge(q, p);
+      }
+    }
+    for (let i = 0; i < xs.length; i++) {
+      for (let j = 0; j < ys.length - 1; j++) {
+        const p = at(i, j);
+        const q = at(i, j + 1);
+        if (!p || !q) continue;
+        const left = cellCount(i - 1, j) >= 3;
+        const right = cellCount(i, j) >= 3;
+        if (left === right) continue;
+        if (right) sideEdge(p, q);
+        else sideEdge(q, p);
+      }
+    }
+    // Доп. плотные карнизы (поверх сетки) — без пропусков на длинных свесах.
     const edgeRun = (pts) => {
       for (let i = 0; i < pts.length - 1; i++) {
         const a = pts[i];
         const b = pts[i + 1];
         if (!a || !b) continue;
-        quadW(sides, a, b, [b[0], b[1], b[2] - ROOF_THICK], [a[0], a[1], a[2] - ROOF_THICK]);
+        sideEdge(a, b);
       }
     };
     const along = (n, fn) => {
@@ -572,7 +619,12 @@ export function buildVariant31b(api) {
     ]),
     [
       [24, (t) => [xCorr + t * (x1E - xCorr), y1S]],
-      [28, (t) => [x1E, y1S + t * (y0N - y1S)]],
+      [28, (t) => [x1E, y1S + t * (Math.min(y0N, yClip(x1E)) - y1S)]],
+      // Восток основного объёма (вальма) — иначе торец не виден снаружи.
+      [28, (t) => {
+        const yA = yClip(x0E);
+        return [x0E, yA + t * (y0N - yA)];
+      }],
       [24, (t) => [xCorr + t * (x0E - xCorr), y0N]],
       [16, (t) => [xCorr, yClip(xCorr) + t * (y0N - yClip(xCorr))]],
       // Карниз ендовы не рвём боковиной — только наружные края.
@@ -593,6 +645,20 @@ export function buildVariant31b(api) {
       }],
     ]
   );
+
+  // Балка в продолжение южной стены гостиной к коридору — опора стропил над террасой.
+  {
+    const xLivE = 3.16;
+    const yBeam = (7.318 + 7.720) * 0.5;
+    const zBeam = WALL_TOP - (ROOF_THICK - ROOF_OVER_WALL) * 0.5;
+    const [e0, n0] = planToWorld(xLivE, yBeam);
+    const [e1, n1] = planToWorld(xCorr, yBeam);
+    const mesh = addBeam([e0, zBeam, n0], [e1, zBeam, n1], 0.22, WALL_C);
+    if (mesh) {
+      delete mesh.userData.finish;
+      mesh.userData.roof = true;
+    }
+  }
 
   // Колонны: терраса от цоколя; крыльцо — до низа навеса (в стиле 30 — кирпич).
   withFinish("column", () => {

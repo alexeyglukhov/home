@@ -3,7 +3,7 @@
 // Гостиная: второй свет — вырез плиты до изгиба конька у фронтона, стены выреза
 // до кровли; верхний ярус окон по скату. Координаты — метры плана (x восток, y север).
 import * as THREE from "three";
-import { addVar31FurnitureFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31-furniture-floor.js?v=6";
+import { addVar31FurnitureFloor, markHouseFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31-furniture-floor.js?v=7";
 
 export const V31D_BASE = { x: 0, y: 0 };
 
@@ -478,14 +478,14 @@ export function buildVariant31d(api) {
   }
 
   // Нахлёст плит в проёме коридор-1 ↔ коридор-2 — без канавы на стыке.
-  planBox([
+  markHouseFloor(planBox([
     [V31_FLOOR_WEST[0], V31_FLOOR_WEST[1]], [V31_FLOOR_WEST[2], V31_FLOOR_WEST[1]],
     [V31_FLOOR_WEST[2], V31_FLOOR_WEST[3]], [V31_FLOOR_WEST[0], V31_FLOOR_WEST[3]],
-  ], PLINTH, FLOOR, FLOOR_C, false);
-  planBox([
+  ], PLINTH, FLOOR, FLOOR_C, false));
+  markHouseFloor(planBox([
     [V31_FLOOR_EAST[0], V31_FLOOR_EAST[1]], [V31_FLOOR_EAST[2], V31_FLOOR_EAST[1]],
     [V31_FLOOR_EAST[2], V31_FLOOR_EAST[3]], [V31_FLOOR_EAST[0], V31_FLOOR_EAST[3]],
-  ], PLINTH, FLOOR, FLOOR_C, false);
+  ], PLINTH, FLOOR, FLOOR_C, false));
   // Настил террасы заходит под край пола: одна плоскость, без щели по стыку.
   const terraceDeck = planBox([
     [TERRACE[0], TERRACE[1]], [TERRACE[2], TERRACE[1]],
@@ -502,11 +502,12 @@ export function buildVariant31d(api) {
   porchDeck.material.polygonOffsetFactor = -1;
   porchDeck.material.polygonOffsetUnits = -1;
 
-  // Перекрытие: белая плита 10 см; вырез второго света до изгиба конька гостиной (yValW).
-  // Верх под низом утолщённой кровли (WALL_TOP − 0,20). Скрывается с крышей.
-  const ceilThick = 0.10;
-  const ceilTop = WALL_TOP - (ROOF_THICK - ROOF_OVER_WALL);
+  // Перекрытие: белая плита как у 3.1 (CEIL_BOT…CEIL_TOP) — низ не ниже балки.
+  // Вырез второго света до изгиба конька гостиной (yValW). Скрывается с крышей.
+  // Над террасой между гостиной и коридором — до балки.
+  const ceilTop = CEIL_TOP;
   const livVoid = { x0: LIV_VOID.x0, x1: LIV_VOID.x1, y0: LIV_VOID.y0, y1: yValW };
+  const yCeilBeam = (7.318 + 7.720) * 0.5;
   {
     const ceilPoly = [
       [livVoid.x0, livVoid.y1],
@@ -514,7 +515,9 @@ export function buildVariant31d(api) {
       [14.403, 17.859],
       [14.403, 1.248],
       [8.265, 1.248],
-      [8.265, 7.720],
+      [8.265, yCeilBeam],
+      [xLivE, yCeilBeam],
+      [xLivE, livVoid.y0],
       [livVoid.x1, livVoid.y0],
       [livVoid.x1, livVoid.y1],
     ];
@@ -522,8 +525,8 @@ export function buildVariant31d(api) {
     api.sectionHeight(null);
     const mesh = api.addSlab(
       ceilPoly.map(([x, y]) => shiftP(x, y)),
-      ceilTop - ceilThick,
-      ceilThick,
+      CEIL_BOT,
+      SLAB,
       0xffffff,
       false
     );
@@ -922,6 +925,20 @@ export function buildVariant31d(api) {
         glassMesh.castShadow = false;
         glassMesh.userData.roof = true;
       }
+    }
+  }
+
+  // Балка в продолжение южной стены гостиной к коридору — опора стропил над террасой.
+  {
+    const xCorr = 8.265;
+    const yBeam = (7.318 + 7.720) * 0.5;
+    const zBeam = WALL_TOP - (ROOF_THICK - ROOF_OVER_WALL) * 0.5;
+    const [e0, n0] = planToWorld(xLivE, yBeam);
+    const [e1, n1] = planToWorld(xCorr, yBeam);
+    const mesh = addBeam([e0, zBeam, n0], [e1, zBeam, n1], 0.22, WALL_C);
+    if (mesh) {
+      delete mesh.userData.finish;
+      mesh.userData.roof = true;
     }
   }
 

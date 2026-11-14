@@ -2,7 +2,7 @@
 // Координаты — метры плана участка (как у Д4): x на восток, y на север.
 // Крыша по лекалам: тёмно-синий конёк, белые фронтоны; скаты. Водостоки/снегорезы — позже.
 import * as THREE from "three";
-import { addVar31FurnitureFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31-furniture-floor.js?v=6";
+import { addVar31FurnitureFloor, markHouseFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31-furniture-floor.js?v=7";
 
 export const V31_BASE = { x: 0, y: 0 };
 
@@ -253,10 +253,12 @@ export function buildVariant31(api) {
   };
 
   // Высоты кровли нужны уже для верха стен (фронтон без зазора).
+  // Толщина как у 3.1d: верх над стеной +10 см, низ софита WALL_TOP − 20 см.
   const pitch = 22 * Math.PI / 180;
   const tanP = Math.tan(pitch);
-  const ROOF_THICK = 0.20;
-  const ZeCan = CANOPY_CEIL + ROOF_THICK;
+  const ROOF_OVER_WALL = 0.10;
+  const ROOF_THICK = 0.30;
+  const ZeCan = CANOPY_CEIL + ROOF_OVER_WALL;
   const yR0 = 12.88;
   const x0W = -6.15, x0E = 15.42;
   const y0N = 19.00, y0S = 5.50;
@@ -274,8 +276,8 @@ export function buildVariant31(api) {
   const y1S = 0.18;
   const x1W = 7.50, x1E = 15.46;
   const run1 = Math.max(xR1 - x1W, x1E - xR1);
-  const Ze = WALL_TOP + ROOF_THICK - tanP * (run0 - Math.abs(yPlateS - yR0));
-  const Ze1 = WALL_TOP + ROOF_THICK - tanP * (run1 - Math.abs(xPlateE - xR1));
+  const Ze = WALL_TOP + ROOF_OVER_WALL - tanP * (run0 - Math.abs(yPlateS - yR0));
+  const Ze1 = WALL_TOP + ROOF_OVER_WALL - tanP * (run1 - Math.abs(xPlateE - xR1));
   const Zr0 = Ze + tanP * run0;
   const Zr1 = Ze1 + tanP * run1;
   // Прямая ендова: пересечение двух плоскостей одного уклона.
@@ -403,14 +405,14 @@ export function buildVariant31(api) {
   }
 
   // Нахлёст плит в проёме коридор-1 ↔ коридор-2 — без канавы на стыке.
-  planBox([
+  markHouseFloor(planBox([
     [V31_FLOOR_WEST[0], V31_FLOOR_WEST[1]], [V31_FLOOR_WEST[2], V31_FLOOR_WEST[1]],
     [V31_FLOOR_WEST[2], V31_FLOOR_WEST[3]], [V31_FLOOR_WEST[0], V31_FLOOR_WEST[3]],
-  ], PLINTH, FLOOR, FLOOR_C, false);
-  planBox([
+  ], PLINTH, FLOOR, FLOOR_C, false));
+  markHouseFloor(planBox([
     [V31_FLOOR_EAST[0], V31_FLOOR_EAST[1]], [V31_FLOOR_EAST[2], V31_FLOOR_EAST[1]],
     [V31_FLOOR_EAST[2], V31_FLOOR_EAST[3]], [V31_FLOOR_EAST[0], V31_FLOOR_EAST[3]],
-  ], PLINTH, FLOOR, FLOOR_C, false);
+  ], PLINTH, FLOOR, FLOOR_C, false));
   // Настил террасы заходит под край пола: одна плоскость, без щели по стыку.
   const terraceDeck = planBox([
     [TERRACE[0], TERRACE[1]], [TERRACE[2], TERRACE[1]],
@@ -605,6 +607,20 @@ export function buildVariant31(api) {
       const mesh = addMesh(geometryFromTriangles(gableTris), WALL_C);
       return mesh;
     });
+  }
+
+  // Балка в продолжение южной стены гостиной к коридору — опора стропил над террасой.
+  {
+    const xLivE = 3.16;
+    const yBeam = (7.318 + 7.720) * 0.5;
+    const zBeam = WALL_TOP - (ROOF_THICK - ROOF_OVER_WALL) * 0.5;
+    const [e0, n0] = planToWorld(xLivE, yBeam);
+    const [e1, n1] = planToWorld(xCorr, yBeam);
+    const mesh = addBeam([e0, zBeam, n0], [e1, zBeam, n1], 0.22, WALL_C);
+    if (mesh) {
+      delete mesh.userData.finish;
+      mesh.userData.roof = true;
+    }
   }
 
   // Колонны: под навесом — до низа ската; терраса/крыльцо — до низа кровли.

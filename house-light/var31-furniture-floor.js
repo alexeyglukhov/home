@@ -7,9 +7,19 @@ const TEX_URL = new URL("./var31-furniture-plan.png", import.meta.url).href;
 const IMG = { x0: -5.997, y0: 0.316, x1: 15.360, y1: 19.497 };
 const OPACITY = 0.45;
 
-// Плиты пола (нахлёст в коридоре).
-export const V31_FLOOR_WEST = [-5.0, 7.6, 8.55, 17.95];
-export const V31_FLOOR_EAST = [8.35, 1.15, 14.5, 17.95];
+// Плиты пола внутри внутренних граней стен (нахлёст в коридоре).
+// Раньше заходили в толщу стен — линия пола просвечивала снаружи.
+export const V31_FLOOR_WEST = [-4.91, 7.74, 8.50, 17.84];
+export const V31_FLOOR_EAST = [8.36, 1.26, 14.38, 17.84];
+
+/** Пол дома: чуть вглубь по Z, чтобы стены побеждали в z-fight. */
+export function markHouseFloor(mesh) {
+  if (!mesh?.material) return mesh;
+  mesh.material.polygonOffset = true;
+  mesh.material.polygonOffsetFactor = 2;
+  mesh.material.polygonOffsetUnits = 2;
+  return mesh;
+}
 
 // Меш подложки. Южная стена зала кончается ~x=3.16; восточнее терраса уходит глубже — там подложки нет.
 const HALL_S_WALL_X = 3.20;
