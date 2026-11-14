@@ -286,17 +286,18 @@ export function buildVariant31b(api) {
   const ROOF_OVER_WALL = 0.10;
   const ROOF_THICK = 0.30;
   const yR0 = 12.88;
-  const x0W = -6.15, x0E = 15.42;
+  const x0W = -6.15;
   const y0N = 19.00, y0S = 5.50;
   // Навес крыльца дотянут до западного карниза основной крыши (как у 3.1a).
   const porch = { x0: x0W, x1: 8.20, y1: 20.44 };
   const run0 = Math.max(porch.y1 - yR0, yR0 - y0S);
-  const xPlateW = -5.36;
   const xPlateE = 14.80;
   const yPlateS = 7.30;
   const xR1 = 11.48;
   const y1S = 0.18;
   const x1W = 7.50, x1E = 15.46;
+  // Общий восточный карниз дома и крыла — иначе на скате видна ступенька.
+  const x0E = x1E;
   const run1 = Math.max(xR1 - x1W, x1E - xR1);
   const Ze = WALL_TOP + ROOF_OVER_WALL - tanP * (run0 - Math.abs(yPlateS - yR0));
   const Ze1 = WALL_TOP + ROOF_OVER_WALL - tanP * (run1 - Math.abs(xPlateE - xR1));
@@ -304,12 +305,13 @@ export function buildVariant31b(api) {
   const Zr1 = Ze1 + tanP * run1;
   const yValley = (x) => yR0 - (run0 - run1) - Math.abs(x - xR1) - (Ze - Ze1) / tanP;
   const yClip = (x) => Math.max(y0S, yValley(x));
-  // Восточная вальма полная — иначе на востоке выглядит как фронтон.
-  // Бёдра по дому (до y0N); вынос над крыльцом — продолжение северного ската.
+  // Западная вальма по короткому (северному) скату. Восточная — в плоскости ската крыла.
   const hipMain = Math.min(yR0 - y0S, y0N - yR0);
   const xRW = x0W + hipMain;
-  const xRE = x0E - hipMain;
+  const xRE = xR1 - (Zr0 - Zr1) / tanP;
   const yRS = y1S + run1;
+  const yHipS = yR0 - hipMain;
+  const xHipN = xRE + (y0N - yR0);
   const zMain = (x, y) => {
     let dx = 0;
     if (x < xRW) dx = xRW - x;
@@ -325,8 +327,6 @@ export function buildVariant31b(api) {
     return Zr1 - tanP * Math.max(dx, dy);
   };
   const xCorr = 8.265;
-  // Запад/терраса до стены коридора. Восток от коридора — общая ендова (один меш).
-  // Крыло над террасой (x1W…xCorr) — отдельный слой внахлёст.
   const inMain = (x, y) => {
     if (x < x0W - 0.02 || x > x0E + 0.02) return false;
     const yMin = (x > xCorr + 0.02) ? yClip(x) : y0S;
@@ -344,15 +344,6 @@ export function buildVariant31b(api) {
     if (inEast(x, y)) best = Math.max(best, zEast(x, y));
     return best > -Infinity ? best : null;
   };
-  // Западный слой: только до коридора (терраса + запад дома).
-  const westZ = (x, y) => (x <= xCorr + 0.02 && inMain(x, y) ? zMain(x, y) : null);
-  // Восточный стык: один слой max(main,east) — ендова без трещины.
-  const eastJoinZ = (x, y) => (x >= xCorr - 0.02 ? houseZ(x, y) : null);
-  // Нахлест крыла над террасой (под ним — westZ).
-  const eastLapZ = (x, y) => (
-    x >= x1W - 0.02 && x <= xCorr + 0.02 && inEast(x, y) ? zEast(x, y) : null
-  );
-
   withFinish("wall", () => {
     for (const wall of WALLS) {
       const [x0, y0, x1, y1] = wall;
@@ -493,172 +484,107 @@ export function buildVariant31b(api) {
     return [e, z, n];
   };
 
-  // Два слоя: 1) главный/терраса до стены коридора; 2) крыло сверху внахлёст у угла.
+  // Плоские грани: восточный скат — одна плоскость, ендова — прямое ребро от конька до карниза.
   const pushW = (arr, a, b, c) => arr.push([world(...a), world(...b), world(...c)]);
   const quadW = (arr, a, b, c, d) => { pushW(arr, a, b, c); pushW(arr, a, c, d); };
-  const axis = (lo, hi, step, extras) => {
-    const s = new Set();
-    for (const v of extras) if (v != null && Number.isFinite(v)) s.add(+v.toFixed(4));
-    for (let v = lo; v <= hi + 1e-9; v += step) s.add(+v.toFixed(4));
-    return [...s].sort((a, b) => a - b);
+  const area2 = (a, b, c) => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+  const pointInTri = (p, a, b, c) => {
+    const s1 = area2(a, b, p);
+    const s2 = area2(b, c, p);
+    const s3 = area2(c, a, p);
+    const neg = s1 < -1e-8 || s2 < -1e-8 || s3 < -1e-8;
+    const pos = s1 > 1e-8 || s2 > 1e-8 || s3 > 1e-8;
+    return !(neg && pos);
   };
-  const emitLayer = (zAt, xs, ys, edgeFns) => {
-    const tops = [];
-    const bottoms = [];
-    const sides = [];
-    const sample = (x, y) => {
-      const z = zAt(x, y);
-      return z == null ? null : [x, y, z];
-    };
-    const drop = (p) => [p[0], p[1], p[2] - ROOF_THICK];
-    const sideEdge = (p, q) => {
-      if (!p || !q) return;
-      quadW(sides, p, q, drop(q), drop(p));
-    };
-    const at = (i, j) => (
-      i >= 0 && j >= 0 && i < xs.length && j < ys.length ? sample(xs[i], ys[j]) : null
-    );
-    const cellCount = (i, j) => {
-      if (i < 0 || j < 0 || i >= xs.length - 1 || j >= ys.length - 1) return 0;
-      return [at(i, j), at(i + 1, j), at(i + 1, j + 1), at(i, j + 1)].filter(Boolean).length;
-    };
-    for (let i = 0; i < xs.length - 1; i++) {
-      for (let j = 0; j < ys.length - 1; j++) {
-        const a = at(i, j);
-        const b = at(i + 1, j);
-        const c = at(i + 1, j + 1);
-        const d = at(i, j + 1);
-        const corners = [a, b, c, d];
-        const n = corners.filter(Boolean).length;
-        if (n < 3) continue;
-        if (n === 4) {
-          pushW(tops, a, b, c);
-          pushW(tops, a, c, d);
-          pushW(bottoms, drop(a), drop(c), drop(b));
-          pushW(bottoms, drop(a), drop(d), drop(c));
-        } else {
-          // Треугольник: устойчивый обход a→b→c→d, без filter-порядка.
-          const tri = [];
-          for (let k = 0; k < 4; k++) if (corners[k]) tri.push(corners[k]);
-          pushW(tops, tri[0], tri[1], tri[2]);
-          pushW(bottoms, drop(tri[0]), drop(tri[2]), drop(tri[1]));
-          // Гипотенуза к отсутствующему углу — иначе торец толщины дырявый.
-          const miss = corners.findIndex((p) => !p);
-          if (miss >= 0) {
-            const p = corners[(miss + 3) % 4];
-            const q = corners[(miss + 1) % 4];
-            sideEdge(p, q);
-          }
+  const triangulate = (poly) => {
+    const idx = poly.map((_, i) => i);
+    const wind = poly.reduce((sum, pt, i) => {
+      const q = poly[(i + 1) % poly.length];
+      return sum + pt[0] * q[1] - q[0] * pt[1];
+    }, 0);
+    if (wind < 0) idx.reverse();
+    const tris = [];
+    let guard = 0;
+    while (idx.length > 3 && guard++ < 40) {
+      let clipped = false;
+      for (let i = 0; i < idx.length; i++) {
+        const i0 = idx[(i + idx.length - 1) % idx.length];
+        const i1 = idx[i];
+        const i2 = idx[(i + 1) % idx.length];
+        const a = poly[i0];
+        const b = poly[i1];
+        const c = poly[i2];
+        if (area2(a, b, c) <= 1e-8) continue;
+        let inside = false;
+        for (const j of idx) {
+          if (j === i0 || j === i1 || j === i2) continue;
+          if (pointInTri(poly[j], a, b, c)) { inside = true; break; }
         }
+        if (inside) continue;
+        tris.push([i0, i1, i2]);
+        idx.splice(i, 1);
+        clipped = true;
+        break;
       }
+      if (!clipped) break;
     }
-    // Торцы по рёбрам сетки: кровля с одной стороны — грань толщины снаружи.
-    for (let j = 0; j < ys.length; j++) {
-      for (let i = 0; i < xs.length - 1; i++) {
-        const p = at(i, j);
-        const q = at(i + 1, j);
-        if (!p || !q) continue;
-        const lo = cellCount(i, j - 1) >= 3;
-        const hi = cellCount(i, j) >= 3;
-        if (lo === hi) continue;
-        if (hi) sideEdge(p, q);
-        else sideEdge(q, p);
-      }
-    }
-    for (let i = 0; i < xs.length; i++) {
-      for (let j = 0; j < ys.length - 1; j++) {
-        const p = at(i, j);
-        const q = at(i, j + 1);
-        if (!p || !q) continue;
-        const left = cellCount(i - 1, j) >= 3;
-        const right = cellCount(i, j) >= 3;
-        if (left === right) continue;
-        if (right) sideEdge(p, q);
-        else sideEdge(q, p);
-      }
-    }
-    // Доп. плотные карнизы (поверх сетки) — без пропусков на длинных свесах.
-    const edgeRun = (pts) => {
-      for (let i = 0; i < pts.length - 1; i++) {
-        const a = pts[i];
-        const b = pts[i + 1];
-        if (!a || !b) continue;
-        sideEdge(a, b);
-      }
-    };
-    const along = (n, fn) => {
-      const out = [];
-      for (let i = 0; i <= n; i++) {
-        const p = sample(...fn(i / n));
-        if (p) out.push(p);
-      }
-      return out;
-    };
-    for (const [n, fn] of edgeFns) edgeRun(along(n, fn));
-    if (!tops.length) return;
-    withFinish("roof", () => {
-      const mesh = asRoof(addMesh(geometryFromTriangles(tops.concat(bottoms, sides)), ROOF_C));
-      mesh.material.flatShading = true;
-      mesh.material.emissive?.setHex(0x151210);
-      mesh.material.needsUpdate = true;
-      return mesh;
-    });
+    if (idx.length === 3) tris.push([idx[0], idx[1], idx[2]]);
+    return tris;
   };
-  const valleyXs = [];
-  for (let x = xCorr; x <= x0E + 1e-9; x += 0.25) valleyXs.push(x);
-  const valleyYs = valleyXs.map((x) => yClip(x));
-  // 1) Запад + терраса до стены коридора (под нахлестом крыла) + навес крыльца.
-  emitLayer(
-    westZ,
-    axis(x0W, xCorr, 0.20, [x0W, xRW, x1W, xCorr, xPlateW, porch.x0, porch.x1]),
-    axis(y0S, porch.y1, 0.20, [y0S, yR0, y0N, yPlateS, porch.y1]),
-    [
-      [28, (t) => [x0W, y0S + t * (y0N - y0S)]],
-      // Крыльцо от зап. карниза: торец → карниз → торец → север дома до коридора.
-      [10, (t) => [porch.x0, y0N + t * (porch.y1 - y0N)]],
-      [20, (t) => [porch.x0 + t * (porch.x1 - porch.x0), porch.y1]],
-      [10, (t) => [porch.x1, porch.y1 + t * (y0N - porch.y1)]],
-      [8, (t) => [porch.x1 + t * (xCorr - porch.x1), y0N]],
-      [24, (t) => [x0W + t * (xCorr - x0W), y0S]],
-      [16, (t) => [xCorr, y0S + t * (y0N - y0S)]],
-    ]
-  );
-  // 2) Восток дома + крыло одним слоем — ендова без трещины по скату.
-  emitLayer(
-    eastJoinZ,
-    axis(xCorr, Math.max(x0E, x1E), 0.18, [xCorr, xR1, xRE, x1E, x0E, ...valleyXs]),
-    axis(y1S, y0N, 0.18, [
-      y1S, yRS, y0S, yPlateS, yR0, y0N, ...valleyYs,
-      yValley(xR1), yValley(x0E), yValley(xCorr),
-    ]),
-    [
-      [24, (t) => [xCorr + t * (x1E - xCorr), y1S]],
-      [28, (t) => [x1E, y1S + t * (Math.min(y0N, yClip(x1E)) - y1S)]],
-      // Восток основного объёма (вальма) — иначе торец не виден снаружи.
-      [28, (t) => {
-        const yA = yClip(x0E);
-        return [x0E, yA + t * (y0N - yA)];
-      }],
-      [24, (t) => [xCorr + t * (x0E - xCorr), y0N]],
-      [16, (t) => [xCorr, yClip(xCorr) + t * (y0N - yClip(xCorr))]],
-      // Карниз ендовы не рвём боковиной — только наружные края.
-    ]
-  );
-  // 3) Нахлест крыла над террасой: от угла x1W до стены xCorr.
-  emitLayer(
-    eastLapZ,
-    axis(x1W, xCorr, 0.16, [x1W, xCorr]),
-    axis(y1S, yClip(x1W) + 0.05, 0.16, [y1S, yRS, y0S, yPlateS, yClip(x1W), yClip(xCorr)]),
-    [
-      [16, (t) => [x1W + t * (xCorr - x1W), y1S]],
-      [20, (t) => [x1W, y1S + t * (yClip(x1W) - y1S)]],
-      [16, (t) => [x1W + t * (xCorr - x1W), y0S]],
-      [16, (t) => {
-        const x = x1W + t * (xCorr - x1W);
-        return [x, yClip(x)];
-      }],
-    ]
-  );
+  const zSouth = (x, y) => Zr0 - tanP * (yR0 - y);
+  const zNorth = (x, y) => Zr0 - tanP * (y - yR0);
+  const zWestHip = (x, y) => Zr0 - tanP * (xRW - x);
+  const zEastPlane = (x, y) => Zr1 - tanP * (x - xR1);
+  const zWingWest = (x, y) => Zr1 - tanP * (xR1 - x);
+  const zWingSouth = (x, y) => Zr1 - tanP * (yRS - y);
+  const yVp = yValley(xR1);
+  const yVw = yValley(x1W);
+  // skirt[i] — наружный торец ребра i → i+1. Общие рёбра скатов без торца.
+  const facets = [
+    ["west", [[xRW, yR0], [x0W, y0N], [x0W, yHipS]], zWestHip, [false, true, false]],
+    ["north", [[xRW, yR0], [xRE, yR0], [xHipN, y0N], [x0W, y0N]], zNorth, [false, false, false, false]],
+    ["porch", [[x0W, y0N], [porch.x1, y0N], [porch.x1, porch.y1], [x0W, porch.y1]], zNorth, [false, true, true, true]],
+    // Восточный скат дома и крыла — одна плоскость от северного ребра до южной вальмы.
+    ["east", [
+      [xRE, yR0], [xHipN, y0N], [x0E, y0N], [x0E, y1S], [xR1, yRS], [xR1, yVp],
+    ], zEastPlane, [false, true, true, false, false, false]],
+    ["wingW", [[xR1, yVp], [x1W, yVw], [x1W, y1S], [xR1, yRS]], zWingWest, [false, true, false, false]],
+    ["wingS", [[x1W, y1S], [x1E, y1S], [xR1, yRS]], zWingSouth, [true, false, false]],
+    // Южный скат: ендова — прямая (xR1,yVp)→(x1W,yVw), без ступеней сетки.
+    ["south", [
+      [xRW, yR0], [xRE, yR0], [xR1, yVp], [x1W, yVw], [x1W, y0S], [x0W, y0S], [x0W, yHipS],
+    ], zSouth, [false, false, false, true, true, true, false]],
+  ];
+  const tops = [];
+  const bottoms = [];
+  const sides = [];
+  const drop = (pt) => [pt[0], pt[1], pt[2] - ROOF_THICK];
+  for (const [, raw, zAt, skirt] of facets) {
+    const pts = raw.map(([x, y]) => [x, y, zAt(x, y)]);
+    for (const [i, j, k] of triangulate(pts)) {
+      pushW(tops, pts[i], pts[j], pts[k]);
+      pushW(bottoms, drop(pts[i]), drop(pts[k]), drop(pts[j]));
+    }
+    for (let i = 0; i < pts.length; i++) {
+      if (!skirt[i]) continue;
+      const a = pts[i];
+      const b = pts[(i + 1) % pts.length];
+      quadW(sides, a, b, drop(b), drop(a));
+    }
+  }
+  // Северный карниз снаружи крыльца. Участок под навесом крыльца — общее ребро, без торца.
+  {
+    const a = [xHipN, y0N, zNorth(xHipN, y0N)];
+    const b = [porch.x1, y0N, zNorth(porch.x1, y0N)];
+    quadW(sides, a, b, drop(b), drop(a));
+  }
+  withFinish("roof", () => {
+    const mesh = asRoof(addMesh(geometryFromTriangles(tops.concat(bottoms, sides)), ROOF_C));
+    mesh.material.flatShading = true;
+    mesh.material.emissive?.setHex(0x151210);
+    mesh.material.needsUpdate = true;
+    return mesh;
+  });
 
   // Балка в продолжение южной стены гостиной к коридору — опора стропил над террасой.
   {
