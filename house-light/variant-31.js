@@ -197,6 +197,20 @@ export function v31WalkBoxes() {
   return boxes;
 }
 
+// Северный забор: ворота 4 м, центр = середина парковки под зап. навесом; откат на запад.
+const V31_PARK = { x0: -12.40, x1: -5.13 };
+const V31_GATE = (() => {
+  const mid = (V31_PARK.x0 + V31_PARK.x1) * 0.5;
+  const half = 2.0;
+  return {
+    x0: mid - half,
+    x1: mid + half,
+    ped0: mid + half + 0.40,
+    ped1: mid + half + 0.40 + 0.90,
+    y: 22.877,
+  };
+})();
+
 export function v31FenceSegments(houseShift = null) {
   const plot = [[-18, 22.877], [32.835, 22.877], [39.044, -10.647], [-12.963, -4.345]];
   const nw = plot[0];
@@ -205,17 +219,17 @@ export function v31FenceSegments(houseShift = null) {
   const dy = sw[1] - nw[1];
   const len = Math.hypot(dx, dy);
   const along = (s) => [nw[0] + dx / len * s, nw[1] + dy / len * s];
-  const inward = [-dy / len, dx / len];
-  const shift = (p, dist) => [p[0] + inward[0] * dist, p[1] + inward[1] * dist];
+  const g = V31_GATE;
   const runs = [
-    [plot[0], plot[1], 0.06],
+    [plot[0], [g.x0, g.y], 0.06],
+    [[g.x1, g.y], [g.ped0, g.y], 0.06],
+    [[g.ped1, g.y], plot[1], 0.06],
     [plot[1], plot[2], 0.06],
     [plot[2], plot[3], 0.06],
-    [along(10), plot[3], 0.06],
-    [plot[0], along(5), 0.06],
-    [along(9.10), along(9.90), 0.025],
-    [shift(along(0.70), 0.16), shift(along(4.70), 0.16), 0.04],
-    [shift(along(0.70), 0.34), shift(along(4.70), 0.34), 0.04],
+    [along(0), plot[3], 0.06],
+    [[g.ped0 + 0.05, g.y], [g.ped1 - 0.05, g.y], 0.025],
+    [[g.x0 - 3.90, g.y - 0.20], [g.x0 - 0.10, g.y - 0.20], 0.04],
+    [[g.x0 - 3.90, g.y - 0.38], [g.x0 - 0.10, g.y - 0.38], 0.04],
   ];
   const mx = houseShift ? houseShift.x : 0;
   const my = houseShift ? houseShift.y : 0;
@@ -414,9 +428,11 @@ export function buildVariant31(api) {
     [V31_FLOOR_EAST[2], V31_FLOOR_EAST[3]], [V31_FLOOR_EAST[0], V31_FLOOR_EAST[3]],
   ], PLINTH, FLOOR, FLOOR_C, false));
   // Настил террасы заходит под край пола: одна плоскость, без щели по стыку.
+  // Настил террасы заходит под край пола дома — одна сплошная плоскость.
+  const terraceN = V31_FLOOR_WEST[1] + 0.08;
   const terraceDeck = planBox([
     [TERRACE[0], TERRACE[1]], [TERRACE[2], TERRACE[1]],
-    [TERRACE[2], 7.66], [TERRACE[0], 7.66],
+    [TERRACE[2], terraceN], [TERRACE[0], terraceN],
   ], PLINTH, FLOOR, FLOOR_C, false);
   terraceDeck.material.polygonOffset = true;
   terraceDeck.material.polygonOffsetFactor = -1;
@@ -661,45 +677,43 @@ export function buildVariant31(api) {
     }
   }
 
-  // Забор, откатные ворота, калитка и заезд — как у Д4/Д6.
+  // Забор: ворота и калитка на севере как у 3.1a/b; запад сплошной. Ворота откатываются на запад.
   {
     const fenceH = 1.5;
     const plot = [[-18, 22.877], [32.835, 22.877], [39.044, -10.647], [-12.963, -4.345]];
     const nw = plot[0];
     const sw = plot[3];
-    const dx = sw[0] - nw[0];
-    const dy = sw[1] - nw[1];
-    const len = Math.hypot(dx, dy);
-    const along = (s) => [nw[0] + dx / len * s, nw[1] + dy / len * s];
-    const inward = [-dy / len, dx / len];
-    const shift = (p, dist) => [p[0] + inward[0] * dist, p[1] + inward[1] * dist];
-    const at = (alongM, inn) => shift(along(alongM), inn);
+    const g = V31_GATE;
     const post = (p) => api.planBox(
       [[p[0] - 0.08, p[1] - 0.08], [p[0] + 0.08, p[1] - 0.08], [p[0] + 0.08, p[1] + 0.08], [p[0] - 0.08, p[1] + 0.08]],
       0, 1.68, 0x4a4036
     );
-    api.addWallRun(plot[0], plot[1], 0.06, 0, fenceH, 0x7d6a52);
+    api.addWallRun(plot[0], [g.x0, g.y], 0.06, 0, fenceH, 0x7d6a52);
+    api.addWallRun([g.x1, g.y], [g.ped0, g.y], 0.06, 0, fenceH, 0x7d6a52);
+    api.addWallRun([g.ped1, g.y], plot[1], 0.06, 0, fenceH, 0x7d6a52);
     api.addWallRun(plot[1], plot[2], 0.06, 0, fenceH, 0x7d6a52);
     api.addWallRun(plot[2], plot[3], 0.06, 0, fenceH, 0x7d6a52);
-    api.addWallRun(along(10), plot[3], 0.06, 0, fenceH, 0x7d6a52);
-    api.addWallRun(plot[0], along(5), 0.06, 0, fenceH, 0x7d6a52);
-    api.addWallRun(along(9.10), along(9.90), 0.025, 0.08, 1.46, 0x8a7358);
-    api.addWallRun(at(0.20, 0.25), at(9.05, 0.25), 0.015, 0, 0.025, 0x2c3038);
-    api.addWallRun(at(0.70, 0.16), at(4.70, 0.16), 0.04, 0.11, 1.48, 0x8a7358);
-    api.addWallRun(at(0.70, 0.34), at(4.70, 0.34), 0.04, 0.11, 1.48, 0x8a7358);
-    for (const s of [1.15, 4.25]) {
-      api.addWallRun(at(s, 0.13), at(s, 0.37), 0.045, 0.025, 0.105, 0x1a1c20);
+    api.addWallRun(nw, sw, 0.06, 0, fenceH, 0x7d6a52);
+    api.addWallRun([g.ped0 + 0.04, g.y], [g.ped1 - 0.04, g.y], 0.025, 0.08, 1.46, 0x8a7358);
+    const leaf0 = g.x0 - 3.90;
+    const leaf1 = g.x0 - 0.10;
+    api.addWallRun([leaf0, g.y - 0.01], [g.x1 + 0.05, g.y - 0.01], 0.015, 0, 0.025, 0x2c3038);
+    api.addWallRun([leaf0, g.y - 0.16], [leaf1, g.y - 0.16], 0.04, 0.11, 1.48, 0x8a7358);
+    api.addWallRun([leaf0, g.y - 0.34], [leaf1, g.y - 0.34], 0.04, 0.11, 1.48, 0x8a7358);
+    for (const x of [leaf0 + 0.35, leaf1 - 0.35]) {
+      api.addWallRun([x, g.y - 0.13], [x, g.y - 0.37], 0.045, 0.025, 0.105, 0x1a1c20);
     }
-    api.addWallRun(at(4.82, 0.42), at(5.18, 0.68), 0.16, 0, 0.045, 0xc8c4bc);
-    const pin = at(5.00, 0.38);
+    api.addWallRun([g.x0 - 0.20, g.y - 0.42], [g.x0 + 0.20, g.y - 0.68], 0.16, 0, 0.045, 0xc8c4bc);
+    const pin = [g.x0, g.y - 0.38];
     api.planBox(
       [[pin[0] - 0.04, pin[1] - 0.04], [pin[0] + 0.04, pin[1] - 0.04], [pin[0] + 0.04, pin[1] + 0.04], [pin[0] - 0.04, pin[1] + 0.04]],
       0.10, 0.22, 0xc5c8cc
     );
-    for (const s of [0, 5, 9, 10, len]) post(along(s));
-    post(plot[1]); post(plot[2]);
+    for (const x of [plot[0][0], leaf0, g.x0, g.x1, g.ped0, g.ped1, plot[1][0]]) {
+      post([x, g.y]);
+    }
+    post(plot[2]); post(plot[3]); post(sw);
 
-    // Плитка двора и парковки под навесом — уровень дороги/плитки, не пол дома.
     const mark = (mesh) => {
       if (mesh) {
         mesh.material.polygonOffset = true;
@@ -708,30 +722,26 @@ export function buildVariant31(api) {
       }
       return mesh;
     };
-    const westFenceAtY = (y) => {
-      const t = (y - nw[1]) / (sw[1] - nw[1]);
-      return [nw[0] + (sw[0] - nw[0]) * t, y];
-    };
     const TILE_Y0 = 0.03;
     const TILE_H = 0.035;
-    // От северного забора и западной ограды до западного края навеса.
+    const westFenceAtY = (y) => {
+      const t = (y - nw[1]) / (sw[1] - nw[1]);
+      return nw[0] + (sw[0] - nw[0]) * t;
+    };
+    const xTileE = g.ped1;
+    const yTileS = 8.70;
+    const xIn = (y) => Math.max(leaf0 - 0.2, westFenceAtY(y) + 0.05);
     mark(api.addSlab([
-      plot[0],
-      [-12.40, plot[0][1]],
-      [-12.40, 8.70],
-      westFenceAtY(8.70),
+      [xIn(g.y), g.y], [xTileE, g.y], [xTileE, yTileS], [xIn(yTileS), yTileS],
     ], TILE_Y0, TILE_H, 0xe4ddd2, false));
-    // Полоса от навеса к дому вдоль севера — плитка до забора.
     mark(api.addSlab([
-      [-12.40, 18.20], [-5.13, 18.20], [-5.13, plot[0][1]], [-12.40, plot[0][1]],
+      [xTileE, 18.20], [-5.13, 18.20], [-5.13, g.y], [xTileE, g.y],
     ], TILE_Y0, TILE_H, 0xe4ddd2, false));
-    // Парковка под навесом — тот же уровень плитки.
+    // Парковка под западным навесом — уровень плитки/дороги.
     mark(api.addSlab(
       [[-12.40, 18.20], [-5.13, 18.20], [-5.13, 8.70], [-12.40, 8.70]],
       TILE_Y0, TILE_H, 0xe4ddd2, false
     ));
-    // Заезд с дороги на проём ворот и калитку.
-    mark(api.addSlab([at(5, -5), at(10, -5), at(10, 0), at(5, 0)], TILE_Y0, TILE_H, 0xe4ddd2, false));
   }
 
   // Фасады для отделки (наружные плоскости).

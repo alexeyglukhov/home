@@ -206,8 +206,18 @@ export function v31bWalkBoxes() {
   return boxes;
 }
 
-// Северный забор: ворота 4 м по линии зап. стены дома (x −9,36…−5,36), калитка восточнее.
-const V31B_GATE = { x0: -9.36, x1: -5.36, ped0: -4.96, ped1: -4.06, y: 22.877 };
+// Северный забор: ворота 4 м, центр = середина парковки под навесом; откат на запад.
+const V31B_GATE = (() => {
+  const mid = (CARPORT.x0 + CARPORT.x1) * 0.5;
+  const half = 2.0;
+  return {
+    x0: mid - half,
+    x1: mid + half,
+    ped0: mid + half + 0.40,
+    ped1: mid + half + 0.40 + 0.90,
+    y: 22.877,
+  };
+})();
 
 export function v31bFenceSegments(houseShift = null) {
   const plot = [[-18, 22.877], [32.835, 22.877], [39.044, -10.647], [-12.963, -4.345]];
@@ -436,9 +446,11 @@ export function buildVariant31b(api) {
     [V31_FLOOR_EAST[2], V31_FLOOR_EAST[3]], [V31_FLOOR_EAST[0], V31_FLOOR_EAST[3]],
   ], PLINTH, FLOOR, FLOOR_C, false));
   // Настил террасы заходит под край пола: одна плоскость, без щели по стыку.
+  // Настил террасы заходит под край пола дома — одна сплошная плоскость.
+  const terraceN = V31_FLOOR_WEST[1] + 0.08;
   const terraceDeck = planBox([
     [TERRACE[0], TERRACE[1]], [TERRACE[2], TERRACE[1]],
-    [TERRACE[2], 7.66], [TERRACE[0], 7.66],
+    [TERRACE[2], terraceN], [TERRACE[0], terraceN],
   ], PLINTH, FLOOR, FLOOR_C, false);
   terraceDeck.material.polygonOffset = true;
   terraceDeck.material.polygonOffsetFactor = -1;
@@ -767,21 +779,20 @@ export function buildVariant31b(api) {
     };
     const TILE_Y0 = 0.03;
     const TILE_H = 0.035;
-    const xTileW = leaf0 - 0.2;
+    const westFenceAtY = (y) => {
+      const t = (y - nw[1]) / (sw[1] - nw[1]);
+      return nw[0] + (sw[0] - nw[0]) * t;
+    };
     const xTileE = g.ped1; // до края калитки
     const yTileS = 8.70;
-    // Двор/парковка у дома до севера и до калитки.
+    const xIn = (y) => Math.max(leaf0 - 0.2, westFenceAtY(y) + 0.05);
+    // Двор/парковка у дома — внутри участка, запад по забору.
     mark(api.addSlab([
-      [xTileW, g.y], [xTileE, g.y], [xTileE, yTileS], [xTileW, yTileS],
+      [xIn(g.y), g.y], [xTileE, g.y], [xTileE, yTileS], [xIn(yTileS), yTileS],
     ], TILE_Y0, TILE_H, 0xe4ddd2, false));
     // Полоса вдоль дома к востоку до западной стены (стык с отмосткой).
     mark(api.addSlab([
       [xTileE, 18.20], [-5.13, 18.20], [-5.13, g.y], [xTileE, g.y],
-    ], TILE_Y0, TILE_H, 0xe4ddd2, false));
-    // Заезд с северной дороги (13 м от забора) на проём ворот и калитку.
-    const roadNear = g.y + 13;
-    mark(api.addSlab([
-      [g.x0, roadNear], [g.ped1, roadNear], [g.ped1, g.y], [g.x0, g.y],
     ], TILE_Y0, TILE_H, 0xe4ddd2, false));
     // Парковка под навесом — уровень плитки/дороги.
     const { x0: cx0, x1: cx1, y0: cy0, y1: cy1 } = CARPORT;
