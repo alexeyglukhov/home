@@ -980,7 +980,7 @@ export function buildVariant31d(api) {
     withFinish("roof", () => {
       const mesh = asRoof(api.addSlab(
         CARPORT_POLY.map(([x, y]) => shiftP(x, y)),
-        zBot, ROOF_THICK, ROOF_C, false
+        zBot, ROOF_THICK, ROOF_C, true
       ));
       mesh.material.flatShading = true;
       mesh.material.emissive?.setHex(0x151210);
