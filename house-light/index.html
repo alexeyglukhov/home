@@ -162,16 +162,14 @@
     max-width: calc(100vw - 32px);
   }
   #style-examples-btn,
-  #furniture-catalog-btn,
-  #share-link-btn {
+  #furniture-catalog-btn {
     padding: 8px 14px; font-size: 14px; font-weight: 600;
     background: #fffef9; border: 1px solid #6b5a45; border-radius: 6px;
     box-shadow: 0 2px 8px rgba(40, 30, 16, .22);
     color: #222; text-decoration: none; font-family: inherit; cursor: pointer;
   }
   #style-examples-btn:hover,
-  #furniture-catalog-btn:hover,
-  #share-link-btn:hover { background: #efe6d4; }
+  #furniture-catalog-btn:hover { background: #efe6d4; }
   #share-dialog {
     position: fixed; inset: 0; z-index: 50;
     display: flex; align-items: center; justify-content: center;
@@ -318,6 +316,7 @@
     <button type="button" id="var-v31">Вариант 3.1</button>
     <button type="button" id="var-v31a">Вариант 3.1a</button>
     <button type="button" id="var-v31b">Вариант 3.1b</button>
+    <button type="button" id="var-v31c">Вариант 3.1c</button>
     <button type="button" id="var-v31d">Вариант 3.1d</button>
     <button type="button" id="var-topo3">Топочная Вариант 3.1</button>
   </div>
@@ -441,7 +440,6 @@
 </div>
 <div id="print-slot"><img id="print-slot-img" alt=""></div>
 <div id="corner-actions" class="author-only">
-  <button type="button" id="share-link-btn" class="author-only" hidden>Копировать ссылку</button>
   <button type="button" id="style-examples-btn">Стили домов</button>
   <button type="button" id="furniture-catalog-btn">Каталог мебели</button>
 </div>
@@ -492,6 +490,7 @@
     v31: "v31", "3.1": "v31",
     v31a: "v31a", "3.1a": "v31a",
     v31b: "v31b", "3.1b": "v31b",
+    v31c: "v31c", "3.1c": "v31c",
     v31d: "v31d", "3.1d": "v31d",
     topo3: "topo3", t3: "topo3"
   };
@@ -501,6 +500,7 @@
     v31: "v31",
     v31a: "v31a",
     v31b: "v31b",
+    v31c: "v31c",
     v31d: "v31d",
     topo3: "topo3"
   };
@@ -618,7 +618,7 @@ if (window.__houseOpenStyles) {
 }
 </script>
 <script type="module">
-if (!window.__houseOpenStyles) import("./app.js?v=1029");
+if (!window.__houseOpenStyles) import("./app.js?v=1047");
 </script>
 </body>
 </html>

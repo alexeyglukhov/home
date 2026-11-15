@@ -977,7 +977,7 @@ export function paintFacadeFaces(api, faces) {
       wood = !wood;
     }
     // Крыльцо: щит досок от окна слева до окна справа входной двери (дверь вырезается).
-    if (f.name === "v31dN") {
+    if (f.name === "v31dN" || f.name === "v31cN") {
       const door = ops.find((op) => op.kind === "door" && op.u0 > 3.2 && op.u1 < 5.5);
       const wins = ops.filter((op) => op.kind === "win" || op.kind === "pan");
       const left = door && wins.filter((w) => w.u1 <= door.u0 + 0.05).sort((a, b) => b.u1 - a.u1)[0];

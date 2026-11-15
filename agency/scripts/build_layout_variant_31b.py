@@ -2,9 +2,9 @@
 """Посадка варианта 3.1b на участок Абрикосовая 22.
 
 База: abrikosovaya-22-layout-variant-3.1-1-100.svg
-Стены — из agency/var3.1.svg (расширенное крыльцо, без навеса).
-Крыша-лекала 3.1 сохраняем, но убираем фронтоны (вальма).
-Пунктир и метры: крыльцо 13,89×2,52 (34,99 м²).
+Стены — из agency/var3.1.svg (расширенное крыльцо).
+Прямоугольный парковочный навес как в 3D / 3.1a.
+Пунктир: контур вальмовой крыши + крыльцо + навес. Без машин.
 
 Выход: abrikosovaya-22-layout-variant-3.1b-1-100.svg
 """
@@ -16,29 +16,34 @@ from pathlib import Path
 from xml.sax.saxutils import escape
 
 from build_layout_variant_31 import (
+    CARPORT_COLUMNS_M,
+    CARPORT_RECT_POLY_M,
+    ROOF_EAVE_HIP_M,
+    ROOF_PORCH_EAVE_M,
     SRC_PLAN,
+    apply_site_cleanup_and_overlays,
+    build_open_air_group,
     extract_walls_layer,
+    fmt2,
     furniture_underlay,
     plan_m_to_site,
     poly_points,
     replace_group_by_id,
     tag_columns,
-    upsert_blind_area,
 )
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC_LAYOUT = ROOT / "abrikosovaya-22-layout-variant-3.1-1-100.svg"
 OUT = ROOT / "abrikosovaya-22-layout-variant-3.1b-1-100.svg"
 
-# Метры с плана var3.1 (U≈9,962; Cx/Cy по колоннам).
 PORCH = (-0.072, 18.297, 8.189, 20.834)  # x0,y0,x1,y1
 PORCH_W = PORCH[2] - PORCH[0]
 PORCH_D = PORCH[3] - PORCH[1]
 PORCH_A = PORCH_W * PORCH_D
 
-
-def fmt2(v: float) -> str:
-    return f"{v:.2f}".replace(".", ",")
+CANOPY_W = 13.470 - 5.360
+CANOPY_D = 19.500 - 9.073
+CANOPY_A = CANOPY_W * CANOPY_D
 
 
 def extra_tag_columns(walls: str) -> str:
@@ -59,57 +64,38 @@ def extra_tag_columns(walls: str) -> str:
     return out
 
 
-def open_labels() -> str:
-    """Подпись крыльца в координатах посадки (план-метры)."""
-    px = (PORCH[0] + PORCH[2]) / 2
-    py = (PORCH[1] + PORCH[3]) / 2
-    ps = plan_m_to_site(px, py)
+def open_air_31b() -> str:
+    cx = (-13.470 + -5.360) / 2
+    cy = (9.073 + 19.500) / 2
     porch_poly = [
-        plan_m_to_site(PORCH[0], PORCH[1]),
-        plan_m_to_site(PORCH[2], PORCH[1]),
-        plan_m_to_site(PORCH[2], PORCH[3]),
-        plan_m_to_site(PORCH[0], PORCH[3]),
+        (PORCH[0], PORCH[1]),
+        (PORCH[2], PORCH[1]),
+        (PORCH[2], PORCH[3]),
+        (PORCH[0], PORCH[3]),
     ]
-    font = 'font-family="DejaVu Sans, Liberation Sans, sans-serif"'
-    return "\n".join(
-        [
-            '<g id="open-air-31b" data-role="porch">',
-            f'<polygon id="porch-eave" points="{poly_points(porch_poly)}" '
-            f'fill="none" stroke="#c0392b" stroke-width="0.4" '
-            f'stroke-dasharray="1.6 0.9"/>',
-            f'<text id="porch-label" x="{ps[0]:.2f}" y="{ps[1]:.2f}" '
-            f'font-size="3.0" font-weight="700" text-anchor="middle" {font} '
-            f'fill="#c0392b">крыльцо {fmt2(PORCH_W)}×{fmt2(PORCH_D)} · '
-            f"{fmt2(PORCH_A)} м²</text>",
-            "</g>",
-        ]
+    # Крыша + навес (как 3.1a) + обводка плиты крыльца.
+    g = build_open_air_group(
+        "open-air-31b",
+        roof_pts=ROOF_EAVE_HIP_M,
+        porch_pts=ROOF_PORCH_EAVE_M,
+        canopy_pts=CARPORT_RECT_POLY_M,
+        columns=CARPORT_COLUMNS_M,
+        label=(
+            f"навес {fmt2(CANOPY_W)}×{fmt2(CANOPY_D)} · {fmt2(CANOPY_A)} м² · "
+            f"крыльцо {fmt2(PORCH_W)}×{fmt2(PORCH_D)}"
+        ),
+        label_at=(cx, cy),
     )
-
-
-def upsert_group_after(svg: str, after_id: str, group_id: str, group_xml: str) -> str:
-    if f'id="{group_id}"' in svg:
-        return replace_group_by_id(svg, group_id, group_xml)
-    m = re.search(rf'<[^>]*\bid="{re.escape(after_id)}"[^>]*/?>', svg)
-    if not m:
-        return svg.replace("</svg>", group_xml + "\n</svg>", 1)
-    start = m.start()
-    if m.group(0).endswith("/>"):
-        insert_at = m.end()
-    else:
-        depth = 0
-        insert_at = m.end()
-        for mm in re.finditer(r"<g\b[^>]*/>|</?g\b[^>]*>", svg[start:]):
-            tok = mm.group(0)
-            if tok.startswith("</"):
-                depth -= 1
-                if depth == 0:
-                    insert_at = start + mm.end()
-                    break
-            elif tok.endswith("/>"):
-                continue
-            else:
-                depth += 1
-    return svg[:insert_at] + "\n" + group_xml + svg[insert_at:]
+    plate = (
+        f'<polygon id="porch-eave" points="{poly_points([plan_m_to_site(*p) for p in porch_poly])}" '
+        f'fill="none" stroke="#c0392b" stroke-width="0.4" '
+        f'stroke-dasharray="1.6 0.9"/>'
+    )
+    return g.replace(
+        '<g id="open-air-31b" data-role="open-air">',
+        '<g id="open-air-31b" data-role="open-air">\n' + plate,
+        1,
+    )
 
 
 def main() -> None:
@@ -138,8 +124,7 @@ def main() -> None:
         ]
     )
     svg = replace_group_by_id(svg, "p-plan-31", new_plan)
-    svg = upsert_blind_area(svg)
-    svg = upsert_group_after(svg, "house-eave", "open-air-31b", open_labels())
+    svg = apply_site_cleanup_and_overlays(svg, open_air_31b(), "open-air-31b")
 
     svg = svg.replace(
         'sodipodi:docname="abrikosovaya-22-layout-variant-3.1-1-100.svg"',
@@ -154,13 +139,13 @@ def main() -> None:
     replacements = {
         "text1411": "Вариант 3.1b · дом на участке",
         "text1413": (
-            "Масштаб 1:100. Вальмовая крыша без навеса. "
-            f"Крыльцо {fmt2(PORCH_W)}×{fmt2(PORCH_D)} м ({fmt2(PORCH_A)} м²)."
+            "Масштаб 1:100. Вальмовая крыша, прямоугольный навес. "
+            f"Крыльцо {fmt2(PORCH_W)}×{fmt2(PORCH_D)} м ({fmt2(PORCH_A)} м²). "
+            f"Навес {fmt2(CANOPY_W)}×{fmt2(CANOPY_D)} м ({fmt2(CANOPY_A)} м²). Без машин."
         ),
         "text1419": (
             "Север: въезд по линии западной стены. "
-            f"Крыльцо {fmt2(PORCH_W)}×{fmt2(PORCH_D)} м. "
-            "Пунктир — обводка крыльца."
+            "Пунктир — контур крыши, навеса и крыльца; три колонны."
         ),
     }
     for tid, text in replacements.items():
@@ -171,16 +156,12 @@ def main() -> None:
             count=1,
         )
 
-    svg = re.sub(
-        r'<text id="canopy-label"[^>]*>[^<]*</text>\s*',
-        "",
-        svg,
-        count=1,
-    )
-
     OUT.write_text(svg)
     print(f"wrote {OUT} ({OUT.stat().st_size} bytes)")
-    print(f"porch {fmt2(PORCH_W)}×{fmt2(PORCH_D)} = {fmt2(PORCH_A)} m²; no canopy")
+    print(
+        f"porch {fmt2(PORCH_W)}×{fmt2(PORCH_D)} = {fmt2(PORCH_A)} m²; "
+        f"canopy {fmt2(CANOPY_W)}×{fmt2(CANOPY_D)} = {fmt2(CANOPY_A)} m²"
+    )
 
 
 if __name__ == "__main__":

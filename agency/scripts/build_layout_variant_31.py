@@ -53,8 +53,10 @@ LAYER1_CX, LAYER1_CY = -203.4953, 52.5567
 IMG_X, IMG_Y = -309.8757, -42.984196
 IMG_W, IMG_H = 212.76071, 191.08176
 PX_W, PX_H = 1109, 996
-M_PER_PX = 11.94 / 620.0
-U_PER_M = IMG_W / (PX_W * M_PER_PX)  # ≈ 9.962
+# Масштаб плана: эталон кровати 2,20 м → 22 мм @1:100 (см. agency/var3.1c.svg).
+# Раньше крыло гостиной 11,94 м / 620 px (≈9,962 uu/м); расхождение ~0,56 %.
+U_PER_M = 22.039284 / 2.2  # ≈ 10.017856 uu/м
+M_PER_PX = IMG_W / (PX_W * U_PER_M)
 
 # Посадка: план развёрнут на 180° (навес/гостиная к воротам на западе)
 PLAN_ROTATE_180 = True
@@ -178,6 +180,254 @@ def upsert_blind_area(svg: str) -> str:
         if m:
             return svg[: m.start()] + tag + "\n  " + svg[m.start() :]
     return svg.replace("</svg>", f"  {tag}\n</svg>", 1)
+
+
+# --- Проекции кровли / навеса (план-метры house-light) ---
+# Вальма 3.1c/d: карниз roof-eave-outer + крыльцо (свес 0,80 м).
+ROOF_EAVE_HIP_M = [
+    (-6.165, 5.478),
+    (-6.165, 19.060),
+    (15.556, 19.060),
+    (15.556, 0.084),
+    (7.441, 0.084),
+    (7.441, 6.522),
+    (3.918, 6.522),
+    (3.949, 5.509),
+]
+ROOF_PORCH_EAVE_M = [
+    (0.204, 19.060),
+    (0.204, 20.830),
+    (8.558, 20.830),
+    (8.558, 19.060),
+]
+# 3.1 / 3.1a: дом + встроенный навес (габариты из variant-31.js).
+ROOF_EAVE_31_M = [
+    (-12.52, 18.60),
+    (-12.52, 8.49),
+    (-6.15, 8.49),
+    (-6.15, 5.50),
+    (7.50, 5.50),
+    (7.50, 0.18),
+    (15.46, 0.18),
+    (15.46, 19.00),
+    (8.20, 19.00),
+    (8.20, 20.44),
+    (0.52, 20.44),
+    (0.52, 19.00),
+    (-6.15, 19.00),
+    (-6.15, 18.60),
+]
+CANOPY_31_M = [
+    (-12.52, 8.49),
+    (-12.52, 18.60),
+    (-5.36, 18.60),
+    (-5.36, 8.49),
+]
+CANOPY_31_COLUMNS_M = [
+    (-12.087, 17.708, -11.684, 18.110),
+    (-12.087, 8.937, -11.684, 9.338),
+    (-8.918, 8.937, -8.515, 9.338),
+    (-8.918, 17.683, -8.515, 18.085),
+]
+# L-навес 3.1c/d (и прямоугольный рукав 3.1a).
+CARPORT_L_POLY_M = [
+    (-13.470, 9.073),
+    (-6.165, 9.073),
+    (-6.165, 19.112),
+    (0.215, 19.112),
+    (0.215, 19.965),
+    (-13.470, 19.965),
+]
+CARPORT_RECT_POLY_M = [
+    (-13.470, 9.073),
+    (-5.360, 9.073),
+    (-5.360, 19.500),
+    (-13.470, 19.500),
+]
+CARPORT_COLUMNS_M = [
+    (-12.473, 9.926, -8.865, 10.518),
+    (-12.475, 13.395, -11.883, 14.052),
+    (-12.475, 16.857, -11.883, 17.930),
+]
+
+DASH_STROKE = 'fill="none" stroke="#c0392b" stroke-width="0.4" stroke-dasharray="1.6 0.9" stroke-linejoin="miter"'
+COL_FILL = 'fill="#6b5344" stroke="#4a3a30" stroke-width="0.25"'
+
+
+def poly_m_to_site_points(pts_m: list[tuple[float, float]]) -> str:
+    return poly_points([plan_m_to_site(x, y) for x, y in pts_m])
+
+
+def column_poly_m(x0: float, y0: float, x1: float, y1: float) -> str:
+    return poly_m_to_site_points([(x0, y0), (x1, y0), (x1, y1), (x0, y1)])
+
+
+def strip_cars(svg: str) -> str:
+    """Убрать машины (Кулрей / Мазда) с посадки."""
+    out = svg
+    for gid in ("g1245", "g1263", "g881", "g888"):
+        if f'id="{gid}"' in out:
+            try:
+                out = replace_group_by_id(out, gid, "")
+            except SystemExit:
+                pass
+    for eid in ("car-coolray", "car-mazda"):
+        out = re.sub(
+            rf'<(polygon|path)\b[^>]*\bid="{eid}"[^>]*/>\s*',
+            "",
+            out,
+        )
+        out = re.sub(
+            rf'<(polygon|path)\b[^>]*\bid="{eid}"[^>]*>.*?</\1>\s*',
+            "",
+            out,
+            flags=re.DOTALL,
+        )
+    # Подписи машин, если остались сиротами.
+    out = re.sub(
+        r'<text\b[^>]*>Кулрей</text>\s*',
+        "",
+        out,
+    )
+    out = re.sub(
+        r'<text\b[^>]*>Мазда</text>\s*',
+        "",
+        out,
+    )
+    out = re.sub(
+        r'<text\b[^>]*>6,31×3,65 м · 23,04 м²</text>\s*',
+        "",
+        out,
+    )
+    return out
+
+
+def strip_old_canopy_traces(svg: str) -> str:
+    """Старый pad/навес D4 и прежние open-air / canopy-* оверлеи."""
+    out = svg
+    for gid in (
+        "front-court",
+        "canopy-pad",
+        "canopy-posts",
+        "canopy-ridge",
+        "canopy-eave",
+        "canopy-label",
+        "house-eave",
+        "roof-eave",
+        "roof-porch-eave",
+        "open-air-31",
+        "open-air-31a",
+        "open-air-31b",
+        "open-air-31c",
+        "open-air-31d",
+        "porch-eave",
+        "porch-label",
+    ):
+        if f'id="{gid}"' in out:
+            try:
+                out = replace_group_by_id(out, gid, "")
+            except SystemExit:
+                pass
+    out = re.sub(r'<text id="canopy-label"[^>]*>[^<]*</text>\s*', "", out)
+    return out
+
+
+def build_open_air_group(
+    group_id: str,
+    *,
+    roof_pts: list[tuple[float, float]] | None = None,
+    porch_pts: list[tuple[float, float]] | None = None,
+    canopy_pts: list[tuple[float, float]] | None = None,
+    columns: list[tuple[float, float, float, float]] | None = None,
+    label: str | None = None,
+    label_at: tuple[float, float] | None = None,
+) -> str:
+    """Пунктир карниза крыши / навеса и колонны навеса в координатах посадки."""
+    font = 'font-family="DejaVu Sans, Liberation Sans, sans-serif"'
+    lines = [f'<g id="{group_id}" data-role="open-air">']
+    if roof_pts:
+        lines.append(
+            f'<polygon id="roof-eave" points="{poly_m_to_site_points(roof_pts)}" {DASH_STROKE}/>'
+        )
+    if porch_pts:
+        lines.append(
+            f'<polygon id="roof-porch-eave" points="{poly_m_to_site_points(porch_pts)}" {DASH_STROKE}/>'
+        )
+    if canopy_pts:
+        lines.append(
+            f'<polygon id="canopy-eave" points="{poly_m_to_site_points(canopy_pts)}" {DASH_STROKE}/>'
+        )
+    if columns:
+        lines.append('<g id="canopy-columns">')
+        for i, (x0, y0, x1, y1) in enumerate(columns):
+            lines.append(
+                f'<polygon id="canopy-col-{i}" points="{column_poly_m(x0, y0, x1, y1)}" {COL_FILL}/>'
+            )
+        lines.append("</g>")
+    if label and label_at:
+        ps = plan_m_to_site(*label_at)
+        lines.append(
+            f'<text id="canopy-label" x="{ps[0]:.2f}" y="{ps[1]:.2f}" '
+            f'font-size="3.0" font-weight="700" text-anchor="middle" {font} '
+            f'fill="#c0392b">{escape(label)}</text>'
+        )
+    lines.append("</g>")
+    return "\n".join(lines)
+
+
+def upsert_open_air(svg: str, group_xml: str, group_id: str) -> str:
+    if f'id="{group_id}"' in svg:
+        return replace_group_by_id(svg, group_id, group_xml)
+    # После отмостки / плана дома.
+    for anchor in ('id="p-plan-31"', 'id="house-plan"', 'id="blind-area"'):
+        m = re.search(rf"<[^>]*\b{re.escape(anchor)}[^>]*/?>", svg)
+        if not m:
+            continue
+        start = m.start()
+        if m.group(0).endswith("/>") or m.group(0).startswith("<path"):
+            # self-closing or path: find end of element
+            if m.group(0).endswith("/>"):
+                insert_at = m.end()
+            else:
+                end = re.search(r"/>|</path>", svg[m.end() :])
+                insert_at = m.end() + (end.end() if end else 0)
+        else:
+            depth = 0
+            insert_at = m.end()
+            for mm in re.finditer(r"<g\b[^>]*/>|</?g\b[^>]*>", svg[start:]):
+                tok = mm.group(0)
+                if tok.startswith("</"):
+                    depth -= 1
+                    if depth == 0:
+                        insert_at = start + mm.end()
+                        break
+                elif tok.endswith("/>"):
+                    continue
+                else:
+                    depth += 1
+        return svg[:insert_at] + "\n" + group_xml + svg[insert_at:]
+    return svg.replace("</svg>", group_xml + "\n</svg>", 1)
+
+
+def apply_site_cleanup_and_overlays(svg: str, open_air_xml: str, open_air_id: str) -> str:
+    svg = strip_cars(svg)
+    svg = strip_old_canopy_traces(svg)
+    svg = upsert_blind_area(svg)
+    svg = upsert_open_air(svg, open_air_xml, open_air_id)
+    return svg
+
+
+def open_air_31() -> str:
+    cx = sum(p[0] for p in CANOPY_31_M) / 4
+    cy = sum(p[1] for p in CANOPY_31_M) / 4
+    return build_open_air_group(
+        "open-air-31",
+        roof_pts=ROOF_EAVE_31_M,
+        canopy_pts=CANOPY_31_M,
+        columns=CANOPY_31_COLUMNS_M,
+        label=f"навес {fmt2(CANOPY_DEPTH)}×{fmt2(CANOPY_LEN)}",
+        label_at=(cx, cy),
+    )
 
 
 def replace_group_by_id(svg: str, gid: str, new_outer: str) -> str:
@@ -548,21 +798,31 @@ def refresh_plan_keep_pose() -> bool:
         ]
     )
     layout = replace_group_by_id(layout, "p-plan-31", new_plan)
-    layout = upsert_blind_area(layout)
+    layout = apply_site_cleanup_and_overlays(layout, open_air_31(), "open-air-31")
+    layout = re.sub(
+        rf'(id="text1411"[^>]*>)[^<]*',
+        r"\g<1>Вариант 3.1 · дом на участке",
+        layout,
+        count=1,
+    )
+    t1413 = (
+        "Масштаб 1:100. Стены + подложка мебели. "
+        f"Пунктир — контур крыши и навеса {fmt2(CANOPY_DEPTH)}×{fmt2(CANOPY_LEN)} м. Без машин."
+    )
     layout = re.sub(
         rf'(id="text1413"[^>]*>)[^<]*',
-        r"\g<1>Масштаб 1:100. Стены + подложка мебели на полу (без террасы). Без лекал крыши.",
+        rf"\g<1>{escape(t1413)}",
         layout,
         count=1,
     )
     layout = re.sub(
         rf'(id="text1419"[^>]*>)[^<]*',
-        r"\g<1>Подложка image1546 полупрозрачно внутри отапливаемого контура. Слои: furniture-underlay, layer-walls.",
+        r"\g<1>Колонны навеса и проекции карниза крыши/навеса. Слои: furniture-underlay, layer-walls, open-air-31.",
         layout,
         count=1,
     )
     OUT.write_text(layout)
-    print(f"refreshed walls+furniture+blind (no roof) in {OUT}")
+    print(f"refreshed walls+furniture+blind+overlays (no cars) in {OUT}")
     print(f"preserve transform: {preserved}")
     return True
 
@@ -688,38 +948,23 @@ def main() -> None:
         '<title id="title2">Вариант 3.1. Дом на участке, масштаб 1:100</title>',
     )
     svg = replace_group_by_id(svg, "house-plan", house_plan)
-    svg = replace_group_by_id(svg, "canopy-posts", canopy_posts)
-    svg = replace_group_by_id(svg, "canopy-ridge", canopy_ridge)
-    svg = replace_group_by_id(svg, "canopy-eave", canopy_pad + "\n  " + canopy_eave)
-    svg = replace_group_by_id(svg, "house-eave", house_eave)
-    svg = upsert_blind_area(svg)
-    if 'id="canopy-label"' not in svg:
-        svg = svg.replace(
-            '<polygon id="house-eave"',
-            canopy_label + "\n  <polygon id=\"house-eave\"",
-            1,
-        )
-    else:
-        svg = re.sub(
-            r'<text id="canopy-label"[^>]*>[^<]*</text>',
-            canopy_label,
-            svg,
-            count=1,
-        )
+    # Старые D4 canopy/cars/front-court → новые проекции.
+    svg = apply_site_cleanup_and_overlays(svg, open_air_31(), "open-air-31")
+    # house-eave из полного расчёта посадки больше не нужен — контур в open-air-31.
+    _ = (house_eave, canopy_pad, canopy_eave, canopy_ridge, canopy_posts, canopy_label)
 
     replacements = {
         "text1411": "Вариант 3.1 · дом на участке",
         "text1413": (
-            "Масштаб 1:100. Только стены + лекала крыши. "
+            "Масштаб 1:100. Стены + подложка мебели. "
             f"Отступ стен: север {fmt2(SETBACK_N)} м; запад "
             f"{fmt2(SETBACK_W_HOUSE)} м (сев.) / {fmt2(SETBACK_W_SOUTH)} м (юг). "
-            f"Навес {fmt2(CANOPY_DEPTH)}×{fmt2(CANOPY_LEN)} м у ворот."
+            f"Пунктир — крыша и навес {fmt2(CANOPY_DEPTH)}×{fmt2(CANOPY_LEN)} м. Без машин."
         ),
         "text1419": (
             "Северо-запад: въезд с западной дороги, навес "
             f"{fmt2(CANOPY_DEPTH)}×{fmt2(CANOPY_LEN)} м у ворот. "
-            "Отступы — до стен дома (не крыльцо/колонны/навес). "
-            "Слои: layer-walls, layer-roof."
+            "Колонны и проекции карниза. Слои: layer-walls, open-air-31."
         ),
     }
     for tid, text in replacements.items():

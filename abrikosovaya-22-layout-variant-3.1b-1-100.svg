@@ -120,13 +120,7 @@
      stroke-linejoin="miter"
      id="polygon20" />
   <path id="blind-area" data-role="blind" data-width-m="1" d="M 397.61,414.60 L 608.03,342.00 L 671.66,526.43 L 590.08,554.58 L 569.05,493.61 L 440.20,538.06 Z M 410.32,420.79 L 601.84,354.72 L 658.95,520.24 L 596.27,541.87 L 575.24,480.89 L 446.39,525.34 Z" fill="#d4cfc4" fill-rule="evenodd" stroke="#bdbdb8" stroke-width="0.25"/>
-  <polygon
-     points="276.41,418.68 395.33,377.65 440.42,508.33 345.68,541.02"
-     fill="#ececec"
-     stroke="#222222"
-     stroke-width="0.3"
-     stroke-linejoin="miter"
-     id="front-court" />
+  
   <polygon
      points="257.53,486.83 282.17,530.34 325.68,505.70 301.04,462.19"
      fill="#ececec"
@@ -267,7 +261,7 @@
 <g id="furniture-underlay" data-role="furniture-plan" transform="rotate(180,-203.4953,52.5567)" opacity="0.45">
 <defs>
 <clipPath id="clip-heated-floor-31" clipPathUnits="userSpaceOnUse">
-<polygon points="-107.54,131.69 -300.81,131.69 -300.81,-34.18 -241.03,-34.18 -241.03,47.51 -188.73,47.51 -188.73,32.57 -107.54,32.57"/>
+<polygon points="-108.15,132.43 -302.49,132.43 -302.49,-34.37 -242.39,-34.37 -242.39,47.78 -189.79,47.78 -189.79,32.75 -108.15,32.75"/>
 </clipPath>
 </defs>
 <g clip-path="url(#clip-heated-floor-31)">
@@ -1002,6 +996,19 @@
        id="path8552"
        sodipodi:nodetypes="cc" /></g></g>
   </g>
+<g id="open-air-31b" data-role="open-air">
+<polygon id="porch-eave" points="460.82,403.51 538.92,376.56 530.64,352.58 452.55,379.52" fill="none" stroke="#c0392b" stroke-width="0.4" stroke-dasharray="1.6 0.9"/>
+<polygon id="roof-eave" points="445.03,544.56 400.74,416.16 606.07,345.32 667.96,524.71 591.25,551.17 570.25,490.32 536.95,501.80 540.54,511.28" fill="none" stroke="#c0392b" stroke-width="0.4" stroke-dasharray="1.6 0.9" stroke-linejoin="miter"/>
+<polygon id="roof-porch-eave" points="460.95,395.39 455.17,378.66 534.14,351.42 539.92,368.15" fill="none" stroke="#c0392b" stroke-width="0.4" stroke-dasharray="1.6 0.9" stroke-linejoin="miter"/>
+<polygon id="canopy-eave" points="364.25,534.40 440.92,507.95 406.91,409.38 330.25,435.83" fill="none" stroke="#c0392b" stroke-width="0.4" stroke-dasharray="1.6 0.9" stroke-linejoin="miter"/>
+<g id="canopy-columns">
+<polygon id="canopy-col-0" points="370.90,523.08 405.00,511.32 403.07,505.72 368.97,517.49" fill="#6b5344" stroke="#4a3a30" stroke-width="0.25"/>
+<polygon id="canopy-col-1" points="359.56,490.30 365.16,488.37 363.02,482.15 357.42,484.09" fill="#6b5344" stroke="#4a3a30" stroke-width="0.25"/>
+<polygon id="canopy-col-2" points="348.27,457.57 353.87,455.64 350.37,445.50 344.77,447.43" fill="#6b5344" stroke="#4a3a30" stroke-width="0.25"/>
+</g>
+<text id="canopy-label" x="385.58" y="471.89" font-size="3.0" font-weight="700" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" fill="#c0392b">навес 8,11×10,43 · 84,56 м² · крыльцо 8,26×2,54</text>
+</g>
+
   <circle
      cx="924.99"
      cy="549.55"
@@ -1194,7 +1201,7 @@
      text-anchor="start"
      dominant-baseline="central"
      font-family="DejaVu Sans, Liberation Sans, sans-serif"
-     id="text1413">Масштаб 1:100. Вальмовая крыша без навеса. Крыльцо 8,26×2,54 м (20,96 м²).</text>
+     id="text1413">Масштаб 1:100. Вальмовая крыша, прямоугольный навес. Крыльцо 8,26×2,54 м (20,96 м²). Навес 8,11×10,43 м (84,56 м²). Без машин.</text>
   <text
      x="40.00"
      y="49.15"
@@ -1221,7 +1228,7 @@
      text-anchor="start"
      dominant-baseline="central"
      font-family="DejaVu Sans, Liberation Sans, sans-serif"
-     id="text1419">Север: въезд по линии западной стены. Крыльцо 8,26×2,54 м. Пунктир — обводка крыльца.</text>
+     id="text1419">Север: въезд по линии западной стены. Пунктир — контур крыши, навеса и крыльца; три колонны.</text>
   <text
      x="40.00"
      y="77.80"
@@ -1238,84 +1245,6 @@
      y2="659.91614"
      id="line4129"
      style="fill:none;stroke:#4e4842;stroke-width:0.337913;stroke-linecap:square;stroke-dasharray:none" />
-  <g
-     id="g1245"
-     transform="translate(23.922633,-6.1352331)">
-    <polygon
-       points="381.65,459.51 340.72,473.63 334.08,454.36 375.01,440.24 "
-       fill="#6e675e"
-       fill-opacity="0.55"
-       stroke="#222222"
-       stroke-width="0.25"
-       id="car-coolray" />
-    <g
-       transform="rotate(-19.04,357.87,456.94)"
-       id="g881">
-      <text
-         x="357.87"
-         y="455.5"
-         font-size="2.6px"
-         font-weight="700"
-         text-anchor="middle"
-         font-family="'DejaVu Sans', 'Liberation Sans', sans-serif"
-         fill="#1a1a1a"
-         stroke="#ffffff"
-         stroke-width="0.4"
-         paint-order="stroke"
-         id="text877">Кулрей</text>
-      <text
-         x="357.87"
-         y="458.39999"
-         font-size="2.15px"
-         text-anchor="middle"
-         font-family="'DejaVu Sans', 'Liberation Sans', sans-serif"
-         fill="#1a1a1a"
-         stroke="#ffffff"
-         stroke-width="0.35"
-         paint-order="stroke"
-         id="text879">6,31×3,65 м · 23,04 м²</text>
-    </g>
-  </g>
-  <g
-     id="g1263"
-     transform="translate(26.890597,-0.00315956)">
-    <polygon
-       points="391.04,483.36 348.04,498.2 341.27,478.59 384.28,463.75 "
-       fill="#3e4a55"
-       fill-opacity="0.55"
-       stroke="#222222"
-       stroke-width="0.25"
-       id="car-mazda" />
-    <g
-       transform="rotate(-19.04,366.16,480.97)"
-       id="g888">
-      <text
-         x="366.16"
-         y="479.54999"
-         font-size="2.6px"
-         font-weight="700"
-         text-anchor="middle"
-         font-family="'DejaVu Sans', 'Liberation Sans', sans-serif"
-         fill="#1a1a1a"
-         stroke="#ffffff"
-         stroke-width="0.4"
-         paint-order="stroke"
-         id="text884">Мазда</text>
-      <text
-         x="366.16"
-         y="482.45001"
-         font-size="2.15px"
-         text-anchor="middle"
-         font-family="'DejaVu Sans', 'Liberation Sans', sans-serif"
-         fill="#1a1a1a"
-         stroke="#ffffff"
-         stroke-width="0.35"
-         paint-order="stroke"
-         id="text886">6,31×3,65 м · 23,04 м²</text>
-    </g>
-  </g>
-<g id="open-air-31b" data-role="porch">
-<polygon id="porch-eave" points="460.82,403.51 538.92,376.56 530.64,352.58 452.55,379.52" fill="none" stroke="#c0392b" stroke-width="0.4" stroke-dasharray="1.6 0.9"/>
-<text id="porch-label" x="495.73" y="378.04" font-size="3.0" font-weight="700" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, sans-serif" fill="#c0392b">крыльцо 8,26×2,54 · 20,96 м²</text>
-</g>
+  
+  
 </svg>

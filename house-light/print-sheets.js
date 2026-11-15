@@ -73,6 +73,13 @@ const PRINTS = {
       name: "сравнение-а-д4",
     },
   ],
+  v31c: [
+    {
+      label: "Планировка",
+      file: "prints/var3.1c-dom-print.svg?v=15",
+      name: "планировка-3.1c",
+    },
+  ],
 };
 
 function sheetsOf(variant) {

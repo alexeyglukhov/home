@@ -15,8 +15,9 @@ import { buildVariant31, v31WalkBoxes, v31FenceSegments, V31_WINDOWS, V31_BASE }
 import { buildVariant31a, v31aWalkBoxes, v31aFenceSegments, V31A_WINDOWS, V31A_BASE } from "./variant-31a.js?v=16";
 import { buildVariant31b, v31bWalkBoxes, v31bFenceSegments, V31B_WINDOWS, V31B_BASE } from "./variant-31b.js?v=31";
 import { buildVariant31d, v31dWalkBoxes, v31dFenceSegments, V31D_WINDOWS, V31D_BASE } from "./variant-31d.js?v=73";
+import { buildVariant31c, v31cWalkBoxes, v31cFenceSegments, V31C_WINDOWS, V31C_BASE } from "./variant-31c.js?v=3";
 import { createD2Tour, createTourDaylight, D3_WINDOWS } from "./tour-d2.js?v=23";
-import { syncPrintSheets } from "./print-sheets.js?v=28";
+import { syncPrintSheets } from "./print-sheets.js?v=43";
 import { mountFurnitureCatalog } from "./furniture-catalog.js?v=8";
 import { mountD2Furniture } from "./furniture-place-d2.js?v=43";
 import { mountD5Furniture } from "./furniture-place-d5.js?v=7";
@@ -118,6 +119,7 @@ const variant31Group = new THREE.Group();
 const variant31aGroup = new THREE.Group();
 const variant31bGroup = new THREE.Group();
 const variant31dGroup = new THREE.Group();
+const variant31cGroup = new THREE.Group();
 const variantD5Furniture = new THREE.Group();
 variantD5Furniture.name = "d5-furniture";
 variantD5Group.add(variantD5Furniture);
@@ -131,7 +133,7 @@ let v2HouseD2 = null;
 let roofDims = null;
 const topoBuilt = buildTopochnayaV3();
 topochnayaGroup.add(topoBuilt.group);
-scene.add(sharedGroup, northDriveGroup, variant2Group, variantBGroup, variantCGroup, variantD2Group, variantD3Group, variantD4Group, variantD5Group, variantD6Group, variant31Group, variant31aGroup, variant31bGroup, variant31dGroup, topochnayaGroup);
+scene.add(sharedGroup, northDriveGroup, variant2Group, variantBGroup, variantCGroup, variantD2Group, variantD3Group, variantD4Group, variantD5Group, variantD6Group, variant31Group, variant31aGroup, variant31bGroup, variant31cGroup, variant31dGroup, topochnayaGroup);
 variant2Group.visible = true;
 variantBGroup.visible = false;
 variantCGroup.visible = false;
@@ -143,6 +145,7 @@ variantD6Group.visible = false;
 variant31Group.visible = false;
 variant31aGroup.visible = false;
 variant31bGroup.visible = false;
+variant31cGroup.visible = false;
 variant31dGroup.visible = false;
 let bucket = sharedGroup;
 
@@ -303,7 +306,7 @@ function addMesh(geom, color, cast = true) {
     mesh.userData.finish = finishRole;
     mesh.userData.baseColor = mesh.material.color.getHex();
     // Вариант 3.1 / 3.1b: узор тянется от земли до конька.
-    if (finishRole === "wall" && (bucket === variant31Group || bucket === variant31aGroup || bucket === variant31bGroup || bucket === variant31dGroup)) mesh.userData.finishTop = 6.5;
+    if (finishRole === "wall" && (bucket === variant31Group || bucket === variant31aGroup || bucket === variant31bGroup || bucket === variant31cGroup || bucket === variant31dGroup)) mesh.userData.finishTop = 6.5;
   }
   if (canopyStamp) mesh.userData.canopy = true;
   bucket.add(mesh);
@@ -5392,6 +5395,34 @@ function addVariant31dScene() {
 }
 addVariant31dScene();
 
+function addVariant31cScene() {
+  bucket = variant31cGroup;
+  buildVariant31c({
+    planBox, addBeam, asRoof, withFinish, withCanopy, addFloorNotes, addFloorLines,
+    planToWorld, geometryFromTriangles, addMesh, addSlab, addSlabHole, addWallRun,
+    addParkedModel, wallFace,
+    mountOverlays(make) {
+      mountAnyOverlays(
+        variant31cGroup,
+        (x, y, z) => {
+          const [e, n] = planToWorld(x + V31C_BASE.x, y + V31C_BASE.y);
+          return [e, z, n];
+        },
+        (x0, y0, x1, y1, z0, z1, color) => planBox(
+          [[x0 + V31C_BASE.x, y0 + V31C_BASE.y], [x1 + V31C_BASE.x, y0 + V31C_BASE.y], [x1 + V31C_BASE.x, y1 + V31C_BASE.y], [x0 + V31C_BASE.x, y1 + V31C_BASE.y]], z0, z1, color
+        ),
+        make
+      );
+    },
+    sectionHeight(value) {
+      if (arguments.length === 0) return sectionHeight;
+      sectionHeight = value;
+    },
+  });
+}
+addVariant31cScene();
+
+
 
 function buildSectionCap(mesh, worldY) {
   const geom = mesh.geometry;
@@ -5588,7 +5619,7 @@ for (const choice of FACADE_CHOICES) {
   opt.textContent = choice.name;
   facadeSelect.appendChild(opt);
 }
-const VARIANT_IDS = ["v2", "d2", "vb", "vc", "vd1", "vd2", "vd3", "vd4", "vd5", "vd6", "v31", "v31a", "v31b", "v31d", "topo3"];
+const VARIANT_IDS = ["v2", "d2", "vb", "vc", "vd1", "vd2", "vd3", "vd4", "vd5", "vd6", "v31", "v31a", "v31b", "v31c", "v31d", "topo3"];
 const VARIANT_BUTTON = {
   v2: "var-v2",
   d2: "var-d2",
@@ -5603,6 +5634,7 @@ const VARIANT_BUTTON = {
   v31: "var-v31",
   v31a: "var-v31a",
   v31b: "var-v31b",
+  v31c: "var-v31c",
   v31d: "var-v31d",
   topo3: "var-topo3",
 };
@@ -5630,6 +5662,7 @@ const BLURB_VD6 = "Вариант Д6. Конёк восток-запад от �
 const BLURB_V31A = "Вариант 3.1a. Как 3.1 с прямоугольным парковочным навесом; въезд с севера по линии западной стены (ворота 4 м, откат на запад; калитка справа).";
 const BLURB_V31 = "Вариант 3.1. Дом с плана агентства: двускатный навес у ворот на западе (без фронтона, низ обшит деревом), L-контур, двускатные крыши 20 см. Жёлтые окна обычные, голубые — панорамные.";
 const BLURB_V31B = "Вариант 3.1b. Вальмовая крыша без фронтонов; северное крыльцо с навесом на колоннах и свесом как у 3.1. Въезд с севера по линии западной стены (ворота 4 м, откат на запад; калитка справа). Жёлтые окна обычные, голубые — панорамные.";
+const BLURB_V31C = "Вариант 3.1c. Как 3.1d снаружи (П-крыша, свес 0,80 м, второй свет); внутри — актуальный план var3.1c, подложка — слой «иное».";
 const BLURB_V31D = "Вариант 3.1d. П-образная двухскатная крыша: ровные южные фронтоны кабинета и гостиной; фронтон крыльца по северной стене; конёк кабинет → запад → гостиная; свес 0,80 м; без парковочного навеса.";
 const BLURB_TOPO3 = "Топочная Вариант 3.1. Комната 3,50×1,98×2,70 м: газ, электрокотёл, термоаккумулятор со змеевиком, ТТ, гребёнка/смеситель, лапамойка, топливо, щиты и трубы. Жёлтым подсвечены фронты ≥1 м перед котлами. Крутите вид мышью; Сбоку/Сверху — ракурсы.";
 
@@ -5708,6 +5741,7 @@ const VARIANT_SHARE_TOKEN = {
   v31: "v31",
   v31a: "v31a",
   v31b: "v31b",
+  v31c: "v31c",
   v31d: "v31d",
   topo3: "topo3",
 };
@@ -5726,6 +5760,7 @@ function compactVariantsQuery(raw) {
     v31: "v31", "3.1": "v31",
     v31a: "v31a", "3.1a": "v31a",
     v31b: "v31b", "3.1b": "v31b",
+    v31c: "v31c", "3.1c": "v31c",
     v31d: "v31d", "3.1d": "v31d",
     topo3: "topo3", t3: "topo3",
   };
@@ -5900,7 +5935,7 @@ const blurb = document.getElementById("blurb");
 function focusPoint(id) {
   // Д2 стоит в другом месте плана, чем дом А. Крутить нужно вокруг него, а не вокруг пустой точки.
   if (id === "topo3") return topoBuilt.focus.clone();
-  if (id === "v31" || id === "v31a" || id === "v31b" || id === "v31d") return new THREE.Vector3(2.76, 1.5, 2.40);
+  if (id === "v31" || id === "v31a" || id === "v31b" || id === "v31c" || id === "v31d") return new THREE.Vector3(2.76, 1.5, 2.40);
   if (id === "vd1" || id === "vd2" || id === "vd3" || id === "vd4" || id === "vd5" || id === "vd6") return new THREE.Vector3(3.56, 1.5, -0.94);
   return new THREE.Vector3(-3.69, 1.5, -3.45);
 }
@@ -5942,7 +5977,7 @@ if (location.hash && location.hash !== "#styles") {
 }
 
 function setVariant(id) {
-  let next = id === "vb" || id === "vc" || id === "d2" || id === "vd1" || id === "vd2" || id === "vd3" || id === "vd4" || id === "vd5" || id === "vd6" || id === "v31" || id === "v31a" || id === "v31b" || id === "v31d" || id === "topo3" ? id : "v2";
+  let next = id === "vb" || id === "vc" || id === "d2" || id === "vd1" || id === "vd2" || id === "vd3" || id === "vd4" || id === "vd5" || id === "vd6" || id === "v31" || id === "v31a" || id === "v31b" || id === "v31c" || id === "v31d" || id === "topo3" ? id : "v2";
   if (allowedVariants && !allowedVariants.includes(next)) {
     if (allowedVariants.includes(viewVariant)) return false;
     next = allowedVariants[0];
@@ -5950,7 +5985,7 @@ function setVariant(id) {
   if (tourActive) stopTour(false);
   viewVariant = next;
   const topo = viewVariant === "topo3";
-  const eastHouse = viewVariant === "vd1" || viewVariant === "vd2" || viewVariant === "vd3" || viewVariant === "vd4" || viewVariant === "vd5" || viewVariant === "vd6" || viewVariant === "v31" || viewVariant === "v31a" || viewVariant === "v31b" || viewVariant === "v31d";
+  const eastHouse = viewVariant === "vd1" || viewVariant === "vd2" || viewVariant === "vd3" || viewVariant === "vd4" || viewVariant === "vd5" || viewVariant === "vd6" || viewVariant === "v31" || viewVariant === "v31a" || viewVariant === "v31b" || viewVariant === "v31c" || viewVariant === "v31d";
   sharedGroup.visible = !topo;
   ground.visible = !topo;
   northDriveGroup.visible = !topo && !eastHouse;
@@ -5969,6 +6004,7 @@ function setVariant(id) {
   variant31Group.visible = viewVariant === "v31";
   variant31aGroup.visible = viewVariant === "v31a";
   variant31bGroup.visible = viewVariant === "v31b";
+  variant31cGroup.visible = viewVariant === "v31c";
   variant31dGroup.visible = viewVariant === "v31d";
   topochnayaGroup.visible = topo;
   renderer.setClearColor(topo ? 0x1c2228 : 0xd5e2ef);
@@ -5991,6 +6027,7 @@ function setVariant(id) {
                     : viewVariant === "v31" ? BLURB_V31
                       : viewVariant === "v31a" ? BLURB_V31A
                         : viewVariant === "v31b" ? BLURB_V31B
+                        : viewVariant === "v31c" ? BLURB_V31C
                         : viewVariant === "v31d" ? BLURB_V31D
                           : viewVariant === "topo3" ? BLURB_TOPO3
               : BLURB_2;
@@ -6010,6 +6047,8 @@ function setVariant(id) {
   if (v31aBtn) v31aBtn.classList.toggle("active", viewVariant === "v31a");
   const v31bBtn = document.getElementById("var-v31b");
   if (v31bBtn) v31bBtn.classList.toggle("active", viewVariant === "v31b");
+  const v31cBtn = document.getElementById("var-v31c");
+  if (v31cBtn) v31cBtn.classList.toggle("active", viewVariant === "v31c");
   const v31dBtn = document.getElementById("var-v31d");
   if (v31dBtn) v31dBtn.classList.toggle("active", viewVariant === "v31d");
   const topoBtn = document.getElementById("var-topo3");
@@ -6038,6 +6077,7 @@ document.getElementById("var-vd6").addEventListener("click", () => chooseVariant
 document.getElementById("var-v31").addEventListener("click", () => chooseVariant("v31", "v31"));
 document.getElementById("var-v31a").addEventListener("click", () => chooseVariant("v31a", "v31a"));
 document.getElementById("var-v31b").addEventListener("click", () => chooseVariant("v31b", "v31b"));
+document.getElementById("var-v31c").addEventListener("click", () => chooseVariant("v31c", "v31c"));
 document.getElementById("var-v31d").addEventListener("click", () => chooseVariant("v31d", "v31d"));
 document.getElementById("var-topo3").addEventListener("click", () => {
   if (setVariant("topo3")) {
@@ -6080,6 +6120,7 @@ const d6Tour = createD2Tour(planToWorld, d6WalkBoxes(), d6FenceSegments(D6_BASE)
 const v31Tour = createD2Tour(planToWorld, v31WalkBoxes(), v31FenceSegments(V31_BASE), V31_BASE);
 const v31aTour = createD2Tour(planToWorld, v31aWalkBoxes(), v31aFenceSegments(V31A_BASE), V31A_BASE);
 const v31bTour = createD2Tour(planToWorld, v31bWalkBoxes(), v31bFenceSegments(V31B_BASE), V31B_BASE);
+const v31cTour = createD2Tour(planToWorld, v31cWalkBoxes(), v31cFenceSegments(V31C_BASE), V31C_BASE);
 const v31dTour = createD2Tour(planToWorld, v31dWalkBoxes(), v31dFenceSegments(V31D_BASE), V31D_BASE);
 function v31TourPose(toWorld) {
   const [e, n] = toWorld(-8.50, 13.00);
@@ -6097,6 +6138,12 @@ function v31bTourPose(toWorld) {
   const [e1, n1] = toWorld(-7.36, 20.50);
   return { east: e, north: n, yaw: Math.atan2(e1 - e, n1 - n) };
 }
+function v31cTourPose(toWorld) {
+  // Как 3.1d: у северных ворот / заезда, взгляд на юг к дому.
+  const [e, n] = toWorld(-7.36, 21.50);
+  const [e1, n1] = toWorld(-7.36, 20.50);
+  return { east: e, north: n, yaw: Math.atan2(e1 - e, n1 - n) };
+}
 function v31dTourPose(toWorld) {
   // У северных ворот / заезда, взгляд на юг к дому (как 3.1a/3.1b).
   const [e, n] = toWorld(-7.36, 21.50);
@@ -6109,6 +6156,7 @@ function activeTour() {
   if (viewVariant === "v31") return v31Tour;
   if (viewVariant === "v31a") return v31aTour;
   if (viewVariant === "v31b") return v31bTour;
+  if (viewVariant === "v31c") return v31cTour;
   if (viewVariant === "v31d") return v31dTour;
   return viewVariant === "vd3" ? d3Tour : d2Tour;
 }
@@ -6119,14 +6167,16 @@ const tourDaylightD6 = createTourDaylight(planToWorld, D6_WINDOWS, D6_BASE);
 const tourDaylightV31 = createTourDaylight(planToWorld, V31_WINDOWS, V31_BASE);
 const tourDaylightV31a = createTourDaylight(planToWorld, V31A_WINDOWS, V31A_BASE);
 const tourDaylightV31b = createTourDaylight(planToWorld, V31B_WINDOWS, V31B_BASE);
+const tourDaylightV31c = createTourDaylight(planToWorld, V31C_WINDOWS, V31C_BASE);
 const tourDaylightV31d = createTourDaylight(planToWorld, V31D_WINDOWS, V31D_BASE);
-scene.add(tourDaylight.object, tourDaylightD3.object, tourDaylightD4.object, tourDaylightD6.object, tourDaylightV31.object, tourDaylightV31a.object, tourDaylightV31b.object, tourDaylightV31d.object);
+scene.add(tourDaylight.object, tourDaylightD3.object, tourDaylightD4.object, tourDaylightD6.object, tourDaylightV31.object, tourDaylightV31a.object, tourDaylightV31b.object, tourDaylightV31c.object, tourDaylightV31d.object);
 function activeDaylight() {
   if (viewVariant === "vd4" || viewVariant === "vd5") return tourDaylightD4;
   if (viewVariant === "vd6") return tourDaylightD6;
   if (viewVariant === "v31") return tourDaylightV31;
   if (viewVariant === "v31a") return tourDaylightV31a;
   if (viewVariant === "v31b") return tourDaylightV31b;
+  if (viewVariant === "v31c") return tourDaylightV31c;
   if (viewVariant === "v31d") return tourDaylightV31d;
   return viewVariant === "vd3" ? tourDaylightD3 : tourDaylight;
 }
@@ -6184,7 +6234,7 @@ function collectWalkPolys(kind) {
 }
 
 function syncTourButton() {
-  const ready = roofToggle.checked && (viewVariant === "vd1" || viewVariant === "vd2" || viewVariant === "vd3" || viewVariant === "vd4" || viewVariant === "vd5" || viewVariant === "vd6" || viewVariant === "v31" || viewVariant === "v31a" || viewVariant === "v31b" || viewVariant === "v31d" || tourPoseOf[viewVariant]);
+  const ready = roofToggle.checked && (viewVariant === "vd1" || viewVariant === "vd2" || viewVariant === "vd3" || viewVariant === "vd4" || viewVariant === "vd5" || viewVariant === "vd6" || viewVariant === "v31" || viewVariant === "v31a" || viewVariant === "v31b" || viewVariant === "v31c" || viewVariant === "v31d" || tourPoseOf[viewVariant]);
   tourButton.disabled = tourActive ? false : !ready;
   tourButton.classList.toggle("active", tourActive);
   tourButton.textContent = tourActive ? "Стоп" : "Экскурсия";
@@ -6202,7 +6252,7 @@ function hideDoorLeaves() {
 }
 
 function startTour() {
-  const keepHouse = viewVariant === "vd1" || viewVariant === "vd2" || viewVariant === "vd3" || viewVariant === "vd4" || viewVariant === "vd5" || viewVariant === "vd6" || viewVariant === "v31" || viewVariant === "v31a" || viewVariant === "v31b" || viewVariant === "v31d";
+  const keepHouse = viewVariant === "vd1" || viewVariant === "vd2" || viewVariant === "vd3" || viewVariant === "vd4" || viewVariant === "vd5" || viewVariant === "vd6" || viewVariant === "v31" || viewVariant === "v31a" || viewVariant === "v31b" || viewVariant === "v31c" || viewVariant === "v31d";
   const tourReady = keepHouse || !!tourPoseOf[viewVariant];
   if (tourActive || !roofToggle.checked || !tourReady) return;
   // Старт с текущего положения камеры (взгляд и высота); с высоты плавно опустимся.
@@ -6336,7 +6386,7 @@ tourButton.addEventListener("click", () => {
 
 setVariant(pendingVariant);
 if (!restoredCamera) placeCamera(viewVariant, "side");
-else if (!cameraLockedByUrl && (viewVariant === "vd1" || viewVariant === "vd2" || viewVariant === "vd3" || viewVariant === "vd4" || viewVariant === "vd5" || viewVariant === "vd6" || viewVariant === "v31" || viewVariant === "v31a" || viewVariant === "v31b" || viewVariant === "v31d") && controls.target.distanceTo(focusPoint(viewVariant)) > 4) retargetKeepOffset(viewVariant);
+else if (!cameraLockedByUrl && (viewVariant === "vd1" || viewVariant === "vd2" || viewVariant === "vd3" || viewVariant === "vd4" || viewVariant === "vd5" || viewVariant === "vd6" || viewVariant === "v31" || viewVariant === "v31a" || viewVariant === "v31b" || viewVariant === "v31c" || viewVariant === "v31d") && controls.target.distanceTo(focusPoint(viewVariant)) > 4) retargetKeepOffset(viewVariant);
 else saveView();
 dateInput.addEventListener("input", () => {
   applySun(geo);
@@ -6492,6 +6542,7 @@ mountFurnitureCatalog();
     { id: "v31", label: "Вариант 3.1" },
     { id: "v31a", label: "Вариант 3.1a" },
     { id: "v31b", label: "Вариант 3.1b" },
+    { id: "v31c", label: "Вариант 3.1c" },
     { id: "v31d", label: "Вариант 3.1d" },
   ];
 
