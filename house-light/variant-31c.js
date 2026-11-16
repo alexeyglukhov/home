@@ -2,7 +2,7 @@
 // помещения по agency/var3.1c.svg (хоз.блок, сдвинутые стены/двери/окна).
 // Масштаб: эталон кровати 2,20 м (uu→м как в var3.1c). Координаты — метры плана.
 import * as THREE from "three";
-import { addVar31FurnitureFloor, markHouseFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31c-furniture-floor.js?v=1";
+import { addVar31FurnitureFloor, markHouseFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31c-furniture-floor.js?v=5";
 
 export const V31C_BASE = { x: 0, y: 0 };
 
@@ -29,8 +29,8 @@ const WALLS = [
   [4.879, 15.35, 8.369, 15.5],
   [-0.65, 15.757, 3.049, 15.907],
   [1.684, 15.55, 3.093, 15.7],
-  [2.757, 11.95, 5.471, 12.099],
-  [5.346, 11.949, 8.588, 12.098],
+  [2.757, 11.235, 5.297, 11.385],
+  [5.172, 11.949, 8.588, 12.098],
   [7.212, 11.726, 8.525, 11.876],
   [7.131, 11.129, 7.281, 12.055],
   [8.274, 13.465, 11.789, 13.615],

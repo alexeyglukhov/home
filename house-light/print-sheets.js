@@ -76,7 +76,7 @@ const PRINTS = {
   v31c: [
     {
       label: "Планировка",
-      file: "prints/var3.1c-dom-print.svg?v=15",
+      file: "prints/var3.1c-dom-print.svg?v=20",
       name: "планировка-3.1c",
     },
   ],

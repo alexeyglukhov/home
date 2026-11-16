@@ -1,4 +1,4 @@
-// Подложка 3.1c: растр всего слоя «иное» (image743 + объекты поверх).
+// Подложка 3.1c: растр «иное» + «стены» + «помещения» (подписи и метраж).
 // PNG: var31c-furniture-plan.png (viewBox плана −320/−50/250×220 → метры ниже).
 import * as THREE from "three";
 import { markHouseFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31-furniture-floor.js?v=8";

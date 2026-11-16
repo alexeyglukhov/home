@@ -583,8 +583,13 @@ def add_outline_dims(
             sw="0.40",
             oid=f"print-porch-step-{i}",
         )
+    # В 3D площадка доходит до 17,88 (порог), но на печати это перекрывает
+    # наружную стену топочной/тамбура/постирочной — юг площадки = BODY_N.
     plan_rect(
-        *PORCH_DECK,
+        PORCH_DECK[0],
+        BODY_N,
+        PORCH_DECK[2],
+        PORCH_DECK[3],
         fill="#f2f2f2",
         stroke="#111111",
         sw="0.45",

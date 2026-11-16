@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Сверка agency/var3.1c.svg → 3D WALLS/OPENINGS, подписи, подложка «иное»."""
+"""Сверка agency/var3.1c.svg → 3D WALLS/OPENINGS, подписи,
+подложка пола: слои «иное» + «стены» + «помещения».
+"""
 from __future__ import annotations
 
 import math
@@ -285,13 +287,10 @@ def build_inoe_underlay_svg(plan_svg: str) -> str:
     return layer
 
 
-def export_inoe_png():
-    """Растр слоя иное (без page bg) через временный SVG + Inkscape."""
-    plan = PLAN.read_text()
+def _prep_inoe_layer(plan: str) -> str:
     layer = extract_group(plan, "layer3")
     layer = re.sub(r'<rect\b[^>]*\bid="rect2391"[^>]*/>', "", layer, count=1)
     layer = layer.replace('id="layer3"', 'id="layer3-export"', 1)
-    vb = VIEWBOX
     # bump image opacity for readable 3D decal
     layer = re.sub(
         r'(id="image743"[^>]*\bstyle="[^"]*opacity:)[0-9.]+',
@@ -299,12 +298,32 @@ def export_inoe_png():
         layer,
         count=1,
     )
+    return layer
+
+
+def export_inoe_png():
+    """Растр подложки пола: «иное» + «стены» + «помещения» (Inkscape)."""
+    plan = PLAN.read_text()
+    inoe = _prep_inoe_layer(plan)
+    walls = extract_group(plan, "layer1")
+    rooms = extract_group(plan, "layer-rooms")
+    # сводку за домом на пол 3D не кладём
+    rooms = re.sub(
+        r'<g\b[^>]*\bid="room-summary"[^>]*>[\s\S]*?</g>',
+        "",
+        rooms,
+        count=1,
+    )
+    vb = VIEWBOX
     tmp = INOE_SVG
     tmp.write_text(
         f'''<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
      width="{vb[2]}mm" height="{vb[3]}mm" viewBox="{vb[0]} {vb[1]} {vb[2]} {vb[3]}">
-{layer}
+{inoe}
+{walls}
+{rooms}
 </svg>
 '''
     )

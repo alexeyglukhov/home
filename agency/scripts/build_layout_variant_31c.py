@@ -44,7 +44,7 @@ def ensure_xlink_ns(svg: str) -> str:
 
 
 def inoe_underlay(plan_svg: str) -> str:
-    """Весь слой «иное» из var3.1c (картинка + объекты поверх), не только PNG."""
+    """Слой «иное» из var3.1c (картинка + объекты поверх)."""
     from build_layout_variant_31 import extract_group
 
     layer = extract_group(plan_svg, "layer3")
@@ -61,6 +61,25 @@ def inoe_underlay(plan_svg: str) -> str:
         count=1,
     )
     return layer.rstrip() + "\n"
+
+
+def rooms_underlay(plan_svg: str) -> str:
+    """Слой «помещения» (имена + метраж) поверх стен."""
+    from build_layout_variant_31 import extract_group
+
+    rooms = extract_group(plan_svg, "layer-rooms")
+    rooms = re.sub(
+        r'<g\b[^>]*\bid="room-summary"[^>]*>[\s\S]*?</g>',
+        "",
+        rooms,
+        count=1,
+    )
+    rooms = rooms.replace(
+        'id="layer-rooms"',
+        'id="layer-rooms" data-role="rooms-underlay"',
+        1,
+    )
+    return rooms.rstrip() + "\n"
 
 CANOPY_W = 13.470 - 6.165  # западный рукав
 CANOPY_D = 19.965 - 9.073
@@ -105,6 +124,7 @@ def main() -> None:
             f'<g id="p-plan-31" transform="{preserved}">',
             inoe_underlay(plan),
             walls,
+            rooms_underlay(plan),
             "  </g>",
         ]
     )
