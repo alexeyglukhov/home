@@ -770,22 +770,23 @@ export function buildVariant31(api) {
   });
   if (typeof api.mountOverlays === "function") {
     api.mountOverlays((overlayApi) => {
-      const face = (spec) => api.wallFace(overlayApi, spec);
+      // outer = наружная грань стены из WALLS; thick тонкий — обшивка без зазора.
+      const face = (spec) => api.wallFace(overlayApi, { thick: 0.012, ...spec });
       return [
-        face({ name: "v31N", along: "x", outer: 18.26, sign: 1, span0: -5.36, span1: 14.80, eave: WALL_TOP, openings: fromPlan("x", 18.06, -5.36, 14.80) }),
+        face({ name: "v31N", along: "x", outer: 18.260, sign: 1, span0: -5.36, span1: 14.80, eave: WALL_TOP, openings: fromPlan("x", 18.06, -5.36, 14.80) }),
         face({
-          name: "v31E", along: "y", outer: 14.80, sign: 1, span0: 0.84, span1: 18.26, eave: WALL_TOP,
+          name: "v31E", along: "y", outer: 14.804, sign: 1, span0: 0.84, span1: 18.26, eave: WALL_TOP,
           gable: gableMain(yValley(xPlateE), yPlateN),
           openings: fromPlan("y", 14.60, 0.84, 18.26),
         }),
-        face({ name: "v31S", along: "x", outer: 7.32, sign: -1, span0: -5.36, span1: 3.16, eave: WALL_TOP, openings: fromPlan("x", 7.52, -5.36, 3.16) }),
+        face({ name: "v31S", along: "x", outer: 7.318, sign: -1, span0: -5.36, span1: 3.16, eave: WALL_TOP, openings: fromPlan("x", 7.52, -5.36, 3.16) }),
         face({
-          name: "v31SE", along: "x", outer: 0.85, sign: -1, span0: 8.27, span1: 14.80, eave: WALL_TOP,
+          name: "v31SE", along: "x", outer: 0.846, sign: -1, span0: 8.27, span1: 14.80, eave: WALL_TOP,
           gable: { u0: xPlateSpine, u1: xPlateE, peakU: xR1, peakZ: Zr1 - ROOF_THICK, eave: WALL_TOP, over: 0, drop: 0 },
           openings: fromPlan("x", 1.05, 8.27, 14.80),
         }),
         face({
-          name: "v31W", along: "y", outer: -5.36, sign: -1, span0: 7.30, span1: 18.26, eave: WALL_TOP,
+          name: "v31W", along: "y", outer: -5.359, sign: -1, span0: 7.30, span1: 18.26, eave: WALL_TOP,
           gable: gableMain(yPlateS, yPlateN),
           openings: fromPlan("y", -5.13, 7.30, 18.26),
         }),

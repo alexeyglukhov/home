@@ -1169,7 +1169,8 @@ export function buildVariant31d(api) {
   });
   if (typeof api.mountOverlays === "function") {
     api.mountOverlays((overlayApi) => {
-      const face = (spec) => api.wallFace(overlayApi, spec);
+      // outer = наружная грань стены из WALLS; thick тонкий — обшивка без зазора.
+      const face = (spec) => api.wallFace(overlayApi, { thick: 0.012, ...spec });
       // Фронтон козырька на севере — иначе секции останавливаются на WALL_TOP.
       const porchGable = {
         u0: xGableL,
@@ -1183,13 +1184,13 @@ export function buildVariant31d(api) {
       };
       return [
         face({
-          name: "v31dN", along: "x", outer: 18.26, sign: 1, span0: -5.36, span1: 14.80, eave: WALL_TOP,
+          name: "v31dN", along: "x", outer: 18.260, sign: 1, span0: -5.36, span1: 14.80, eave: WALL_TOP,
           gable: porchGable,
           openings: fromPlan("x", 18.06, -5.36, 14.80),
         }),
-        face({ name: "v31dE", along: "y", outer: 14.80, sign: 1, span0: 0.84, span1: 18.26, eave: WALL_TOP, openings: fromPlan("y", 14.60, 0.84, 18.26) }),
+        face({ name: "v31dE", along: "y", outer: 14.804, sign: 1, span0: 0.84, span1: 18.26, eave: WALL_TOP, openings: fromPlan("y", 14.60, 0.84, 18.26) }),
         face({
-          name: "v31dS", along: "x", outer: 7.32, sign: -1, span0: -5.36, span1: 3.16, eave: WALL_TOP,
+          name: "v31dS", along: "x", outer: 7.318, sign: -1, span0: -5.36, span1: 3.16, eave: WALL_TOP,
           gable: {
             u0: xLivW, u1: xLivE, peakU: xRW, peakZ: ZrW - ROOF_THICK, eave: WALL_TOP, over: 0, drop: 0,
             soffit: (u) => zWest(u) - ROOF_THICK,
@@ -1197,7 +1198,7 @@ export function buildVariant31d(api) {
           openings: southLivOpenings,
         }),
         face({
-          name: "v31dSE", along: "x", outer: 0.85, sign: -1, span0: 8.27, span1: 14.80, eave: WALL_TOP,
+          name: "v31dSE", along: "x", outer: 0.846, sign: -1, span0: 8.27, span1: 14.80, eave: WALL_TOP,
           gable: {
             u0: xOffW, u1: xOffE, peakU: xRE, peakZ: ZrE - ROOF_THICK, eave: WALL_TOP, over: 0, drop: 0,
             soffit: (u) => zEast(u) - ROOF_THICK,
@@ -1205,21 +1206,21 @@ export function buildVariant31d(api) {
           openings: fromPlan("x", 1.05, 8.27, 14.80),
         }),
         face({
-          name: "v31dW", along: "y", outer: -5.36, sign: -1, span0: 7.30, span1: 18.26, eave: WALL_TOP,
+          name: "v31dW", along: "y", outer: -5.359, sign: -1, span0: 7.30, span1: 18.26, eave: WALL_TOP,
           openings: fromPlan("y", -5.13, 7.30, 18.26, true),
         }),
         // Двор только по наружному контуру (не заходить на внутренние коридоры/проходы).
         face({
-          name: "v31dLivE", along: "y", outer: 3.16, sign: 1, span0: 7.30, span1: 9.70, eave: WALL_TOP,
+          name: "v31dLivE", along: "y", outer: 3.158, sign: 1, span0: 7.30, span1: 9.70, eave: WALL_TOP,
           openings: fromPlan("y", 2.96, 7.30, 9.70, true),
         }),
         face({
-          name: "v31dCourtW", along: "y", outer: 8.27, sign: -1, span0: 0.84, span1: 9.70, eave: WALL_TOP,
+          name: "v31dCourtW", along: "y", outer: 8.265, sign: -1, span0: 0.84, span1: 9.70, eave: WALL_TOP,
           openings: fromPlan("y", 8.46, 0.84, 9.70, true),
         }),
         // Южная грань северной стены двора/террасы (дверь и окно смотрят во двор).
         face({
-          name: "v31dCourtN", along: "x", outer: 9.30, sign: -1, span0: 2.74, span1: 8.68, eave: WALL_TOP,
+          name: "v31dCourtN", along: "x", outer: 9.304, sign: -1, span0: 2.74, span1: 8.68, eave: WALL_TOP,
           openings: fromPlan("x", 9.50, 2.74, 8.68, true),
         }),
       ];

@@ -21,7 +21,12 @@ const BEAM_B = 0x2a211c;
 const INK = 0x1c1a17;
 const LOUVER = 0x3a4146;
 const SLAT = 0x5c4a3a;
-export const WOOD_OAK = 0x9a7850;
+/** Сочный тёплый дуб для сканди-вставок (ярче серого #9a7850). */
+export const WOOD_OAK = 0xd4a060;
+/** Верх цоколя 3.1* — панели отделки садятся на него, не свисают ниже. */
+const PLINTH_Z = 0.45;
+/** Почти заподлицо со стеной (faces с thick ≈ 1.2 см). */
+const FLUSH = 0.002;
 const DARK_PANEL = 0x2a2e32;
 // Средне-серая облицовка у проёмов (roof-d); неоднородность — паттерн darkClad в стиле 30.
 export const DARK_CLAD = 0x5e666f;
@@ -79,8 +84,8 @@ function quoins(face, color, w = 0.4) {
   const left = first ? Math.min(w, Math.max(0.1, first.u0 - face.span0 - 0.04)) : w;
   const right = last ? Math.min(w, Math.max(0.1, face.span1 - last.u1 - 0.04)) : w;
   const climb = (a, b) => {
-    if (face.gable) placeToRoof(face, a, b, 0.04, color);
-    else face.place(a, b, 0.04, face.eave, color);
+    if (face.gable) placeToRoof(face, a, b, PLINTH_Z, color, FLUSH);
+    else face.place(a, b, PLINTH_Z, face.eave, color, FLUSH);
   };
   climb(face.span0, face.span0 + left);
   climb(face.span1 - right, face.span1);
@@ -138,13 +143,13 @@ function surround(face, op, color, band = 0.15) {
   const z1R = heads.z1R + 0.02;
   const slanted = Math.abs(z1L - z1R) > 0.02;
   const top = 0.12;
-  const zBot = op.kind === "door" ? 0.02 : Math.max(0.02, op.z0 - 0.1);
+  const zBot = op.kind === "door" ? PLINTH_Z : Math.max(PLINTH_Z, op.z0 - 0.1);
   // Бока — только до своей высоты трапеции (не общий max → «квадрат»).
   if (left > 0.025) {
-    face.place(op.u0 - left, op.u0 - 0.01, zBot, z1L + top, color, 0.012);
+    face.place(op.u0 - left, op.u0 - 0.01, zBot, z1L + top, color, FLUSH);
   }
   if (right > 0.025) {
-    face.place(op.u1 + 0.01, op.u1 + right, zBot, z1R + top, color, 0.012);
+    face.place(op.u1 + 0.01, op.u1 + right, zBot, z1R + top, color, FLUSH);
   }
   const a = op.u0 - left;
   const b = op.u1 + right;
@@ -156,13 +161,13 @@ function surround(face, op, color, band = 0.15) {
       const u1 = a + ((b - a) * (i + 1)) / steps;
       const h0 = z1L + (z1R - z1L) * ((u0 - a) / Math.max(1e-6, b - a));
       const h1 = z1L + (z1R - z1L) * ((u1 - a) / Math.max(1e-6, b - a));
-      face.place(u0, u1, Math.min(h0, h1), Math.max(h0, h1) + top, color, 0.012);
+      face.place(u0, u1, Math.min(h0, h1), Math.max(h0, h1) + top, color, FLUSH);
     }
-    face.beam(op.u0, z1L + top * 0.35, op.u1, z1R + top * 0.35, top * 0.7, color, 0.014);
+    face.beam(op.u0, z1L + top * 0.35, op.u1, z1R + top * 0.35, top * 0.7, color, FLUSH);
   } else {
-    face.place(a, b, z1L, z1L + top, color, 0.012);
+    face.place(a, b, z1L, z1L + top, color, FLUSH);
   }
-  if (op.kind !== "door" && op.z0 > 0.12) face.place(a, b, op.z0 - 0.12, op.z0 - 0.01, color, 0.012);
+  if (op.kind !== "door" && op.z0 > 0.12) face.place(a, b, op.z0 - 0.12, op.z0 - 0.01, color, FLUSH);
 }
 
 function shutter(face, op, color) {
@@ -174,10 +179,10 @@ function shutter(face, op, color) {
 }
 
 /** Камень/кирпич до реального подоконника выбранного фасада. */
-function skirtBand(face, color, proud = 0.01) {
+function skirtBand(face, color, proud = FLUSH) {
   const sill = sillOf(face);
   if (sill == null || sill < 0.4) return;
-  const z0 = 0.04;
+  const z0 = PLINTH_Z;
   const z1 = sill;
   for (const pier of piers(face)) {
     if (pier.b - pier.a > 0.05) face.place(pier.a, pier.b, z0, z1, color, proud);
@@ -328,7 +333,7 @@ function underGable(face, op) {
 function fachwerkPosts(face, color, southPosts, studs) {
   const pw = 0.128;
   if (face.name === "S" && southPosts) {
-    for (const [a, b] of southPosts) placeBand(face, a, b, 0.16, face.eave, color, 0.01);
+    for (const [a, b] of southPosts) placeBand(face, a, b, PLINTH_Z, face.eave, color, FLUSH);
     return;
   }
   const spots = [face.span0, face.span1 - pw];
@@ -348,7 +353,7 @@ function fachwerkPosts(face, color, southPosts, studs) {
     if (used.some((p) => Math.abs(p - a) < 0.09)) continue;
     if (face.openings.some((op) => a < op.u1 - 0.015 && b > op.u0 + 0.015)) continue;
     used.push(a);
-    placeBand(face, a, b, 0.16, face.eave, color, 0.01);
+    placeBand(face, a, b, PLINTH_Z, face.eave, color, FLUSH);
   }
 }
 
@@ -525,17 +530,17 @@ function fachwerkGable(face, color, fan) {
   }
 }
 
-function paintZone(face, u0, u1, color, proud = 0) {
+function paintZone(face, u0, u1, color, proud = FLUSH) {
   for (const pier of piers(face)) {
     const a = Math.max(pier.a, u0);
     const b = Math.min(pier.b, u1);
-    if (b - a > 0.015) face.place(a, b, 0.02, face.eave, color, proud);
+    if (b - a > 0.015) face.place(a, b, PLINTH_Z, face.eave, color, proud);
   }
   for (const op of face.openings) {
     const a = Math.max(op.u0, u0);
     const b = Math.min(op.u1, u1);
     if (b - a < 0.04) continue;
-    if (op.z0 > 0.08) face.place(a, b, 0.02, op.z0 - 0.02, color, proud);
+    if (op.z0 > PLINTH_Z + 0.05) face.place(a, b, PLINTH_Z, op.z0 - 0.02, color, proud);
     if (face.eave > op.z1 + 0.05) face.place(a, b, op.z1 + 0.02, face.eave, color, proud);
   }
 }
@@ -551,7 +556,7 @@ function boardsIn(face, u0, u1, color) {
   for (let u = u0 + 0.08; u < u1 - 0.04; u += 0.32) {
     const hits = face.openings.filter((op) => u > op.u0 + 0.02 && u < op.u1 - 0.02);
     if (win && u > win.u0 + 0.02 && u < win.u1 - 0.02) hits.push(win);
-    let z = 0.16;
+    let z = PLINTH_Z;
     const ordered = hits.slice().sort((a, b) => a.z0 - b.z0);
     const cap = boardCap(face, u + 0.009);
     for (const op of ordered) {
@@ -568,7 +573,7 @@ function each(faces, fn) {
 }
 
 function makeFaces(api, house) {
-  const t = 0.07;
+  const t = 0.012;
   const southGable = gableOf(house.tEast, house.tWest, house.eave, house.gablePitch, house.southGable);
   const northGable = gableOf(house.pEast, house.pWest, house.eave, house.gablePitch, house.northGable);
   const south = faceU(api, "S", house.south, house.uOutE, house.uOutW, house.vOutS, -1, house.eave, southGable, t);
@@ -644,16 +649,19 @@ function segsOutside(u0, z0, u1, z1, win) {
 }
 
 function faceU(api, name, openings, span0, span1, vOuter, sign, eave, gable, t) {
-  const v0 = sign < 0 ? vOuter - t : vOuter - 0.01;
-  const v1 = sign < 0 ? vOuter + 0.01 : vOuter + t;
+  const inset = Math.min(0.008, Math.max(0.002, t * 0.35));
+  const v0 = sign < 0 ? vOuter - t : vOuter - inset;
+  const v1 = sign < 0 ? vOuter + inset : vOuter + t;
   const vBeam = sign < 0 ? vOuter - t * 0.45 : vOuter + t * 0.45;
   return {
     name, openings, span0, span1, eave, gable, win: null,
     place(a, b, z0, z1, color, proud = 0) {
       const u0 = Math.min(a, b);
       const u1 = Math.max(a, b);
-      const za = Math.min(z0, z1);
+      let za = Math.min(z0, z1);
       const zb = Math.max(z0, z1);
+      if (za < PLINTH_Z) za = PLINTH_Z;
+      if (zb - za < 0.015) return;
       const parts = this.win ? rectsOutside(u0, u1, za, zb, this.win) : [[u0, u1, za, zb]];
       const extra = sign * proud;
       for (const [s0, s1, c0, c1] of parts) {
@@ -723,15 +731,19 @@ function faceU(api, name, openings, span0, span1, vOuter, sign, eave, gable, t) 
 }
 
 function faceV(api, name, openings, span0, span1, uOuter, sign, eave, t) {
-  const u0 = sign < 0 ? uOuter - t : uOuter - 0.01;
-  const u1 = sign < 0 ? uOuter + 0.01 : uOuter + t;
+  const inset = Math.min(0.008, Math.max(0.002, t * 0.35));
+  const u0 = sign < 0 ? uOuter - t : uOuter - inset;
+  const u1 = sign < 0 ? uOuter + inset : uOuter + t;
   const uBeam = sign < 0 ? uOuter - t * 0.45 : uOuter + t * 0.45;
   return {
     name, openings, span0, span1, eave, gable: null,
     place(a, b, z0, z1, color, proud = 0) {
-      if (b - a < 0.012 || z1 - z0 < 0.015) return;
+      let za = Math.min(z0, z1);
+      const zb = Math.max(z0, z1);
+      if (za < PLINTH_Z) za = PLINTH_Z;
+      if (Math.abs(b - a) < 0.012 || zb - za < 0.015) return;
       const extra = sign * proud;
-      api.rect(u0 + extra, Math.min(a, b), u1 + extra, Math.max(a, b), Math.min(z0, z1), Math.max(z0, z1), color);
+      api.rect(u0 + extra, Math.min(a, b), u1 + extra, Math.max(a, b), za, zb, color);
     },
     beam(a, z0, b, z1, size, color, proud = 0) {
       const u = uBeam + sign * proud;
@@ -742,11 +754,12 @@ function faceV(api, name, openings, span0, span1, uOuter, sign, eave, t) {
 }
 
 export function wallFace(api, o) {
-  const t = o.thick ?? 0.065;
+  const t = o.thick ?? 0.012;
   const sign = o.sign;
   const outer = o.outer;
   const alongX = o.along !== "y";
   const gable = o.gable ?? null;
+  const inset = Math.min(0.008, Math.max(0.002, t * 0.35));
   const nBeam = sign < 0 ? outer - t * 0.45 : outer + t * 0.45;
   const outN = sign < 0 ? outer - t - 0.02 : outer + t + 0.02;
   const face = {
@@ -765,14 +778,15 @@ export function wallFace(api, o) {
         z0 = Math.max(lo, cut);
         z1 = hi;
       }
-      if (Math.abs(b - a) < 0.012 || Math.abs(z1 - z0) < 0.015) return;
+      let za = Math.min(z0, z1);
+      const zb = Math.max(z0, z1);
+      if (za < PLINTH_Z) za = PLINTH_Z;
+      if (Math.abs(b - a) < 0.012 || zb - za < 0.015) return;
       const extra = sign * proud;
-      const n0 = (sign < 0 ? outer - t : outer - 0.008) + extra;
-      const n1 = (sign < 0 ? outer + 0.008 : outer + t) + extra;
+      const n0 = (sign < 0 ? outer - t : outer - inset) + extra;
+      const n1 = (sign < 0 ? outer + inset : outer + t) + extra;
       const u0 = Math.min(a, b);
       const u1 = Math.max(a, b);
-      const za = Math.min(z0, z1);
-      const zb = Math.max(z0, z1);
       if (alongX) api.rect(u0, Math.min(n0, n1), u1, Math.max(n0, n1), za, zb, color);
       else api.rect(Math.min(n0, n1), u0, Math.max(n0, n1), u1, za, zb, color);
     },
@@ -819,10 +833,10 @@ export function paintFacadeFaces(api, faces) {
   }
 
   // Юбка до реального подоконника фасада (не фиксированные 1,10 м).
-  draw("1", () => each(faces, (f) => skirtBand(f, STONE, 0.012)));
-  draw("9", () => each(faces, (f) => skirtBand(f, BRICK, 0.012)));
+  draw("1", () => each(faces, (f) => skirtBand(f, STONE, FLUSH)));
+  draw("9", () => each(faces, (f) => skirtBand(f, BRICK, FLUSH)));
   draw("19", () => each(faces, (f) => {
-    skirtBand(f, STONE, 0.012);
+    skirtBand(f, STONE, FLUSH);
     const sill = sillOf(f);
     if (sill == null) return;
     f.place(f.span0, f.span1, sill - 0.02, sill + 0.06, BLADE, 0.014);
@@ -883,10 +897,10 @@ export function paintFacadeFaces(api, faces) {
     const sill = sillOf(f);
     const plinthTop = sill != null ? Math.min(sill - 0.04, 1.05) : 0.95;
     for (const pier of piers(f)) {
-      if (pier.b - pier.a > 0.05) f.place(pier.a, pier.b, 0.04, plinthTop, BRICK_WRIGHT, 0.01);
+      if (pier.b - pier.a > 0.05) f.place(pier.a, pier.b, PLINTH_Z, plinthTop, BRICK_WRIGHT, FLUSH);
     }
     for (const op of f.openings) {
-      if (op.z0 > 0.2) f.place(op.u0, op.u1, 0.04, Math.min(op.z0 - 0.02, plinthTop), BRICK_WRIGHT, 0.01);
+      if (op.z0 > PLINTH_Z) f.place(op.u0, op.u1, PLINTH_Z, Math.min(op.z0 - 0.02, plinthTop), BRICK_WRIGHT, FLUSH);
     }
     for (const op of faceOpenings(f)) surround(f, op, BRICK_WRIGHT, 0.1);
     f.place(f.span0, f.span1, f.eave - 0.16, f.eave - 0.03, BELT, 0.012);
@@ -917,8 +931,8 @@ export function paintFacadeFaces(api, faces) {
   draw("11", () => each(faces, (f) => {
     if (!f.gable) return;
     const w = 0.28;
-    placeToRoof(f, f.gable.u0 - w * 0.5, f.gable.u0 + w * 0.5, 0.04, BLADE);
-    placeToRoof(f, f.gable.u1 - w * 0.5, f.gable.u1 + w * 0.5, 0.04, BLADE);
+    placeToRoof(f, f.gable.u0 - w * 0.5, f.gable.u0 + w * 0.5, PLINTH_Z, BLADE, FLUSH);
+    placeToRoof(f, f.gable.u1 - w * 0.5, f.gable.u1 + w * 0.5, PLINTH_Z, BLADE, FLUSH);
   }));
   draw("12", () => each(faces, (f) => {
     for (const op of faceOpenings(f)) surround(f, op, SURROUND, 0.22);
@@ -930,10 +944,10 @@ export function paintFacadeFaces(api, faces) {
     for (const [a, b] of spans) boardsIn(f, a, b, BOARD);
   }));
   // Сканди-модерн (фото): дерево и светлая стена чередуются по простенкам всех фасадов;
-  // от верха цоколя (0,45), почти заподлицо со стеной; верх единый по дому.
+  // от верха цоколя (0,45), заподлицо со стеной; верх единый по дому.
   draw("nordic", () => {
-    const zBot = 0.45; // PLINTH в 3.1* — дерево садится на цоколь, не свисает ниже
-    const proud = 0.003;
+    const zBot = PLINTH_Z;
+    const proud = FLUSH;
     const heads = [];
     for (const f of faces) {
       for (const op of sorted(f)) {
@@ -970,7 +984,7 @@ export function paintFacadeFaces(api, faces) {
   draw("wright-plaster", () => each(faces, (f) => {
     const sill = sillOf(f);
     const zTop = sill != null ? Math.min(sill, 1.15) : 1.05;
-    punched(f, f.span0, f.span1, 0.04, zTop, BRICK_WRIGHT, 0.012);
+    punched(f, f.span0, f.span1, PLINTH_Z, zTop, BRICK_WRIGHT, FLUSH);
     // Выступающий светлый кант по всей стене на стыке кирпича и штукатурки.
     f.place(f.span0, f.span1, zTop - 0.03, zTop + 0.11, CREAM, 0.03);
     quoins(f, BRICK_WRIGHT, 0.48);
@@ -1004,8 +1018,8 @@ export function paintFacadeFaces(api, faces) {
     }
   }));
   // Европейский: штукатурка сверху, клинкер до подоконника (как на фото euro-*).
-  draw("euro", () => each(faces, (f) => skirtBand(f, BRICK_WRIGHT, 0.012)));
-  draw("euro-sand", () => each(faces, (f) => skirtBand(f, BRICK_SAND, 0.012)));
+  draw("euro", () => each(faces, (f) => skirtBand(f, BRICK_WRIGHT, FLUSH)));
+  draw("euro-sand", () => each(faces, (f) => skirtBand(f, BRICK_SAND, FLUSH)));
   // Прованс · камень: каменные углы/обводы + ставни (как на фото).
   draw("provence-stone", () => each(faces, (f) => {
     quoins(f, STONE, 0.36);
@@ -1013,7 +1027,7 @@ export function paintFacadeFaces(api, faces) {
     for (const op of f.openings) shutter(f, op, SHUTTER_P);
   }));
   draw("14", () => each(faces, (f) => {
-    timberPosts(f, BRICK, 0.04, f.eave, 0.22, true);
+    timberPosts(f, BRICK, PLINTH_Z, f.eave, 0.22, true);
   }));
   // Баварский: кирпичные обводы (трапеция второго света) + подоконник «на ребро».
   draw("15", () => each(faces, (f) => {
@@ -1130,7 +1144,7 @@ export function paintFacadeFaces(api, faces) {
     for (const pier of piers(f)) {
       if (pier.b - pier.a < 0.55) continue;
       for (let u = pier.a + 0.08; u < pier.b - 0.08; u += 0.15) {
-        f.place(u, u + 0.045, 0.4, f.eave, SLAT);
+        f.place(u, u + 0.045, PLINTH_Z, f.eave, SLAT, FLUSH);
       }
     }
     const g = f.gable;
@@ -1142,7 +1156,7 @@ export function paintFacadeFaces(api, faces) {
   }));
   // Рендер roof-d: тёмные секции у наружных проёмов (+10 см) до ската; внутренние — только вырез.
   draw("30", () => each(faces, (f) => {
-    const zBot = 0.06;
+    const zBot = PLINTH_Z;
     const PAD = 0.10;
     const ops = sorted(f).filter((op) => !op.inner);
     const darkBays = [];
@@ -1151,7 +1165,7 @@ export function paintFacadeFaces(api, faces) {
       const u1 = Math.min(f.span1, op.u1 + PAD);
       if (u1 - u0 < 0.12) continue;
       darkBays.push({ u0, u1, op });
-      cladToRoof(f, u0, u1, zBot, DARK_CLAD, 0.014);
+      cladToRoof(f, u0, u1, zBot, DARK_CLAD, FLUSH);
     }
     const solid = [];
     let cursor = f.span0;
@@ -1164,7 +1178,7 @@ export function paintFacadeFaces(api, faces) {
     let wood = false;
     for (const [a, b] of solid) {
       if (wood && b - a > 0.35) {
-        cladToRoof(f, a + 0.01, b - 0.01, zBot, WOOD_OAK, 0.012);
+        cladToRoof(f, a + 0.01, b - 0.01, zBot, WOOD_OAK, FLUSH);
       }
       wood = !wood;
     }
@@ -1175,7 +1189,7 @@ export function paintFacadeFaces(api, faces) {
       const left = door && wins.filter((w) => w.u1 <= door.u0 + 0.05).sort((a, b) => b.u1 - a.u1)[0];
       const right = door && wins.filter((w) => w.u0 >= door.u1 - 0.05).sort((a, b) => a.u0 - b.u0)[0];
       if (door && left && right && right.u0 - left.u1 > 0.4) {
-        cladToRoof(f, left.u1 + 0.02, right.u0 - 0.02, zBot, WOOD_OAK, 0.016);
+        cladToRoof(f, left.u1 + 0.02, right.u0 - 0.02, zBot, WOOD_OAK, FLUSH);
       }
     }
   }));

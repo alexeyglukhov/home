@@ -752,13 +752,14 @@ export function buildVariant31b(api) {
   });
   if (typeof api.mountOverlays === "function") {
     api.mountOverlays((overlayApi) => {
-      const face = (spec) => api.wallFace(overlayApi, spec);
+      // outer = наружная грань стены из WALLS; thick тонкий — обшивка без зазора.
+      const face = (spec) => api.wallFace(overlayApi, { thick: 0.012, ...spec });
       return [
-        face({ name: "v31bN", along: "x", outer: 18.26, sign: 1, span0: -5.36, span1: 14.80, eave: WALL_TOP, openings: fromPlan("x", 18.06, -5.36, 14.80) }),
-        face({ name: "v31bE", along: "y", outer: 14.80, sign: 1, span0: 0.84, span1: 18.26, eave: WALL_TOP, openings: fromPlan("y", 14.60, 0.84, 18.26) }),
-        face({ name: "v31bS", along: "x", outer: 7.32, sign: -1, span0: -5.36, span1: 3.16, eave: WALL_TOP, openings: fromPlan("x", 7.52, -5.36, 3.16) }),
-        face({ name: "v31bSE", along: "x", outer: 0.85, sign: -1, span0: 8.27, span1: 14.80, eave: WALL_TOP, openings: fromPlan("x", 1.05, 8.27, 14.80) }),
-        face({ name: "v31bW", along: "y", outer: -5.36, sign: -1, span0: 7.30, span1: 18.26, eave: WALL_TOP, openings: fromPlan("y", -5.13, 7.30, 18.26) }),
+        face({ name: "v31bN", along: "x", outer: 18.260, sign: 1, span0: -5.36, span1: 14.80, eave: WALL_TOP, openings: fromPlan("x", 18.06, -5.36, 14.80) }),
+        face({ name: "v31bE", along: "y", outer: 14.804, sign: 1, span0: 0.84, span1: 18.26, eave: WALL_TOP, openings: fromPlan("y", 14.60, 0.84, 18.26) }),
+        face({ name: "v31bS", along: "x", outer: 7.318, sign: -1, span0: -5.36, span1: 3.16, eave: WALL_TOP, openings: fromPlan("x", 7.52, -5.36, 3.16) }),
+        face({ name: "v31bSE", along: "x", outer: 0.846, sign: -1, span0: 8.27, span1: 14.80, eave: WALL_TOP, openings: fromPlan("x", 1.05, 8.27, 14.80) }),
+        face({ name: "v31bW", along: "y", outer: -5.359, sign: -1, span0: 7.30, span1: 18.26, eave: WALL_TOP, openings: fromPlan("y", -5.13, 7.30, 18.26) }),
       ];
     });
   }

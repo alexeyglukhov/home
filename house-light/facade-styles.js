@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { OVERLAY_FIELD, DARK_CLAD, WOOD_OAK } from "./facade-overlay.js?v=44";
+import { OVERLAY_FIELD, DARK_CLAD, WOOD_OAK } from "./facade-overlay.js?v=48";
 
 const cache = new Map();
 
@@ -249,10 +249,10 @@ const PATTERN = {
     ], 110);
   }),
   plasterWhite: () => canvas(128, 128, (g, w, h) => {
-    mottledFill(g, w, h, "#f5f3ee", [
-      "rgba(80,80,78,0.05)", "rgba(255,255,255,0.12)", "rgba(120,118,112,0.04)",
-      "rgba(60,60,58,0.035)", "rgba(230,228,222,0.08)",
-    ], 100);
+    mottledFill(g, w, h, "#fbfaf7", [
+      "rgba(255,255,255,0.22)", "rgba(240,238,232,0.06)", "rgba(255,255,255,0.14)",
+      "rgba(90,90,88,0.02)", "rgba(248,246,242,0.08)",
+    ], 90);
   }),
   plasterOchre: () => canvas(128, 128, (g, w, h) => {
     mottledFill(g, w, h, "#c4a878", [
@@ -872,25 +872,25 @@ const PATTERN = {
     g.fillStyle = "rgba(0,0,0,0.06)";
     g.fillRect(0, h * 0.55, w, h * 0.45);
   }),
-  // Сплошной щит из вертикальных досок (без щелей), тёплый дуб как на roof-d / сканди-вставках.
+  // Сплошной щит из вертикальных досок: сочный янтарный дуб (сканди / roof-d).
   woodBoards: () => canvas(160, 256, (g, w, h) => {
     const n = 5;
     const bw = w / n;
-    const tones = ["#c4a882", "#b89870", "#ae8e68", "#c8ac86", "#b4906c", "#d0b490"];
+    const tones = ["#e0b478", "#d4a060", "#ecc080", "#c89858", "#e8bc70", "#d8a868", "#f0c888"];
     for (let i = 0; i < n; i++) {
       g.fillStyle = tones[i % tones.length];
       g.fillRect(i * bw, 0, bw + 1, h);
       for (let k = 0; k < 28; k++) {
         const y = (k * 37 + i * 11) % h;
-        g.fillStyle = `rgba(55,38,22,${0.04 + (k % 4) * 0.015})`;
+        g.fillStyle = `rgba(90,50,18,${0.035 + (k % 4) * 0.012})`;
         g.fillRect(i * bw + 3 + (k % 3), y, bw - 8, 1.2);
-        g.fillStyle = `rgba(255,220,170,${0.03 + (k % 3) * 0.012})`;
+        g.fillStyle = `rgba(255,230,170,${0.06 + (k % 3) * 0.02})`;
         g.fillRect(i * bw + 5, (y + 9) % h, bw * 0.35, 1);
       }
       if (i > 0) {
-        g.fillStyle = "rgba(48,32,18,0.42)";
+        g.fillStyle = "rgba(70,40,14,0.38)";
         g.fillRect(i * bw - 1, 0, 2, h);
-        g.fillStyle = "rgba(255,230,190,0.10)";
+        g.fillStyle = "rgba(255,235,190,0.16)";
         g.fillRect(i * bw + 1, 0, 1.5, h);
       }
     }
@@ -1625,6 +1625,7 @@ const OVERLAY_TEX = new Map([
   [0x3a4146, "louvers"],
   [0x5c4a3a, "slats"],
   [WOOD_OAK, "woodBoards"],
+  [0x9a7850, "woodBoards"],
   [0x2a2e32, "darkPanel"],
   [DARK_CLAD, "darkClad"],
   [0x8c4e32, "corten"],
