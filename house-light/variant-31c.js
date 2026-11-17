@@ -123,7 +123,8 @@ const CARPORT_COLUMNS = [
 const TERRACE = [-5.35, 4.79, 8.26, 7.44];
 
 // Второй свет: ширина по внутренним граням гостиной; глубина — до изгиба зап. конька (yValW≈11,56).
-const LIV_VOID = { x0: -4.908, x1: 2.756, y0: 7.720, y1: 11.56 };
+// y0 = наружная грань южной стены (WALLS), не координаты 3.1d.
+const LIV_VOID = { x0: -4.908, x1: 2.756, y0: 7.381, y1: 11.56 };
 const LIV_SOUTH_Y = 7.52; // середина южной стены гостиной
 
 const PLINTH = 0.45;
@@ -137,9 +138,9 @@ const CEIL_BOT = FLOOR + ROOM_H;
 const CEIL_TOP = CEIL_BOT + SLAB;
 const WALL_TOP = CEIL_TOP;
 const HEAD = 2.45;
-// Обычные (не панорамные) окна: низ 0,80 м и верх 2,00 м от пола.
+// Обычные окна: низ 0,80 м от пола; верх = HEAD как у дверей (одна линия перемычек).
 const YELL_SILL = FLOOR + 0.80;
-const YELL_HEAD = FLOOR + 2.00;
+const YELL_HEAD = HEAD;
 const PAN_SILL = FLOOR + 0.01;
 const WALL_C = 0xd9d3c8;
 const FRAME_Y = 0xe0b83a;
@@ -394,7 +395,8 @@ export function buildVariant31c(api) {
     }
     return best > -Infinity ? best : null;
   };
-  const southGableBase = WALL_TOP;
+  // Нахлёст на стену — без волосяной щели на стыке wall/gable.
+  const southGableBase = WALL_TOP - 0.06;
 
   withFinish("wall", () => {
     for (const wall of WALLS) {
@@ -416,20 +418,28 @@ export function buildVariant31c(api) {
       };
       let cursor = vertical ? y0 : x0;
       const limit = vertical ? y1 : x1;
+      let prevLivPan = false;
       for (const h of holes) {
-        span(cursor, h.a, PLINTH, zTop);
-        span(h.a, h.b, PLINTH, h.z0);
         // Над панорамами гостиной — второй свет: полосу HEAD→WALL_TOP не зашиваем.
         const livPan = h.kind === "p" && !vertical
           && h.a >= LIV_VOID.x0 - 0.05 && h.b <= LIV_VOID.x1 + 0.05
           && Math.abs(((y0 + y1) / 2) - LIV_SOUTH_Y) < 0.4;
-        if (!livPan) span(h.a, h.b, h.z1, zTop);
         const color = h.kind === "p" ? FRAME_W : h.kind === "d" || h.kind === "i" ? 0x6b3e24 : FRAME_Y;
         const t = vertical ? (x0 + x1) / 2 : (y0 + y1) / 2;
         const half = 0.045;
         const fw = 0.06;
         const t0 = t - half;
         const t1 = t + half;
+        const gap = h.a - cursor;
+        // Узкий простенок между панорамами — импост с нахлёстом в проёмы (без щели).
+        if (prevLivPan && livPan && gap > 0.001 && gap < 0.14) {
+          const ov = 0.04;
+          frameBar(cursor - ov, t0, h.a + ov, t1, h.z0, h.z1, color);
+        } else {
+          span(cursor, h.a, PLINTH, zTop);
+        }
+        span(h.a, h.b, PLINTH, h.z0);
+        if (!livPan) span(h.a, h.b, h.z1, zTop);
         if (vertical) {
           frameBar(t0, h.a, t1, h.a + fw, h.z0, h.z1, color);
           frameBar(t0, h.b - fw, t1, h.b, h.z0, h.z1, color);
@@ -441,10 +451,11 @@ export function buildVariant31c(api) {
         } else {
           frameBar(h.a, t0, h.a + fw, t1, h.z0, h.z1, color);
           frameBar(h.b - fw, t0, h.b, t1, h.z0, h.z1, color);
-          frameBar(h.a, t0, h.b, t1, h.z1 - fw, h.z1, color);
+          // У livPan верхняя перемычка на HEAD не нужна — её даёт рама второго света.
+          if (!livPan) frameBar(h.a, t0, h.b, t1, h.z1 - fw, h.z1, color);
           if (h.kind !== "d" && h.kind !== "i") {
             frameBar(h.a, t0, h.b, t1, h.z0, h.z0 + fw, color);
-            glass(h.a + fw, t - 0.015, h.b - fw, t + 0.015, h.z0 + fw, h.z1 - fw);
+            glass(h.a + fw, t - 0.015, h.b - fw, t + 0.015, h.z0 + fw, h.z1 - (livPan ? 0 : fw));
           }
         }
         if (h.kind === "d") {
@@ -460,6 +471,7 @@ export function buildVariant31c(api) {
           leaf.userData.finish = "door";
         }
         cursor = Math.max(cursor, h.b);
+        prevLivPan = livPan;
       }
       span(cursor, limit, PLINTH, zTop);
     }
@@ -518,7 +530,7 @@ export function buildVariant31c(api) {
   // Над террасой между гостиной и коридором — до балки.
   const ceilTop = CEIL_TOP;
   const livVoid = { x0: LIV_VOID.x0, x1: LIV_VOID.x1, y0: LIV_VOID.y0, y1: yValW };
-  const yCeilBeam = (7.318 + 7.720) * 0.5;
+  const yCeilBeam = (7.381 + 7.78) * 0.5;
   {
     const ceilPoly = [
       [livVoid.x0, livVoid.y1],
@@ -560,64 +572,37 @@ export function buildVariant31c(api) {
     return [e, z, n];
   };
 
-  // Кровля ровными скатами (без сетки — край у фронтонов прямой).
+  // Кровля ровными скатами: все куски в 2 mesh (верх+торцы / софит) — без швов и «дыр» между оболочками.
   const pushW = (arr, a, b, c) => arr.push([world(...a), world(...b), world(...c)]);
   const quadW = (arr, a, b, c, d) => { pushW(arr, a, b, c); pushW(arr, a, c, d); };
+  const roofTops = [];
+  const roofSidesAll = [];
+  const soffitBots = [];
+  const soffitSidesAll = [];
   const emitShell = (topPolys, openEdges) => {
-    const tops = [];
-    const bottoms = [];
-    const roofSides = [];
-    const soffitSides = [];
     for (const poly of topPolys) {
-      for (let i = 1; i < poly.length - 1; i++) pushW(tops, poly[0], poly[i], poly[i + 1]);
+      for (let i = 1; i < poly.length - 1; i++) pushW(roofTops, poly[0], poly[i], poly[i + 1]);
       const bot = poly.map(([x, y, z]) => [x, y, z - ROOF_THICK]);
-      for (let i = 1; i < bot.length - 1; i++) pushW(bottoms, bot[0], bot[i + 1], bot[i]);
+      for (let i = 1; i < bot.length - 1; i++) pushW(soffitBots, bot[0], bot[i + 1], bot[i]);
     }
     for (const [a, b] of openEdges) {
       const [x0, y0, z0] = a;
       const [x1, y1, z1] = b;
-      // Тонкий верхний торец — цвет кровли.
-      quadW(roofSides,
+      quadW(roofSidesAll,
         [x0, y0, z0], [x1, y1, z1],
         [x1, y1, z1 - ROOF_SKIN], [x0, y0, z0 - ROOF_SKIN]
       );
-      // Толстая подбивка на торце свеса (толще «черепицы»).
-      quadW(soffitSides,
+      quadW(soffitSidesAll,
         [x0, y0, z0 - ROOF_SKIN], [x1, y1, z1 - ROOF_SKIN],
         [x1, y1, z1 - ROOF_THICK], [x0, y0, z0 - ROOF_THICK]
       );
     }
-    withFinish("roof", () => {
-      const mesh = asRoof(addMesh(geometryFromTriangles(tops.concat(roofSides)), ROOF_C));
-      mesh.material.flatShading = true;
-      mesh.material.emissive?.setHex(0x151210);
-      mesh.material.polygonOffset = true;
-      mesh.material.polygonOffsetFactor = -2;
-      mesh.material.polygonOffsetUnits = -2;
-      mesh.material.depthWrite = true;
-      mesh.renderOrder = 1;
-      mesh.material.needsUpdate = true;
-      return mesh;
-    });
-    // Роль soffit: у Райта — светлая подбивка; у остальных applyFacadeStyle красит как roof.
-    const paintSoffit = (tris, frontOnly) => {
-      if (!tris.length) return null;
-      const soft = asRoof(addMesh(geometryFromTriangles(tris), ROOF_C, false));
-      // Низ — FrontSide: светлая подбивка Райта не просвечивает сквозь скат сверху.
-      soft.material.side = frontOnly ? THREE.FrontSide : THREE.DoubleSide;
-      soft.material.polygonOffset = true;
-      soft.material.polygonOffsetFactor = 4;
-      soft.material.polygonOffsetUnits = 4;
-      soft.material.depthWrite = true;
-      soft.material.emissive?.setHex(0x000000);
-      soft.material.needsUpdate = true;
-      return soft;
-    };
-    if (bottoms.length || soffitSides.length) {
-      withFinish("soffit", () => {
-        paintSoffit(bottoms, true);
-        paintSoffit(soffitSides, false);
-      });
+  };
+  const flushRoofShells = () => {
+    // Один сварной mesh: верх + торцы + софит — без швов и z-fight между оболочками.
+    const all = roofTops.concat(roofSidesAll, soffitBots, soffitSidesAll);
+    if (all.length) {
+      withFinish("roof", () => asRoof(addMesh(geometryFromTriangles(all, true), ROOF_C)));
     }
   };
   const P = (x, y, z) => [x, y, z];
@@ -722,15 +707,18 @@ export function buildVariant31c(api) {
       [pSE, pTip], [pRidgeN, pNE], [pNE, pSE],
     ]
   );
+  flushRoofShells();
 
   // Южные фронтоны — объём с толщиной стены, на которой стоят.
   const gableTris = [];
   const gpush = (a, b, c) => gableTris.push([world(...a), world(...b), world(...c)]);
   // yOut < yIn для стены С–Ю (наружная грань южнее). outFace: +1 наружная грань на yOut.
+  // Почти вплотную к софиту; 2 см — анти z-fight с низом кровли (не видимая щель).
+  const GABLE_BELOW = 0.02;
   const gableFillEW = (yOut, yIn, x0, x1, xR, zPeak, zEdge, zBase, outFace) => {
-    const zL = zEdge(x0) - ROOF_THICK;
-    const zR = zEdge(x1) - ROOF_THICK;
-    const zP = zPeak - ROOF_THICK;
+    const zL = zEdge(x0) - ROOF_THICK - GABLE_BELOW;
+    const zR = zEdge(x1) - ROOF_THICK - GABLE_BELOW;
+    const zP = zPeak - ROOF_THICK - GABLE_BELOW;
     const bL = Math.min(zBase, zL);
     const bR = Math.min(zBase, zR);
     const face = (y, out) => {
@@ -752,9 +740,14 @@ export function buildVariant31c(api) {
       q([x1, yOut, bR], [x1, yIn, bR], [x1, yIn, zR], [x1, yOut, zR]);
     }
   };
-  // Кабинет: стена [8.277, 0.846]–[14.787, 1.248].
-  gableFillEW(0.846, 1.248, xOffW, xOffE, xRE, ZrE, (x) => zEast(x), southGableBase, 1);
-  // Гостиная: фронтон толщиной южной стены [7.318…7.720]; проёмы под второй свет.
+  // Наружная грань фронтона = наружная грань стены (одна плоскость облицовки).
+  // Наружные грани = WALLS 3.1c (не копировать 3.1d — иначе фронтон выпирает).
+  const yWallSLivOut = 7.381;
+  const yWallSLivIn = 7.78;
+  const yWallSOffOut = 0.945;
+  const yWallSOffIn = 1.344;
+  gableFillEW(yWallSOffOut, yWallSOffIn, xOffW, xOffE, xRE, ZrE, (x) => zEast(x), southGableBase, 1);
+  // Гостиная: фронтон толщиной южной стены; проёмы под второй свет.
   const livUpperWins = OPENINGS
     .filter((op) => op[4] === "p" && op[1] < 8)
     .map((op) => {
@@ -764,62 +757,75 @@ export function buildVariant31c(api) {
     })
     .filter((w) => Math.min(w.zt0, w.zt1) > HEAD + 0.2)
     .sort((a, b) => a.x0 - b.x0);
+  // Узкие щели между соседними панорамами — один вырез (без полоски стены).
+  const gableWinSpans = [];
+  for (const w of livUpperWins) {
+    const last = gableWinSpans[gableWinSpans.length - 1];
+    if (last && w.x0 <= last.x1 + 0.14) {
+      last.x1 = w.x1;
+      last.zt1 = w.zt1;
+    } else gableWinSpans.push({ x0: w.x0, x1: w.x1, zt0: w.zt0, zt1: w.zt1 });
+  }
   {
-    const yOut = 7.318;
-    const yIn = 7.720;
+    const yOut = yWallSLivOut;
+    const yIn = yWallSLivIn;
     const zBase = southGableBase;
-    const zRoof = (x) => zWest(x) - ROOF_THICK;
+    const zRoof = (x) => zWest(x) - ROOF_THICK - GABLE_BELOW;
     const winTopAt = (x) => {
-      for (const w of livUpperWins) {
+      for (const w of gableWinSpans) {
         if (x < w.x0 - 1e-6 || x > w.x1 + 1e-6) continue;
         const t = (x - w.x0) / Math.max(1e-6, w.x1 - w.x0);
         return w.zt0 + (w.zt1 - w.zt0) * t;
       }
       return null;
     };
-    const step = 0.05;
-    const xs = [];
-    for (let x = xLivW; x < xLivE - 1e-9; x += step) xs.push(x);
-    xs.push(xLivE, xRW);
-    for (const w of livUpperWins) xs.push(w.x0, w.x1);
+    // Торцы фронтона = наружные грани WALLS (запад / livE), не свес кровли 3.16.
+    const xGableE = 3.103;
+    const xGableW = -5.366;
+    const xs = [xGableW, xGableE, xRW];
+    for (const w of gableWinSpans) xs.push(w.x0, w.x1);
     xs.sort((a, b) => a - b);
     const uniq = [];
     for (const x of xs) {
+      if (x < xGableW - 1e-4 || x > xGableE + 1e-4) continue;
       if (!uniq.length || x > uniq[uniq.length - 1] + 1e-4) uniq.push(x);
     }
+    if (uniq[0] > xGableW + 1e-4) uniq.unshift(xGableW);
+    if (uniq[uniq.length - 1] < xGableE - 1e-4) uniq.push(xGableE);
     const q = (a, b, c, d) => { gpush(a, b, c); gpush(a, c, d); };
     const faceOut = (a, b, c) => gpush(a, c, b);
     const faceIn = (a, b, c) => gpush(a, b, c);
-    for (let i = 0; i < uniq.length - 1; i++) {
-      const xa = uniq[i];
-      const xb = uniq[i + 1];
-      if (xb - xa < 1e-4) continue;
+    const strip = (xa, xb) => {
+      if (xb - xa < 1e-4) return;
       const za = zRoof(xa);
       const zb = zRoof(xb);
+      const mid = (xa + xb) * 0.5;
       const wtA = winTopAt(xa + 1e-4);
       const wtB = winTopAt(xb - 1e-4);
-      const botA = wtA != null ? wtA : zBase;
-      const botB = wtB != null ? wtB : zBase;
-      const bA = Math.min(botA, za - 0.005);
-      const bB = Math.min(botB, zb - 0.005);
-      if (za <= bA + 0.008 && zb <= bB + 0.008) continue;
-      // Наружная и внутренняя грани.
+      const wtM = winTopAt(mid);
+      const overWin = wtM != null || (wtA != null && wtB != null);
+      const botA = overWin && wtA != null ? wtA : (overWin && wtB != null ? wtB : zBase);
+      const botB = overWin && wtB != null ? wtB : (overWin && wtA != null ? wtA : zBase);
+      const bA = Math.min(overWin ? botA : zBase, za - 0.005);
+      const bB = Math.min(overWin ? botB : zBase, zb - 0.005);
+      if (za <= bA + 0.008 && zb <= bB + 0.008) return;
+      // Над проёмом только наружная грань — без полки толщины стены в остеклении.
       faceOut([xa, yOut, bA], [xa, yOut, za], [xb, yOut, zb]);
       faceOut([xa, yOut, bA], [xb, yOut, zb], [xb, yOut, bB]);
+      if (overWin) return;
       faceIn([xa, yIn, bA], [xa, yIn, za], [xb, yIn, zb]);
       faceIn([xa, yIn, bA], [xb, yIn, zb], [xb, yIn, bB]);
-      // Верх по софиту и низ между гранями.
       q([xa, yOut, za], [xb, yOut, zb], [xb, yIn, zb], [xa, yIn, za]);
       q([xa, yOut, bA], [xa, yIn, bA], [xb, yIn, bB], [xb, yOut, bB]);
-    }
-    // Торцы фронтона на xLivW / xLivE.
+    };
+    for (let i = 0; i < uniq.length - 1; i++) strip(uniq[i], uniq[i + 1]);
     {
-      const zW = zRoof(xLivW);
-      const zE = zRoof(xLivE);
+      const zW = zRoof(xGableW);
+      const zE = zRoof(xGableE);
       const bW = Math.min(zBase, zW);
       const bE = Math.min(zBase, zE);
-      q([xLivW, yOut, bW], [xLivW, yOut, zW], [xLivW, yIn, zW], [xLivW, yIn, bW]);
-      q([xLivE, yOut, bE], [xLivE, yIn, bE], [xLivE, yIn, zE], [xLivE, yOut, zE]);
+      q([xGableW, yOut, bW], [xGableW, yOut, zW], [xGableW, yIn, zW], [xGableW, yIn, bW]);
+      q([xGableE, yOut, bE], [xGableE, yIn, bE], [xGableE, yIn, zE], [xGableE, yOut, zE]);
     }
   }
   // Северный фронтон козырька — тонкая пластина на грани врезки (не стена дома).
@@ -832,14 +838,16 @@ export function buildVariant31c(api) {
   if (gableTris.length) {
     withFinish("wall", () => {
       const mesh = addMesh(geometryFromTriangles(gableTris), WALL_C);
+      mesh.material.polygonOffsetFactor = 2;
+      mesh.material.polygonOffsetUnits = 2;
       return mesh;
     });
   }
 
   // Второй свет: стены по периметру выреза от плиты до софита (верх по скату/коньку).
   {
-    // Панели заметно ниже низа кровли — иначе белое просвечивает сквозь скат снаружи.
-    const SOF_DROP = 0.09;
+    // Почти вплотную к софиту; 2 см — анти z-fight, без видимой щели.
+    const SOF_DROP = 0.02;
     const INSET = 0.02; // стенки внутрь выреза — не совпадают с вертикальным ребром плиты
     const zSof = (x) => (x <= xRW ? zWO(x) : zWI(x)) - ROOF_THICK - SOF_DROP;
     // Ребро a→b: много сегментов, чтобы верх шёл по коньку, а не хордой по углам.
@@ -870,9 +878,9 @@ export function buildVariant31c(api) {
         const mesh = addMesh(geometryFromTriangles(tris), WALL_C);
         delete mesh.userData.section;
         mesh.userData.roof = true;
-        mesh.material.polygonOffset = true;
-        mesh.material.polygonOffsetFactor = -1;
-        mesh.material.polygonOffsetUnits = -1;
+        // Дальше кровли по depth — не пробивают скат снаружи.
+        mesh.material.polygonOffsetFactor = 2;
+        mesh.material.polygonOffsetUnits = 2;
         return mesh;
       });
       api.sectionHeight(prev);
@@ -916,65 +924,125 @@ export function buildVariant31c(api) {
       api.sectionHeight(prev);
     }
 
-    // Рамы как у нижнего ряда: 9 см по центру стены (не на всю толщину — без дрожания с фронтоном).
-    const fw = 0.06;
-    const half = 0.045;
-    const t = (7.318 + 7.720) * 0.5;
+    // Рамы второго света: группы соседних окон — одна цельная обвязка + импосты с нахлёстом.
+    const fw = 0.10;
+    const half = 0.055;
+    const t = (yWallSLivOut + yWallSLivIn) * 0.5;
     const t0 = t - half;
     const t1 = t + half;
     const zBot = HEAD;
+    const frameTris = [];
+    const glassTrisAll = [];
+    const qTri = (bag, a, b, c, d) => { bag.push([a, b, c], [a, c, d]); };
+    // caps: торцы только на внешних концах — стыки стоек/ригеля без «палок».
+    const pushTrap = (xa, xb, ya, yb, zBotA, zBotB, zTopA, zTopB, caps = false) => {
+      const pts = [
+        [xa, ya, zBotA], [xb, ya, zBotB], [xb, ya, zTopB], [xa, ya, zTopA],
+        [xa, yb, zBotA], [xb, yb, zBotB], [xb, yb, zTopB], [xa, yb, zTopA],
+      ].map((p) => world(...p));
+      qTri(frameTris, pts[0], pts[1], pts[2], pts[3]);
+      qTri(frameTris, pts[4], pts[7], pts[6], pts[5]);
+      qTri(frameTris, pts[3], pts[2], pts[6], pts[7]);
+      qTri(frameTris, pts[0], pts[4], pts[5], pts[1]);
+      if (caps === true || caps === "L") qTri(frameTris, pts[0], pts[3], pts[7], pts[4]);
+      if (caps === true || caps === "R") qTri(frameTris, pts[1], pts[5], pts[6], pts[2]);
+    };
+    const groups = [];
     for (const w of livUpperWins) {
-      const { x0, x1, zt0, zt1 } = w;
-      frameBar(x0, t0, x0 + fw, t1, zBot, zt0, FRAME_W);
-      frameBar(x1 - fw, t0, x1, t1, zBot, zt1, FRAME_W);
-      frameBar(x0, t0, x1, t1, zBot, zBot + fw, FRAME_W);
-      // Косая верхняя планка той же глубины, что горизонтальная у нижнего ряда.
-      withFinish("frame", () => {
-        const top = [
-          [x0, t0, zt0 - fw], [x1, t0, zt1 - fw], [x1, t0, zt1], [x0, t0, zt0],
-          [x0, t1, zt0 - fw], [x1, t1, zt1 - fw], [x1, t1, zt1], [x0, t1, zt0],
-        ];
-        const tris = [];
-        const q = (a, b, c, d) => { tris.push([a, b, c], [a, c, d]); };
-        q(world(...top[0]), world(...top[1]), world(...top[2]), world(...top[3]));
-        q(world(...top[4]), world(...top[7]), world(...top[6]), world(...top[5]));
-        q(world(...top[0]), world(...top[3]), world(...top[7]), world(...top[4]));
-        q(world(...top[1]), world(...top[5]), world(...top[6]), world(...top[2]));
-        q(world(...top[3]), world(...top[2]), world(...top[6]), world(...top[7]));
-        q(world(...top[0]), world(...top[4]), world(...top[5]), world(...top[1]));
-        return addMesh(geometryFromTriangles(tris), FRAME_W, false);
-      });
-      // Стекло: та же глубина ±1,5 см, верх по скату рамы.
+      const last = groups[groups.length - 1];
+      if (last && w.x0 <= last.x1 + 0.14) {
+        last.x1 = w.x1;
+        last.zt1 = w.zt1;
+        last.wins.push(w);
+      } else groups.push({ x0: w.x0, x1: w.x1, zt0: w.zt0, zt1: w.zt1, wins: [w] });
+    }
+    for (const g of groups) {
+      const zAtG = (x) => g.zt0 + (g.zt1 - g.zt0) * ((x - g.x0) / Math.max(1e-6, g.x1 - g.x0));
+      frameBar(g.x0, t0, g.x1, t1, zBot, zBot + fw, FRAME_W);
+      const zL = zAtG(g.x0 + fw);
+      const zR = zAtG(g.x1 - fw);
+      // Краевые стойки до низа ригеля; наружный торец только снаружи группы.
+      pushTrap(g.x0, g.x0 + fw, t0, t1, zBot, zBot, zL, zL, "L");
+      pushTrap(g.x1 - fw, g.x1, t0, t1, zBot, zBot, zR, zR, "R");
+      // Косой ригель сплошняком по всей группе.
       {
-        const gy0 = t - 0.015;
-        const gy1 = t + 0.015;
-        const g = [
-          [x0 + fw, gy0, zBot + fw], [x1 - fw, gy0, zBot + fw],
-          [x1 - fw, gy0, zt1 - fw], [x0 + fw, gy0, zt0 - fw],
-          [x0 + fw, gy1, zBot + fw], [x1 - fw, gy1, zBot + fw],
-          [x1 - fw, gy1, zt1 - fw], [x0 + fw, gy1, zt0 - fw],
-        ];
-        const glassTris = [];
-        const q = (a, b, c, d) => { glassTris.push([a, b, c], [a, c, d]); };
-        q(world(...g[0]), world(...g[1]), world(...g[2]), world(...g[3]));
-        q(world(...g[4]), world(...g[7]), world(...g[6]), world(...g[5]));
-        q(world(...g[0]), world(...g[3]), world(...g[7]), world(...g[4]));
-        q(world(...g[1]), world(...g[5]), world(...g[6]), world(...g[2]));
-        const glassMesh = addMesh(geometryFromTriangles(glassTris), GLASS, false);
-        delete glassMesh.userData.finish;
-        glassMesh.material.transparent = true;
-        glassMesh.material.opacity = 0.16;
-        glassMesh.material.depthWrite = false;
-        glassMesh.castShadow = false;
-        glassMesh.userData.roof = true;
+        const spanTop = Math.max(1e-6, g.x1 - g.x0);
+        const n = Math.max(8, Math.ceil(spanTop / 0.12));
+        for (let i = 0; i < n; i++) {
+          const xa = g.x0 + (spanTop * i) / n;
+          const xb = g.x0 + (spanTop * (i + 1)) / n;
+          const za = zAtG(xa);
+          const zb = zAtG(xb);
+          const caps = i === 0 ? "L" : i === n - 1 ? "R" : false;
+          pushTrap(xa, xb, t0, t1, za - fw, zb - fw, za, zb, caps);
+        }
       }
+      // Импосты: вся щель + нахлёст в стекло; без торцов — упираются в ригель/порог.
+      for (let i = 0; i < g.wins.length - 1; i++) {
+        const a = g.wins[i];
+        const b = g.wins[i + 1];
+        const mid = (a.x1 + b.x0) * 0.5;
+        const halfM = Math.max(fw * 0.55, (b.x0 - a.x1) * 0.5 + fw * 0.35);
+        const m0 = mid - halfM;
+        const m1 = mid + halfM;
+        const zTop = zAtG((m0 + m1) * 0.5);
+        pushTrap(m0, m1, t0, t1, zBot + fw * 0.45, zBot + fw * 0.45, zTop - fw * 0.45, zTop - fw * 0.45, false);
+      }
+      const gy0 = t - 0.018;
+      const gy1 = t + 0.018;
+      for (let wi = 0; wi < g.wins.length; wi++) {
+        const w = g.wins[wi];
+        let gx0 = w.x0 + fw;
+        let gx1 = w.x1 - fw;
+        if (wi > 0) {
+          const prev = g.wins[wi - 1];
+          const mid = (prev.x1 + w.x0) * 0.5;
+          const halfM = Math.max(fw * 0.55, (w.x0 - prev.x1) * 0.5 + fw * 0.35);
+          gx0 = Math.max(gx0, mid + halfM);
+        }
+        if (wi < g.wins.length - 1) {
+          const next = g.wins[wi + 1];
+          const mid = (w.x1 + next.x0) * 0.5;
+          const halfM = Math.max(fw * 0.55, (next.x0 - w.x1) * 0.5 + fw * 0.35);
+          gx1 = Math.min(gx1, mid - halfM);
+        }
+        if (gx1 <= gx0 + 0.04) continue;
+        const spanG = gx1 - gx0;
+        const n = Math.max(6, Math.ceil(spanG / 0.12));
+        for (let i = 0; i < n; i++) {
+          const xa = gx0 + (spanG * i) / n;
+          const xb = gx0 + (spanG * (i + 1)) / n;
+          const za = zAtG(xa) - fw;
+          const zb = zAtG(xb) - fw;
+          const gl = [
+            [xa, gy0, zBot + fw], [xb, gy0, zBot + fw], [xb, gy0, zb], [xa, gy0, za],
+            [xa, gy1, zBot + fw], [xb, gy1, zBot + fw], [xb, gy1, zb], [xa, gy1, za],
+          ].map((p) => world(...p));
+          qTri(glassTrisAll, gl[0], gl[1], gl[2], gl[3]);
+          qTri(glassTrisAll, gl[4], gl[7], gl[6], gl[5]);
+          if (i === 0) qTri(glassTrisAll, gl[0], gl[3], gl[7], gl[4]);
+          if (i === n - 1) qTri(glassTrisAll, gl[1], gl[5], gl[6], gl[2]);
+        }
+      }
+    }
+    if (frameTris.length) {
+      withFinish("frame", () => addMesh(geometryFromTriangles(frameTris), FRAME_W, false));
+    }
+    if (glassTrisAll.length) {
+      const glassMesh = addMesh(geometryFromTriangles(glassTrisAll), GLASS, false);
+      delete glassMesh.userData.finish;
+      glassMesh.material.transparent = true;
+      glassMesh.material.opacity = 0.16;
+      glassMesh.material.depthWrite = false;
+      glassMesh.castShadow = false;
+      glassMesh.userData.roof = true;
     }
   }
 
   // Балка в продолжение южной стены гостиной к коридору — опора стропил над террасой.
   {
     const xCorr = 8.265;
-    const yBeam = (7.318 + 7.720) * 0.5;
+    const yBeam = (7.381 + 7.78) * 0.5;
     const zBeam = WALL_TOP - (ROOF_THICK - ROOF_OVER_WALL) * 0.5;
     const [e0, n0] = planToWorld(xLivE, yBeam);
     const [e1, n1] = planToWorld(xCorr, yBeam);
@@ -1154,7 +1222,7 @@ export function buildVariant31c(api) {
     return [opening(u0, u1, faceKind, z0, k === "i")];
   });
   // Юг гостиной: проём на высоту второго света; z1L/z1R — косой верх для surround.
-  const southLivOpenings = fromPlan("x", 7.52, -5.36, 3.16).map((op) => {
+  const southLivOpenings = fromPlan("x", 7.52, -5.366, 3.103).map((op) => {
     if (op.kind !== "pan") return op;
     const z1L = zWest(op.u0) - ROOF_THICK - 0.50;
     const z1R = zWest(op.u1) - ROOF_THICK - 0.50;
@@ -1167,9 +1235,17 @@ export function buildVariant31c(api) {
   });
   if (typeof api.mountOverlays === "function") {
     api.mountOverlays((overlayApi) => {
-      // outer = наружная грань стены из WALLS; thick тонкий — обшивка без зазора.
+      // outer/span = наружные грани WALLS; смежные грани стыкуются в один угол без щели и без вылета.
       const face = (spec) => api.wallFace(overlayApi, { thick: 0.012, ...spec });
-      // Фронтон козырька на севере — иначе секции останавливаются на WALL_TOP.
+      const ySLiv = 7.381;
+      const yN = 18.262;
+      const xW = -5.366;
+      const xLivE = 3.103;
+      const xE = 14.685;
+      const ySOff = 0.945;
+      const xOffW = 8.194;
+      const yCourtN = 9.356;
+      const xCourtW = 8.182;
       const porchGable = {
         u0: xGableL,
         u1: xGableR,
@@ -1182,44 +1258,45 @@ export function buildVariant31c(api) {
       };
       return [
         face({
-          name: "v31cN", along: "x", outer: 18.262, sign: 1, span0: -5.36, span1: 14.80, eave: WALL_TOP,
+          name: "v31cN", along: "x", outer: yN, sign: 1, span0: xW, span1: xE, eave: WALL_TOP,
           gable: porchGable,
-          openings: fromPlan("x", 18.06, -5.36, 14.80),
+          openings: fromPlan("x", 18.06, xW, xE),
         }),
-        face({ name: "v31cE", along: "y", outer: 14.685, sign: 1, span0: 0.84, span1: 18.26, eave: WALL_TOP, openings: fromPlan("y", 14.60, 0.84, 18.26) }),
         face({
-          name: "v31cS", along: "x", outer: 7.381, sign: -1, span0: -5.36, span1: 3.16, eave: WALL_TOP,
+          name: "v31cE", along: "y", outer: xE, sign: 1, span0: ySOff, span1: yN, eave: WALL_TOP,
+          openings: fromPlan("y", 14.60, ySOff, yN),
+        }),
+        face({
+          name: "v31cS", along: "x", outer: ySLiv, sign: -1, span0: xW, span1: xLivE, eave: WALL_TOP,
           gable: {
-            u0: xLivW, u1: xLivE, peakU: xRW, peakZ: ZrW - ROOF_THICK, eave: WALL_TOP, over: 0, drop: 0,
+            u0: xW, u1: xLivE, peakU: xRW, peakZ: ZrW - ROOF_THICK, eave: WALL_TOP, over: 0, drop: 0,
             soffit: (u) => zWest(u) - ROOF_THICK,
           },
           openings: southLivOpenings,
         }),
         face({
-          name: "v31cSE", along: "x", outer: 0.945, sign: -1, span0: 8.27, span1: 14.80, eave: WALL_TOP,
+          name: "v31cSE", along: "x", outer: ySOff, sign: -1, span0: xOffW, span1: xE, eave: WALL_TOP,
           gable: {
-            u0: xOffW, u1: xOffE, peakU: xRE, peakZ: ZrE - ROOF_THICK, eave: WALL_TOP, over: 0, drop: 0,
+            u0: xOffW, u1: xE, peakU: xRE, peakZ: ZrE - ROOF_THICK, eave: WALL_TOP, over: 0, drop: 0,
             soffit: (u) => zEast(u) - ROOF_THICK,
           },
-          openings: fromPlan("x", 1.05, 8.27, 14.80),
+          openings: fromPlan("x", 1.05, xOffW, xE),
         }),
         face({
-          name: "v31cW", along: "y", outer: -5.366, sign: -1, span0: 7.30, span1: 18.26, eave: WALL_TOP,
-          openings: fromPlan("y", -5.13, 7.30, 18.26, true),
-        }),
-        // Двор только по наружному контуру (не заходить на внутренние коридоры/проходы).
-        face({
-          name: "v31cLivE", along: "y", outer: 3.103, sign: 1, span0: 7.30, span1: 9.70, eave: WALL_TOP,
-          openings: fromPlan("y", 2.96, 7.30, 9.70, true),
+          name: "v31cW", along: "y", outer: xW, sign: -1, span0: ySLiv, span1: yN, eave: WALL_TOP,
+          openings: fromPlan("y", -5.13, ySLiv, yN, true),
         }),
         face({
-          name: "v31cCourtW", along: "y", outer: 8.182, sign: -1, span0: 0.84, span1: 9.70, eave: WALL_TOP,
-          openings: fromPlan("y", 8.46, 0.84, 9.70, true),
+          name: "v31cLivE", along: "y", outer: xLivE, sign: 1, span0: ySLiv, span1: yCourtN, eave: WALL_TOP,
+          openings: fromPlan("y", 2.96, ySLiv, yCourtN, true),
         }),
-        // Южная грань северной стены двора/террасы (дверь и окно смотрят во двор).
         face({
-          name: "v31cCourtN", along: "x", outer: 9.356, sign: -1, span0: 2.74, span1: 8.68, eave: WALL_TOP,
-          openings: fromPlan("x", 9.50, 2.74, 8.68, true),
+          name: "v31cCourtW", along: "y", outer: xCourtW, sign: -1, span0: ySOff, span1: yCourtN, eave: WALL_TOP,
+          openings: fromPlan("y", 8.46, ySOff, yCourtN, true),
+        }),
+        face({
+          name: "v31cCourtN", along: "x", outer: yCourtN, sign: -1, span0: xLivE, span1: xCourtW, eave: WALL_TOP,
+          openings: fromPlan("x", 9.50, xLivE, xCourtW, true),
         }),
       ];
     });

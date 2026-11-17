@@ -5,17 +5,17 @@ import geo from "./geometry.js?v=21";
 import { FURNITURE_LINES } from "./furniture-sketch.js?v=4";
 import { FURNITURE_D } from "./furniture-d.js?v=6";
 import { WALL_LINES } from "./wall-sketch.js?v=2";
-import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=48";
-import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=46";
-import { buildVariantD2, d2WalkBoxes, d2FenceSegments } from "./variant-d2.js?v=89";
-import { buildVariantD3, d3WalkBoxes, d3FenceSegments } from "./variant-d3.js?v=11";
-import { buildVariantD4, d4WalkBoxes, d4FenceSegments, D4_WINDOWS, D4_BASE } from "./variant-d4.js?v=25";
-import { buildVariantD4 as buildVariantD6, d4WalkBoxes as d6WalkBoxes, d4FenceSegments as d6FenceSegments, D4_WINDOWS as D6_WINDOWS, D4_BASE as D6_BASE } from "./variant-d6.js?v=35";
-import { buildVariant31, v31WalkBoxes, v31FenceSegments, V31_WINDOWS, V31_BASE } from "./variant-31.js?v=46";
-import { buildVariant31a, v31aWalkBoxes, v31aFenceSegments, V31A_WINDOWS, V31A_BASE } from "./variant-31a.js?v=18";
-import { buildVariant31b, v31bWalkBoxes, v31bFenceSegments, V31B_WINDOWS, V31B_BASE } from "./variant-31b.js?v=33";
-import { buildVariant31d, v31dWalkBoxes, v31dFenceSegments, V31D_WINDOWS, V31D_BASE } from "./variant-31d.js?v=80";
-import { buildVariant31c, v31cWalkBoxes, v31cFenceSegments, V31C_WINDOWS, V31C_BASE } from "./variant-31c.js?v=14";
+import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=93";
+import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=77";
+import { buildVariantD2, d2WalkBoxes, d2FenceSegments } from "./variant-d2.js?v=92";
+import { buildVariantD3, d3WalkBoxes, d3FenceSegments } from "./variant-d3.js?v=14";
+import { buildVariantD4, d4WalkBoxes, d4FenceSegments, D4_WINDOWS, D4_BASE } from "./variant-d4.js?v=28";
+import { buildVariantD4 as buildVariantD6, d4WalkBoxes as d6WalkBoxes, d4FenceSegments as d6FenceSegments, D4_WINDOWS as D6_WINDOWS, D4_BASE as D6_BASE } from "./variant-d6.js?v=38";
+import { buildVariant31, v31WalkBoxes, v31FenceSegments, V31_WINDOWS, V31_BASE } from "./variant-31.js?v=48";
+import { buildVariant31a, v31aWalkBoxes, v31aFenceSegments, V31A_WINDOWS, V31A_BASE } from "./variant-31a.js?v=20";
+import { buildVariant31b, v31bWalkBoxes, v31bFenceSegments, V31B_WINDOWS, V31B_BASE } from "./variant-31b.js?v=35";
+import { buildVariant31d, v31dWalkBoxes, v31dFenceSegments, V31D_WINDOWS, V31D_BASE } from "./variant-31d.js?v=104";
+import { buildVariant31c, v31cWalkBoxes, v31cFenceSegments, V31C_WINDOWS, V31C_BASE } from "./variant-31c.js?v=39";
 import { createD2Tour, createTourDaylight, D3_WINDOWS } from "./tour-d2.js?v=23";
 import { syncPrintSheets } from "./print-sheets.js?v=48";
 import { mountFurnitureCatalog } from "./furniture-catalog.js?v=8";
@@ -34,12 +34,20 @@ const canopyToggle = document.getElementById("canopy");
 const GL_RETRY_KEY = "house-gl-retry";
 function createRenderer() {
   try {
-    const created = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
-    sessionStorage.removeItem(GL_RETRY_KEY);
+    // Тени выкл., DPR=1, ленивые варианты — MSAA снова можно (иначе зубчатый край кровли).
+    const created = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: false,
+      depth: true,
+      stencil: false,
+      preserveDrawingBuffer: false,
+      powerPreference: "default",
+      failIfMajorPerformanceCaveat: false,
+    });
     return created;
   } catch (error) {
     const n = Number(sessionStorage.getItem(GL_RETRY_KEY) || 0);
-    if (n < 2) {
+    if (n < 1) {
       sessionStorage.setItem(GL_RETRY_KEY, String(n + 1));
       location.reload();
     }
@@ -47,7 +55,8 @@ function createRenderer() {
   }
 }
 const renderer = createRenderer();
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+// Мягкие тени + умеренный DPR; краш гасим ленивой сборкой вариантов, не «пиксельной» картинкой.
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.localClippingEnabled = true;
 renderer.shadowMap.enabled = true;
@@ -55,8 +64,7 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.setClearColor(0xd5e2ef);
 document.body.appendChild(renderer.domElement);
 let frameHandle = 0;
-// Стили открываются в другой вкладке — WebGL здесь не выгружаем.
-// bfcache: только обычный reload, без _gate/пауз.
+let glAlive = true;
 window.addEventListener("pagehide", () => {
   cancelAnimationFrame(frameHandle);
   frameHandle = 0;
@@ -66,14 +74,21 @@ window.addEventListener("pageshow", (event) => {
 });
 renderer.domElement.addEventListener("webglcontextlost", (event) => {
   event.preventDefault();
+  glAlive = false;
+  cancelAnimationFrame(frameHandle);
+  frameHandle = 0;
   const n = Number(sessionStorage.getItem(GL_RETRY_KEY) || 0);
-  if (n >= 2) return;
+  if (n >= 1) return;
   sessionStorage.setItem(GL_RETRY_KEY, String(n + 1));
-  location.reload();
+  setTimeout(() => location.reload(), 250);
+});
+renderer.domElement.addEventListener("webglcontextrestored", () => {
+  glAlive = true;
+  sessionStorage.removeItem(GL_RETRY_KEY);
 });
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 400);
+const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.35, 400);
 camera.position.set(24, 36, -52);
 
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -92,11 +107,13 @@ sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
 sun.shadow.bias = -0.00025;
 sun.shadow.normalBias = 0.04;
-const shadow = sun.shadow.camera;
-shadow.left = shadow.bottom = -55;
-shadow.right = shadow.top = 55;
-shadow.near = 1;
-shadow.far = 180;
+{
+  const sc = sun.shadow.camera;
+  sc.left = sc.bottom = -55;
+  sc.right = sc.top = 55;
+  sc.near = 1;
+  sc.far = 180;
+}
 scene.add(sun);
 scene.add(sun.target);
 
@@ -167,11 +184,34 @@ function pushTri(pos, a, b, c) {
   pos.push(...a, ...b, ...c);
 }
 
-function geometryFromTriangles(tris) {
+function geometryFromTriangles(tris, weld = false) {
+  // Без weld каждый треугольник — отдельный набор вершин → фасетная «нарезка» на куски.
+  if (!weld) {
+    const pos = [];
+    for (const [a, b, c] of tris) pushTri(pos, a, b, c);
+    const geom = new THREE.BufferGeometry();
+    geom.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+    geom.computeVertexNormals();
+    return geom;
+  }
+  const map = new Map();
   const pos = [];
-  for (const [a, b, c] of tris) pushTri(pos, a, b, c);
+  const idx = [];
+  const add = (p) => {
+    // 1 мм: соседние куски ската сходятся в одну вершину без микрощелей.
+    const k = `${p[0].toFixed(3)},${p[1].toFixed(3)},${p[2].toFixed(3)}`;
+    let i = map.get(k);
+    if (i == null) {
+      i = pos.length / 3;
+      map.set(k, i);
+      pos.push(p[0], p[1], p[2]);
+    }
+    return i;
+  };
+  for (const [a, b, c] of tris) idx.push(add(a), add(b), add(c));
   const geom = new THREE.BufferGeometry();
   geom.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  geom.setIndex(idx);
   geom.computeVertexNormals();
   return geom;
 }
@@ -256,6 +296,18 @@ function stampOverlay(mesh) {
   mesh.userData.overlay = true;
   mesh.userData.baseColor = mesh.material.color.getHex();
   if (sectionHeight != null) mesh.userData.section = sectionHeight;
+  if (mesh.material) {
+    mesh.material.depthWrite = true;
+    mesh.material.transparent = false;
+    // Лёгкий PO (−1): гасит z-fight со стеной. Кровля без PO и толще — не пробивается.
+    mesh.material.polygonOffset = true;
+    const hex = mesh.userData.baseColor;
+    const wrightBand = hex === 0xfaf6ee;
+    const bias = wrightBand ? -1.5 : -1;
+    mesh.material.polygonOffsetFactor = bias;
+    mesh.material.polygonOffsetUnits = bias;
+    mesh.renderOrder = wrightBand ? 4 : 2;
+  }
 }
 
 function withFinish(role, fn) {
@@ -286,11 +338,31 @@ function stampCanopy(mesh) {
   return mesh;
 }
 
+function sealRoofMaterial(mat) {
+  if (!mat) return;
+  mat.transparent = false;
+  mat.opacity = 1;
+  mat.depthWrite = true;
+  mat.depthTest = true;
+  // Плоское освещение: сварные вершины иначе дают градиенты через конёк/ендовы.
+  mat.flatShading = true;
+  mat.side = THREE.DoubleSide;
+  // PO на кровле запрещён: bias зависит от наклона грани → «куски» и мерцание при орбите.
+  // Непросвечивание — толщина оболочки + стены/оверлеи ниже низа ската, не depth-bias.
+  mat.polygonOffset = false;
+  if (mat.emissive) mat.emissive.setHex(0x000000);
+  mat.needsUpdate = true;
+}
+
 function asRoof(mesh) {
   if (!mesh) return mesh;
   mesh.userData.roof = true;
   // Кровля навеса: и «Крыша», и «Навес» — прячется, если выключен любой из них.
   if (canopyStamp) mesh.userData.canopy = true;
+  if (mesh.material) {
+    sealRoofMaterial(mesh.material);
+    mesh.renderOrder = Math.max(mesh.renderOrder || 0, 6);
+  }
   return mesh;
 }
 
@@ -305,18 +377,19 @@ function addMesh(geom, color, cast = true) {
     geom,
     new THREE.MeshLambertMaterial({ color, side: THREE.DoubleSide })
   );
-  mesh.castShadow = cast;
+  mesh.castShadow = !!cast;
   mesh.receiveShadow = true;
   if (finishRole) {
     mesh.userData.finish = finishRole;
     mesh.userData.baseColor = mesh.material.color.getHex();
-    // Вариант 3.1 / 3.1b: узор тянется от земли до конька.
     if (finishRole === "wall" && (bucket === variant31Group || bucket === variant31aGroup || bucket === variant31bGroup || bucket === variant31cGroup || bucket === variant31dGroup)) {
       mesh.userData.finishTop = 6.5;
-      // Стены чуть ближе камере по глубине — подложка участка не пробивается на скользящих углах.
-      mesh.material.polygonOffset = true;
-      mesh.material.polygonOffsetFactor = -1;
-      mesh.material.polygonOffsetUnits = -1;
+      // Без отрицательного PO — иначе стены пробивают скат при орбите.
+      mesh.material.polygonOffset = false;
+    }
+    if (finishRole === "roof" || finishRole === "soffit") {
+      sealRoofMaterial(mesh.material);
+      mesh.renderOrder = Math.max(mesh.renderOrder || 0, 6);
     }
   }
   if (canopyStamp) mesh.userData.canopy = true;
@@ -1009,7 +1082,7 @@ function addFloorNotes(rooms) {
     }
     const tex = new THREE.CanvasTexture(canvas);
     tex.colorSpace = THREE.SRGBColorSpace;
-    tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    tex.anisotropy = 1;
     const label = new THREE.Mesh(
       new THREE.PlaneGeometry(labelW, labelH),
       new THREE.MeshBasicMaterial({
@@ -1047,7 +1120,7 @@ function addGroundLabel(text, east, north, y) {
   g.fillText(text, canvas.width / 2, canvas.height / 2);
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  tex.anisotropy = 1;
   const labelH = 0.42;
   const labelW = labelH * (canvas.width / canvas.height);
   const label = new THREE.Mesh(
@@ -1258,7 +1331,7 @@ function addGarage(spec = {}) {
     quad(WNo, WNi, RNi, RNo);
     quad(ENo, RNo, RNi, ENi);
     quad(RSo, RNo, RNi, RSi);
-    withFinish("roof", () => asRoof(addMesh(geometryFromTriangles(tris), 0x6e675e)));
+    withFinish("roof", () => asRoof(addMesh(geometryFromTriangles(tris, true), 0x6e675e)));
     const gable = (n) => {
       const a = V(gx0, n, eave);
       const b = V(gx1, n, eave);
@@ -2869,9 +2942,27 @@ function mountFacadeOverlays(house) {
       const mesh = addMesh(geom, color, true);
       stampOverlay(mesh);
     },
+    tris(list, color) {
+      if (!list?.length) return;
+      const pos = [];
+      const idx = [];
+      for (const t of list) {
+        const i = pos.length / 3;
+        pos.push(...at(t[0], t[1], t[2]), ...at(t[3], t[4], t[5]), ...at(t[6], t[7], t[8]));
+        idx.push(i, i + 1, i + 2);
+      }
+      const geom = new THREE.BufferGeometry();
+      geom.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+      geom.setIndex(idx);
+      geom.computeVertexNormals();
+      bucket = dest;
+      finishRole = null;
+      stampOverlay(addMesh(geom, color, true));
+    },
   };
   try {
-    v2House.add(buildFacadeOverlays(api, house));
+    // z локальный от пола над цоколем — панели с 0, иначе щель над цоколем.
+    v2House.add(buildFacadeOverlays(api, { ...house, plinthZ: 0 }));
   } finally {
     bucket = prevBucket;
     finishRole = prevFinish;
@@ -2909,6 +3000,23 @@ function mountAnyOverlays(parent, at, rect, make) {
       finishRole = null;
       const mesh = addMesh(geom, color, true);
       stampOverlay(mesh);
+    },
+    tris(list, color) {
+      if (!list?.length) return;
+      const pos = [];
+      const idx = [];
+      for (const t of list) {
+        const i = pos.length / 3;
+        pos.push(...at(t[0], t[1], t[2]), ...at(t[3], t[4], t[5]), ...at(t[6], t[7], t[8]));
+        idx.push(i, i + 1, i + 2);
+      }
+      const geom = new THREE.BufferGeometry();
+      geom.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+      geom.setIndex(idx);
+      geom.computeVertexNormals();
+      bucket = dest;
+      finishRole = null;
+      stampOverlay(addMesh(geom, color, true));
     },
   };
   try {
@@ -3050,6 +3158,19 @@ function v2winY(v, u0, u1, z0, z1, withSill = z0 > 0.2) {
   glass.castShadow = false;
 }
 
+let v2RoofBag = null;
+
+function v2roofBegin() {
+  v2RoofBag = [];
+}
+
+function v2roofFlush() {
+  const bag = v2RoofBag;
+  v2RoofBag = null;
+  if (!bag || !bag.length) return null;
+  return withFinish("roof", () => asRoof(addMesh(geometryFromTriangles(bag, true), V2_ROOF)));
+}
+
 function v2roof(tris) {
   const lift = ([u, v, z]) => {
     const [e, n] = planToWorld(V2_XE - u, v2Ys + v);
@@ -3064,7 +3185,11 @@ function v2roof(tris) {
     const ny = ab[2] * ac[0] - ab[0] * ac[2];
     return ny > 0 ? [A, C, B] : [A, B, C];
   });
-  withFinish("roof", () => asRoof(addMesh(geometryFromTriangles(out), V2_ROOF)));
+  if (v2RoofBag) {
+    for (const t of out) v2RoofBag.push(t);
+    return null;
+  }
+  return withFinish("roof", () => asRoof(addMesh(geometryFromTriangles(out, true), V2_ROOF)));
 }
 
 function v2solid(tris, color) {
@@ -3166,7 +3291,7 @@ function addBath() {
       const ny = ab[2] * ac[0] - ab[0] * ac[2];
       return ny > 0 ? [A, C, B] : [A, B, C];
     });
-    return withFinish("roof", () => asRoof(addMesh(geometryFromTriangles(out), color)));
+    return withFinish("roof", () => asRoof(addMesh(geometryFromTriangles(out, true), color)));
   };
 
   addSlabHole(
@@ -3864,6 +3989,7 @@ function addVariant2() {
     [[gR, gf, eave], [gu, vMeet, gp], [gu, gf, gp]],
     [[gR, gf, eave], [gR, v0, eave], [gu, vMeet, gp]],
   ];
+  v2roofBegin();
   v2shell(gableTris, roofDrop);
   const pL = pEast - over;
   const pR = pWest + over;
@@ -3925,6 +4051,7 @@ function addVariant2() {
     [[pR, pFront, eave], [pu, vJoin, zJoin], [pu, pFront, pp]],
     [[pR, pFront, eave], [pR, v1, eave], [pu, vJoin, zJoin]],
   ], roofDrop);
+  v2roofFlush();
   const terraceTop = (u, v) => {
     if (!trap) {
       const rise = gp - eave;
@@ -4279,25 +4406,19 @@ function addVariant2() {
     eaveBand(gL, gf - board, gR, gf, fasciaLo, eave, V2_ROOF);
     eaveBand(pL, pFront, pR, pFront + board, fasciaLo, eave, V2_ROOF);
   }
-  eaveBand(u0, v0 - board - gutterW, gL, v0 - board, gutterLo, gutterHi, gutterC);
-  eaveBand(gR, v0 - board - gutterW, u1, v0 - board, gutterLo, gutterHi, gutterC);
-  eaveBand(u0 - board - gutterW, v0, u0 - board, v1, gutterLo, gutterHi, gutterC);
-  eaveBand(u1 + board, v0, u1 + board + gutterW, v1, gutterLo, gutterHi, gutterC);
-  eaveBand(u0, v1 + board, pL, v1 + board + gutterW, gutterLo, gutterHi, gutterC);
-  eaveBand(pR, v1 + board, u1, v1 + board + gutterW, gutterLo, gutterHi, gutterC);
-  eaveBand(gL - board - gutterW, gf, gL - board, v0, gutterLo, gutterHi, gutterC);
-  eaveBand(gR + board, gf, gR + board + gutterW, v0, gutterLo, gutterHi, gutterC);
-  eaveBand(pL - board - gutterW, v1, pL - board, pFront, gutterLo, gutterHi, gutterC);
-  eaveBand(pR + board, v1, pR + board + gutterW, pFront, gutterLo, gutterHi, gutterC);
+  // Жёлоб только под свесом (не шире board); на фронтонах террасы/крыльца желоба нет.
+  const gW = Math.min(gutterW, board);
+  eaveBand(u0, v0 - board, gL, v0 - board + gW, gutterLo, gutterHi, gutterC);
+  eaveBand(gR, v0 - board, u1, v0 - board + gW, gutterLo, gutterHi, gutterC);
+  eaveBand(u0 - board, v0, u0 - board + gW, v1, gutterLo, gutterHi, gutterC);
+  eaveBand(u1 + board - gW, v0, u1 + board, v1, gutterLo, gutterHi, gutterC);
+  eaveBand(u0, v1 + board - gW, pL, v1 + board, gutterLo, gutterHi, gutterC);
+  eaveBand(pR, v1 + board - gW, u1, v1 + board, gutterLo, gutterHi, gutterC);
   if (trap) {
-    eaveBand(gL, gf - board - gutterW, gR, gf - board, gutterLo, gutterHi, gutterC);
-    eaveBand(pL, pFront + board, pR, pFront + board + gutterW, gutterLo, gutterHi, gutterC);
+    // Только горизонтальный карниз трапеции (не по скатам фронтона).
+    eaveBand(gL, gf - board, gR, gf - board + gW, gutterLo, gutterHi, gutterC);
+    eaveBand(pL, pFront + board - gW, pR, pFront + board, gutterLo, gutterHi, gutterC);
   }
-  const gout = board + gutterW;
-  eaveBand(u0 - gout, v0 - gout, u0 - board, v0 - board, gutterLo, gutterHi, gutterC);
-  eaveBand(u1 + board, v0 - gout, u1 + gout, v0 - board, gutterLo, gutterHi, gutterC);
-  eaveBand(u0 - gout, v1 + board, u0 - board, v1 + gout, gutterLo, gutterHi, gutterC);
-  eaveBand(u1 + board, v1 + board, u1 + gout, v1 + gout, gutterLo, gutterHi, gutterC);
   const pipe = 0.07;
   const uvWorld = (u, v, z) => {
     const [e, n] = planToWorld(V2_XE - u, v2Ys + v);
@@ -4320,35 +4441,19 @@ function addVariant2() {
     beam(wu, wv, zWallBot, ku, kv, zEnd);
     beam(ku, kv, zOut, ku, kv, zEnd + 0.06);
   };
-  const gMid = board + gutterW / 2;
-  spout(u0 - gMid, v0 - gMid, uOutE - 0.05, vOutS - 0.05);
-  spout(u1 + gMid, v0 - gMid, uOutW + 0.05, vOutS - 0.05);
-  spout(u0 - gMid, v1 + gMid, uOutE - 0.05, vOutN + 0.05);
-  spout(u1 + gMid, v1 + gMid, uOutW + 0.05, vOutN + 0.05);
-  const out = 0.05 + pipe / 2;
-  const zTop = gutterLo + 0.03;
-  const zBend = fasciaLo - 0.22;
-  const around = (gu, gv, mu, mv, wu, wv) => {
-    const beam = (ua, va, za, ub, vb, zb) => withFinish("gutter", () => asRoof(addBeam(
-      uvWorld(ua, va, za), uvWorld(ub, vb, zb), pipe, gutterC
-    )));
-    beam(gu, gv, zBend, gu, gv, zTop);
-    beam(gu, gv, zBend, mu, mv, zBend);
-    beam(mu, mv, zBend, wu, wv, zBend);
-    beam(wu, wv, 0.12, wu, wv, zBend);
-    const ox = mu - wu;
-    const oy = mv - wv;
-    const len = Math.hypot(ox, oy) || 1;
-    const kick = 0.2;
-    const ku = wu + (ox / len) * kick;
-    const kv = wv + (oy / len) * kick;
-    beam(wu, wv, 0.12, ku, kv, 0.02);
-    beam(ku, kv, -0.1, ku, kv, 0.08);
-  };
-  around(gL - gMid, gf, 6.46 - out, gf, 6.46 - out, 0.14);
-  around(gR + gMid, gf, 13.94 + out, gf, 13.94 + out, 0.14);
-  around(pL - gMid, pFront, 3.44 - out, pFront, 3.44 - out, 16.1);
-  around(pR + gMid, pFront, 9.69 + out, pFront, 9.69 + out, 16.1);
+  // Центр желоба под кромкой свеса (не за границей кровли).
+  const gCen = board - gW / 2;
+  spout(u0 - gCen, v0 - gCen, uOutE - 0.05, vOutS - 0.05);
+  spout(u1 + gCen, v0 - gCen, uOutW + 0.05, vOutS - 0.05);
+  spout(u0 - gCen, v1 + gCen, uOutE - 0.05, vOutN + 0.05);
+  spout(u1 + gCen, v1 + gCen, uOutW + 0.05, vOutN + 0.05);
+  if (trap) {
+    const out = 0.05 + pipe / 2;
+    spout(gL + gW / 2, gf - gCen, 6.46 - out, 0.14);
+    spout(gR - gW / 2, gf - gCen, 13.94 + out, 0.14);
+    spout(pL + gW / 2, pFront + gCen, 3.44 - out, 16.1);
+    spout(pR - gW / 2, pFront + gCen, 9.69 + out, 16.1);
+  }
 
   mountFacadeOverlays({
     uOutE, uOutW, vOutS, vOutN, vS, vN, eave,
@@ -4754,8 +4859,7 @@ function addDreamHouse(group, site) {
     const ny = ab[2] * ac[0] - ab[0] * ac[2];
     return ny > 0 ? [A, C, B] : [A, B, C];
   });
-  const roofMesh = withFinish("roof", () => asRoof(addMesh(geometryFromTriangles(roofTris), V2_ROOF)));
-  roofMesh.material.side = THREE.DoubleSide;
+  withFinish("roof", () => asRoof(addMesh(geometryFromTriangles(roofTris, true), V2_ROOF)));
   const uvW = (u, v, z) => {
     const [x, y] = site(u, v);
     const [e, n] = planToWorld(x, y);
@@ -4781,9 +4885,7 @@ function addDreamHouse(group, site) {
       const ny = ab[2] * ac[0] - ab[0] * ac[2];
       return ny > 0 ? [A, C, B] : [A, B, C];
     });
-    const mesh = withFinish("roof", () => asRoof(addMesh(geometryFromTriangles(mapped), V2_ROOF)));
-    mesh.material.side = THREE.DoubleSide;
-    return mesh;
+    return withFinish("roof", () => asRoof(addMesh(geometryFromTriangles(mapped, true), V2_ROOF)));
   };
 
   // Западный край козырька совпадает с западным карнизом дома: тот же скат 22°,
@@ -4812,8 +4914,7 @@ function addDreamHouse(group, site) {
       const ny = ab[2] * ac[0] - ab[0] * ac[2];
       return ny > 0 ? [A, C, B] : [A, B, C];
     });
-    const mesh = withFinish("roof", () => asRoof(addMesh(geometryFromTriangles(mapped), color)));
-    mesh.material.side = THREE.DoubleSide;
+    withFinish("roof", () => asRoof(addMesh(geometryFromTriangles(mapped, true), color)));
   };
   const rake = (uA, zA, uB, zB) => {
     const va = pFront;
@@ -5197,7 +5298,7 @@ function addVariantD3Scene() {
     },
   });
 }
-addVariantD3Scene();
+// D3+ и 3.1* — лениво: одновременная сборка всех домов роняет GPU (Render process gone).
 
 function addVariantD4Scene() {
   bucket = variantD4Group;
@@ -5224,8 +5325,6 @@ function addVariantD4Scene() {
     },
   });
 }
-addVariantD4Scene();
-
 function addVariantD5Scene() {
   bucket = variantD5Group;
   buildVariantD4({
@@ -5251,7 +5350,6 @@ function addVariantD5Scene() {
     },
   });
 }
-addVariantD5Scene();
 
 let d5FurniturePromise = null;
 function ensureD5Furniture() {
@@ -5295,8 +5393,6 @@ function addVariantD6Scene() {
     },
   });
 }
-addVariantD6Scene();
-
 function addVariant31Scene() {
   bucket = variant31Group;
   buildVariant31({
@@ -5322,7 +5418,6 @@ function addVariant31Scene() {
     },
   });
 }
-addVariant31Scene();
 
 function addVariant31aScene() {
   bucket = variant31aGroup;
@@ -5349,8 +5444,6 @@ function addVariant31aScene() {
     },
   });
 }
-addVariant31aScene();
-
 
 function addVariant31bScene() {
   bucket = variant31bGroup;
@@ -5377,7 +5470,6 @@ function addVariant31bScene() {
     },
   });
 }
-addVariant31bScene();
 
 function addVariant31dScene() {
   bucket = variant31dGroup;
@@ -5404,7 +5496,6 @@ function addVariant31dScene() {
     },
   });
 }
-addVariant31dScene();
 
 function addVariant31cScene() {
   bucket = variant31cGroup;
@@ -5431,9 +5522,29 @@ function addVariant31cScene() {
     },
   });
 }
-addVariant31cScene();
 
-
+const heavyBuilt = Object.create(null);
+function ensureHeavyVariant(id) {
+  if (!id || heavyBuilt[id]) return;
+  heavyBuilt[id] = true;
+  if (id === "vd3") addVariantD3Scene();
+  else if (id === "vd4") addVariantD4Scene();
+  else if (id === "vd5") addVariantD5Scene();
+  else if (id === "vd6") addVariantD6Scene();
+  else if (id === "v31") addVariant31Scene();
+  else if (id === "v31a") addVariant31aScene();
+  else if (id === "v31b") addVariant31bScene();
+  else if (id === "v31c") addVariant31cScene();
+  else if (id === "v31d") addVariant31dScene();
+  else {
+    delete heavyBuilt[id];
+    return;
+  }
+  // Новые меши без отделки — докрасить текущим стилем.
+  if (typeof applyFacadeStyle === "function" && facadeSelect) {
+    applyFacadeStyle(scene, facadeSelect.value);
+  }
+}
 
 function buildSectionCap(mesh, worldY) {
   const geom = mesh.geometry;
@@ -6062,6 +6173,7 @@ function setVariant(id) {
     next = allowedVariants[0];
   }
   if (tourActive) stopTour(false);
+  ensureHeavyVariant(next);
   viewVariant = next;
   const topo = viewVariant === "topo3";
   const eastHouse = viewVariant === "vd1" || viewVariant === "vd2" || viewVariant === "vd3" || viewVariant === "vd4" || viewVariant === "vd5" || viewVariant === "vd6" || viewVariant === "v31" || viewVariant === "v31a" || viewVariant === "v31b" || viewVariant === "v31c" || viewVariant === "v31d";
@@ -6556,7 +6668,9 @@ document.getElementById("copy-url-btn")?.addEventListener("click", async () => {
 
 applySun(geo);
 
+let glOkFrames = 0;
 function frame() {
+  if (!glAlive) return;
   const now = performance.now();
   const dt = tourStamp ? Math.min(0.05, (now - tourStamp) / 1000) : 0;
   tourStamp = now;
@@ -6564,7 +6678,17 @@ function frame() {
     activeDaylight().setElevation(sunElevation);
     if (!activeTour().step(dt)) stopTour(true);
   } else controls.update();
-  renderer.render(scene, camera);
+  try {
+    renderer.render(scene, camera);
+    if (glOkFrames < 8) {
+      glOkFrames += 1;
+      if (glOkFrames === 8) sessionStorage.removeItem(GL_RETRY_KEY);
+    }
+  } catch (err) {
+    glAlive = false;
+    console.warn("render failed", err);
+    return;
+  }
   frameHandle = requestAnimationFrame(frame);
 }
 frameHandle = requestAnimationFrame(frame);
@@ -6785,7 +6909,7 @@ async function makeStyleThumbs() {
     done += 1;
     document.title = `thumbs ${done}/${ids.length}`;
   }
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   renderer.setSize(cssW, cssH, true);
   camera.aspect = cssW / cssH;
   camera.updateProjectionMatrix();

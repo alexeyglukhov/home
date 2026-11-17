@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { OVERLAY_FIELD, DARK_CLAD, WOOD_OAK } from "./facade-overlay.js?v=48";
+import { OVERLAY_FIELD, DARK_CLAD, WOOD_OAK } from "./facade-overlay.js?v=86";
 
 const cache = new Map();
 
@@ -13,7 +13,7 @@ function canvas(w, h, draw) {
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.wrapS = THREE.RepeatWrapping;
   tex.wrapT = THREE.RepeatWrapping;
-  tex.anisotropy = 4;
+  tex.anisotropy = 1;
   tex.needsUpdate = true;
   return tex;
 }
@@ -79,6 +79,26 @@ function mortarBrick(g, w, h, bricks, mortar, courses) {
       g.fillRect(x + 1, row * ch + 2, bw * 0.35, 1.2);
       g.fillStyle = "rgba(0,0,0,0.12)";
       g.fillRect(x + bw - 3.5, row * ch + 1, 1, ch - 2);
+    }
+  }
+}
+
+/** Мелкий ровный кирпич Райта: тонкие швы, почти без разброса тона. */
+function wrightBrick(g, w, h, bricks, mortar) {
+  g.fillStyle = mortar;
+  g.fillRect(0, 0, w, h);
+  const courses = 12;
+  const ch = h / courses;
+  const count = 6;
+  const bw = w / count;
+  const palette = typeof bricks === "string" ? [bricks] : bricks;
+  for (let row = 0; row < courses; row++) {
+    const shift = row % 2 ? bw / 2 : 0;
+    for (let col = -1; col < count + 1; col++) {
+      const x = col * bw + shift + 0.5;
+      const wobble = ((row * 3 + col * 5) % 3) - 1;
+      g.fillStyle = shadeHex(pickTone(palette, row, col), wobble);
+      g.fillRect(x, row * ch + 0.45, bw - 1.0, ch - 0.9);
     }
   }
 }
@@ -279,13 +299,13 @@ const PATTERN = {
   brickDark: () => canvas(192, 96, (g, w, h) => mortarBrick(
     g, w, h, ["#5a3a34", "#6a463c", "#4a302c", "#704840", "#3e2824"], "#3a3330", 5
   )),
-  // Райт · штукатурка: тёплый тёмно-коричневый кирпич с фото (не холодный графит).
-  brickWright: () => canvas(192, 96, (g, w, h) => mortarBrick(
-    g, w, h, ["#6c5448", "#5a463c", "#4a3a30", "#7a6458", "#443830", "#625048", "#554038"], "#3a322c", 5
+  // Райт · штукатурка: мелкий ровный тёмно-коричневый кирпич с фото.
+  brickWright: () => canvas(256, 96, (g, w, h) => wrightBrick(
+    g, w, h, ["#5a463c", "#564238", "#5e4a40", "#524036", "#58443a"], "#2e2824"
   )),
-  // Райт · тёплый: средне-коричневый кирпич с фото wright-warm.
-  brickWrightWarm: () => canvas(192, 96, (g, w, h) => mortarBrick(
-    g, w, h, ["#6a4a32", "#5a3c28", "#7a5840", "#4e3521", "#8a6848", "#644028", "#745238"], "#c4b49c", 5
+  // Райт · тёплый: мелкий ровный тёплый кирпич с фото.
+  brickWrightWarm: () => canvas(256, 96, (g, w, h) => wrightBrick(
+    g, w, h, ["#a48664", "#a08260", "#a88a68", "#9c7e5c", "#a68466"], "#4a3c30"
   )),
   // Баварский classic: многотонный красно-терракотовый клинкер с фото.
   bavaria: () => canvas(192, 96, (g, w, h) => mortarBrick(
@@ -935,8 +955,8 @@ const SCALE = {
   plasterCream: 1.4,
   brick: 0.85,
   brickDark: 0.85,
-  brickWright: 1.25,
-  brickWrightWarm: 1.25,
+  brickWright: 0.48,
+  brickWrightWarm: 0.48,
   bavaria: 0.85,
   brickSand: 0.85,
   brickAsh: 0.85,
@@ -1109,21 +1129,30 @@ const CATALOG_STYLES = [
     name: "Райт · Светлая штукатурка и тёмный кирпич",
     thumb: "style-examples/wright-plaster.jpg",
     overlay: "wright-plaster",
-    tweak: { wall: pat("plasterWright"), plinth: pat("brickWright"), column: pat("brickWright"), roof: roof("tileBrown"), soffit: pat("plasterWright"), frame: 0x3c342c, gutter: BROWN_GUTTER, base: 0xc5b8a8 },
+    // soffit = кровля: белая подбивка не конфликтует с тёмным низом/торцом ската.
+    tweak: { wall: pat("plasterWright"), plinth: pat("brickWright"), column: pat("brickWright"), roof: roof("tileBrown"), frame: 0x3c342c, gutter: BROWN_GUTTER, base: 0xc5b8a8 },
   },
   {
     id: "wright-warm", likes: 2,
     name: "Райт · Тёплый кирпич и светлые пояса",
     thumb: "style-examples/wright-warm.jpg",
     overlay: "wright-warm",
-    tweak: { wall: pat("brickWrightWarm"), plinth: pat("brickWrightWarm"), column: pat("brickWrightWarm"), roof: roof("tileBrown"), soffit: pat("plasterWright"), frame: 0x2a211c, gutter: BROWN_GUTTER },
+    tweak: {
+      wall: pat("brickWrightWarm"),
+      plinth: pat("plasterWright"),
+      column: pat("brickWrightWarm"),
+      roof: roof("tileBrown"),
+      frame: 0x2a211c,
+      gutter: BROWN_GUTTER,
+      base: 0xc5b8a8,
+    },
   },
   {
     id: "wright-dark", likes: 0,
     name: "Райт · Тёмный кирпич и светлые пояса",
     thumb: "style-examples/wright-dark.jpg",
     overlay: "wright-warm",
-    tweak: { wall: pat("brickWright"), plinth: pat("brickWright"), column: pat("brickWright"), roof: roof("tileBrown"), soffit: pat("plasterWright"), frame: 0x1c1814, gutter: BROWN_GUTTER },
+    tweak: { wall: pat("brickWright"), plinth: pat("brickWright"), column: pat("brickWright"), roof: roof("tileBrown"), frame: 0x1c1814, gutter: BROWN_GUTTER },
   },
   {
     id: "bavaria-classic", likes: 2,
@@ -1702,8 +1731,10 @@ vec3 sampleFinish(vec2 uv, float upright) {
           "#include <map_fragment>",
           `#include <map_fragment>
 if (uOn > 0.5) {
-  vec3 n = normalize(vFinishNorm);
   if (uAlign > 0.5) {
+    // Нормаль грани (не сварная): иначе фальц гнётся у конька/ендов.
+    vec3 n = normalize(cross(dFdx(vFinishPos), dFdy(vFinishPos)));
+    if (!gl_FrontFacing) n = -n;
     // Фальц/полосы: U поперёк ската, V вдоль линии падения — рёбра от конька к карнизу.
     vec3 up = vec3(0.0, 1.0, 0.0);
     vec3 down = up - n * dot(n, up);
@@ -1716,6 +1747,7 @@ if (uOn > 0.5) {
       diffuseColor.rgb = sampleFinish(vFinishPos.xz, 0.0);
     }
   } else {
+    vec3 n = normalize(vFinishNorm);
     vec3 fn = pow(abs(n), vec3(6.0));
     fn /= fn.x + fn.y + fn.z + 1e-5;
     diffuseColor.rgb = sampleFinish(vFinishPos.zy, 1.0) * fn.x
@@ -1726,7 +1758,7 @@ if (uOn > 0.5) {
         );
     }
   };
-  material.customProgramCacheKey = () => "facade-finish-v2-fall";
+  material.customProgramCacheKey = () => "facade-finish-v3-face";
   material.needsUpdate = true;
 }
 
@@ -1782,12 +1814,34 @@ export function applyFacadeStyle(root, styleId) {
     const spec = style[role] ?? (role === "soffit" ? style.roof : null);
     if (spec && typeof spec === "object") {
       paint(obj, spec);
-      // Подбивка Райта не должна светиться сквозь скат.
       if (role === "soffit" && mat.emissive) mat.emissive.setHex(0x000000);
+      // Кровля/софит глухие; без PO (иначе скат распадается на куски).
+      if ((role === "roof" || role === "soffit") && mat) {
+        mat.transparent = false;
+        mat.opacity = 1;
+        mat.depthWrite = true;
+        mat.depthTest = true;
+        mat.flatShading = true;
+        mat.side = THREE.DoubleSide;
+        mat.polygonOffset = false;
+        if (mat.emissive) mat.emissive.setHex(0x000000);
+        mat.needsUpdate = true;
+        obj.renderOrder = Math.max(obj.renderOrder || 0, 6);
+      }
       return;
     }
     if (mat.userData.uOn) mat.userData.uOn.value = 0;
     if (typeof spec === "number") mat.color.setHex(spec);
     if (role === "soffit" && mat.emissive) mat.emissive.setHex(0x000000);
+    if ((role === "roof" || role === "soffit") && mat) {
+      mat.transparent = false;
+      mat.opacity = 1;
+      mat.depthWrite = true;
+      mat.flatShading = true;
+      mat.side = THREE.DoubleSide;
+      mat.polygonOffset = false;
+      mat.needsUpdate = true;
+      obj.renderOrder = Math.max(obj.renderOrder || 0, 6);
+    }
   });
 }

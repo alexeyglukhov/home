@@ -2544,7 +2544,7 @@ export function buildVariantD2(api) {
   quad(turn, valley, wingSe, eastPeak);
   // Вся восточная грань основного ската удлинена над террасой и упирается в стену крыла.
   quad([xStep, yS, Ze], [xTe, yS, zTe], [xTe, yWall, zTe], [xStep, yWall, Ze]);
-  const roofDrop = 0.30;
+  const roofDrop = 0.38;
   const shellOf = (tris, lower) => {
     const out = [];
     const spush = (a, b, c) => out.push([world(...a), world(...b), world(...c)]);
@@ -2574,7 +2574,7 @@ export function buildVariantD2(api) {
     if (Math.abs(y - yS) < 0.03 && x >= xStep - 0.05) y += eaveInset;
     return [x, y, p[2] - roofDrop];
   };
-  withFinish("roof", () => asRoof(addMesh(geometryFromTriangles(shellOf(planTris, lowerRoof)), ROOF_C)));
+  withFinish("roof", () => asRoof(addMesh(geometryFromTriangles(shellOf(planTris, lowerRoof), true), ROOF_C)));
   column(-5.92, 9.32, zWestPlane(-5.92) - roofDrop);
   column(-5.92, 12.52, zWestPlane(-5.92) - roofDrop);
   const zRoofX = (x) => (x <= cx
@@ -2652,7 +2652,7 @@ export function buildVariantD2(api) {
     dq(b1, b0, dn(b0), dn(b1));
     dq(a1, b1, dn(b1), dn(a1));
     dq(b0, a0, dn(a0), dn(b0));
-    withFinish("roof", () => asRoof(addMesh(geometryFromTriangles(drip), ROOF_C)));
+    withFinish("roof", () => asRoof(addMesh(geometryFromTriangles(drip, true), ROOF_C)));
   };
   const outletZ = (zRoof, drop, tanA) => zRoof - drop - GW * tanA - LIP - GD;
   const runDrop = (x0, y0, x1, y1) => Math.hypot(x1 - x0, y1 - y0) * RUN;
@@ -2814,9 +2814,11 @@ export function buildVariantD2(api) {
   const xR = 5.31;
   const yG = 2.46;
   const toSouth = (p) => [p[0], yG, p[1]];
+  // Верх фронтона = низ кровли − 2 см (не в толще ската, без z-fight с софитом).
+  const gableTop = (z) => z - roofDrop - 0.02;
   gableWithWindow(
     toSouth,
-    [xL, WALL_TOP], [xL, zWest(xL)], [cx, Zr], [xR, zEast(xR)], [xR, WALL_TOP],
+    [xL, WALL_TOP], [xL, gableTop(zWest(xL))], [cx, gableTop(Zr)], [xR, gableTop(zEast(xR))], [xR, WALL_TOP],
     cx - halfWin, cx + halfWin,
     [0, -1, 0]
   );
@@ -2827,7 +2829,7 @@ export function buildVariantD2(api) {
   const toEast = (p) => [xg, p[0], p[1]];
   gableWithWindow(
     toEast,
-    [yNWall, WALL_TOP], [yNWall, zNorth(yNWall)], [cy, Zr], [ySWall, zWing(ySWall)], [ySWall, WALL_TOP],
+    [yNWall, WALL_TOP], [yNWall, gableTop(zNorth(yNWall))], [cy, gableTop(Zr)], [ySWall, gableTop(zWing(ySWall))], [ySWall, WALL_TOP],
     cy + halfWin, cy - halfWin,
     [1, 0, 0]
   );
@@ -2881,7 +2883,7 @@ export function buildVariantD2(api) {
     if (Math.abs(y - cYn) < 0.03) y -= cInset;
     return [p[0], y, p[2] - cDrop];
   };
-  withFinish("roof", () => asRoof(addMesh(geometryFromTriangles(shellOf(canopyTris, lowerCanopy)), ROOF_C)));
+  withFinish("roof", () => asRoof(addMesh(geometryFromTriangles(shellOf(canopyTris, lowerCanopy), true), ROOF_C)));
   const tanC = Math.tan(15 * Math.PI / 180);
   const dCanS = runDrop(cXeS, cYs, cXwS, cYs);
   const dCanN = runDrop(cXeN, cYn, cXwN, cYn);

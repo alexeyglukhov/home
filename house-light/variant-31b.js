@@ -579,8 +579,7 @@ export function buildVariant31b(api) {
     quadW(sides, a, b, drop(b), drop(a));
   }
   withFinish("roof", () => {
-    const mesh = asRoof(addMesh(geometryFromTriangles(tops.concat(bottoms, sides)), ROOF_C));
-    mesh.material.flatShading = true;
+    const mesh = asRoof(addMesh(geometryFromTriangles(tops.concat(bottoms, sides), true), ROOF_C));
     mesh.material.emissive?.setHex(0x151210);
     mesh.material.needsUpdate = true;
     return mesh;

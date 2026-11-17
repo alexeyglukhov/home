@@ -23,10 +23,12 @@ const LOUVER = 0x3a4146;
 const SLAT = 0x5c4a3a;
 /** Сочный тёплый дуб для сканди-вставок (ярче серого #9a7850). */
 export const WOOD_OAK = 0xd4a060;
-/** Верх цоколя 3.1* — панели отделки садятся на него, не свисают ниже. */
-const PLINTH_Z = 0.45;
+/** Верх цоколя 3.1* — панели отделки садятся на него, не свисают ниже.
+ *  У варианта A (локальный z от пола) buildFacadeOverlays временно ставит 0. */
+let PLINTH_Z = 0.45;
 /** Почти заподлицо со стеной (faces с thick ≈ 1.2 см). */
-const FLUSH = 0.002;
+// ≥0.02 → наружная оболочка (не z-fight со стеной). Раньше 0.002 давал мерцание углов.
+const FLUSH = 0.025;
 const DARK_PANEL = 0x2a2e32;
 // Средне-серая облицовка у проёмов (roof-d); неоднородность — паттерн darkClad в стиле 30.
 export const DARK_CLAD = 0x5e666f;
@@ -37,6 +39,8 @@ const SURROUND = 0xc4b49a;
 const BELT = 0x8a8175;
 /** Светлый пояс Райта — тёплый кремовый с фото (#f0d4b4), не белый. */
 const CREAM = 0xf0d4b4;
+/** Плоский светлый пояс (не штукатурка стены) — чтобы линия читалась на Райте. */
+const WRIGHT_BAND = 0xfaf6ee;
 const SIDING = 0x6a655c;
 const DARK = 0x3a3e42;
 const BOARD = 0x6e757c;
@@ -77,30 +81,68 @@ function sideRoom(face, op, want) {
   return { left, right };
 }
 
-function quoins(face, color, w = 0.4) {
+function quoins(face, color, w = 0.4, opts = null) {
   const ops = sorted(face);
   const first = ops[0];
   const last = ops[ops.length - 1];
   const left = first ? Math.min(w, Math.max(0.1, first.u0 - face.span0 - 0.04)) : w;
   const right = last ? Math.min(w, Math.max(0.1, face.span1 - last.u1 - 0.04)) : w;
+  // Углы ниже ленты и почти заподлицо — иначе торцы/верх кирпича z-fight с белой полосой.
+  const proud = opts && Number.isFinite(opts.proud) ? opts.proud : 0.04;
+  const bandDrop = opts && Number.isFinite(opts.bandDrop) ? opts.bandDrop : null;
+  const underBandGap = 0.05;
   const climb = (a, b) => {
-    if (face.gable) placeToRoof(face, a, b, PLINTH_Z, color, FLUSH);
-    else face.place(a, b, PLINTH_Z, face.eave, color, FLUSH);
+    if (bandDrop != null) {
+      const t0 = eaveSoffitAt(face, a) - bandDrop - underBandGap;
+      const t1 = eaveSoffitAt(face, b) - bandDrop - underBandGap;
+      if (typeof face.placeSlope === "function" && Math.abs(t0 - t1) > 0.02) {
+        face.placeSlope(a, b, PLINTH_Z, t0, PLINTH_Z, t1, color, proud);
+      } else {
+        face.place(a, b, PLINTH_Z, Math.min(t0, t1), color, proud);
+      }
+    } else if (face.gable) {
+      placeToRoof(face, a, b, PLINTH_Z, color, proud);
+    } else {
+      face.place(a, b, PLINTH_Z, face.eave, color, proud);
+    }
   };
   climb(face.span0, face.span0 + left);
   climb(face.span1 - right, face.span1);
 }
 
-/** Фронтонное окно (V2/D2 trap): poly + zTop(u) → проём с z1L/z1R для surround. */
+/** Нормализация фронтонного окна: face.win (zTop) или gable.win {z0,z1} у Д*. */
+function normalizeGableWin(face) {
+  const w = face.win || (face.gable && face.gable.win) || null;
+  if (!w || !(w.u1 > w.u0 + 0.2)) return null;
+  if (typeof w.zTop === "function") {
+    return {
+      u0: w.u0,
+      u1: w.u1,
+      zBase: w.zBase ?? w.z0 ?? face.eave,
+      zTop: w.zTop,
+    };
+  }
+  if (Number.isFinite(w.z0) && Number.isFinite(w.z1)) {
+    return {
+      u0: w.u0,
+      u1: w.u1,
+      zBase: w.z0,
+      zTop: () => w.z1,
+    };
+  }
+  return null;
+}
+
+/** Фронтонное окно → проём с z1L/z1R для surround / белой полосы Райта. */
 function gableWinAsOp(face) {
-  const w = face.win;
-  if (!w || typeof w.zTop !== "function" || !(w.u1 > w.u0 + 0.2)) return null;
+  const w = normalizeGableWin(face);
+  if (!w) return null;
   const z1L = w.zTop(w.u0);
   const z1R = w.zTop(w.u1);
   return {
     u0: w.u0,
     u1: w.u1,
-    z0: w.zBase ?? face.eave,
+    z0: w.zBase,
     z1: Math.max(z1L, z1R),
     z1L,
     z1R,
@@ -139,12 +181,12 @@ function slantHeads(face, op) {
 function surround(face, op, color, band = 0.15) {
   const { left, right } = sideRoom(face, op, band);
   const heads = slantHeads(face, op);
-  const z1L = heads.z1L + 0.02;
-  const z1R = heads.z1R + 0.02;
+  // Верх обвода = низ рамы/стекла (op.z1), без +2 см — иначе «дверь и окна не совпадают».
+  const z1L = heads.z1L;
+  const z1R = heads.z1R;
   const slanted = Math.abs(z1L - z1R) > 0.02;
   const top = 0.12;
   const zBot = op.kind === "door" ? PLINTH_Z : Math.max(PLINTH_Z, op.z0 - 0.1);
-  // Бока — только до своей высоты трапеции (не общий max → «квадрат»).
   if (left > 0.025) {
     face.place(op.u0 - left, op.u0 - 0.01, zBot, z1L + top, color, FLUSH);
   }
@@ -153,16 +195,10 @@ function surround(face, op, color, band = 0.15) {
   }
   const a = op.u0 - left;
   const b = op.u1 + right;
-  if (slanted) {
-    // Полная полка вдоль ската сегментами + балка по кромке стекла.
-    const steps = Math.max(6, Math.ceil((b - a) / 0.1));
-    for (let i = 0; i < steps; i++) {
-      const u0 = a + ((b - a) * i) / steps;
-      const u1 = a + ((b - a) * (i + 1)) / steps;
-      const h0 = z1L + (z1R - z1L) * ((u0 - a) / Math.max(1e-6, b - a));
-      const h1 = z1L + (z1R - z1L) * ((u1 - a) / Math.max(1e-6, b - a));
-      face.place(u0, u1, Math.min(h0, h1), Math.max(h0, h1) + top, color, FLUSH);
-    }
+  if (slanted && typeof face.placeSlope === "function") {
+    face.placeSlope(a, b, z1L, z1L + top, z1R, z1R + top, color, FLUSH);
+    face.beam(op.u0, z1L + top * 0.35, op.u1, z1R + top * 0.35, top * 0.7, color, FLUSH);
+  } else if (slanted) {
     face.beam(op.u0, z1L + top * 0.35, op.u1, z1R + top * 0.35, top * 0.7, color, FLUSH);
   } else {
     face.place(a, b, z1L, z1L + top, color, FLUSH);
@@ -210,10 +246,83 @@ function opHeadAt(op, u) {
 }
 
 function roofAt(face, u) {
-  if (!face.gable) return face.eave;
-  // Софит/фронтон: выше карниза стены поднимаемся по скату до низа кровли.
-  const top = gableCeiling(face.gable, u) - 0.012;
-  return Math.max(face.eave, top);
+  const g = face.gable;
+  if (!g) return face.eave;
+  // На фронтоне — строго по софиту (секции до кровли поверх фронтона).
+  if (typeof g.soffit === "function" && u >= g.u0 - 0.05 && u <= g.u1 + 0.05) {
+    return g.soffit(u) - 0.002;
+  }
+  if (u >= (g.u0 ?? 0) - 0.05 && u <= (g.u1 ?? 0) + 0.05) {
+    return gableCeiling(g, u) - 0.002;
+  }
+  return face.eave;
+}
+
+/** ≈ ROOF_THICK − ROOF_OVER_WALL: низ кровли у стены под обычным свесом. */
+const EAVE_SOFFIT = 0.12;
+/** Толщина скорлупы кровли Д* (roofDrop), если у фронтона нет soffit(). */
+const GABLE_SHELL = 0.38;
+
+/** Единая линия низа кровли: под свесом и на фронтоне без разрыва на пятке. */
+function eaveSoffitAt(face, u) {
+  const flat = face.eave - EAVE_SOFFIT;
+  const g = face.gable;
+  if (g && u >= g.u0 - 0.05 && u <= g.u1 + 0.05) {
+    // peakZ у Д* = наружный конёк; без soffit опускаем на толщину скорлупы — иначе лента в теле кровли.
+    // Не поднимать до flat: Math.max(flat, sof) загонял облицовку в толщу ската у пятки фронтона.
+    const sof = typeof g.soffit === "function"
+      ? g.soffit(u) - 0.002
+      : gableCeiling(g, u) - (Number.isFinite(g.shell) ? g.shell : GABLE_SHELL) - 0.002;
+    return sof;
+  }
+  return flat;
+}
+
+/**
+ * Сплошная светлая лента под кровлей (в т.ч. над рамами второго света).
+ * Фронтон: крылья + два ската — без нарезки и без вырезов у проёмов.
+ */
+function underRoofBand(face, drop = 0.36, color, proud = 0.10) {
+  const lo = face.span0;
+  const hi = face.span1;
+  if (hi - lo < 0.04 || drop < 0.05) return;
+
+  const paintRun = (a, b) => {
+    if (b - a < 0.04) return;
+    // −3 см от низа кровли: лента на стене, не в плоскости ската.
+    const t0 = eaveSoffitAt(face, a) - 0.03;
+    const t1 = eaveSoffitAt(face, b) - 0.03;
+    if (typeof face.placeSlope === "function" && Math.abs(t0 - t1) > 0.04) {
+      face.placeSlope(a, b, t0 - drop, t0, t1 - drop, t1, color, proud);
+    } else {
+      const top = (t0 + t1) * 0.5;
+      face.place(a, b, top - drop, top, color, proud);
+    }
+  };
+
+  const nSamp = Math.max(6, Math.ceil((hi - lo) / 0.25));
+  const tops = [];
+  for (let i = 0; i <= nSamp; i++) {
+    tops.push(eaveSoffitAt(face, lo + ((hi - lo) * i) / nSamp));
+  }
+  const tMin = Math.min(...tops);
+  const tMax = Math.max(...tops);
+  if (tMax - tMin < 0.06) {
+    paintRun(lo, hi);
+    return;
+  }
+
+  const g = face.gable;
+  const parts = [];
+  if (g && Number.isFinite(g.peakU)) {
+    if (lo < g.u0 - 0.02) parts.push([lo, g.u0]);
+    parts.push([Math.max(lo, g.u0), Math.min(hi, g.peakU)]);
+    parts.push([Math.max(lo, g.peakU), Math.min(hi, g.u1)]);
+    if (hi > g.u1 + 0.02) parts.push([g.u1, hi]);
+  } else {
+    parts.push([lo, hi]);
+  }
+  for (const [u0, u1] of parts) paintRun(u0, u1);
 }
 
 // Вертикальные полосы к скату — без горизонтальных «ступеней» fillAbove.
@@ -234,27 +343,119 @@ function placeToRoof(face, a, b, z0, color, proud = 0) {
   cladToRoof(face, Math.min(a, b), Math.max(a, b), z0, color, proud);
 }
 
-// Зашивка до крыши с вырезом проёмов по форме (в т.ч. косой z1L/z1R).
-function cladToRoof(face, u0, u1, zBot, color, proud = 0) {
+/** Верх облицовки: чуть ниже софита — не врезается в скат под углом. */
+function cladTopAt(face, u, zTop = 1e3) {
+  return Math.min(zTop, eaveSoffitAt(face, u) - 0.03);
+}
+
+/** Разрез у конька — на каждом скате верх линейный, одна трапеция без зубцов. */
+function cladPeakParts(face, a, b) {
+  const g = face.gable;
+  if (g && Number.isFinite(g.peakU) && a < g.peakU - 0.01 && b > g.peakU + 0.01) {
+    return [[a, g.peakU], [g.peakU, b]].filter(([u0, u1]) => u1 - u0 > 0.03);
+  }
+  return b - a > 0.03 ? [[a, b]] : [];
+}
+
+function placeCladRun(face, a, b, zBot, zTop, color, proud) {
+  for (const [u0, u1] of cladPeakParts(face, a, b)) {
+    const t0 = cladTopAt(face, u0, zTop);
+    const t1 = cladTopAt(face, u1, zTop);
+    if (Math.max(t0, t1) <= zBot + 0.03) continue;
+    if (typeof face.placeSlope === "function" && Math.abs(t0 - t1) > 0.02) {
+      face.placeSlope(
+        u0, u1,
+        zBot, Math.max(t0, zBot + 0.03),
+        zBot, Math.max(t1, zBot + 0.03),
+        color, proud
+      );
+    } else {
+      const top = Math.min(t0, t1);
+      if (top > zBot + 0.03) face.place(u0, u1, zBot, top, color, proud);
+    }
+  }
+}
+
+function placeCladAboveOp(face, a, b, op, zBot, zTop, color, proud) {
+  for (const [u0, u1] of cladPeakParts(face, a, b)) {
+    const h0 = Math.max(opHeadAt(op, u0), zBot);
+    const h1 = Math.max(opHeadAt(op, u1), zBot);
+    const t0 = cladTopAt(face, u0, zTop);
+    const t1 = cladTopAt(face, u1, zTop);
+    if (Math.max(t0, t1) <= Math.min(h0, h1) + 0.02) continue;
+    if (typeof face.placeSlope === "function") {
+      face.placeSlope(
+        u0, u1,
+        h0, Math.max(t0, h0 + 0.02),
+        h1, Math.max(t1, h1 + 0.02),
+        color, proud
+      );
+    } else {
+      const above = Math.max(h0, h1);
+      const top = Math.min(t0, t1);
+      if (top > above + 0.02) face.place(u0, u1, above, top, color, proud);
+    }
+  }
+}
+
+/**
+ * Облицовка до софита: цельные панели / трапеции по скату (не нарезка 5 см со ступеньками).
+ * Проёмы вырезаются одним куском — без разрывов по краям окон.
+ */
+/** Соседние проёмы (щель ≤ gap) — один вырез: нет тонкой полоски облицовки между рамами 2-го света. */
+function mergeOpeningsForClad(ops, gap = 0.14) {
+  const out = [];
+  for (const op of ops.slice().sort((a, b) => a.u0 - b.u0)) {
+    const last = out[out.length - 1];
+    if (last && op.u0 <= last.u1 + gap) {
+      last.u1 = Math.max(last.u1, op.u1);
+      last.z0 = Math.min(last.z0, op.z0);
+      last.z1 = Math.max(last.z1, op.z1);
+      if (last.z1L == null) last.z1L = last.z1;
+      if (op.z1R != null) last.z1R = op.z1R;
+      else if (op.z1L != null) last.z1R = op.z1;
+      else last.z1R = Math.max(last.z1R != null ? last.z1R : last.z1, op.z1);
+    } else {
+      const copy = { ...op };
+      if (copy.z1L != null || copy.z1R != null) {
+        if (copy.z1L == null) copy.z1L = copy.z1;
+        if (copy.z1R == null) copy.z1R = copy.z1;
+      }
+      out.push(copy);
+    }
+  }
+  return out;
+}
+
+function cladBand(face, u0, u1, zBot, zTop, color, proud = 0) {
   const lo = Math.min(u0, u1);
   const hi = Math.max(u0, u1);
-  if (hi - lo < 0.04) return;
-  const step = 0.045;
-  for (let u = lo; u < hi - 1e-4; u += step) {
-    const u2 = Math.min(u + step, hi);
-    const um = (u + u2) * 0.5;
-    const top = roofAt(face, um);
-    if (top <= zBot + 0.03) continue;
-    const hit = face.openings.find((op) => um > op.u0 && um < op.u1);
-    if (!hit) {
-      face.place(u, u2, zBot, top, color, proud);
-      continue;
+  if (hi - lo < 0.04 || zTop <= zBot + 0.03) return;
+
+  const ops = mergeOpeningsForClad(
+    face.openings.filter((op) => !op.inner && op.u1 > lo + 0.02 && op.u0 < hi - 0.02)
+  );
+
+  let cursor = lo;
+  for (const op of ops) {
+    const a = Math.max(op.u0, lo);
+    const b = Math.min(op.u1, hi);
+    if (b <= a + 0.02) continue;
+    if (a > cursor + 0.03) placeCladRun(face, cursor, a, zBot, zTop, color, proud);
+    const zLo = op.z0;
+    if (zLo > zBot + 0.025) {
+      const topBelow = Math.min(zLo, zTop);
+      if (topBelow > zBot + 0.025) face.place(a, b, zBot, topBelow, color, proud);
     }
-    const zLo = hit.z0;
-    const zHi = opHeadAt(hit, um);
-    if (zLo > zBot + 0.025) face.place(u, u2, zBot, Math.min(zLo, top), color, proud);
-    if (top > zHi + 0.025) face.place(u, u2, Math.max(zHi, zBot), top, color, proud);
+    placeCladAboveOp(face, a, b, op, zBot, zTop, color, proud);
+    cursor = Math.max(cursor, b);
   }
+  if (hi > cursor + 0.03) placeCladRun(face, cursor, hi, zBot, zTop, color, proud);
+}
+
+// Зашивка до крыши с вырезом проёмов по форме (в т.ч. косой z1L/z1R).
+function cladToRoof(face, u0, u1, zBot, color, proud = 0) {
+  cladBand(face, u0, u1, zBot, 1e3, color, proud);
 }
 
 function timberPosts(face, color, z0, z1, pw = 0.13, toRoof = false) {
@@ -653,6 +854,19 @@ function faceU(api, name, openings, span0, span1, vOuter, sign, eave, gable, t) 
   const v0 = sign < 0 ? vOuter - t : vOuter - inset;
   const v1 = sign < 0 ? vOuter + inset : vOuter + t;
   const vBeam = sign < 0 ? vOuter - t * 0.45 : vOuter + t * 0.45;
+  function faceNormU(proud) {
+    if (proud >= 0.015) {
+      // Оболочка от плоскости стены наружу. standOff: лента поверх кирпича (не общая грань).
+      const depth = Math.max(0.028, Math.min(0.2, proud));
+      // Лента снаружи кирпича: standOff больше любого quoin/surround proud.
+      // Лента чуть снаружи кирпича (~3 см), не «парит» в 8 см от стены.
+      const standOff = proud >= 0.1 ? 0.032 : 0;
+      if (sign < 0) return [vOuter - standOff - depth, vOuter - standOff];
+      return [vOuter + standOff, vOuter + standOff + depth];
+    }
+    const extra = sign * proud;
+    return [v0 + extra, v1 + extra];
+  }
   return {
     name, openings, span0, span1, eave, gable, win: null,
     place(a, b, z0, z1, color, proud = 0) {
@@ -663,11 +877,94 @@ function faceU(api, name, openings, span0, span1, vOuter, sign, eave, gable, t) 
       if (za < PLINTH_Z) za = PLINTH_Z;
       if (zb - za < 0.015) return;
       const parts = this.win ? rectsOutside(u0, u1, za, zb, this.win) : [[u0, u1, za, zb]];
-      const extra = sign * proud;
+      const [n0, n1] = faceNormU(proud);
       for (const [s0, s1, c0, c1] of parts) {
         if (s1 - s0 < 0.012 || c1 - c0 < 0.015) continue;
-        api.rect(s0, v0 + extra, s1, v1 + extra, c0, c1, color);
+        api.rect(s0, Math.min(n0, n1), s1, Math.max(n0, n1), c0, c1, color);
       }
+    },
+    /** Лента по скату фронтона (вариант A) — не горизонтальный прямоугольник сквозь кровлю. */
+    placeSlope(a, b, zBotA, zTopA, zBotB, zTopB, color, proud = 0) {
+      let u0 = a;
+      let u1 = b;
+      let zb0 = zBotA;
+      let zt0 = zTopA;
+      let zb1 = zBotB;
+      let zt1 = zTopB;
+      if (u1 < u0) {
+        u0 = b;
+        u1 = a;
+        zb0 = zBotB;
+        zt0 = zTopB;
+        zb1 = zBotA;
+        zt1 = zTopA;
+      }
+      if (u1 - u0 < 0.012) return;
+      zb0 = Math.max(zb0, PLINTH_Z);
+      zb1 = Math.max(zb1, PLINTH_Z);
+      if (zt0 - zb0 < 0.015 && zt1 - zb1 < 0.015) return;
+      const win = this.win;
+      // Вырез окна чердака / 2-го света на фронтоне — иначе секция до кровли его закрывает.
+      if (win && u1 > win.u0 + 0.01 && u0 < win.u1 - 0.01) {
+        const span = Math.max(1e-6, u1 - u0);
+        const at = (u) => {
+          const t = (u - u0) / span;
+          return {
+            zb: zb0 + (zb1 - zb0) * t,
+            zt: zt0 + (zt1 - zt0) * t,
+          };
+        };
+        const paint = (ua, ub, b0, t0, b1, t1) => {
+          if (ub - ua < 0.012) return;
+          if (Math.max(t0, t1) <= Math.min(b0, b1) + 0.015) return;
+          this.placeSlope(ua, ub, b0, t0, b1, t1, color, proud);
+        };
+        // Сбрасываем win на время рекурсии сырых кусков.
+        this.win = null;
+        try {
+          if (u0 < win.u0) {
+            const L = at(u0);
+            const R = at(Math.min(u1, win.u0));
+            paint(u0, Math.min(u1, win.u0), L.zb, L.zt, R.zb, R.zt);
+          }
+          if (u1 > win.u1) {
+            const L = at(Math.max(u0, win.u1));
+            const R = at(u1);
+            paint(Math.max(u0, win.u1), u1, L.zb, L.zt, R.zb, R.zt);
+          }
+          const mid0 = Math.max(u0, win.u0);
+          const mid1 = Math.min(u1, win.u1);
+          if (mid1 > mid0 + 0.012) {
+            const n = Math.max(1, Math.ceil((mid1 - mid0) / 0.18));
+            for (let i = 0; i < n; i++) {
+              const s0 = mid0 + ((mid1 - mid0) * i) / n;
+              const s1 = mid0 + ((mid1 - mid0) * (i + 1)) / n;
+              const L = at(s0);
+              const R = at(s1);
+              const zCut0 = win.zTop(s0);
+              const zCut1 = win.zTop(s1);
+              paint(s0, s1, L.zb, Math.min(L.zt, win.zBase), R.zb, Math.min(R.zt, win.zBase));
+              paint(s0, s1, Math.max(L.zb, zCut0), L.zt, Math.max(R.zb, zCut1), R.zt);
+            }
+          }
+        } finally {
+          this.win = win;
+        }
+        return;
+      }
+      const [n0, n1] = faceNormU(proud);
+      const tris = [];
+      const quad = (ax, ay, az, bx, by, bz, cx, cy, cz, dx, dy, dz) => {
+        tris.push([ax, ay, az, bx, by, bz, cx, cy, cz], [ax, ay, az, cx, cy, cz, dx, dy, dz]);
+      };
+      quad(u0, n0, zb0, u1, n0, zb1, u1, n0, zt1, u0, n0, zt0);
+      quad(u0, n1, zb0, u0, n1, zt0, u1, n1, zt1, u1, n1, zb1);
+      quad(u0, n0, zt0, u1, n0, zt1, u1, n1, zt1, u0, n1, zt0);
+      quad(u0, n0, zb0, u0, n1, zb0, u1, n1, zb1, u1, n0, zb1);
+      quad(u0, n0, zb0, u0, n0, zt0, u0, n1, zt0, u0, n1, zb0);
+      quad(u1, n0, zb1, u1, n1, zb1, u1, n1, zt1, u1, n0, zt1);
+      if (typeof api.tris === "function") api.tris(tris, color);
+      else for (const t of tris) api.tri(t[0], t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8], color);
     },
     beam(a, z0, b, z1, size, color, proud = 0) {
       const v = vBeam + sign * proud;
@@ -762,6 +1059,22 @@ export function wallFace(api, o) {
   const inset = Math.min(0.008, Math.max(0.002, t * 0.35));
   const nBeam = sign < 0 ? outer - t * 0.45 : outer + t * 0.45;
   const outN = sign < 0 ? outer - t - 0.02 : outer + t + 0.02;
+  function faceNorm(proud) {
+    if (proud >= 0.015) {
+      // Оболочка от плоскости стены наружу. standOff: лента поверх кирпича (не общая грань).
+      const depth = Math.max(0.028, Math.min(0.2, proud));
+      // Лента снаружи кирпича: standOff больше любого quoin/surround proud.
+      // Лента чуть снаружи кирпича (~3 см), не «парит» в 8 см от стены.
+      const standOff = proud >= 0.1 ? 0.032 : 0;
+      if (sign < 0) return [outer - standOff - depth, outer - standOff];
+      return [outer + standOff, outer + standOff + depth];
+    }
+    const extra = sign * proud;
+    return [
+      (sign < 0 ? outer - t : outer - inset) + extra,
+      (sign < 0 ? outer + inset : outer + t) + extra,
+    ];
+  }
   const face = {
     name: o.name,
     openings: o.openings,
@@ -769,6 +1082,7 @@ export function wallFace(api, o) {
     span1: o.span1,
     eave: o.eave,
     gable,
+    win: null,
     place(a, b, z0, z1, color, proud = 0) {
       if (o.gableOnly) {
         const cut = o.eave;
@@ -782,13 +1096,109 @@ export function wallFace(api, o) {
       const zb = Math.max(z0, z1);
       if (za < PLINTH_Z) za = PLINTH_Z;
       if (Math.abs(b - a) < 0.012 || zb - za < 0.015) return;
-      const extra = sign * proud;
-      const n0 = (sign < 0 ? outer - t : outer - inset) + extra;
-      const n1 = (sign < 0 ? outer + inset : outer + t) + extra;
+      const [n0, n1] = faceNorm(proud);
       const u0 = Math.min(a, b);
       const u1 = Math.max(a, b);
-      if (alongX) api.rect(u0, Math.min(n0, n1), u1, Math.max(n0, n1), za, zb, color);
-      else api.rect(Math.min(n0, n1), u0, Math.max(n0, n1), u1, za, zb, color);
+      const parts = this.win ? rectsOutside(u0, u1, za, zb, this.win) : [[u0, u1, za, zb]];
+      for (const [s0, s1, c0, c1] of parts) {
+        if (s1 - s0 < 0.012 || c1 - c0 < 0.015) continue;
+        if (alongX) api.rect(s0, Math.min(n0, n1), s1, Math.max(n0, n1), c0, c1, color);
+        else api.rect(Math.min(n0, n1), s0, Math.max(n0, n1), s1, c0, c1, color);
+      }
+    },
+    /** Лента с разной высотой на концах (параллелограмм по скату фронтона). */
+    placeSlope(a, b, zBotA, zTopA, zBotB, zTopB, color, proud = 0) {
+      let u0 = a;
+      let u1 = b;
+      let zb0 = zBotA;
+      let zt0 = zTopA;
+      let zb1 = zBotB;
+      let zt1 = zTopB;
+      if (u1 < u0) {
+        u0 = b;
+        u1 = a;
+        zb0 = zBotB;
+        zt0 = zTopB;
+        zb1 = zBotA;
+        zt1 = zTopA;
+      }
+      if (u1 - u0 < 0.012) return;
+      if (o.gableOnly) {
+        const cut = o.eave;
+        if (Math.max(zt0, zt1) <= cut + 0.012) return;
+        zb0 = Math.max(zb0, cut);
+        zb1 = Math.max(zb1, cut);
+      }
+      zb0 = Math.max(zb0, PLINTH_Z);
+      zb1 = Math.max(zb1, PLINTH_Z);
+      if (zt0 - zb0 < 0.015 && zt1 - zb1 < 0.015) return;
+      const win = this.win;
+      if (win && u1 > win.u0 + 0.01 && u0 < win.u1 - 0.01) {
+        const span = Math.max(1e-6, u1 - u0);
+        const at = (u) => {
+          const t = (u - u0) / span;
+          return { zb: zb0 + (zb1 - zb0) * t, zt: zt0 + (zt1 - zt0) * t };
+        };
+        const paint = (ua, ub, b0, t0, b1, t1) => {
+          if (ub - ua < 0.012) return;
+          if (Math.max(t0, t1) <= Math.min(b0, b1) + 0.015) return;
+          this.placeSlope(ua, ub, b0, t0, b1, t1, color, proud);
+        };
+        this.win = null;
+        try {
+          if (u0 < win.u0) {
+            const L = at(u0);
+            const R = at(Math.min(u1, win.u0));
+            paint(u0, Math.min(u1, win.u0), L.zb, L.zt, R.zb, R.zt);
+          }
+          if (u1 > win.u1) {
+            const L = at(Math.max(u0, win.u1));
+            const R = at(u1);
+            paint(Math.max(u0, win.u1), u1, L.zb, L.zt, R.zb, R.zt);
+          }
+          const mid0 = Math.max(u0, win.u0);
+          const mid1 = Math.min(u1, win.u1);
+          if (mid1 > mid0 + 0.012) {
+            const n = Math.max(1, Math.ceil((mid1 - mid0) / 0.18));
+            for (let i = 0; i < n; i++) {
+              const s0 = mid0 + ((mid1 - mid0) * i) / n;
+              const s1 = mid0 + ((mid1 - mid0) * (i + 1)) / n;
+              const L = at(s0);
+              const R = at(s1);
+              const zCut0 = win.zTop(s0);
+              const zCut1 = win.zTop(s1);
+              paint(s0, s1, L.zb, Math.min(L.zt, win.zBase), R.zb, Math.min(R.zt, win.zBase));
+              paint(s0, s1, Math.max(L.zb, zCut0), L.zt, Math.max(R.zb, zCut1), R.zt);
+            }
+          }
+        } finally {
+          this.win = win;
+        }
+        return;
+      }
+      const [n0, n1] = faceNorm(proud);
+      // Один mesh на панель (не 12 отдельных tri) — меньше нагрузка на WebGL.
+      const tris = [];
+      const quad = (ax, ay, az, bx, by, bz, cx, cy, cz, dx, dy, dz) => {
+        tris.push([ax, ay, az, bx, by, bz, cx, cy, cz], [ax, ay, az, cx, cy, cz, dx, dy, dz]);
+      };
+      if (alongX) {
+        quad(u0, n0, zb0, u1, n0, zb1, u1, n0, zt1, u0, n0, zt0);
+        quad(u0, n1, zb0, u0, n1, zt0, u1, n1, zt1, u1, n1, zb1);
+        quad(u0, n0, zt0, u1, n0, zt1, u1, n1, zt1, u0, n1, zt0);
+        quad(u0, n0, zb0, u0, n1, zb0, u1, n1, zb1, u1, n0, zb1);
+        quad(u0, n0, zb0, u0, n0, zt0, u0, n1, zt0, u0, n1, zb0);
+        quad(u1, n0, zb1, u1, n1, zb1, u1, n1, zt1, u1, n0, zt1);
+      } else {
+        quad(n0, u0, zb0, n0, u1, zb1, n0, u1, zt1, n0, u0, zt0);
+        quad(n1, u0, zb0, n1, u0, zt0, n1, u1, zt1, n1, u1, zb1);
+        quad(n0, u0, zt0, n0, u1, zt1, n1, u1, zt1, n1, u0, zt0);
+        quad(n0, u0, zb0, n1, u0, zb0, n1, u1, zb1, n0, u1, zb1);
+        quad(n0, u0, zb0, n0, u0, zt0, n1, u0, zt0, n1, u0, zb0);
+        quad(n0, u1, zb1, n1, u1, zb1, n1, u1, zt1, n0, u1, zt1);
+      }
+      if (typeof api.tris === "function") api.tris(tris, color);
+      else for (const t of tris) api.tri(t[0], t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8], color);
     },
     beam(a, z0, b, z1, size, color, proud = 0) {
       if (o.gableOnly && Math.max(z0, z1) <= o.eave) return;
@@ -815,6 +1225,7 @@ export function wallFace(api, o) {
       else api.tri(outN, p0, gable.eave, outN, p1, zPeak, outN, p2, gable.eave, color);
     },
   };
+  face.win = normalizeGableWin(face);
   return face;
 }
 
@@ -943,8 +1354,7 @@ export function paintFacadeFaces(api, faces) {
     if (g && g.u0 <= f.span0 + 0.08 && g.u1 >= f.span1 - 0.08) spans = [[f.span0, f.span1]];
     for (const [a, b] of spans) boardsIn(f, a, b, BOARD);
   }));
-  // Сканди-модерн (фото): дерево и светлая стена чередуются по простенкам всех фасадов;
-  // от верха цоколя (0,45), заподлицо со стеной; верх единый по дому.
+  // Сканди-модерн: дерево как roof-d (полосы + woodBoards), высота — до голов обычных окон.
   draw("nordic", () => {
     const zBot = PLINTH_Z;
     const proud = FLUSH;
@@ -965,57 +1375,78 @@ export function paintFacadeFaces(api, faces) {
         name.includes("N") || name.includes("W") || name === "N" || name === "W"
       );
       if (name.includes("Court") || name.includes("Liv")) wood = !wood;
-      for (const pier of piers(f)) {
+      const list = piers(f);
+      list.forEach((pier, i) => {
+        const atEnd = i === 0 || i === list.length - 1;
+        // Углы всегда в дереве с обеих сторон — ровный стык в углу стены.
+        const useWood = atEnd ? true : wood;
         const w = pier.b - pier.a;
-        if (wood && w >= 0.4) {
-          if (w <= 2.4) {
-            punched(f, pier.a, pier.b, zBot, zTop, WOOD_OAK, proud);
-          } else {
+        if (useWood && w >= 0.4) {
+          // У торца фасада — ровно span0/span1; у проёмов чуть отступ.
+          let a = atEnd && i === 0 ? f.span0 : pier.a + 0.01;
+          let b = atEnd && i === list.length - 1 ? f.span1 : pier.b - 0.01;
+          if (!atEnd && w > 2.4) {
             const bay = Math.min(1.55, Math.max(0.9, w * 0.38));
-            punched(f, pier.a, pier.a + bay, zBot, zTop, WOOD_OAK, proud);
+            b = Math.min(b, a + bay);
           }
+          if (b - a >= 0.35) cladBand(f, a, b, zBot, zTop, WOOD_OAK, proud);
         }
         wood = !wood;
-      }
+      });
     });
   });
   // Райт · штукатурка (фото): кремовое поле, тёмный кирпичный пояс, светлый выступающий кант по верху пояса,
-  // кирпичные углы и бока окон, светлые подоконник/перемычка.
+  // кирпичные углы и бока окон, светлые подоконник/перемычка (в т.ч. под чердаком / 2-м светом).
   draw("wright-plaster", () => each(faces, (f) => {
     const sill = sillOf(f);
     const zTop = sill != null ? Math.min(sill, 1.15) : 1.05;
-    punched(f, f.span0, f.span1, PLINTH_Z, zTop, BRICK_WRIGHT, FLUSH);
-    // Выступающий светлый кант по всей стене на стыке кирпича и штукатурки.
-    f.place(f.span0, f.span1, zTop - 0.03, zTop + 0.11, CREAM, 0.03);
-    quoins(f, BRICK_WRIGHT, 0.48);
+    const bandDrop = 0.36;
+    // Белая лента чуть снаружи кирпича, без «парения» (proud < 0.1 → без standOff).
+    const bandProud = 0.055;
+    const qw = 0.48;
+    const ops = sorted(f);
+    const first = ops[0];
+    const last = ops[ops.length - 1];
+    const qL = first ? Math.min(qw, Math.max(0.1, first.u0 - f.span0 - 0.04)) : qw;
+    const qR = last ? Math.min(qw, Math.max(0.1, f.span1 - last.u1 - 0.04)) : qw;
+    // Пояс без углов — иначе двойной кирпич на лопатках z-fight («угол разъезжается»).
+    const mid0 = f.span0 + qL;
+    const mid1 = f.span1 - qR;
+    if (mid1 - mid0 > 0.08) punched(f, mid0, mid1, PLINTH_Z, zTop, BRICK_WRIGHT, FLUSH);
+    quoins(f, BRICK_WRIGHT, qw, { bandDrop, proud: FLUSH });
     for (const op of faceOpenings(f)) surround(f, op, BRICK_WRIGHT, 0.11);
-    for (const op of f.openings) {
+    punched(f, f.span0, f.span1, zTop - 0.03, zTop + 0.11, WRIGHT_BAND, bandProud);
+    // Подоконники у всех проёмов, включая фронтонные — только на ширину окна (+обвод).
+    for (const op of faceOpenings(f)) {
       if (op.kind === "door" || op.z0 < 0.35) continue;
       const { left, right } = sideRoom(f, op, 0.11);
-      f.place(op.u0 - left, op.u1 + right, op.z0 - 0.1, op.z0 - 0.01, CREAM, 0.028);
+      f.place(op.u0 - left, op.u1 + right, op.z0 - 0.12, op.z0 - 0.01, WRIGHT_BAND, bandProud);
     }
+    // Перемычки: и плоские, и косые у фронтонных / 2-го света.
     for (const op of faceOpenings(f)) {
+      if (op.kind === "door") continue;
       const { z1L, z1R } = slantHeads(f, op);
-      if (Math.abs(z1L - z1R) > 0.02) continue;
       const { left, right } = sideRoom(f, op, 0.11);
-      f.place(op.u0 - left, op.u1 + right, op.z1, op.z1 + 0.13, CREAM, 0.028);
+      const a = op.u0 - left;
+      const b = op.u1 + right;
+      if (Math.abs(z1L - z1R) > 0.02 && typeof f.placeSlope === "function") {
+        f.placeSlope(a, b, z1L, z1L + 0.12, z1R, z1R + 0.12, WRIGHT_BAND, bandProud);
+      } else {
+        f.place(a, b, z1L, z1L + 0.12, WRIGHT_BAND, bandProud);
+      }
     }
+    underRoofBand(f, bandDrop, WRIGHT_BAND, bandProud);
   }));
-  // Райт · тёплый кирпич (фото wright-warm): стена — кирпич материала; кремовые пояса у подоконника и под карнизом.
   draw("wright-warm", () => each(faces, (f) => {
     const sill = sillOf(f);
-    const beltLo = sill != null ? Math.max(0.7, sill - 0.1) : 0.95;
-    punched(f, f.span0, f.span1, beltLo, beltLo + 0.18, CREAM, 0.016);
-    punched(f, f.span0, f.span1, f.eave - 0.22, f.eave - 0.04, CREAM, 0.016);
-    const beltHeads = f.openings.filter((op) => {
-      if (op.kind === "door") return false;
-      const { z1L, z1R } = slantHeads(f, op);
-      return Math.abs(z1L - z1R) <= 0.02;
-    }).map((op) => op.z1);
-    const beltHead = beltHeads.length ? Math.max(...beltHeads) : null;
-    if (beltHead != null && beltHead + 0.22 < f.eave - 0.24) {
-      punched(f, f.span0, f.span1, beltHead + 0.02, beltHead + 0.18, CREAM, 0.016);
+    const beltLo = sill != null ? Math.max(0.85, sill - 0.04) : 1.0;
+    const bandProud = 0.055;
+    punched(f, f.span0, f.span1, beltLo, beltLo + 0.14, WRIGHT_BAND, bandProud);
+    const gop = gableWinAsOp(f);
+    if (gop) {
+      f.place(gop.u0 - 0.08, gop.u1 + 0.08, gop.z0 - 0.12, gop.z0 - 0.01, WRIGHT_BAND, bandProud);
     }
+    underRoofBand(f, 0.36, WRIGHT_BAND, bandProud);
   }));
   // Европейский: штукатурка сверху, клинкер до подоконника (как на фото euro-*).
   draw("euro", () => each(faces, (f) => skirtBand(f, BRICK_WRIGHT, FLUSH)));
@@ -1154,43 +1585,77 @@ export function paintFacadeFaces(api, faces) {
       if (top > f.eave + 0.25) f.place(u, u + 0.045, f.eave, top, SLAT);
     }
   }));
-  // Рендер roof-d: тёмные секции у наружных проёмов (+10 см) до ската; внутренние — только вырез.
+  // Рендер roof-d: тёмные/дерево до софита; окна чердака / 2-го света вырезаются (place + placeSlope).
   draw("30", () => each(faces, (f) => {
     const zBot = PLINTH_Z;
     const PAD = 0.10;
+    const ON_WALL = 0.035;
+    // Ровно до span0/span1 — угол стены без щели и без вылета за соседнюю грань.
+    const paint = (u0, u1, color) => {
+      const a = Math.max(u0, f.span0);
+      const b = Math.min(u1, f.span1);
+      if (b - a > 0.12) cladToRoof(f, a, b, zBot, color, ON_WALL);
+    };
     const ops = sorted(f).filter((op) => !op.inner);
-    const darkBays = [];
-    for (const op of ops) {
-      const u0 = Math.max(f.span0, op.u0 - PAD);
-      const u1 = Math.min(f.span1, op.u1 + PAD);
-      if (u1 - u0 < 0.12) continue;
-      darkBays.push({ u0, u1, op });
-      cladToRoof(f, u0, u1, zBot, DARK_CLAD, FLUSH);
-    }
-    const solid = [];
-    let cursor = f.span0;
-    const bays = darkBays.slice().sort((a, b) => a.u0 - b.u0);
-    for (const bay of bays) {
-      if (bay.u0 > cursor + 0.06) solid.push([cursor, bay.u0]);
-      cursor = Math.max(cursor, bay.u1);
-    }
-    if (f.span1 > cursor + 0.06) solid.push([cursor, f.span1]);
-    let wood = false;
-    for (const [a, b] of solid) {
-      if (wood && b - a > 0.35) {
-        cladToRoof(f, a + 0.01, b - 0.01, zBot, WOOD_OAK, FLUSH);
-      }
-      wood = !wood;
-    }
-    // Крыльцо: щит досок от окна слева до окна справа входной двери (дверь вырезается).
+    let porch0 = null;
+    let porch1 = null;
     if (f.name === "v31dN" || f.name === "v31cN") {
       const door = ops.find((op) => op.kind === "door" && op.u0 > 3.2 && op.u1 < 5.5);
       const wins = ops.filter((op) => op.kind === "win" || op.kind === "pan");
       const left = door && wins.filter((w) => w.u1 <= door.u0 + 0.05).sort((a, b) => b.u1 - a.u1)[0];
       const right = door && wins.filter((w) => w.u0 >= door.u1 - 0.05).sort((a, b) => a.u0 - b.u0)[0];
       if (door && left && right && right.u0 - left.u1 > 0.4) {
-        cladToRoof(f, left.u1 + 0.02, right.u0 - 0.02, zBot, WOOD_OAK, FLUSH);
+        porch0 = left.u1 + 0.02;
+        porch1 = right.u0 - 0.02;
       }
+    }
+    const cutPorch = (u0, u1) => {
+      if (porch0 == null || u1 <= porch0 + 0.04 || u0 >= porch1 - 0.04) return [[u0, u1]];
+      const out = [];
+      if (u0 < porch0 - 0.02) out.push([u0, porch0]);
+      if (u1 > porch1 + 0.02) out.push([porch1, u1]);
+      return out.filter(([a, b]) => b - a > 0.08);
+    };
+    const darkRaw = [];
+    for (const op of ops) {
+      const u0 = Math.max(f.span0, op.u0 - PAD);
+      const u1 = Math.min(f.span1, op.u1 + PAD);
+      if (u1 - u0 < 0.12) continue;
+      for (const [a, b] of cutPorch(u0, u1)) darkRaw.push({ u0: a, u1: b });
+    }
+    // Слить пересекающиеся PAD — одна панель на группу окон, без двойных швов.
+    const bays = [];
+    for (const bay of darkRaw.slice().sort((a, b) => a.u0 - b.u0)) {
+      const last = bays[bays.length - 1];
+      if (last && bay.u0 <= last.u1 + 0.04) last.u1 = Math.max(last.u1, bay.u1);
+      else bays.push({ u0: bay.u0, u1: bay.u1 });
+    }
+    for (const bay of bays) paint(bay.u0, bay.u1, DARK_CLAD);
+    const solid = [];
+    let cursor = f.span0;
+    for (const bay of bays) {
+      if (bay.u0 > cursor + 0.06) solid.push([cursor, bay.u0]);
+      cursor = Math.max(cursor, bay.u1);
+    }
+    if (f.span1 > cursor + 0.06) solid.push([cursor, f.span1]);
+    let wood = false;
+    for (let i = 0; i < solid.length; i++) {
+      const [a0, b0] = solid[i];
+      const atEnd = i === 0 || i === solid.length - 1;
+      if (atEnd || wood) {
+        for (const [a, b] of cutPorch(a0, b0)) {
+          if (b - a <= 0.35) continue;
+          // Угол стены — ровно до a0/b0; к соседней тёмной панели — 1 см шов.
+          const u0 = i === 0 ? a0 : a + 0.01;
+          const u1 = i === solid.length - 1 ? b0 : b - 0.01;
+          if (u1 - u0 > 0.12) paint(u0, u1, WOOD_OAK);
+        }
+      }
+      wood = !wood;
+    }
+    // Крыльцо: дерево до софита (дверь и окно чердака вырезаются).
+    if (porch0 != null && porch1 - porch0 > 0.4) {
+      paint(porch0, porch1, WOOD_OAK);
     }
   }));
   draw("25", () => each(faces, (f) => {
@@ -1210,7 +1675,14 @@ export function paintFacadeFaces(api, faces) {
 }
 
 export function buildFacadeOverlays(api, house) {
-  return paintFacadeFaces(api, makeFaces(api, house));
+  const prev = PLINTH_Z;
+  // Вариант A: z от пола над цоколем → панели с 0, иначе щель над цоколем.
+  if (Number.isFinite(house?.plinthZ)) PLINTH_Z = house.plinthZ;
+  try {
+    return paintFacadeFaces(api, makeFaces(api, house));
+  } finally {
+    PLINTH_Z = prev;
+  }
 }
 
 export const OVERLAY_FIELD = {

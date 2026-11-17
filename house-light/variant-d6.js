@@ -1836,7 +1836,7 @@ export function buildVariantD4(api) {
   quad(southPeak, [cx, yCanS, Zr], valley, stepS);
   push([cx, yCanS, Zr], valley, turn);
   quad([xStep, yS, Ze], [xTe, yS, zTe], [xTe, yWall, zTe], [xStep, yWall, Ze]);
-  const roofDrop = 0.30;
+  const roofDrop = 0.38;
   // Верх/низ — отдельные меши от торцов: иначе DoubleSide и усреднение нормалей
   // красят параллельные скаты в разный цвет. Торцы только по внешнему контуру.
   const shellParts = (tris, lower) => {
@@ -1895,19 +1895,8 @@ export function buildVariantD4(api) {
   };
   withFinish("roof", () => {
     const { tops, sides } = shellParts(planTris, lowerRoof);
-    const top = asRoof(addMesh(geometryFromTriangles(tops), ROOF_C));
-    top.material.side = THREE.FrontSide;
-    top.material.flatShading = true;
-    top.material.emissive?.setHex(0x151210);
-    top.material.needsUpdate = true;
-    if (sides.length) {
-      // Торцы отдельным мешем DoubleSide — толщину видно с любого ракурса.
-      const rim = asRoof(addMesh(geometryFromTriangles(sides), ROOF_C));
-      rim.material.flatShading = true;
-      rim.material.emissive?.setHex(0x151210);
-      rim.material.needsUpdate = true;
-    }
-    return top;
+    // Один сваренный mesh — без фасетных «кусков» и швов top/rim.
+    return asRoof(addMesh(geometryFromTriangles(tops.concat(sides), true), ROOF_C));
   });
   const zRoofX = (x) => (x <= cx
     ? Ze + rise * (x - xW) / (cx - xW)
@@ -1985,7 +1974,7 @@ export function buildVariantD4(api) {
     dq(b1, b0, dn(b0), dn(b1));
     dq(a1, b1, dn(b1), dn(a1));
     dq(b0, a0, dn(a0), dn(b0));
-    withFinish("roof", () => asRoof(addMesh(geometryFromTriangles(drip), ROOF_C)));
+    withFinish("roof", () => asRoof(addMesh(geometryFromTriangles(drip, true), ROOF_C)));
   };
   const outletZ = (zRoof, drop, tanA) => zRoof - drop - GW * tanA - LIP - GD;
   const runDrop = (x0, y0, x1, y1) => Math.hypot(x1 - x0, y1 - y0) * RUN;
@@ -2143,7 +2132,7 @@ export function buildVariantD4(api) {
   const toSouth = (p) => [p[0], yG, p[1]];
   gableWithWindow(
     toSouth,
-    [xL, WALL_TOP], [xL, zWest(xL)], [cx, Zr], [xR, zEast(xR)], [xR, WALL_TOP],
+    [xL, WALL_TOP], [xL, zWest(xL) - roofDrop - 0.02], [cx, Zr - roofDrop - 0.02], [xR, zEast(xR) - roofDrop - 0.02], [xR, WALL_TOP],
     cx - halfWin, cx + halfWin,
     [0, -1, 0]
   );
@@ -2154,7 +2143,7 @@ export function buildVariantD4(api) {
   const toEast = (p) => [xg, p[0], p[1]];
   gableWithWindow(
     toEast,
-    [yNWall, WALL_TOP], [yNWall, zNorth(yNWall)], [cy, Zr], [ySWall, zWing(ySWall)], [ySWall, WALL_TOP],
+    [yNWall, WALL_TOP], [yNWall, zNorth(yNWall) - roofDrop - 0.02], [cy, Zr - roofDrop - 0.02], [ySWall, zWing(ySWall) - roofDrop - 0.02], [ySWall, WALL_TOP],
     cy + halfWin, cy - halfWin,
     [1, 0, 0]
   );
@@ -2164,7 +2153,7 @@ export function buildVariantD4(api) {
   // Западный торец: от низа плиты (ARMO_BOT) одним мешем до конька — без шва «плита/фронтон».
   gableWithWindow(
     toWest,
-    [yCanS, ARMO_BOT], [yCanS, Ze], [cy, Zr], [yN, Ze], [yN, ARMO_BOT],
+    [yCanS, ARMO_BOT], [yCanS, Ze - roofDrop - 0.02], [cy, Zr - roofDrop - 0.02], [yN, Ze - roofDrop - 0.02], [yN, ARMO_BOT],
     cy - halfWin, cy + halfWin,
     [-1, 0, 0]
   );

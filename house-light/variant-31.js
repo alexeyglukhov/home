@@ -495,8 +495,7 @@ export function buildVariant31(api) {
     }
     const shell = opts.woodSoffit ? tops.concat(sides) : tops.concat(bottoms, sides);
     withFinish("roof", () => {
-      const mesh = asRoof(addMesh(geometryFromTriangles(shell), ROOF_C));
-      mesh.material.flatShading = true;
+      const mesh = asRoof(addMesh(geometryFromTriangles(shell, true), ROOF_C));
       mesh.material.emissive?.setHex(0x151210);
       mesh.material.needsUpdate = true;
       return mesh;
@@ -504,8 +503,7 @@ export function buildVariant31(api) {
     // Низ навеса — деревянная обшивка (отдельно от тёмной кровли).
     if (opts.woodSoffit && bottoms.length) {
       withFinish("wall", () => {
-        const mesh = asRoof(addMesh(geometryFromTriangles(bottoms), WOOD));
-        mesh.material.flatShading = true;
+        const mesh = asRoof(addMesh(geometryFromTriangles(bottoms, true), WOOD));
         return mesh;
       });
     }
