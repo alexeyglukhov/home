@@ -839,15 +839,13 @@ const PATTERN = {
   seam: () => canvas(96, 48, (g, w, h) => {
     g.fillStyle = "#2a2e32";
     g.fillRect(0, 0, w, h);
-    g.fillStyle = "rgba(0,0,0,0.06)";
-    g.fillRect(0, 0, w, h * 0.5);
     const cx = w / 2;
     g.fillStyle = "#1a1e22";
     g.fillRect(cx - 4, 0, 1.5, h);
     g.fillRect(cx + 3, 0, 1.5, h);
-    g.fillStyle = "#4a5158";
+    g.fillStyle = "#3a4048";
     g.fillRect(cx - 2.5, 0, 5, h);
-    g.fillStyle = "rgba(255,255,255,0.14)";
+    g.fillStyle = "rgba(255,255,255,0.10)";
     g.fillRect(cx - 1, 0, 1.5, h);
   }),
   // Серые секции у проёмов (roof-d): фиброцемент / штукатурка с облачной неоднородностью.
@@ -920,17 +918,14 @@ const PATTERN = {
     const pan = "#3a4048";
     g.fillStyle = pan;
     g.fillRect(0, 0, w, h);
-    // Лёгкая ровная тональность панели (без чередования полос).
-    g.fillStyle = "rgba(0,0,0,0.04)";
-    g.fillRect(0, 0, w, h * 0.5);
     const cx = w * 0.5;
     const rib = 7;
     // Тень/контур по краям ребра.
     g.fillStyle = "#1c2026";
     g.fillRect(cx - rib * 0.5 - 1.5, 0, 1.5, h);
     g.fillRect(cx + rib * 0.5, 0, 1.5, h);
-    // Само ребро — тот же антрацит, чуть светлее сверху.
-    g.fillStyle = "#4a515a";
+    // Само ребро — тот же антрацит, чуть светлее.
+    g.fillStyle = "#454c54";
     g.fillRect(cx - rib * 0.5, 0, rib, h);
     g.fillStyle = "#2a3038";
     g.fillRect(cx - rib * 0.5, 0, 1.2, h);
@@ -1732,8 +1727,8 @@ vec3 sampleFinish(vec2 uv, float upright) {
           `#include <map_fragment>
 if (uOn > 0.5) {
   if (uAlign > 0.5) {
-    // Нормаль грани (не сварная): иначе фальц гнётся у конька/ендов.
-    vec3 n = normalize(cross(dFdx(vFinishPos), dFdy(vFinishPos)));
+    // Нормаль ската из вершины (после weld по pos+normal) — ровный фальц без ряби dFdx.
+    vec3 n = normalize(vFinishNorm);
     if (!gl_FrontFacing) n = -n;
     // Фальц/полосы: U поперёк ската, V вдоль линии падения — рёбра от конька к карнизу.
     vec3 up = vec3(0.0, 1.0, 0.0);
@@ -1758,7 +1753,7 @@ if (uOn > 0.5) {
         );
     }
   };
-  material.customProgramCacheKey = () => "facade-finish-v3-face";
+  material.customProgramCacheKey = () => "facade-finish-v4-slope";
   material.needsUpdate = true;
 }
 
@@ -1815,17 +1810,18 @@ export function applyFacadeStyle(root, styleId) {
     if (spec && typeof spec === "object") {
       paint(obj, spec);
       if (role === "soffit" && mat.emissive) mat.emissive.setHex(0x000000);
-      // Кровля/софит глухие; без PO (иначе скат распадается на куски).
+      // Кровля/софит: ровный тон ската, без PO и без теневой ряби.
       if ((role === "roof" || role === "soffit") && mat) {
         mat.transparent = false;
         mat.opacity = 1;
         mat.depthWrite = true;
         mat.depthTest = true;
-        mat.flatShading = true;
+        mat.flatShading = false;
         mat.side = THREE.DoubleSide;
         mat.polygonOffset = false;
         if (mat.emissive) mat.emissive.setHex(0x000000);
         mat.needsUpdate = true;
+        obj.receiveShadow = false;
         obj.renderOrder = Math.max(obj.renderOrder || 0, 6);
       }
       return;
@@ -1837,10 +1833,11 @@ export function applyFacadeStyle(root, styleId) {
       mat.transparent = false;
       mat.opacity = 1;
       mat.depthWrite = true;
-      mat.flatShading = true;
+      mat.flatShading = false;
       mat.side = THREE.DoubleSide;
       mat.polygonOffset = false;
       mat.needsUpdate = true;
+      obj.receiveShadow = false;
       obj.renderOrder = Math.max(obj.renderOrder || 0, 6);
     }
   });

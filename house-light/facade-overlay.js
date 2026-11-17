@@ -290,8 +290,8 @@ function underRoofBand(face, drop = 0.36, color, proud = 0.10) {
   const paintRun = (a, b) => {
     if (b - a < 0.04) return;
     // −3 см от низа кровли: лента на стене, не в плоскости ската.
-    const t0 = eaveSoffitAt(face, a) - 0.03;
-    const t1 = eaveSoffitAt(face, b) - 0.03;
+    const t0 = eaveSoffitAt(face, a) - 0.06;
+    const t1 = eaveSoffitAt(face, b) - 0.06;
     if (typeof face.placeSlope === "function" && Math.abs(t0 - t1) > 0.04) {
       face.placeSlope(a, b, t0 - drop, t0, t1 - drop, t1, color, proud);
     } else {
@@ -345,7 +345,7 @@ function placeToRoof(face, a, b, z0, color, proud = 0) {
 
 /** Верх облицовки: чуть ниже софита — не врезается в скат под углом. */
 function cladTopAt(face, u, zTop = 1e3) {
-  return Math.min(zTop, eaveSoffitAt(face, u) - 0.03);
+  return Math.min(zTop, eaveSoffitAt(face, u) - 0.06);
 }
 
 /** Разрез у конька — на каждом скате верх линейный, одна трапеция без зубцов. */

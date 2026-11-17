@@ -714,7 +714,7 @@ export function buildVariant31c(api) {
   const gpush = (a, b, c) => gableTris.push([world(...a), world(...b), world(...c)]);
   // yOut < yIn для стены С–Ю (наружная грань южнее). outFace: +1 наружная грань на yOut.
   // Почти вплотную к софиту; 2 см — анти z-fight с низом кровли (не видимая щель).
-  const GABLE_BELOW = 0.02;
+  const GABLE_BELOW = 0.04;
   const gableFillEW = (yOut, yIn, x0, x1, xR, zPeak, zEdge, zBase, outFace) => {
     const zL = zEdge(x0) - ROOF_THICK - GABLE_BELOW;
     const zR = zEdge(x1) - ROOF_THICK - GABLE_BELOW;
@@ -847,7 +847,7 @@ export function buildVariant31c(api) {
   // Второй свет: стены по периметру выреза от плиты до софита (верх по скату/коньку).
   {
     // Почти вплотную к софиту; 2 см — анти z-fight, без видимой щели.
-    const SOF_DROP = 0.02;
+    const SOF_DROP = 0.04;
     const INSET = 0.02; // стенки внутрь выреза — не совпадают с вертикальным ребром плиты
     const zSof = (x) => (x <= xRW ? zWO(x) : zWI(x)) - ROOF_THICK - SOF_DROP;
     // Ребро a→b: много сегментов, чтобы верх шёл по коньку, а не хордой по углам.

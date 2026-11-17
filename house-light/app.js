@@ -1,12 +1,13 @@
 import * as THREE from "three";
 import { OrbitControls } from "./vendor/OrbitControls.js";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
+import { mergeVertices } from "./vendor/utils/BufferGeometryUtils.js";
 import geo from "./geometry.js?v=21";
 import { FURNITURE_LINES } from "./furniture-sketch.js?v=4";
 import { FURNITURE_D } from "./furniture-d.js?v=6";
 import { WALL_LINES } from "./wall-sketch.js?v=2";
-import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=93";
-import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=77";
+import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=94";
+import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=78";
 import { buildVariantD2, d2WalkBoxes, d2FenceSegments } from "./variant-d2.js?v=92";
 import { buildVariantD3, d3WalkBoxes, d3FenceSegments } from "./variant-d3.js?v=14";
 import { buildVariantD4, d4WalkBoxes, d4FenceSegments, D4_WINDOWS, D4_BASE } from "./variant-d4.js?v=28";
@@ -14,8 +15,8 @@ import { buildVariantD4 as buildVariantD6, d4WalkBoxes as d6WalkBoxes, d4FenceSe
 import { buildVariant31, v31WalkBoxes, v31FenceSegments, V31_WINDOWS, V31_BASE } from "./variant-31.js?v=48";
 import { buildVariant31a, v31aWalkBoxes, v31aFenceSegments, V31A_WINDOWS, V31A_BASE } from "./variant-31a.js?v=20";
 import { buildVariant31b, v31bWalkBoxes, v31bFenceSegments, V31B_WINDOWS, V31B_BASE } from "./variant-31b.js?v=35";
-import { buildVariant31d, v31dWalkBoxes, v31dFenceSegments, V31D_WINDOWS, V31D_BASE } from "./variant-31d.js?v=104";
-import { buildVariant31c, v31cWalkBoxes, v31cFenceSegments, V31C_WINDOWS, V31C_BASE } from "./variant-31c.js?v=39";
+import { buildVariant31d, v31dWalkBoxes, v31dFenceSegments, V31D_WINDOWS, V31D_BASE } from "./variant-31d.js?v=105";
+import { buildVariant31c, v31cWalkBoxes, v31cFenceSegments, V31C_WINDOWS, V31C_BASE } from "./variant-31c.js?v=40";
 import { createD2Tour, createTourDaylight, D3_WINDOWS } from "./tour-d2.js?v=23";
 import { syncPrintSheets } from "./print-sheets.js?v=48";
 import { mountFurnitureCatalog } from "./furniture-catalog.js?v=8";
@@ -185,34 +186,25 @@ function pushTri(pos, a, b, c) {
 }
 
 function geometryFromTriangles(tris, weld = false) {
-  // Без weld каждый треугольник — отдельный набор вершин → фасетная «нарезка» на куски.
-  if (!weld) {
-    const pos = [];
-    for (const [a, b, c] of tris) pushTri(pos, a, b, c);
-    const geom = new THREE.BufferGeometry();
-    geom.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
-    geom.computeVertexNormals();
-    return geom;
-  }
-  const map = new Map();
+  // Сначала плоские нормали по треугольникам; weld склеивает только одинаковые pos+normal —
+  // скат одного тона без фасетов, конёк без градиента (нормали разных скатов не сливаются).
   const pos = [];
-  const idx = [];
-  const add = (p) => {
-    // 1 мм: соседние куски ската сходятся в одну вершину без микрощелей.
-    const k = `${p[0].toFixed(3)},${p[1].toFixed(3)},${p[2].toFixed(3)}`;
-    let i = map.get(k);
-    if (i == null) {
-      i = pos.length / 3;
-      map.set(k, i);
-      pos.push(p[0], p[1], p[2]);
-    }
-    return i;
-  };
-  for (const [a, b, c] of tris) idx.push(add(a), add(b), add(c));
-  const geom = new THREE.BufferGeometry();
+  for (const [a, b, c] of tris) pushTri(pos, a, b, c);
+  let geom = new THREE.BufferGeometry();
   geom.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
-  geom.setIndex(idx);
   geom.computeVertexNormals();
+  if (!weld) return geom;
+  const nAttr = geom.getAttribute("normal");
+  for (let i = 0; i < nAttr.count; i++) {
+    nAttr.setXYZ(
+      i,
+      Math.round(nAttr.getX(i) * 1e3) / 1e3,
+      Math.round(nAttr.getY(i) * 1e3) / 1e3,
+      Math.round(nAttr.getZ(i) * 1e3) / 1e3
+    );
+  }
+  nAttr.needsUpdate = true;
+  geom = mergeVertices(geom, 1e-3);
   return geom;
 }
 
@@ -299,13 +291,10 @@ function stampOverlay(mesh) {
   if (mesh.material) {
     mesh.material.depthWrite = true;
     mesh.material.transparent = false;
-    // Лёгкий PO (−1): гасит z-fight со стеной. Кровля без PO и толще — не пробивается.
-    mesh.material.polygonOffset = true;
+    // Без отрицательного PO: иначе панели пробивают скат при орбите. От стены — геометрический proud.
+    mesh.material.polygonOffset = false;
     const hex = mesh.userData.baseColor;
     const wrightBand = hex === 0xfaf6ee;
-    const bias = wrightBand ? -1.5 : -1;
-    mesh.material.polygonOffsetFactor = bias;
-    mesh.material.polygonOffsetUnits = bias;
     mesh.renderOrder = wrightBand ? 4 : 2;
   }
 }
@@ -344,11 +333,10 @@ function sealRoofMaterial(mat) {
   mat.opacity = 1;
   mat.depthWrite = true;
   mat.depthTest = true;
-  // Плоское освещение: сварные вершины иначе дают градиенты через конёк/ендовы.
-  mat.flatShading = true;
+  // Нормали уже по скатам (mergeVertices) — без flatShading и без ряби по треугольникам.
+  mat.flatShading = false;
   mat.side = THREE.DoubleSide;
   // PO на кровле запрещён: bias зависит от наклона грани → «куски» и мерцание при орбите.
-  // Непросвечивание — толщина оболочки + стены/оверлеи ниже низа ската, не depth-bias.
   mat.polygonOffset = false;
   if (mat.emissive) mat.emissive.setHex(0x000000);
   mat.needsUpdate = true;
@@ -359,6 +347,8 @@ function asRoof(mesh) {
   mesh.userData.roof = true;
   // Кровля навеса: и «Крыша», и «Навес» — прячется, если выключен любой из них.
   if (canopyStamp) mesh.userData.canopy = true;
+  // Без теней на скате — иначе PCF даёт пятнистую «окраску».
+  mesh.receiveShadow = false;
   if (mesh.material) {
     sealRoofMaterial(mesh.material);
     mesh.renderOrder = Math.max(mesh.renderOrder || 0, 6);
@@ -389,6 +379,7 @@ function addMesh(geom, color, cast = true) {
     }
     if (finishRole === "roof" || finishRole === "soffit") {
       sealRoofMaterial(mesh.material);
+      mesh.receiveShadow = false;
       mesh.renderOrder = Math.max(mesh.renderOrder || 0, 6);
     }
   }
