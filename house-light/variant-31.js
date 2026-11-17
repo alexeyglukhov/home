@@ -2,7 +2,7 @@
 // Координаты — метры плана участка (как у Д4): x на восток, y на север.
 // Крыша по лекалам: тёмно-синий конёк, белые фронтоны; скаты. Водостоки/снегорезы — позже.
 import * as THREE from "three";
-import { addVar31FurnitureFloor, markHouseFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31-furniture-floor.js?v=7";
+import { addVar31FurnitureFloor, markHouseFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31-furniture-floor.js?v=8";
 
 export const V31_BASE = { x: 0, y: 0 };
 
@@ -267,11 +267,11 @@ export function buildVariant31(api) {
   };
 
   // Высоты кровли нужны уже для верха стен (фронтон без зазора).
-  // Толщина как у 3.1d: верх над стеной +10 см, низ софита WALL_TOP − 20 см.
+  // Верх ската выше стены, чтобы стены не пробивали кровлю.
   const pitch = 22 * Math.PI / 180;
   const tanP = Math.tan(pitch);
-  const ROOF_OVER_WALL = 0.10;
-  const ROOF_THICK = 0.30;
+  const ROOF_OVER_WALL = 0.20;
+  const ROOF_THICK = 0.34;
   const ZeCan = CANOPY_CEIL + ROOF_OVER_WALL;
   const yR0 = 12.88;
   const x0W = -6.15, x0E = 15.42;
@@ -672,8 +672,9 @@ export function buildVariant31(api) {
     const blind = api.addSlabHole(outer, hole, 0.02, 0.03, 0xd4cfc4);
     if (blind) {
       blind.material.polygonOffset = true;
-      blind.material.polygonOffsetFactor = -2;
-      blind.material.polygonOffsetUnits = -2;
+      // Отмостка уходит назад — не мерцает сквозь низ стен.
+      blind.material.polygonOffsetFactor = 2;
+      blind.material.polygonOffsetUnits = 2;
     }
   }
 

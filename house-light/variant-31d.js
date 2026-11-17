@@ -3,7 +3,7 @@
 // Гостиная: второй свет — вырез плиты до изгиба конька у фронтона, стены выреза
 // до кровли; верхний ярус окон по скату. Координаты — метры плана (x восток, y север).
 import * as THREE from "three";
-import { addVar31FurnitureFloor, markHouseFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31-furniture-floor.js?v=7";
+import { addVar31FurnitureFloor, markHouseFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31-furniture-floor.js?v=8";
 
 export const V31D_BASE = { x: 0, y: 0 };
 
@@ -298,9 +298,11 @@ export function buildVariant31d(api) {
   // Свес 0,80 м; над террасой у гостиной глубже (~1,84 м). Конёк mid — середина N↔SM.
   const pitch = 22 * Math.PI / 180;
   const tanP = Math.tan(pitch);
-  // Верх скатов как при 10 см над стеной; +20 см толщины вниз (низ на грани стены = WALL_TOP − 0,20).
-  const ROOF_OVER_WALL = 0.10;
-  const ROOF_THICK = 0.30;
+  // Верх ската выше стены, чтобы стены не пробивали кровлю; у Райта низ/торец — role soffit.
+  const ROOF_OVER_WALL = 0.20;
+  const ROOF_SKIN = 0.10;
+  const SOFFIT_THICK = 0.22;
+  const ROOF_THICK = ROOF_SKIN + SOFFIT_THICK;
   const EAVE = 0.80;
   const EAVE_TERR = 1.84; // карниз WO/WI над террасой по схеме
   const EAVE_PORCH = 0.80;
@@ -570,7 +572,8 @@ export function buildVariant31d(api) {
   const emitShell = (topPolys, openEdges) => {
     const tops = [];
     const bottoms = [];
-    const sides = [];
+    const roofSides = [];
+    const soffitSides = [];
     for (const poly of topPolys) {
       for (let i = 1; i < poly.length - 1; i++) pushW(tops, poly[0], poly[i], poly[i + 1]);
       const bot = poly.map(([x, y, z]) => [x, y, z - ROOF_THICK]);
@@ -579,18 +582,45 @@ export function buildVariant31d(api) {
     for (const [a, b] of openEdges) {
       const [x0, y0, z0] = a;
       const [x1, y1, z1] = b;
-      quadW(sides,
+      quadW(roofSides,
         [x0, y0, z0], [x1, y1, z1],
+        [x1, y1, z1 - ROOF_SKIN], [x0, y0, z0 - ROOF_SKIN]
+      );
+      quadW(soffitSides,
+        [x0, y0, z0 - ROOF_SKIN], [x1, y1, z1 - ROOF_SKIN],
         [x1, y1, z1 - ROOF_THICK], [x0, y0, z0 - ROOF_THICK]
       );
     }
     withFinish("roof", () => {
-      const mesh = asRoof(addMesh(geometryFromTriangles(tops.concat(bottoms, sides)), ROOF_C));
+      const mesh = asRoof(addMesh(geometryFromTriangles(tops.concat(roofSides)), ROOF_C));
       mesh.material.flatShading = true;
       mesh.material.emissive?.setHex(0x151210);
+      mesh.material.polygonOffset = true;
+      mesh.material.polygonOffsetFactor = -2;
+      mesh.material.polygonOffsetUnits = -2;
+      mesh.material.depthWrite = true;
+      mesh.renderOrder = 1;
       mesh.material.needsUpdate = true;
       return mesh;
     });
+    const paintSoffit = (tris, frontOnly) => {
+      if (!tris.length) return null;
+      const soft = asRoof(addMesh(geometryFromTriangles(tris), ROOF_C, false));
+      soft.material.side = frontOnly ? THREE.FrontSide : THREE.DoubleSide;
+      soft.material.polygonOffset = true;
+      soft.material.polygonOffsetFactor = 4;
+      soft.material.polygonOffsetUnits = 4;
+      soft.material.depthWrite = true;
+      soft.material.emissive?.setHex(0x000000);
+      soft.material.needsUpdate = true;
+      return soft;
+    };
+    if (bottoms.length || soffitSides.length) {
+      withFinish("soffit", () => {
+        paintSoffit(bottoms, true);
+        paintSoffit(soffitSides, false);
+      });
+    }
   };
   const P = (x, y, z) => [x, y, z];
   // Узлы по SVG «крыша»: коньки / бёдра / ендовы = пересечения плоскостей.
@@ -1026,8 +1056,9 @@ export function buildVariant31d(api) {
     const blind = api.addSlabHole(outer, hole, 0.02, 0.03, 0xd4cfc4);
     if (blind) {
       blind.material.polygonOffset = true;
-      blind.material.polygonOffsetFactor = -2;
-      blind.material.polygonOffsetUnits = -2;
+      // Отмостка уходит назад — не мерцает сквозь низ стен.
+      blind.material.polygonOffsetFactor = 2;
+      blind.material.polygonOffsetUnits = 2;
     }
   }
 

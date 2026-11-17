@@ -5,17 +5,17 @@ import geo from "./geometry.js?v=21";
 import { FURNITURE_LINES } from "./furniture-sketch.js?v=4";
 import { FURNITURE_D } from "./furniture-d.js?v=6";
 import { WALL_LINES } from "./wall-sketch.js?v=2";
-import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=30";
-import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=28";
+import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=44";
+import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=44";
 import { buildVariantD2, d2WalkBoxes, d2FenceSegments } from "./variant-d2.js?v=89";
 import { buildVariantD3, d3WalkBoxes, d3FenceSegments } from "./variant-d3.js?v=11";
 import { buildVariantD4, d4WalkBoxes, d4FenceSegments, D4_WINDOWS, D4_BASE } from "./variant-d4.js?v=25";
 import { buildVariantD4 as buildVariantD6, d4WalkBoxes as d6WalkBoxes, d4FenceSegments as d6FenceSegments, D4_WINDOWS as D6_WINDOWS, D4_BASE as D6_BASE } from "./variant-d6.js?v=35";
-import { buildVariant31, v31WalkBoxes, v31FenceSegments, V31_WINDOWS, V31_BASE } from "./variant-31.js?v=44";
-import { buildVariant31a, v31aWalkBoxes, v31aFenceSegments, V31A_WINDOWS, V31A_BASE } from "./variant-31a.js?v=16";
-import { buildVariant31b, v31bWalkBoxes, v31bFenceSegments, V31B_WINDOWS, V31B_BASE } from "./variant-31b.js?v=31";
-import { buildVariant31d, v31dWalkBoxes, v31dFenceSegments, V31D_WINDOWS, V31D_BASE } from "./variant-31d.js?v=73";
-import { buildVariant31c, v31cWalkBoxes, v31cFenceSegments, V31C_WINDOWS, V31C_BASE } from "./variant-31c.js?v=7";
+import { buildVariant31, v31WalkBoxes, v31FenceSegments, V31_WINDOWS, V31_BASE } from "./variant-31.js?v=45";
+import { buildVariant31a, v31aWalkBoxes, v31aFenceSegments, V31A_WINDOWS, V31A_BASE } from "./variant-31a.js?v=17";
+import { buildVariant31b, v31bWalkBoxes, v31bFenceSegments, V31B_WINDOWS, V31B_BASE } from "./variant-31b.js?v=32";
+import { buildVariant31d, v31dWalkBoxes, v31dFenceSegments, V31D_WINDOWS, V31D_BASE } from "./variant-31d.js?v=79";
+import { buildVariant31c, v31cWalkBoxes, v31cFenceSegments, V31C_WINDOWS, V31C_BASE } from "./variant-31c.js?v=13";
 import { createD2Tour, createTourDaylight, D3_WINDOWS } from "./tour-d2.js?v=23";
 import { syncPrintSheets } from "./print-sheets.js?v=48";
 import { mountFurnitureCatalog } from "./furniture-catalog.js?v=8";
@@ -154,8 +154,13 @@ const ground = new THREE.Mesh(
   new THREE.MeshLambertMaterial({ color: 0xc5d0b8 })
 );
 ground.rotation.x = -Math.PI / 2;
-ground.position.y = -0.05;
+ground.position.y = -0.08;
 ground.receiveShadow = true;
+// Подложка уходит назад по глубине — не просвечивает сквозь тонкие стены 3.1* на скользящих углах.
+ground.material.polygonOffset = true;
+ground.material.polygonOffsetFactor = 4;
+ground.material.polygonOffsetUnits = 4;
+ground.renderOrder = -2;
 scene.add(ground);
 
 function pushTri(pos, a, b, c) {
@@ -306,7 +311,13 @@ function addMesh(geom, color, cast = true) {
     mesh.userData.finish = finishRole;
     mesh.userData.baseColor = mesh.material.color.getHex();
     // Вариант 3.1 / 3.1b: узор тянется от земли до конька.
-    if (finishRole === "wall" && (bucket === variant31Group || bucket === variant31aGroup || bucket === variant31bGroup || bucket === variant31cGroup || bucket === variant31dGroup)) mesh.userData.finishTop = 6.5;
+    if (finishRole === "wall" && (bucket === variant31Group || bucket === variant31aGroup || bucket === variant31bGroup || bucket === variant31cGroup || bucket === variant31dGroup)) {
+      mesh.userData.finishTop = 6.5;
+      // Стены чуть ближе камере по глубине — подложка участка не пробивается на скользящих углах.
+      mesh.material.polygonOffset = true;
+      mesh.material.polygonOffsetFactor = -1;
+      mesh.material.polygonOffsetUnits = -1;
+    }
   }
   if (canopyStamp) mesh.userData.canopy = true;
   bucket.add(mesh);
@@ -5613,11 +5624,75 @@ function showCanopies(on) {
 
 const VIEW_KEY = "house-light-view";
 const facadeSelect = document.getElementById("facade-style");
+const facadeList = document.getElementById("facade-style-list");
+const facadeCards = new Map();
+
+function splitFacadeName(name) {
+  const parts = String(name || "").split(" · ");
+  if (parts.length >= 2) return { line1: parts[0], line2: parts.slice(1).join(" · ") };
+  return { line1: name || "", line2: "" };
+}
+
+function syncFacadeCards() {
+  const id = facadeSelect.value;
+  for (const [cardId, card] of facadeCards) {
+    card.classList.toggle("active", cardId === id);
+    card.setAttribute("aria-selected", cardId === id ? "true" : "false");
+  }
+}
+
 for (const choice of FACADE_CHOICES) {
   const opt = document.createElement("option");
   opt.value = choice.id;
   opt.textContent = choice.name;
   facadeSelect.appendChild(opt);
+
+  const card = document.createElement("button");
+  card.type = "button";
+  card.className = "facade-card";
+  card.role = "option";
+  card.dataset.id = choice.id;
+  card.title = choice.name;
+
+  const { line1, line2 } = splitFacadeName(choice.name);
+  const hearts = choice.likes ? `<span class="hearts">${"♥".repeat(choice.likes)}</span>` : "";
+  // Лайкнутые каталога — исходные фото; нумерованные — рендер 3.1c с юга.
+  const catalogThumb = choice.thumb || "";
+  const modelThumb = `style-thumbs/${encodeURIComponent(choice.id)}.jpg`;
+  let thumb;
+  if (choice.id === "model") {
+    thumb = document.createElement("span");
+    thumb.className = "thumb empty";
+    thumb.setAttribute("aria-hidden", "true");
+    thumb.textContent = "—";
+  } else {
+    thumb = document.createElement("img");
+    thumb.className = "thumb";
+    thumb.loading = "lazy";
+    thumb.decoding = "async";
+    thumb.alt = "";
+    thumb.src = catalogThumb || `${modelThumb}?v=3`;
+    thumb.addEventListener("error", () => {
+      const empty = document.createElement("span");
+      empty.className = "thumb empty";
+      empty.setAttribute("aria-hidden", "true");
+      empty.textContent = choice.id;
+      thumb.replaceWith(empty);
+    });
+  }
+  const meta = document.createElement("span");
+  meta.className = "meta";
+  meta.innerHTML = `<span class="line1">${line1}${hearts ? ` ${hearts}` : ""}</span>${
+    line2 ? `<span class="line2">${line2}</span>` : ""
+  }`;
+  card.append(thumb, meta);
+  card.addEventListener("click", () => {
+    if (facadeSelect.value === choice.id) return;
+    facadeSelect.value = choice.id;
+    facadeSelect.dispatchEvent(new Event("change"));
+  });
+  facadeList.appendChild(card);
+  facadeCards.set(choice.id, card);
 }
 const VARIANT_IDS = ["v2", "d2", "vb", "vc", "vd1", "vd2", "vd3", "vd4", "vd5", "vd6", "v31", "v31a", "v31b", "v31c", "v31d", "topo3"];
 const VARIANT_BUTTON = {
@@ -5906,9 +5981,13 @@ function loadView() {
 }
 
 const restoredCamera = loadView();
-if (!facadeSelect.value || facadeSelect.value === "model") facadeSelect.value = "30";
+if (!facadeSelect.value || facadeSelect.value === "model" || !FACADE_CHOICES.some((s) => s.id === facadeSelect.value)) {
+  facadeSelect.value = FACADE_CHOICES[0]?.id || "nordic-white";
+}
+syncFacadeCards();
 applyFacadeStyle(scene, facadeSelect.value);
 facadeSelect.addEventListener("change", () => {
+  syncFacadeCards();
   applyFacadeStyle(scene, facadeSelect.value);
   saveView();
 });
@@ -6651,4 +6730,90 @@ window.addEventListener("resize", () => {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+/** ?makethumbs=1 — рендер миниатюр всех стилей на 3.1c с юга → style-thumbs/*.jpg */
+async function makeStyleThumbs() {
+  if (!window.houseAuthor?.isAuthor) {
+    console.warn("makethumbs: нужен авторский режим");
+    return;
+  }
+  const hide = [panel, document.getElementById("shot-btn"), document.getElementById("copy-url-btn"),
+    document.getElementById("auth-badge"), document.getElementById("prints"),
+    document.getElementById("menu-toggle")].filter(Boolean);
+  const prev = hide.map((el) => el.style.visibility);
+  hide.forEach((el) => { el.style.visibility = "hidden"; });
+  const prevRoof = roofToggle.checked;
+  roofToggle.checked = true;
+  showRoofs(true);
+  setVariant("v31c");
+  // Южный фасад 3.1c: камера с юга, чуть сбоку, взгляд на север к дому.
+  const [te, tn] = planToWorld(5.2, 9.0);
+  const [ce, cn] = planToWorld(1.5, -9.5);
+  controls.target.set(te, 2.3, tn);
+  camera.position.set(ce, 6.2, cn);
+  controls.update();
+  dateInput.value = "2026-06-21";
+  timeInput.value = "790";
+  applySun(geo);
+  const cssW = window.innerWidth;
+  const cssH = window.innerHeight;
+  const shotW = 480;
+  const shotH = 320;
+  // Только стили без каталожного фото (нумерованные 1–30).
+  const ids = FACADE_CHOICES
+    .filter((c) => c.id !== "model" && !c.thumb)
+    .map((c) => c.id);
+  let done = 0;
+  for (const id of ids) {
+    facadeSelect.value = id;
+    syncFacadeCards();
+    applyFacadeStyle(scene, id);
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    renderer.setPixelRatio(1);
+    renderer.setSize(shotW, shotH, false);
+    camera.aspect = shotW / shotH;
+    camera.updateProjectionMatrix();
+    renderer.render(scene, camera);
+    const jpeg = renderer.domElement.toDataURL("image/jpeg", 0.88);
+    const res = await fetch(`/api/thumb/${encodeURIComponent(id)}`, {
+      method: "PUT",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jpeg }),
+    });
+    if (!res.ok) console.warn("thumb fail", id, res.status);
+    done += 1;
+    document.title = `thumbs ${done}/${ids.length}`;
+  }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(cssW, cssH, true);
+  camera.aspect = cssW / cssH;
+  camera.updateProjectionMatrix();
+  roofToggle.checked = prevRoof;
+  showRoofs(prevRoof);
+  hide.forEach((el, i) => { el.style.visibility = prev[i] || ""; });
+  const url = new URL(location.href);
+  url.searchParams.delete("makethumbs");
+  history.replaceState(null, "", url);
+  document.title = "Свет дома, Абрикосовая 22";
+  console.log("makethumbs done", done);
+  location.reload();
+}
+
+window.makeStyleThumbs = makeStyleThumbs;
+// Флаг читаем сразу: writeViewQuery потом вычищает search.
+const MAKE_STYLE_THUMBS = new URLSearchParams(location.search).get("makethumbs") === "1";
+if (MAKE_STYLE_THUMBS) {
+  window.setTimeout(async () => {
+    const t0 = Date.now();
+    while (!window.houseAuthor?.isAuthor && Date.now() - t0 < 8000) {
+      await new Promise((r) => setTimeout(r, 150));
+    }
+    try {
+      await makeStyleThumbs();
+    } catch (err) {
+      console.error(err);
+    }
+  }, 400);
+}
 

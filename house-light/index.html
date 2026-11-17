@@ -10,7 +10,7 @@
   html, body { margin: 0; height: 100%; background: #d5e2ef; font-family: "DejaVu Sans", "Liberation Sans", sans-serif; }
   canvas { display: block; }
   #panel {
-    position: absolute; top: 12px; left: 12px; width: 280px;
+    position: absolute; top: 12px; left: 12px; width: 300px;
     background: #fffef9; border: 1px solid #cfc8b8; border-radius: 6px;
     padding: 12px 14px 10px; color: #222; box-sizing: border-box;
   }
@@ -51,6 +51,37 @@
   html[data-variants~="vd6"] #var-vd6,
   html[data-variants~="topo3"] #var-topo3 { display: inline-block; }
   select { width: 100%; font: inherit; font-size: 12px; margin-top: 4px; padding: 4px; }
+  #facade-picker { margin-top: 4px; }
+  #facade-style { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+  #facade-style-list {
+    max-height: 280px; overflow: auto; display: flex; flex-direction: column; gap: 5px;
+    margin: 0; padding: 3px; border: 1px solid #cfc8b8; border-radius: 4px; background: #faf7f0;
+  }
+  .facade-card {
+    display: grid; grid-template-columns: 72px 1fr; gap: 8px; align-items: start;
+    width: 100%; margin: 0; padding: 5px 6px; text-align: left;
+    background: #fffef9; border: 1px solid transparent; border-radius: 4px;
+  }
+  .facade-card:hover { background: #efe6d4; }
+  .facade-card.active { background: #e4d7bf; border-color: #6b5a45; }
+  .facade-card .thumb {
+    width: 72px; height: 52px; border-radius: 3px; object-fit: cover; display: block;
+    background: #ddd6c8; border: 1px solid #cfc8b8;
+  }
+  .facade-card .thumb.empty {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: #6b5a45; font-weight: 600;
+  }
+  .facade-card .meta { min-width: 0; display: flex; flex-direction: column; gap: 2px; padding-top: 1px; }
+  .facade-card .line1 {
+    font-size: 12px; font-weight: 650; line-height: 1.25;
+    white-space: normal;
+  }
+  .facade-card .line2 {
+    font-size: 11px; line-height: 1.3; color: #4a4034;
+    white-space: normal;
+  }
+  .facade-card .hearts { color: #8a3a32; letter-spacing: 0.5px; }
   #sun { font-variant-numeric: tabular-nums; }
   #clock { font-weight: 700; }
   #auth-badge, #shot-btn, #copy-url-btn {
@@ -320,9 +351,11 @@
     <button type="button" id="var-v31d">Вариант 3.1d</button>
     <button type="button" id="var-topo3">Топочная Вариант 3.1</button>
   </div>
-  <label>Отделка
-    <select id="facade-style"></select>
-  </label>
+  <div id="facade-picker">
+    <label for="facade-style">Отделка</label>
+    <select id="facade-style" tabindex="-1" aria-hidden="true"></select>
+    <div id="facade-style-list" role="listbox" aria-label="Стили отделки"></div>
+  </div>
   <p id="blurb">Вариант A. Терраса и гостиная на юг, вход на север, детские на восток. Потолок 3,5 м. Жёлтые окна от 0,80 м, белые панорамные от 0,10 м. Крыша над крыльцом как над террасой.</p>
   <label>Дата <input id="date" type="date" value="2026-06-21"></label>
   <label>Время <span id="clock">09:00</span>
@@ -618,7 +651,7 @@ if (window.__houseOpenStyles) {
 }
 </script>
 <script type="module">
-if (!window.__houseOpenStyles) import("./app.js?v=1051");
+if (!window.__houseOpenStyles) import("./app.js?v=1074");
 </script>
 </body>
 </html>

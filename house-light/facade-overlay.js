@@ -3,6 +3,10 @@ import * as THREE from "three";
 const PLASTER = 0xe7e1d6;
 const BRICK = 0x8d4b3c;
 const BRICK_DARK = 0x4a342c;
+/** Тёмно-коричневый кирпич Райта (фото wright-plaster), не холодный графит. */
+const BRICK_WRIGHT = 0x5a463c;
+/** Песочный клинкер для оверлеев (euro-sand цоколь). */
+const BRICK_SAND = 0xb89260;
 const STONE = 0xb7aa96;
 const JOINT = 0x5a5e5a;
 const SHUTTER_P = 0x5e7c86;
@@ -26,6 +30,8 @@ const CASS_A = 0xe6e2da;
 const CASS_B = 0xb3aea4;
 const SURROUND = 0xc4b49a;
 const BELT = 0x8a8175;
+/** Светлый пояс Райта — тёплый кремовый с фото (#f0d4b4), не белый. */
+const CREAM = 0xf0d4b4;
 const SIDING = 0x6a655c;
 const DARK = 0x3a3e42;
 const BOARD = 0x6e757c;
@@ -80,25 +86,79 @@ function quoins(face, color, w = 0.4) {
   climb(face.span1 - right, face.span1);
 }
 
+/** Фронтонное окно (V2/D2 trap): poly + zTop(u) → проём с z1L/z1R для surround. */
+function gableWinAsOp(face) {
+  const w = face.win;
+  if (!w || typeof w.zTop !== "function" || !(w.u1 > w.u0 + 0.2)) return null;
+  const z1L = w.zTop(w.u0);
+  const z1R = w.zTop(w.u1);
+  return {
+    u0: w.u0,
+    u1: w.u1,
+    z0: w.zBase ?? face.eave,
+    z1: Math.max(z1L, z1R),
+    z1L,
+    z1R,
+    kind: "win",
+  };
+}
+
+function faceOpenings(face) {
+  const list = face.openings.slice();
+  const gop = gableWinAsOp(face);
+  if (gop) list.push(gop);
+  return list;
+}
+
+/** Верх проёма: z1L/z1R из данных или из софита фронтона (второй свет / трапеция). */
+function slantHeads(face, op) {
+  let z1L = op.z1L != null ? op.z1L : op.z1;
+  let z1R = op.z1R != null ? op.z1R : op.z1;
+  const g = face.gable;
+  if (g && typeof g.soffit === "function") {
+    const marked = op.z1L != null || op.z1R != null;
+    const tall = Math.max(z1L, z1R, op.z1) >= face.eave - 0.08;
+    if (marked || tall) {
+      // Тот же отступ, что у второго света в variant-31*: низ кровли − 0,50 м.
+      const sL = g.soffit(op.u0) - 0.50;
+      const sR = g.soffit(op.u1) - 0.50;
+      if (op.z1L != null) z1L = op.z1L;
+      else if (tall) z1L = Math.max(op.z1, sL);
+      if (op.z1R != null) z1R = op.z1R;
+      else if (tall) z1R = Math.max(op.z1, sR);
+    }
+  }
+  return { z1L, z1R };
+}
+
 function surround(face, op, color, band = 0.15) {
   const { left, right } = sideRoom(face, op, band);
-  // Косой верх: z1L/z1R; иначе обычный прямоугольник по op.z1.
-  const z1L = (op.z1L != null ? op.z1L : op.z1) + 0.02;
-  const z1R = (op.z1R != null ? op.z1R : op.z1) + 0.02;
+  const heads = slantHeads(face, op);
+  const z1L = heads.z1L + 0.02;
+  const z1R = heads.z1R + 0.02;
   const slanted = Math.abs(z1L - z1R) > 0.02;
   const top = 0.12;
+  const zBot = op.kind === "door" ? 0.02 : Math.max(0.02, op.z0 - 0.1);
+  // Бока — только до своей высоты трапеции (не общий max → «квадрат»).
   if (left > 0.025) {
-    face.place(op.u0 - left, op.u0 - 0.01, op.kind === "door" ? 0.02 : op.z0 - 0.1, z1L + top, color, 0.012);
+    face.place(op.u0 - left, op.u0 - 0.01, zBot, z1L + top, color, 0.012);
   }
   if (right > 0.025) {
-    face.place(op.u1 + 0.01, op.u1 + right, op.kind === "door" ? 0.02 : op.z0 - 0.1, z1R + top, color, 0.012);
+    face.place(op.u1 + 0.01, op.u1 + right, zBot, z1R + top, color, 0.012);
   }
   const a = op.u0 - left;
   const b = op.u1 + right;
   if (slanted) {
-    // Верхняя полка обводки вдоль ската (не горизонтальный прямоугольник).
-    face.beam(a, z1L + top * 0.5, b, z1R + top * 0.5, top, color, 0.012);
-    face.beam(op.u0, z1L + top * 0.35, op.u1, z1R + top * 0.35, top * 0.7, color, 0.01);
+    // Полная полка вдоль ската сегментами + балка по кромке стекла.
+    const steps = Math.max(6, Math.ceil((b - a) / 0.1));
+    for (let i = 0; i < steps; i++) {
+      const u0 = a + ((b - a) * i) / steps;
+      const u1 = a + ((b - a) * (i + 1)) / steps;
+      const h0 = z1L + (z1R - z1L) * ((u0 - a) / Math.max(1e-6, b - a));
+      const h1 = z1L + (z1R - z1L) * ((u1 - a) / Math.max(1e-6, b - a));
+      face.place(u0, u1, Math.min(h0, h1), Math.max(h0, h1) + top, color, 0.012);
+    }
+    face.beam(op.u0, z1L + top * 0.35, op.u1, z1R + top * 0.35, top * 0.7, color, 0.014);
   } else {
     face.place(a, b, z1L, z1L + top, color, 0.012);
   }
@@ -108,8 +168,24 @@ function surround(face, op, color, band = 0.15) {
 function shutter(face, op, color) {
   if (op.kind === "door" || op.z0 < 0.45) return;
   const { left, right } = sideRoom(face, op, 0.2);
-  if (left > 0.08) face.place(op.u0 - left, op.u0 - 0.03, op.z0, op.z1, color, 0.02);
-  if (right > 0.08) face.place(op.u1 + 0.03, op.u1 + right, op.z0, op.z1, color, 0.02);
+  const { z1L, z1R } = slantHeads(face, op);
+  if (left > 0.08) face.place(op.u0 - left, op.u0 - 0.03, op.z0, z1L, color, 0.02);
+  if (right > 0.08) face.place(op.u1 + 0.03, op.u1 + right, op.z0, z1R, color, 0.02);
+}
+
+/** Камень/кирпич до реального подоконника выбранного фасада. */
+function skirtBand(face, color, proud = 0.01) {
+  const sill = sillOf(face);
+  if (sill == null || sill < 0.4) return;
+  const z0 = 0.04;
+  const z1 = sill;
+  for (const pier of piers(face)) {
+    if (pier.b - pier.a > 0.05) face.place(pier.a, pier.b, z0, z1, color, proud);
+  }
+  for (const op of face.openings) {
+    if (op.z0 <= z0 + 0.05) continue;
+    face.place(op.u0, op.u1, z0, Math.min(op.z0 - 0.02, z1), color, proud);
+  }
 }
 
 function slopeSpan(g, z) {
@@ -742,11 +818,23 @@ export function paintFacadeFaces(api, faces) {
     fn();
   }
 
+  // Юбка до реального подоконника фасада (не фиксированные 1,10 м).
+  draw("1", () => each(faces, (f) => skirtBand(f, STONE, 0.012)));
+  draw("9", () => each(faces, (f) => skirtBand(f, BRICK, 0.012)));
+  draw("19", () => each(faces, (f) => {
+    skirtBand(f, STONE, 0.012);
+    const sill = sillOf(f);
+    if (sill == null) return;
+    f.place(f.span0, f.span1, sill - 0.02, sill + 0.06, BLADE, 0.014);
+  }));
   draw("2", () => each(faces, (f) => {
     quoins(f, BRICK);
-    for (const op of f.openings) surround(f, op, BRICK, 0.16);
+    for (const op of faceOpenings(f)) surround(f, op, BRICK, 0.16);
   }));
-  draw("3", () => each(faces, (f) => quoins(f, BRICK_DARK, 0.46)));
+  draw("3", () => each(faces, (f) => {
+    quoins(f, BRICK_DARK, 0.46);
+    for (const op of faceOpenings(f)) surround(f, op, BRICK_DARK, 0.12);
+  }));
   draw("4", () => each(faces, (f) => {
     if (f.gable) {
       paintZone(f, f.gable.u0, f.gable.u1, STONE);
@@ -777,6 +865,9 @@ export function paintFacadeFaces(api, faces) {
     const levels = [];
     for (const op of f.openings) {
       if (op.z0 > 0.25) levels.push(op.z0);
+      // Горизонтальный шов только у прямоугольных проёмов — у трапеции верх косой.
+      const { z1L, z1R } = slantHeads(f, op);
+      if (Math.abs(z1L - z1R) > 0.02) continue;
       if (op.z1 < f.eave - 0.08) levels.push(op.z1);
     }
     for (const z of levels) {
@@ -787,21 +878,33 @@ export function paintFacadeFaces(api, faces) {
     quoins(f, STONE, 0.36);
     for (const op of f.openings) shutter(f, op, SHUTTER_P);
   }));
+  // Прерии / Райт: тёмный кирпич цоколя и обводов + горизонтальные пояса.
   draw("8", () => each(faces, (f) => {
-    f.place(f.span0, f.span1, f.eave - 0.16, f.eave - 0.03, BELT);
-    const beltHeads = f.openings.filter((op) => op.kind !== "door").map((op) => op.z1);
-    const beltHead = beltHeads.length ? Math.max(...beltHeads) : f.eave - 0.5;
-    if (beltHead + 0.22 < f.eave) f.place(f.span0, f.span1, beltHead + 0.04, beltHead + 0.18, BELT);
-    for (const pier of piers(f)) f.place(pier.a, pier.b, 0.64, 0.78, BELT);
-    for (const op of f.openings) {
-      if (op.z0 > 0.4) f.place(op.u0, op.u1, op.z0 - 0.14, op.z0 - 0.02, BELT);
+    const sill = sillOf(f);
+    const plinthTop = sill != null ? Math.min(sill - 0.04, 1.05) : 0.95;
+    for (const pier of piers(f)) {
+      if (pier.b - pier.a > 0.05) f.place(pier.a, pier.b, 0.04, plinthTop, BRICK_WRIGHT, 0.01);
     }
+    for (const op of f.openings) {
+      if (op.z0 > 0.2) f.place(op.u0, op.u1, 0.04, Math.min(op.z0 - 0.02, plinthTop), BRICK_WRIGHT, 0.01);
+    }
+    for (const op of faceOpenings(f)) surround(f, op, BRICK_WRIGHT, 0.1);
+    f.place(f.span0, f.span1, f.eave - 0.16, f.eave - 0.03, BELT, 0.012);
+    // Пояс по прямоугольным головам; трапеции второго света не тянут пояс вверх.
+    const beltHeads = f.openings.filter((op) => {
+      if (op.kind === "door") return false;
+      const { z1L, z1R } = slantHeads(f, op);
+      return Math.abs(z1L - z1R) <= 0.02;
+    }).map((op) => op.z1);
+    const beltHead = beltHeads.length ? Math.max(...beltHeads) : f.eave - 0.5;
+    if (beltHead + 0.22 < f.eave) f.place(f.span0, f.span1, beltHead + 0.04, beltHead + 0.18, BELT, 0.012);
+    for (const pier of piers(f)) f.place(pier.a, pier.b, plinthTop - 0.02, plinthTop + 0.12, BELT, 0.012);
     if (f.gable) {
       const rise = f.gable.peakZ - f.gable.eave;
       for (let i = 1; i <= 3; i++) {
         const z = f.gable.eave + (rise * i) / 4;
         const [s0, s1] = slopeSpan(f.gable, z + 0.12);
-        if (s1 - s0 > 0.5) f.place(s0 + 0.08, s1 - 0.08, z, z + 0.12, BELT);
+        if (s1 - s0 > 0.5) f.place(s0 + 0.08, s1 - 0.08, z, z + 0.12, BELT, 0.012);
       }
     }
   }));
@@ -818,7 +921,7 @@ export function paintFacadeFaces(api, faces) {
     placeToRoof(f, f.gable.u1 - w * 0.5, f.gable.u1 + w * 0.5, 0.04, BLADE);
   }));
   draw("12", () => each(faces, (f) => {
-    for (const op of f.openings) surround(f, op, SURROUND, 0.22);
+    for (const op of faceOpenings(f)) surround(f, op, SURROUND, 0.22);
   }));
   draw("13", () => each(faces, (f) => {
     let spans = wings(f);
@@ -826,11 +929,100 @@ export function paintFacadeFaces(api, faces) {
     if (g && g.u0 <= f.span0 + 0.08 && g.u1 >= f.span1 - 0.08) spans = [[f.span0, f.span1]];
     for (const [a, b] of spans) boardsIn(f, a, b, BOARD);
   }));
+  // Сканди-модерн (фото): дерево и светлая стена чередуются по простенкам всех фасадов;
+  // от верха цоколя (0,45), почти заподлицо со стеной; верх единый по дому.
+  draw("nordic", () => {
+    const zBot = 0.45; // PLINTH в 3.1* — дерево садится на цоколь, не свисает ниже
+    const proud = 0.003;
+    const heads = [];
+    for (const f of faces) {
+      for (const op of sorted(f)) {
+        if (op.inner || op.kind === "door") continue;
+        // Обычные окна: без второго света (высокий z1 у панорам гостиной).
+        if (Number.isFinite(op.z1) && op.z1 < 2.85) heads.push(op.z1);
+      }
+    }
+    const zWood = heads.length ? Math.max(...heads) + 0.01 : 2.35;
+    each(faces, (f) => {
+      const zTop = Math.min(zWood, f.eave - 0.28);
+      const name = String(f.name || "");
+      // Сдвиг фазы: юг/восток — дерево с первого простенка; север/запад — со второго.
+      let wood = !(
+        name.includes("N") || name.includes("W") || name === "N" || name === "W"
+      );
+      if (name.includes("Court") || name.includes("Liv")) wood = !wood;
+      for (const pier of piers(f)) {
+        const w = pier.b - pier.a;
+        if (wood && w >= 0.4) {
+          if (w <= 2.4) {
+            punched(f, pier.a, pier.b, zBot, zTop, WOOD_OAK, proud);
+          } else {
+            const bay = Math.min(1.55, Math.max(0.9, w * 0.38));
+            punched(f, pier.a, pier.a + bay, zBot, zTop, WOOD_OAK, proud);
+          }
+        }
+        wood = !wood;
+      }
+    });
+  });
+  // Райт · штукатурка (фото): кремовое поле, тёмный кирпичный пояс, светлый выступающий кант по верху пояса,
+  // кирпичные углы и бока окон, светлые подоконник/перемычка.
+  draw("wright-plaster", () => each(faces, (f) => {
+    const sill = sillOf(f);
+    const zTop = sill != null ? Math.min(sill, 1.15) : 1.05;
+    punched(f, f.span0, f.span1, 0.04, zTop, BRICK_WRIGHT, 0.012);
+    // Выступающий светлый кант по всей стене на стыке кирпича и штукатурки.
+    f.place(f.span0, f.span1, zTop - 0.03, zTop + 0.11, CREAM, 0.03);
+    quoins(f, BRICK_WRIGHT, 0.48);
+    for (const op of faceOpenings(f)) surround(f, op, BRICK_WRIGHT, 0.11);
+    for (const op of f.openings) {
+      if (op.kind === "door" || op.z0 < 0.35) continue;
+      const { left, right } = sideRoom(f, op, 0.11);
+      f.place(op.u0 - left, op.u1 + right, op.z0 - 0.1, op.z0 - 0.01, CREAM, 0.028);
+    }
+    for (const op of faceOpenings(f)) {
+      const { z1L, z1R } = slantHeads(f, op);
+      if (Math.abs(z1L - z1R) > 0.02) continue;
+      const { left, right } = sideRoom(f, op, 0.11);
+      f.place(op.u0 - left, op.u1 + right, op.z1, op.z1 + 0.13, CREAM, 0.028);
+    }
+  }));
+  // Райт · тёплый кирпич (фото wright-warm): стена — кирпич материала; кремовые пояса у подоконника и под карнизом.
+  draw("wright-warm", () => each(faces, (f) => {
+    const sill = sillOf(f);
+    const beltLo = sill != null ? Math.max(0.7, sill - 0.1) : 0.95;
+    punched(f, f.span0, f.span1, beltLo, beltLo + 0.18, CREAM, 0.016);
+    punched(f, f.span0, f.span1, f.eave - 0.22, f.eave - 0.04, CREAM, 0.016);
+    const beltHeads = f.openings.filter((op) => {
+      if (op.kind === "door") return false;
+      const { z1L, z1R } = slantHeads(f, op);
+      return Math.abs(z1L - z1R) <= 0.02;
+    }).map((op) => op.z1);
+    const beltHead = beltHeads.length ? Math.max(...beltHeads) : null;
+    if (beltHead != null && beltHead + 0.22 < f.eave - 0.24) {
+      punched(f, f.span0, f.span1, beltHead + 0.02, beltHead + 0.18, CREAM, 0.016);
+    }
+  }));
+  // Европейский: штукатурка сверху, клинкер до подоконника (как на фото euro-*).
+  draw("euro", () => each(faces, (f) => skirtBand(f, BRICK_WRIGHT, 0.012)));
+  draw("euro-sand", () => each(faces, (f) => skirtBand(f, BRICK_SAND, 0.012)));
+  // Прованс · камень: каменные углы/обводы + ставни (как на фото).
+  draw("provence-stone", () => each(faces, (f) => {
+    quoins(f, STONE, 0.36);
+    for (const op of faceOpenings(f)) surround(f, op, STONE, 0.12);
+    for (const op of f.openings) shutter(f, op, SHUTTER_P);
+  }));
   draw("14", () => each(faces, (f) => {
     timberPosts(f, BRICK, 0.04, f.eave, 0.22, true);
   }));
+  // Баварский: кирпичные обводы (трапеция второго света) + подоконник «на ребро».
   draw("15", () => each(faces, (f) => {
-    for (const op of f.openings) surround(f, op, BRICK, 0.14);
+    for (const op of faceOpenings(f)) {
+      surround(f, op, BRICK, 0.14);
+      if (op.kind === "door" || op.z0 < 0.35) continue;
+      const { left, right } = sideRoom(f, op, 0.06);
+      f.place(op.u0 - left, op.u1 + right, op.z0 - 0.08, op.z0 - 0.01, BRICK, 0.018);
+    }
   }));
   draw("16", () => each(faces, (f) => {
     quoins(f, STONE, 0.38);
@@ -900,7 +1092,7 @@ export function paintFacadeFaces(api, faces) {
     fachwerkGable(f, BEAM, false);
   }));
   draw("24", () => each(faces, (f) => {
-    for (const op of f.openings) surround(f, op, INK, 0.08);
+    for (const op of faceOpenings(f)) surround(f, op, INK, 0.08);
     for (const [a, b] of wings(f)) {
       const step = 0.72;
       for (let u = a + 0.08; u < b - 0.3; u += step) {
@@ -1008,12 +1200,14 @@ export function buildFacadeOverlays(api, house) {
 }
 
 export const OVERLAY_FIELD = {
+  1: PLASTER,
   2: PLASTER,
   3: 0xf3efe6,
   4: 0xe4e0d8,
   5: 0xd5d6d2,
   7: 0xf4e6d4,
   8: 0xf3efe6,
+  9: PLASTER,
   10: 0xe6e2da,
   11: 0xefe8dc,
   13: 0xe4e7ea,
@@ -1021,6 +1215,7 @@ export const OVERLAY_FIELD = {
   15: 0xf3efe6,
   16: 0xd2b48c,
   18: 0xe4e6e2,
+  19: 0xf4f1ea,
   20: 0xf7f5f0,
   21: 0xf0e2cc,
   22: 0xf4e7d4,

@@ -147,13 +147,15 @@ export function addVar31FurnitureFloor(api, floorZ) {
     opacity: OPACITY,
     alphaTest: 0.05,
     depthWrite: false,
-    side: THREE.DoubleSide,
+    depthTest: true,
+    side: THREE.FrontSide,
     polygonOffset: true,
-    polygonOffsetFactor: -3,
-    polygonOffsetUnits: -3,
+    polygonOffsetFactor: 2,
+    polygonOffsetUnits: 2,
   });
   mesh.castShadow = false;
   mesh.receiveShadow = false;
+  mesh.renderOrder = -1;
   mesh.userData.furniturePlan = true;
   delete mesh.userData.finish;
   return mesh;

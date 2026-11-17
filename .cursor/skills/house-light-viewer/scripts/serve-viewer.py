@@ -29,7 +29,9 @@ COOKIE_NAME = "house_author"
 TOKEN_TTL_SEC = 60 * 60 * 24 * 30
 ROOT = Path.cwd().resolve()
 LIKES_PATH = ROOT / "data" / "style-likes.json"
+THUMBS_DIR = ROOT / "style-thumbs"
 SECRET = hashlib.sha256(f"house-author:{PASSWORD}".encode("utf-8")).digest()
+SAFE_THUMB = __import__("re").compile(r"^[A-Za-z0-9._-]{1,64}$")
 
 
 def b64url(raw: bytes) -> str:
@@ -212,6 +214,44 @@ class Handler(SimpleHTTPRequestHandler):
                 return
             write_likes(likes)
             self.send_json(HTTPStatus.OK, {"likes": read_likes()})
+            return
+        if path.startswith("/api/thumb/"):
+            if not self.is_author():
+                self.send_json(HTTPStatus.UNAUTHORIZED, {"error": "author_required"})
+                return
+            thumb_id = unquote(path[len("/api/thumb/") :]).strip()
+            if not SAFE_THUMB.match(thumb_id):
+                self.send_json(HTTPStatus.BAD_REQUEST, {"error": "bad_id"})
+                return
+            length = int(self.headers.get("Content-Length", "0") or "0")
+            if length <= 0 or length > 8_000_000:
+                self.send_json(HTTPStatus.BAD_REQUEST, {"error": "bad_body"})
+                return
+            raw = self.rfile.read(length)
+            ctype = (self.headers.get("Content-Type") or "").split(";")[0].strip().lower()
+            if ctype == "application/json":
+                try:
+                    data = json.loads(raw.decode("utf-8"))
+                except (UnicodeDecodeError, json.JSONDecodeError):
+                    self.send_json(HTTPStatus.BAD_REQUEST, {"error": "bad_json"})
+                    return
+                b64 = data.get("jpeg") if isinstance(data, dict) else None
+                if not isinstance(b64, str) or not b64:
+                    self.send_json(HTTPStatus.BAD_REQUEST, {"error": "bad_jpeg"})
+                    return
+                if "," in b64:
+                    b64 = b64.split(",", 1)[1]
+                try:
+                    raw = base64.b64decode(b64, validate=True)
+                except (ValueError, TypeError):
+                    self.send_json(HTTPStatus.BAD_REQUEST, {"error": "bad_b64"})
+                    return
+            THUMBS_DIR.mkdir(parents=True, exist_ok=True)
+            out = THUMBS_DIR / f"{thumb_id}.jpg"
+            tmp = out.with_suffix(".tmp")
+            tmp.write_bytes(raw)
+            tmp.replace(out)
+            self.send_json(HTTPStatus.OK, {"ok": True, "path": f"style-thumbs/{thumb_id}.jpg"})
             return
         self.send_error(HTTPStatus.NOT_FOUND)
 

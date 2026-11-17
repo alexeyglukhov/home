@@ -3,7 +3,7 @@
 // Посадка: abrikosovaya-22-layout-variant-3.1b-1-100.svg.
 // Координаты — метры плана участка (как у Д4): x на восток, y на север.
 import * as THREE from "three";
-import { addVar31FurnitureFloor, markHouseFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31-furniture-floor.js?v=7";
+import { addVar31FurnitureFloor, markHouseFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31-furniture-floor.js?v=8";
 
 export const V31B_BASE = { x: 0, y: 0 };
 
@@ -280,11 +280,11 @@ export function buildVariant31b(api) {
   };
 
   // Вальмовая кровля 22°: L-контур, ендова, полные вальмы; навес над крыльцом как у 3.1.
-  // Толщина как у 3.1d: верх над стеной +10 см, низ софита WALL_TOP − 20 см.
+  // Верх ската выше стены, чтобы стены не пробивали кровлю.
   const pitch = 22 * Math.PI / 180;
   const tanP = Math.tan(pitch);
-  const ROOF_OVER_WALL = 0.10;
-  const ROOF_THICK = 0.30;
+  const ROOF_OVER_WALL = 0.20;
+  const ROOF_THICK = 0.34;
   const yR0 = 12.88;
   const x0W = -6.15;
   const y0N = 19.00, y0S = 5.50;
@@ -652,8 +652,9 @@ export function buildVariant31b(api) {
     const blind = api.addSlabHole(outer, hole, 0.02, 0.03, 0xd4cfc4);
     if (blind) {
       blind.material.polygonOffset = true;
-      blind.material.polygonOffsetFactor = -2;
-      blind.material.polygonOffsetUnits = -2;
+      // Отмостка уходит назад — не мерцает сквозь низ стен.
+      blind.material.polygonOffsetFactor = 2;
+      blind.material.polygonOffsetUnits = 2;
     }
   }
 
