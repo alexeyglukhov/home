@@ -667,12 +667,13 @@ export function buildVariant31(api) {
       [-6.41, 19.31], [15.85, 19.31], [15.85, -0.20],
       [7.22, -0.20], [7.22, 6.25], [-6.41, 6.25],
     ];
-    const blind = api.addSlabHole(outer, hole, 0.02, 0.03, 0xd4cfc4);
+    // Верх отмостки ниже плитки парковки (0.065), иначе z-fight / моргание.
+    const blind = api.addSlabHole(outer, hole, 0.02, 0.028, 0xd4cfc4);
     if (blind) {
       blind.material.polygonOffset = true;
-      // Отмостка уходит назад — не мерцает сквозь низ стен.
-      blind.material.polygonOffsetFactor = 2;
-      blind.material.polygonOffsetUnits = 2;
+      blind.material.polygonOffsetFactor = -1;
+      blind.material.polygonOffsetUnits = -1;
+      blind.renderOrder = 0;
     }
   }
 
@@ -716,8 +717,10 @@ export function buildVariant31(api) {
     const mark = (mesh) => {
       if (mesh) {
         mesh.material.polygonOffset = true;
-        mesh.material.polygonOffsetFactor = -1;
-        mesh.material.polygonOffsetUnits = -1;
+        // Сильнее отмостки (−1): плитка парковки не моргает на стыке.
+        mesh.material.polygonOffsetFactor = -3;
+        mesh.material.polygonOffsetUnits = -3;
+        mesh.renderOrder = 2;
       }
       return mesh;
     };

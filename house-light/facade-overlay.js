@@ -343,9 +343,9 @@ function placeToRoof(face, a, b, z0, color, proud = 0) {
   cladToRoof(face, Math.min(a, b), Math.max(a, b), z0, color, proud);
 }
 
-/** Верх облицовки: чуть ниже софита — не врезается в скат под углом. */
+/** Верх облицовки = низ софита (без зазора 6 см); −2 мм — анти z-fight со скатом. */
 function cladTopAt(face, u, zTop = 1e3) {
-  return Math.min(zTop, eaveSoffitAt(face, u) - 0.06);
+  return Math.min(zTop, eaveSoffitAt(face, u) - 0.002);
 }
 
 /** Разрез у конька — на каждом скате верх линейный, одна трапеция без зубцов. */
@@ -1437,16 +1437,31 @@ export function paintFacadeFaces(api, faces) {
     }
     underRoofBand(f, bandDrop, WRIGHT_BAND, bandProud);
   }));
+  // Как wright-plaster: те же уровни пояса/обводки; отличие — только материал стены.
   draw("wright-warm", () => each(faces, (f) => {
     const sill = sillOf(f);
-    const beltLo = sill != null ? Math.max(0.85, sill - 0.04) : 1.0;
+    const zTop = sill != null ? Math.min(sill, 1.15) : 1.05;
+    const bandDrop = 0.36;
     const bandProud = 0.055;
-    punched(f, f.span0, f.span1, beltLo, beltLo + 0.14, WRIGHT_BAND, bandProud);
-    const gop = gableWinAsOp(f);
-    if (gop) {
-      f.place(gop.u0 - 0.08, gop.u1 + 0.08, gop.z0 - 0.12, gop.z0 - 0.01, WRIGHT_BAND, bandProud);
+    punched(f, f.span0, f.span1, zTop - 0.03, zTop + 0.11, WRIGHT_BAND, bandProud);
+    for (const op of faceOpenings(f)) {
+      if (op.kind === "door" || op.z0 < 0.35) continue;
+      const { left, right } = sideRoom(f, op, 0.11);
+      f.place(op.u0 - left, op.u1 + right, op.z0 - 0.12, op.z0 - 0.01, WRIGHT_BAND, bandProud);
     }
-    underRoofBand(f, 0.36, WRIGHT_BAND, bandProud);
+    for (const op of faceOpenings(f)) {
+      if (op.kind === "door") continue;
+      const { z1L, z1R } = slantHeads(f, op);
+      const { left, right } = sideRoom(f, op, 0.11);
+      const a = op.u0 - left;
+      const b = op.u1 + right;
+      if (Math.abs(z1L - z1R) > 0.02 && typeof f.placeSlope === "function") {
+        f.placeSlope(a, b, z1L, z1L + 0.12, z1R, z1R + 0.12, WRIGHT_BAND, bandProud);
+      } else {
+        f.place(a, b, z1L, z1L + 0.12, WRIGHT_BAND, bandProud);
+      }
+    }
+    underRoofBand(f, bandDrop, WRIGHT_BAND, bandProud);
   }));
   // Европейский: штукатурка сверху, клинкер до подоконника (как на фото euro-*).
   draw("euro", () => each(faces, (f) => skirtBand(f, BRICK_WRIGHT, FLUSH)));

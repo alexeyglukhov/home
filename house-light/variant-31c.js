@@ -713,8 +713,8 @@ export function buildVariant31c(api) {
   const gableTris = [];
   const gpush = (a, b, c) => gableTris.push([world(...a), world(...b), world(...c)]);
   // yOut < yIn для стены С–Ю (наружная грань южнее). outFace: +1 наружная грань на yOut.
-  // Почти вплотную к софиту; 2 см — анти z-fight с низом кровли (не видимая щель).
-  const GABLE_BELOW = 0.04;
+  // Нахлёст вовнутрь софита — без щели; минус = в кровлю (анти z-fight).
+  const GABLE_BELOW = -0.02;
   const gableFillEW = (yOut, yIn, x0, x1, xR, zPeak, zEdge, zBase, outFace) => {
     const zL = zEdge(x0) - ROOF_THICK - GABLE_BELOW;
     const zR = zEdge(x1) - ROOF_THICK - GABLE_BELOW;
@@ -846,8 +846,8 @@ export function buildVariant31c(api) {
 
   // Второй свет: стены по периметру выреза от плиты до софита (верх по скату/коньку).
   {
-    // Почти вплотную к софиту; 2 см — анти z-fight, без видимой щели.
-    const SOF_DROP = 0.04;
+    // Как у фронтонов: лёгкий нахлёст в софит, без щели.
+    const SOF_DROP = -0.02;
     const INSET = 0.02; // стенки внутрь выреза — не совпадают с вертикальным ребром плиты
     const zSof = (x) => (x <= xRW ? zWO(x) : zWI(x)) - ROOF_THICK - SOF_DROP;
     // Ребро a→b: много сегментов, чтобы верх шёл по коньку, а не хордой по углам.
@@ -1119,12 +1119,13 @@ export function buildVariant31c(api) {
       [-6.41, 19.31], [15.85, 19.31], [15.85, -0.20],
       [7.22, -0.20], [7.22, 6.25], [-6.41, 6.25],
     ];
-    const blind = api.addSlabHole(outer, hole, 0.02, 0.03, 0xd4cfc4);
+    // Верх отмостки ниже плитки парковки (0.065), иначе z-fight / моргание.
+    const blind = api.addSlabHole(outer, hole, 0.02, 0.028, 0xd4cfc4);
     if (blind) {
       blind.material.polygonOffset = true;
-      // Отмостка уходит назад — не мерцает сквозь низ стен.
-      blind.material.polygonOffsetFactor = 2;
-      blind.material.polygonOffsetUnits = 2;
+      blind.material.polygonOffsetFactor = -1;
+      blind.material.polygonOffsetUnits = -1;
+      blind.renderOrder = 0;
     }
   }
 
@@ -1168,8 +1169,10 @@ export function buildVariant31c(api) {
     const mark = (mesh) => {
       if (mesh) {
         mesh.material.polygonOffset = true;
-        mesh.material.polygonOffsetFactor = -1;
-        mesh.material.polygonOffsetUnits = -1;
+        // Сильнее отмостки (−1): плитка парковки не моргает на стыке.
+        mesh.material.polygonOffsetFactor = -3;
+        mesh.material.polygonOffsetUnits = -3;
+        mesh.renderOrder = 2;
       }
       return mesh;
     };
