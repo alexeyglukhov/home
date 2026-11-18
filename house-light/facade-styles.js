@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { OVERLAY_FIELD, DARK_CLAD, WOOD_OAK } from "./facade-overlay.js?v=86";
+import { OVERLAY_FIELD, DARK_CLAD, WOOD_OAK } from "./facade-overlay.js?v=99";
 
 const cache = new Map();
 

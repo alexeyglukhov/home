@@ -1585,21 +1585,28 @@ export function paintFacadeFaces(api, faces) {
       if (top > f.eave + 0.25) f.place(u, u + 0.045, f.eave, top, SLAT);
     }
   }));
-  // Рендер roof-d: тёмные/дерево до софита; окна чердака / 2-го света вырезаются (place + placeSlope).
+  // Roof-d по agency/roof-d:
+  // N (14-02-04 (2)): тёмные у окон + дерево только в нише крыльца; углы/поля — кирпич.
+  // S (14-02-04 (3)): кирпичные пилоны по краям, дерево между высокими окнами; SE — дерево слева, тёмное у окна, кирпич у угла.
+  // E (14-02-04): тёмные у окон, дерево во внутренних простенках, кирпич по торцам.
+  // W (14-47-38 справа): кирпич–дерево–кирпич–дерево–кирпич (проёмов на плане нет).
+  // Все секции — от цоколя до кровли.
   draw("30", () => each(faces, (f) => {
     const zBot = PLINTH_Z;
     const PAD = 0.10;
     const ON_WALL = 0.035;
-    // Ровно до span0/span1 — угол стены без щели и без вылета за соседнюю грань.
     const paint = (u0, u1, color) => {
       const a = Math.max(u0, f.span0);
       const b = Math.min(u1, f.span1);
       if (b - a > 0.12) cladToRoof(f, a, b, zBot, color, ON_WALL);
     };
     const ops = sorted(f).filter((op) => !op.inner);
+    const entry = f.name === "v31dN" || f.name === "v31cN";
+    const southSE = f.name === "v31dSE" || f.name === "v31cSE";
+    const west = f.name === "v31dW" || f.name === "v31cW";
     let porch0 = null;
     let porch1 = null;
-    if (f.name === "v31dN" || f.name === "v31cN") {
+    if (entry) {
       const door = ops.find((op) => op.kind === "door" && op.u0 > 3.2 && op.u1 < 5.5);
       const wins = ops.filter((op) => op.kind === "win" || op.kind === "pan");
       const left = door && wins.filter((w) => w.u1 <= door.u0 + 0.05).sort((a, b) => b.u1 - a.u1)[0];
@@ -1623,7 +1630,6 @@ export function paintFacadeFaces(api, faces) {
       if (u1 - u0 < 0.12) continue;
       for (const [a, b] of cutPorch(u0, u1)) darkRaw.push({ u0: a, u1: b });
     }
-    // Слить пересекающиеся PAD — одна панель на группу окон, без двойных швов.
     const bays = [];
     for (const bay of darkRaw.slice().sort((a, b) => a.u0 - b.u0)) {
       const last = bays[bays.length - 1];
@@ -1638,22 +1644,36 @@ export function paintFacadeFaces(api, faces) {
       cursor = Math.max(cursor, bay.u1);
     }
     if (f.span1 > cursor + 0.06) solid.push([cursor, f.span1]);
-    let wood = false;
-    for (let i = 0; i < solid.length; i++) {
-      const [a0, b0] = solid[i];
-      const atEnd = i === 0 || i === solid.length - 1;
-      if (atEnd || wood) {
-        for (const [a, b] of cutPorch(a0, b0)) {
-          if (b - a <= 0.35) continue;
-          // Угол стены — ровно до a0/b0; к соседней тёмной панели — 1 см шов.
-          const u0 = i === 0 ? a0 : a + 0.01;
-          const u1 = i === solid.length - 1 ? b0 : b - 0.01;
-          if (u1 - u0 > 0.12) paint(u0, u1, WOOD_OAK);
-        }
+    const paintWood = (a0, b0) => {
+      for (const [a, b] of cutPorch(a0, b0)) {
+        if (b - a <= 0.35) continue;
+        const u0 = a + 0.01;
+        const u1 = b - 0.01;
+        if (u1 - u0 > 0.12) paint(u0, u1, WOOD_OAK);
       }
-      wood = !wood;
+    };
+    if (entry) {
+      // Север: дерево только крыльцо; простенки остаются кирпичом.
+    } else if (west) {
+      // Запад (14-47-38): пилон–дерево–пилон–дерево–пилон. На плане окон нет — ритм по длине стены.
+      const span = f.span1 - f.span0;
+      const pier = Math.min(1.05, Math.max(0.75, span * 0.09));
+      const woodW = (span - 3 * pier) * 0.5;
+      if (woodW > 0.6) {
+        const a1 = f.span0 + pier;
+        const b1 = a1 + woodW;
+        const a2 = b1 + pier;
+        const b2 = a2 + woodW;
+        paintWood(a1, b1);
+        paintWood(a2, b2);
+      }
+    } else if (southSE) {
+      // Южный правый объём: широкое дерево слева от окна, кирпич у правого угла.
+      if (solid.length) paintWood(solid[0][0], solid[0][1]);
+    } else {
+      // Восток / юг гостиной / прочие: кирпич на торцах, дерево во всех внутренних простенках.
+      for (let i = 1; i < solid.length - 1; i++) paintWood(solid[i][0], solid[i][1]);
     }
-    // Крыльцо: дерево до софита (дверь и окно чердака вырезаются).
     if (porch0 != null && porch1 - porch0 > 0.4) {
       paint(porch0, porch1, WOOD_OAK);
     }
