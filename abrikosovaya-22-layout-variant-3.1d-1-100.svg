@@ -3424,11 +3424,11 @@
 <g id="plan-cars-31d" data-role="cars">
 <g
    id="g1245"
-   transform="matrix(-0.61084837,0.79395557,-0.79395557,-0.61084837,231.40683,-19.227966)"
+   transform="matrix(0.43590227,-0.90193702,0.90193702,0.43590227,-915.86493,110.33287)"
    style="opacity:0.645297"
-   inkscape:transform-center-x="-0.30951249"
-   inkscape:transform-center-y="5.1547074"><polygon
-     points="381.26,458.38 340.33,472.5 334.47,455.49 375.4,441.37 "
+   inkscape:transform-center-x="1.3553092"
+   inkscape:transform-center-y="-4.9829652"><polygon
+     points="375.4,441.37 381.26,458.38 340.33,472.5 334.47,455.49 "
      fill="#6e675e"
      fill-opacity="0.55"
      stroke="#222222"

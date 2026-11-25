@@ -1322,9 +1322,9 @@ export function buildVariant31d(api) {
     api.addParkedModel({
       url: "./models/geely-coolray.glb",
       length: 4.33,
-      centerE: -10.003 + HOUSE_DX,
-      centerN: 16.620 + HOUSE_DY,
-      planYawDeg: 71.5,
+      centerE: -9.780 + HOUSE_DX,
+      centerN: 16.525 + HOUSE_DY,
+      planYawDeg: -96.8,
     });
     api.addParkedModel({
       url: "./models/mazda-cx5.glb",
