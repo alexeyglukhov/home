@@ -15,8 +15,8 @@ import { buildVariantD4 as buildVariantD6, d4WalkBoxes as d6WalkBoxes, d4FenceSe
 import { buildVariant31, v31WalkBoxes, v31FenceSegments, V31_WINDOWS, V31_BASE } from "./variant-31.js?v=50";
 import { buildVariant31a, v31aWalkBoxes, v31aFenceSegments, V31A_WINDOWS, V31A_BASE } from "./variant-31a.js?v=22";
 import { buildVariant31b, v31bWalkBoxes, v31bFenceSegments, V31B_WINDOWS, V31B_BASE } from "./variant-31b.js?v=37";
-import { buildVariant31d, v31dWalkBoxes, v31dFenceSegments, V31D_WINDOWS, V31D_BASE } from "./variant-31d.js?v=108";
-import { buildVariant31c, v31cWalkBoxes, v31cFenceSegments, V31C_WINDOWS, V31C_BASE } from "./variant-31c.js?v=43";
+import { buildVariant31d, v31dWalkBoxes, v31dFenceSegments, V31D_WINDOWS, V31D_BASE } from "./variant-31d.js?v=112";
+import { buildVariant31c, v31cWalkBoxes, v31cFenceSegments, V31C_WINDOWS, V31C_BASE } from "./variant-31c.js?v=44";
 import { createD2Tour, createTourDaylight, D3_WINDOWS } from "./tour-d2.js?v=23";
 import { syncPrintSheets } from "./print-sheets.js?v=48";
 import { mountFurnitureCatalog } from "./furniture-catalog.js?v=8";
@@ -5840,7 +5840,7 @@ const BLURB_V31A = "Вариант 3.1a. Как 3.1 с прямоугольны�
 const BLURB_V31 = "Вариант 3.1. Дом с плана агентства: двускатный навес у ворот на западе (без фронтона, низ обшит деревом), L-контур, двускатные крыши 20 см. Жёлтые окна обычные, голубые — панорамные.";
 const BLURB_V31B = "Вариант 3.1b. Вальмовая крыша без фронтонов; северное крыльцо с навесом на колоннах и свесом как у 3.1. Въезд с севера по линии западной стены (ворота 4 м, откат на запад; калитка справа). Жёлтые окна обычные, голубые — панорамные.";
 const BLURB_V31C = "Вариант 3.1c. Как 3.1d снаружи (П-крыша, свес 0,80 м, второй свет); внутри — актуальный план var3.1c, подложка — слой «иное».";
-const BLURB_V31D = "Вариант 3.1d. П-образная двухскатная крыша: ровные южные фронтоны кабинета и гостиной; фронтон крыльца по северной стене; конёк кабинет → запад → гостиная; свес 0,80 м; без парковочного навеса.";
+const BLURB_V31D = "Вариант 3.1d. План обновлён: вальмовая крыша как 3.1c под новый габарит; навес на западе; крыльцо с колоннами; терраса у гостиной; подложка — слой «иное».";
 const BLURB_TOPO3 = "Топочная Вариант 3.1. Комната 3,50×1,98×2,70 м: газ, электрокотёл, термоаккумулятор со змеевиком, ТТ, гребёнка/смеситель, лапамойка, топливо, щиты и трубы. Жёлтым подсвечены фронты ≥1 м перед котлами. Крутите вид мышью; Сбоку/Сверху — ракурсы.";
 
 let tourActive = false;

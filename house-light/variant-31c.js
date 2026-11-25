@@ -804,15 +804,19 @@ export function buildVariant31c(api) {
       const wtB = winTopAt(xb - 1e-4);
       const wtM = winTopAt(mid);
       const overWin = wtM != null || (wtA != null && wtB != null);
-      const botA = overWin && wtA != null ? wtA : (overWin && wtB != null ? wtB : zBase);
-      const botB = overWin && wtB != null ? wtB : (overWin && wtA != null ? wtA : zBase);
-      const bA = Math.min(overWin ? botA : zBase, za - 0.005);
-      const bB = Math.min(overWin ? botB : zBase, zb - 0.005);
+      // Над остеклением низ = верх рамы (−нахлёст); иначе — от плиты. Толщина стены постоянная.
+      const FRAME_LAP = 0.025;
+      const botA = overWin && wtA != null ? wtA - FRAME_LAP
+        : overWin && wtB != null ? wtB - FRAME_LAP
+        : zBase;
+      const botB = overWin && wtB != null ? wtB - FRAME_LAP
+        : overWin && wtA != null ? wtA - FRAME_LAP
+        : zBase;
+      const bA = Math.min(botA, za - 0.005);
+      const bB = Math.min(botB, zb - 0.005);
       if (za <= bA + 0.008 && zb <= bB + 0.008) return;
-      // Над проёмом только наружная грань — без полки толщины стены в остеклении.
       faceOut([xa, yOut, bA], [xa, yOut, za], [xb, yOut, zb]);
       faceOut([xa, yOut, bA], [xb, yOut, zb], [xb, yOut, bB]);
-      if (overWin) return;
       faceIn([xa, yIn, bA], [xa, yIn, za], [xb, yIn, zb]);
       faceIn([xa, yIn, bA], [xb, yIn, zb], [xb, yIn, bB]);
       q([xa, yOut, za], [xb, yOut, zb], [xb, yIn, zb], [xa, yIn, za]);
@@ -846,10 +850,10 @@ export function buildVariant31c(api) {
 
   // Второй свет: стены по периметру выреза от плиты до софита (верх по скату/коньку).
   {
-    // Как у фронтонов: лёгкий нахлёст в софит, без щели.
-    const SOF_DROP = -0.02;
+    // Стенки — нахлёст вверх в софит; белая зашивка — чуть ниже софита (видна из комнаты).
+    const zSofWall = (x) => (x <= xRW ? zWO(x) : zWI(x)) - ROOF_THICK + 0.02;
+    const zSofCeil = (x) => (x <= xRW ? zWO(x) : zWI(x)) - ROOF_THICK - 0.02;
     const INSET = 0.02; // стенки внутрь выреза — не совпадают с вертикальным ребром плиты
-    const zSof = (x) => (x <= xRW ? zWO(x) : zWI(x)) - ROOF_THICK - SOF_DROP;
     // Ребро a→b: много сегментов, чтобы верх шёл по коньку, а не хордой по углам.
     const voidWall = (a, b, zBot, segs = 32) => {
       const tris = [];
@@ -863,8 +867,8 @@ export function buildVariant31c(api) {
         const y0 = a[1] + (b[1] - a[1]) * t0;
         const x1 = a[0] + (b[0] - a[0]) * t1;
         const y1 = a[1] + (b[1] - a[1]) * t1;
-        const z0 = Math.max(zBot + 0.02, zSof(x0));
-        const z1 = Math.max(zBot + 0.02, zSof(x1));
+        const z0 = Math.max(zBot + 0.02, zSofWall(x0));
+        const z1 = Math.max(zBot + 0.02, zSofWall(x1));
         if (z0 <= zBot + 0.025 && z1 <= zBot + 0.025) continue;
         q(
           world(x0, y0, zBot), world(x1, y1, zBot),
@@ -885,10 +889,11 @@ export function buildVariant31c(api) {
       });
       api.sectionHeight(prev);
     };
-    const { x0, x1, y0, y1 } = livVoid;
+    const { x0, x1, y1 } = livVoid;
     const ix0 = x0 + INSET;
     const ix1 = x1 - INSET;
-    const iy0 = y0 + INSET;
+    // Юг зашивки — внутренняя грань фронтона (не наружная стена), иначе виден софит кровли.
+    const iy0 = yWallSLivIn - 0.01;
     const iy1 = y1 - INSET;
     // Низ стенок чуть в толще плиты; в плане inset — без z-fight с вертикальным ребром выреза.
     const wallBot = ceilTop - 0.02;
@@ -897,30 +902,38 @@ export function buildVariant31c(api) {
     voidWall([ix1, iy1], [ix1, iy0], wallBot); // восток
     voidWall([ix0, iy0], [ix0, iy1], wallBot); // запад
 
-    // Две прямоугольные панели снизу кровли: WO и WI, от фронтона до северной стенки.
+    // Белая зашивка снизу кровли (WO/WI): от внутренней грани фронтона до северной стенки.
     {
       const yS = iy0;
       const yN = iy1;
       const tris = [];
+      // Обход как у soffitBots — нормаль вниз, в комнату.
       const quad = (xa, xb) => {
-        const a = world(xa, yS, zSof(xa));
-        const b = world(xb, yS, zSof(xb));
-        const c = world(xb, yN, zSof(xb));
-        const d = world(xa, yN, zSof(xa));
-        tris.push([a, c, b], [a, d, c]);
+        const a = world(xa, yS, zSofCeil(xa));
+        const b = world(xb, yS, zSofCeil(xb));
+        const c = world(xb, yN, zSofCeil(xb));
+        const d = world(xa, yN, zSofCeil(xa));
+        tris.push([a, b, c], [a, c, d]);
       };
-      quad(ix0, xRW);
-      quad(xRW, ix1);
+      // Несколько полос по X — без хорды на длинном скате.
+      const segsW = Math.max(4, Math.ceil((xRW - ix0) / 0.35));
+      const segsE = Math.max(4, Math.ceil((ix1 - xRW) / 0.35));
+      for (let i = 0; i < segsW; i++) {
+        quad(ix0 + ((xRW - ix0) * i) / segsW, ix0 + ((xRW - ix0) * (i + 1)) / segsW);
+      }
+      for (let i = 0; i < segsE; i++) {
+        quad(xRW + ((ix1 - xRW) * i) / segsE, xRW + ((ix1 - xRW) * (i + 1)) / segsE);
+      }
       const prev = api.sectionHeight();
       api.sectionHeight(null);
-      const mesh = asRoof(addMesh(geometryFromTriangles(tris), 0xffffff, false));
+      const mesh = addMesh(geometryFromTriangles(tris), 0xffffff, false);
       delete mesh.userData.finish;
       delete mesh.userData.section;
       mesh.material.color.setHex(0xffffff);
       mesh.material.emissive?.setHex(0x000000);
-      // Только снизу: снаружи не рисуется сквозь кровлю.
-      mesh.material.side = THREE.FrontSide;
+      mesh.material.side = THREE.DoubleSide;
       mesh.userData.ceiling = true;
+      mesh.userData.roof = true;
       api.sectionHeight(prev);
     }
 
