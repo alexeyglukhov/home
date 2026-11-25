@@ -228,25 +228,31 @@ def geom_from_plan(by_id: dict):
         [r3(v) for v in box("rect1693")],
     ]
 
-    # Прямоугольный навес (rect1689) — без L-рукава к крыльцу.
+    # L-навес: западный рукав (rect1689) + северная полоса до карниза козырька крыльца (как 3.1c).
     cport = box("rect1689")
+    porch_slab = box("rect590")
+    porch_deck = box("rect586")
+    eave_porch = 0.80
+    # x1 = западный карниз козырька (= левый край площадки − свес), как в 3.1c.
+    x_porch_eave = r3(porch_deck[0] - eave_porch)
+    y_porch_n = r3(porch_deck[3])
     carport_poly = [
         [r3(cport[0]), r3(cport[1])],
         [r3(cport[2]), r3(cport[1])],
         [r3(cport[2]), r3(cport[3])],
-        [r3(cport[0]), r3(cport[3])],
+        [x_porch_eave, r3(cport[3])],
+        [x_porch_eave, y_porch_n],
+        [r3(cport[0]), y_porch_n],
     ]
     carport = {
         "x0": r3(cport[0]),
-        "x1": r3(cport[2]),
+        "x1": x_porch_eave,
         "y0": r3(cport[1]),
-        "y1": r3(cport[3]),
-        "xArm": r3(cport[2]),
-        "yArm": r3(cport[3]),
+        "y1": y_porch_n,
+        "xArm": r3(cport[2]),  # вост. край западного рукава
+        "yArm": r3(cport[3]),  # юг северной полосы
     }
 
-    porch_slab = box("rect590")
-    porch_deck = box("rect586")
     # Ступени: наружный контур = rect590; промежуточная — между slab и deck.
     mid = [
         r3((porch_slab[0] + porch_deck[0]) * 0.5),
@@ -758,7 +764,7 @@ const OPACITY = 0.55;
 const HALL_S_WALL_X = {hall_x:.3f};
 const FURN_WEST_HALL = [{west_in - 0.05:.3f}, {s_liv + 0.12:.3f}, HALL_S_WALL_X, {n_in:.3f}];
 const FURN_WEST_NORTH = [HALL_S_WALL_X, 9.40, {off_w + 0.27:.3f}, {n_in:.3f}];
-const FURN_EAST = [{off_w + 0.27:.3f}, {s_off + 0.40:.3f}, {east_in + 0.03:.3f}, {n_in:.3f}];
+const FURN_EAST = [{off_w + 0.27:.3f}, {s_off + 0.05:.3f}, {east_in + 0.03:.3f}, {n_in:.3f}];
 
 const TERRACE_Y_MAX = {terrace[3] + 0.32:.3f};
 const TERRACE_DEEP_Y = 9.35;

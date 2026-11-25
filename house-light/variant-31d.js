@@ -2,7 +2,7 @@
 // помещения по agency/var3.1d.svg (хоз.блок, сдвинутые стены/двери/окна).
 // Масштаб: эталон кровати 2,20 м (uu→м как в var3.1c). Координаты — метры плана.
 import * as THREE from "three";
-import { addVar31FurnitureFloor, markHouseFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31d-furniture-floor.js?v=2";
+import { addVar31FurnitureFloor, markHouseFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31d-furniture-floor.js?v=3";
 
 export const V31D_BASE = { x: 0, y: 0 };
 
@@ -45,7 +45,8 @@ const WALLS = [
   [12.699, 13.46, 14.576, 13.61],
   [6.526, 9.573, 6.676, 10.488],
   [8.317, 16.129, 9.364, 16.278],
-  [12.137, 6.281, 12.287, 8.16],
+  [12.137, 6.403, 12.287, 8.16],
+  [12.147, 11.15, 12.297, 12.351],
 ];
 
 const OPENINGS = [
@@ -89,21 +90,23 @@ const COLUMNS = [
   [7.32, 19.324, 7.795, 19.8],
 ];
 
-// Навес для авто — прямоугольник по agency/var3.1d.svg rect1689 (запад дома).
-// Колонны rect1691/1693/1695 (визуально у западного края; привязка к карнизу слоя «крыша»).
+// Навес для авто — L: западный рукав (rect1689) + север до карниза козырька крыльца (как 3.1c).
+// Колонны rect1691/1693/1695 у западного края.
 const CARPORT_POLY = [
   [-11.629, 9.947],
   [-5.573, 9.947],
   [-5.573, 19.058],
-  [-11.629, 19.058],
+  [-0.619, 19.058],
+  [-0.619, 19.778],
+  [-11.629, 19.778],
 ];
 const CARPORT = {
   x0: -11.629,
-  x1: -5.573,
+  x1: -0.619, // западный карниз козырька крыльца (porchX0)
   y0: 9.947,
-  y1: 19.058,
-  xArm: -5.573, // вост. край навеса (= дом)
-  yArm: 19.058,
+  y1: 19.778, // север площадки крыльца
+  xArm: -5.573, // вост. край западного рукава / начало северной полосы
+  yArm: 19.058, // юг северной полосы
 };
 const CARPORT_COLUMNS = [
   // rect1691 — южная широкая
@@ -1090,7 +1093,7 @@ export function buildVariant31d(api) {
     });
   }
 
-  // Плоский навес (rect1689): запад дома; верх = Ze.
+  // Плоский навес L: запад (rect1689) + север до карниза крыльца; верх = Ze.
   withCanopy(() => {
     const zTop = Ze;
     const zBot = Ze - ROOF_THICK;
@@ -1310,6 +1313,25 @@ export function buildVariant31d(api) {
           openings: fromPlan("x", 9.556, xLivE, xCourtW, true),
         }),
       ];
+    });
+  }
+
+  // Машины с плана (g1245 Кулрей / g1263 Мазда): центр и курс длинной оси polygon.
+  // planYawDeg: 0° = восток плана, 90° = север; нос — к северной стороне оси (к воротам).
+  if (typeof api.addParkedModel === "function") {
+    api.addParkedModel({
+      url: "./models/geely-coolray.glb",
+      length: 4.33,
+      centerE: -10.003 + HOUSE_DX,
+      centerN: 16.620 + HOUSE_DY,
+      planYawDeg: 71.5,
+    });
+    api.addParkedModel({
+      url: "./models/mazda-cx5.glb",
+      length: 4.55,
+      centerE: -7.584 + HOUSE_DX,
+      centerN: 13.269 + HOUSE_DY,
+      planYawDeg: 84.6,
     });
   }
 

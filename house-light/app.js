@@ -15,7 +15,7 @@ import { buildVariantD4 as buildVariantD6, d4WalkBoxes as d6WalkBoxes, d4FenceSe
 import { buildVariant31, v31WalkBoxes, v31FenceSegments, V31_WINDOWS, V31_BASE } from "./variant-31.js?v=50";
 import { buildVariant31a, v31aWalkBoxes, v31aFenceSegments, V31A_WINDOWS, V31A_BASE } from "./variant-31a.js?v=22";
 import { buildVariant31b, v31bWalkBoxes, v31bFenceSegments, V31B_WINDOWS, V31B_BASE } from "./variant-31b.js?v=37";
-import { buildVariant31d, v31dWalkBoxes, v31dFenceSegments, V31D_WINDOWS, V31D_BASE } from "./variant-31d.js?v=112";
+import { buildVariant31d, v31dWalkBoxes, v31dFenceSegments, V31D_WINDOWS, V31D_BASE } from "./variant-31d.js?v=117";
 import { buildVariant31c, v31cWalkBoxes, v31cFenceSegments, V31C_WINDOWS, V31C_BASE } from "./variant-31c.js?v=44";
 import { createD2Tour, createTourDaylight, D3_WINDOWS } from "./tour-d2.js?v=23";
 import { syncPrintSheets } from "./print-sheets.js?v=48";
@@ -1978,15 +1978,18 @@ const gltfLoader = new GLTFLoader();
 // Верх плитки 0.065. У Coolray шина доходит до низа модели, у Mazda видимое колесо выше.
 const PAVER_TOP = 0.065;
 
-function addParkedModel({ url, length, centerE, centerN, heading = "west" }) {
+function addParkedModel({ url, length, centerE, centerN, heading = "west", planYawDeg = null }) {
   const ground = PAVER_TOP - (url.includes("mazda") ? 0.16 : 0.02);
   const parent = bucket;
   const holder = new THREE.Group();
-  const forward = heading === "north"
-    ? new THREE.Vector3(Math.sin(AZ_Y), 0, Math.cos(AZ_Y))
-    : heading === "east"
-      ? new THREE.Vector3(-Math.sin(AZ_X), 0, -Math.cos(AZ_X))
-      : new THREE.Vector3(Math.sin(AZ_X), 0, Math.cos(AZ_X));
+  // planYawDeg — курс носа в плане: 0° = +X (восток), 90° = +Y (север).
+  const forward = planYawDeg != null
+    ? planDeltaToWorld(Math.cos(planYawDeg * Math.PI / 180), Math.sin(planYawDeg * Math.PI / 180))
+    : heading === "north"
+      ? new THREE.Vector3(Math.sin(AZ_Y), 0, Math.cos(AZ_Y))
+      : heading === "east"
+        ? new THREE.Vector3(-Math.sin(AZ_X), 0, -Math.cos(AZ_X))
+        : new THREE.Vector3(Math.sin(AZ_X), 0, Math.cos(AZ_X));
   const up = new THREE.Vector3(0, 1, 0);
   const side = new THREE.Vector3().crossVectors(forward, up).normalize();
   holder.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(forward, up, side));

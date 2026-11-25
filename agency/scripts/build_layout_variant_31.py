@@ -409,8 +409,15 @@ def upsert_open_air(svg: str, group_xml: str, group_id: str) -> str:
     return svg.replace("</svg>", group_xml + "\n</svg>", 1)
 
 
-def apply_site_cleanup_and_overlays(svg: str, open_air_xml: str, open_air_id: str) -> str:
-    svg = strip_cars(svg)
+def apply_site_cleanup_and_overlays(
+    svg: str,
+    open_air_xml: str,
+    open_air_id: str,
+    *,
+    keep_cars: bool = False,
+) -> str:
+    if not keep_cars:
+        svg = strip_cars(svg)
     svg = strip_old_canopy_traces(svg)
     svg = upsert_blind_area(svg)
     svg = upsert_open_air(svg, open_air_xml, open_air_id)
