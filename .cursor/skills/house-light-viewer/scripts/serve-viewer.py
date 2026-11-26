@@ -29,9 +29,11 @@ COOKIE_NAME = "house_author"
 TOKEN_TTL_SEC = 60 * 60 * 24 * 30
 ROOT = Path.cwd().resolve()
 LIKES_PATH = ROOT / "data" / "style-likes.json"
+FURNITURE_DIR = ROOT / "data" / "furniture"
 THUMBS_DIR = ROOT / "style-thumbs"
 SECRET = hashlib.sha256(f"house-author:{PASSWORD}".encode("utf-8")).digest()
 SAFE_THUMB = __import__("re").compile(r"^[A-Za-z0-9._-]{1,64}$")
+SAFE_VARIANT = __import__("re").compile(r"^[A-Za-z0-9._-]{1,32}$")
 
 
 def b64url(raw: bytes) -> str:
@@ -94,6 +96,47 @@ def write_likes(data: dict) -> None:
     tmp = LIKES_PATH.with_suffix(".tmp")
     tmp.write_text(json.dumps(clean, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     tmp.replace(LIKES_PATH)
+
+
+def furniture_path(variant: str) -> Path | None:
+    if not SAFE_VARIANT.match(variant):
+        return None
+    return FURNITURE_DIR / f"{variant}.json"
+
+
+def read_furniture(variant: str) -> dict:
+    path = furniture_path(variant)
+    if path is None:
+        return {"v": 1, "items": []}
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return {"v": 1, "items": []}
+    except (OSError, json.JSONDecodeError):
+        return {"v": 1, "items": []}
+    if not isinstance(raw, dict):
+        return {"v": 1, "items": []}
+    items = raw.get("items", [])
+    if not isinstance(items, list):
+        items = []
+    return {"v": int(raw.get("v") or 1), "items": items}
+
+
+def write_furniture(variant: str, data: dict) -> dict | None:
+    path = furniture_path(variant)
+    if path is None:
+        return None
+    items = data.get("items", [])
+    if not isinstance(items, list):
+        return None
+    if len(json.dumps(items)) > 900_000:
+        return None
+    payload = {"v": int(data.get("v") or 1), "items": items}
+    FURNITURE_DIR.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(".tmp")
+    tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    tmp.replace(path)
+    return payload
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -253,6 +296,18 @@ class Handler(SimpleHTTPRequestHandler):
             tmp.replace(out)
             self.send_json(HTTPStatus.OK, {"ok": True, "path": f"style-thumbs/{thumb_id}.jpg"})
             return
+        if path.startswith("/api/furniture/"):
+            variant = unquote(path[len("/api/furniture/") :]).strip()
+            if not SAFE_VARIANT.match(variant):
+                self.send_json(HTTPStatus.BAD_REQUEST, {"error": "bad_variant"})
+                return
+            data = self.read_json()
+            saved = write_furniture(variant, data)
+            if saved is None:
+                self.send_json(HTTPStatus.BAD_REQUEST, {"error": "bad_furniture"})
+                return
+            self.send_json(HTTPStatus.OK, saved)
+            return
         self.send_error(HTTPStatus.NOT_FOUND)
 
     def handle_request(self, body: bool):
@@ -263,6 +318,13 @@ class Handler(SimpleHTTPRequestHandler):
             return
         if path == "/api/likes":
             self.send_json(HTTPStatus.OK, {"likes": read_likes()})
+            return
+        if path.startswith("/api/furniture/"):
+            variant = unquote(path[len("/api/furniture/") :]).strip()
+            if not SAFE_VARIANT.match(variant):
+                self.send_json(HTTPStatus.BAD_REQUEST, {"error": "bad_variant"})
+                return
+            self.send_json(HTTPStatus.OK, read_furniture(variant))
             return
         if path.startswith("/api/"):
             self.send_error(HTTPStatus.NOT_FOUND)

@@ -3,6 +3,16 @@ import { GLTFLoader } from "./vendor/GLTFLoader.js";
 
 const loader = new GLTFLoader();
 const SPIN = 0.28;
+const LOAD_CONCURRENCY = 1; // одна модель за раз — без фриза главного потока
+const RENDER_BUDGET = 2; // сколько превью крутить за кадр
+const modelCache = new Map(); // file -> Promise<THREE.Object3D>
+
+function idle(cb, timeout = 800) {
+  if (typeof requestIdleCallback === "function") {
+    return requestIdleCallback(cb, { timeout });
+  }
+  return setTimeout(cb, 48);
+}
 
 export function mountFurnitureCatalog(hooks = {}) {
   const openButton = document.getElementById("furniture-catalog-btn");
@@ -48,6 +58,7 @@ export function mountFurnitureCatalog(hooks = {}) {
     camera.lookAt(0, 0.42, 0);
     window.addEventListener("pagehide", () => {
       running = false;
+      warmStop = true;
     });
   }
 
@@ -60,6 +71,11 @@ export function mountFurnitureCatalog(hooks = {}) {
   let last = 0;
   const queue = [];
   let loading = 0;
+  let warmIndex = 0;
+  let warmStop = false;
+  let warmScheduled = false;
+  let spinCursor = 0;
+  let readyCount = 0;
 
   function fileUrl(file) {
     return new URL("./furniture/" + file, import.meta.url).href;
@@ -68,6 +84,27 @@ export function mountFurnitureCatalog(hooks = {}) {
   function sizeLabel(cm) {
     if (!cm || cm.length < 3) return "";
     return `${cm[0]}×${cm[1]}×${cm[2]} см`;
+  }
+
+  function paintPlaceholder(entry, label = "…") {
+    const { ctx, canvas } = entry;
+    ctx.fillStyle = "#e7e0d2";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#8a8070";
+    ctx.font = "28px system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(label, canvas.width / 2, canvas.height / 2);
+  }
+
+  function loadScene(file) {
+    const hit = modelCache.get(file);
+    if (hit) return hit.then((scene) => scene.clone(true));
+    const job = new Promise((resolve, reject) => {
+      loader.load(fileUrl(file), (gltf) => resolve(gltf.scene), undefined, reject);
+    });
+    modelCache.set(file, job);
+    return job.then((scene) => scene.clone(true));
   }
 
   function build(data) {
@@ -113,8 +150,12 @@ export function mountFurnitureCatalog(hooks = {}) {
       meta.textContent = sizeLabel(item.cm);
       card.append(canvas, caption, name, meta);
       grid.append(card);
-      cards.push({ item, card, canvas, ctx, pivot: null, ready: false, failed: false });
+      const entry = { item, card, canvas, ctx, pivot: null, ready: false, failed: false, queued: false };
+      paintPlaceholder(entry);
+      cards.push(entry);
     }
+    // Фоновый прогрев после первого idle — не на старте страницы.
+    idle(() => startWarm(), 2000);
   }
 
   function applyFilter() {
@@ -133,36 +174,122 @@ export function mountFurnitureCatalog(hooks = {}) {
     return cards.filter((entry) => {
       if (entry.card.hidden) return false;
       const rect = entry.card.getBoundingClientRect();
-      return rect.bottom > view.top && rect.top < view.bottom;
+      return rect.bottom > view.top - 80 && rect.top < view.bottom + 80;
     });
   }
 
-  function pump() {
-    if (!open) return;
-    for (const entry of visibleEntries()) {
-      if (entry.ready || entry.failed || entry.queued) continue;
-      entry.queued = true;
-      queue.push(entry);
+  function updateStatus() {
+    if (!status || !open) return;
+    const total = cards.length;
+    const left = total - readyCount - cards.filter((c) => c.failed).length;
+    if (left > 0) {
+      status.textContent = `Подгрузка превью в фоне… ${readyCount}/${total}. Можно выбирать уже готовые.`;
+    } else {
+      status.textContent = "Экскурсия: M — каталог · клик — вставка · Esc — закрыть.";
     }
-    while (loading < 3 && queue.length) {
+  }
+
+  function finishLoad(entry, ok, scene) {
+    loading = Math.max(0, loading - 1);
+    entry.queued = false;
+    if (!ok) {
+      entry.failed = true;
+      entry.card.classList.add("failed");
+      paintPlaceholder(entry, "!");
+      schedulePump();
+      return;
+    }
+    // fit чуть отложить — не парсить bbox в том же тике, что decode
+    idle(() => {
+      try {
+        entry.pivot = fit(scene);
+        entry.ready = true;
+        readyCount += 1;
+        updateStatus();
+      } catch {
+        entry.failed = true;
+        entry.card.classList.add("failed");
+        paintPlaceholder(entry, "!");
+      }
+      schedulePump();
+    }, 120);
+  }
+
+  function startLoad(entry, priority) {
+    if (entry.ready || entry.failed || entry.loading) return;
+    entry.loading = true;
+    entry.queued = true;
+    loading += 1;
+    if (!entry.failed) paintPlaceholder(entry, "…");
+    loadScene(entry.item.file)
+      .then((scene) => {
+        entry.loading = false;
+        finishLoad(entry, true, scene);
+      })
+      .catch(() => {
+        entry.loading = false;
+        finishLoad(entry, false);
+      });
+    if (priority && status && open) updateStatus();
+  }
+
+  let pumpTimer = 0;
+  function schedulePump() {
+    if (pumpTimer) return;
+    pumpTimer = setTimeout(() => {
+      pumpTimer = 0;
+      pump();
+    }, 32);
+  }
+
+  function pump() {
+    // Сначала видимые (если каталог открыт), затем очередь.
+    if (open) {
+      for (const entry of visibleEntries()) {
+        if (entry.ready || entry.failed || entry.queued || entry.loading) continue;
+        queue.push(entry);
+        entry.queued = true;
+      }
+    }
+    while (loading < LOAD_CONCURRENCY && queue.length) {
       const entry = queue.shift();
-      if (entry.card.hidden) {
+      if (!entry || entry.ready || entry.failed || entry.loading) {
+        if (entry) entry.queued = false;
+        continue;
+      }
+      if (open && entry.card.hidden && visibleEntries().some((e) => !e.ready && !e.failed && !e.loading)) {
+        // скрытую отложить, пока есть видимые
         entry.queued = false;
         continue;
       }
-      loading += 1;
-      loader.load(fileUrl(entry.item.file), (gltf) => {
-        loading -= 1;
-        entry.pivot = fit(gltf.scene);
-        entry.ready = true;
-        pump();
-      }, undefined, () => {
-        loading -= 1;
-        entry.failed = true;
-        entry.card.classList.add("failed");
-        pump();
-      });
+      startLoad(entry, true);
     }
+  }
+
+  function startWarm() {
+    if (warmScheduled) return;
+    warmScheduled = true;
+    warmStop = false;
+    ensureRenderer();
+    const step = () => {
+      if (warmStop) return;
+      // пока каталог открыт и грузит видимое — подождать
+      if (loading >= LOAD_CONCURRENCY || (open && queue.length > 0)) {
+        idle(step, 600);
+        return;
+      }
+      while (warmIndex < cards.length) {
+        const entry = cards[warmIndex++];
+        if (entry.ready || entry.failed || entry.queued || entry.loading) continue;
+        startLoad(entry, false);
+        idle(step, 900);
+        return;
+      }
+      if (status && !open) {
+        /* тихий прогрев закончен */
+      }
+    };
+    idle(step, 1200);
   }
 
   function fit(scene) {
@@ -193,21 +320,25 @@ export function mountFurnitureCatalog(hooks = {}) {
     if (!running) return;
     const dt = last ? Math.min(0.05, (now - last) / 1000) : 0;
     last = now;
-    const shown = visibleEntries();
-    for (const entry of shown) {
-      if (!entry.ready) continue;
-      try {
-        entry.pivot.rotation.y += SPIN * dt;
-        stage.add(entry.pivot);
-        renderer.render(stage, camera);
-        entry.ctx.globalCompositeOperation = "copy";
-        entry.ctx.drawImage(renderer.domElement, 0, 0, entry.canvas.width, entry.canvas.height);
-        entry.ctx.globalCompositeOperation = "source-over";
-        stage.remove(entry.pivot);
-      } catch (err) {
-        if (entry.pivot.parent) entry.pivot.parent.remove(entry.pivot);
-        entry.ready = false;
-        entry.failed = true;
+    const shown = visibleEntries().filter((entry) => entry.ready && entry.pivot);
+    if (shown.length) {
+      const budget = Math.min(RENDER_BUDGET, shown.length);
+      for (let n = 0; n < budget; n++) {
+        const entry = shown[spinCursor % shown.length];
+        spinCursor += 1;
+        try {
+          entry.pivot.rotation.y += SPIN * dt * (shown.length / budget);
+          stage.add(entry.pivot);
+          renderer.render(stage, camera);
+          entry.ctx.globalCompositeOperation = "copy";
+          entry.ctx.drawImage(renderer.domElement, 0, 0, entry.canvas.width, entry.canvas.height);
+          entry.ctx.globalCompositeOperation = "source-over";
+          stage.remove(entry.pivot);
+        } catch {
+          if (entry.pivot.parent) entry.pivot.parent.remove(entry.pivot);
+          entry.ready = false;
+          entry.failed = true;
+        }
       }
     }
     requestAnimationFrame(frame);
@@ -229,9 +360,8 @@ export function mountFurnitureCatalog(hooks = {}) {
       }
       applyFilter();
       search.focus();
-      if (status) {
-        status.textContent = "Экскурсия: M — каталог · клик по карточке — вставка · Esc — закрыть. Вне экскурсии клик копирует ID.";
-      }
+      updateStatus();
+      startWarm();
     } else {
       running = false;
     }
@@ -249,7 +379,7 @@ export function mountFurnitureCatalog(hooks = {}) {
     query = search.value;
     applyFilter();
   });
-  grid.addEventListener("scroll", () => pump(), { passive: true });
+  grid.addEventListener("scroll", () => schedulePump(), { passive: true });
   grid.addEventListener("click", async (event) => {
     const card = event.target.closest(".catalog-card");
     if (!card) return;
@@ -277,7 +407,6 @@ export function mountFurnitureCatalog(hooks = {}) {
   window.addEventListener("keydown", (event) => {
     if (!open) return;
     if (event.key === "Escape" || (event.code === "KeyM" && !event.ctrlKey && !event.altKey && !event.metaKey)) {
-      // не закрывать, если печатают «m» в поиске
       if (event.code === "KeyM" && event.target instanceof Element && event.target.closest("input, textarea")) return;
       event.preventDefault();
       event.stopPropagation();

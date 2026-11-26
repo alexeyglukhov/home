@@ -458,108 +458,7 @@ function buildTV(group, api, x0, y0, x1, y1) {
   addCounterSlab(group, api, x0 + 0.02, y0 + 0.01, x1 - 0.02, y1 - 0.01, yBot + 0.04, yTop - 0.04, 0x1a1a1c);
 }
 
-export const D2_FURNITURE = [
-  // Сгенерировано из furniture-map-d2.svg — правьте карту, затем sync_map_to_place.py
-  { id: "H05", x0: -4.001, y0: 2.942, x1: -3.206, y1: 3.483, footW: 0.795, footD: 0.541, frontDeg: 0, fromMap: true, wall: "S", h: CAB_H },
-  { id: "H04", x0: -3.202, y0: 2.951, x1: -2.702, y1: 3.492, footW: 0.500, footD: 0.541, frontDeg: 0, fromMap: true, wall: "S", h: CAB_H },
-  { id: "H05", x0: -1.941, y0: 2.948, x1: -1.091, y1: 3.489, footW: 0.850, footD: 0.541, frontDeg: 0, fromMap: true, wall: "S", h: CAB_H },
-  { id: "H04", x0: -1.079, y0: 2.949, x1: -0.252, y1: 3.490, footW: 0.827, footD: 0.541, frontDeg: 0, fromMap: true, wall: "S", h: CAB_H },
-  { id: "H05", x0: -3.954, y0: 3.492, x1: -3.412, y1: 4.046, footW: 0.554, footD: 0.542, frontDeg: 90, fromMap: true, wall: "W", h: CAB_H },
-  { id: "H04", x0: -3.953, y0: 4.067, x1: -3.411, y1: 4.617, footW: 0.550, footD: 0.542, frontDeg: 90, fromMap: true, wall: "W", h: CAB_H },
-  { id: "H05", x0: -3.957, y0: 4.633, x1: -3.415, y1: 5.183, footW: 0.550, footD: 0.542, frontDeg: 90, fromMap: true, wall: "W", h: CAB_H },
-  { id: "H04", x0: -3.957, y0: 5.190, x1: -3.415, y1: 5.583, footW: 0.393, footD: 0.542, frontDeg: 90, fromMap: true, wall: "W", h: CAB_H },
-  { id: "H05", x0: -4.016, y0: 5.601, x1: -3.296, y1: 6.141, footW: 0.720, footD: 0.540, frontDeg: 180, fromMap: true, wall: "N", h: CAB_H },
-  { id: "H11", x0: -3.298, y0: 5.601, x1: -2.498, y1: 6.101, footW: 0.800, footD: 0.500, frontDeg: 180, fromMap: true, wall: "N", raise: COUNTER_H + RAISE },
-  { id: "H04", x0: -2.484, y0: 5.597, x1: -1.724, y1: 6.137, footW: 0.760, footD: 0.540, frontDeg: 180, fromMap: true, wall: "N", h: CAB_H },
-  { id: "H18", x0: -0.232, y0: 2.889, x1: 0.711, y1: 4.833, footW: 1.944, footD: 0.943, frontDeg: 270, fromMap: true, wall: "E", h: 0.95 },
-  { id: "S02", x0: 1.701, y0: 3.990, x1: 3.801, y1: 4.940, footW: 2.100, footD: 0.950, frontDeg: 0, fromMap: true, wall: "S", h: 0.75 },
-  { id: "C01", x0: 1.701, y0: 3.540, x1: 2.101, y1: 3.940, footW: 0.400, footD: 0.400, frontDeg: 0, fromMap: true, wall: "S" },
-  { id: "C01", x0: 2.451, y0: 3.540, x1: 2.851, y1: 3.940, footW: 0.400, footD: 0.400, frontDeg: 0, fromMap: true, wall: "S" },
-  { id: "C01", x0: 3.251, y0: 3.540, x1: 3.651, y1: 3.940, footW: 0.400, footD: 0.400, frontDeg: 0, fromMap: true, wall: "S" },
-  { id: "C01", x0: 1.701, y0: 4.990, x1: 2.101, y1: 5.390, footW: 0.400, footD: 0.400, frontDeg: 180, fromMap: true, wall: "N" },
-  { id: "C01", x0: 2.451, y0: 4.990, x1: 2.851, y1: 5.390, footW: 0.400, footD: 0.400, frontDeg: 180, fromMap: true, wall: "N" },
-  { id: "C01", x0: 3.251, y0: 4.990, x1: 3.651, y1: 5.390, footW: 0.400, footD: 0.400, frontDeg: 180, fromMap: true, wall: "N" },
-  { id: "C01", x0: 3.838, y0: 4.244, x1: 4.238, y1: 4.644, footW: 0.400, footD: 0.400, frontDeg: 270, fromMap: true, wall: "E" },
-  { id: "C01", x0: 1.152, y0: 4.250, x1: 1.552, y1: 4.650, footW: 0.400, footD: 0.400, frontDeg: 90, fromMap: true, wall: "W" },
-  { id: "D08", x0: 1.320, y0: 6.580, x1: 4.650, y1: 8.200, footW: 3.330, footD: 1.620, frontDeg: 0, fromMap: true, wall: "S", h: 0.90, mirror: true },
-  { id: "J01", x0: 1.530, y0: 8.400, x1: 3.010, y1: 9.330, footW: 1.480, footD: 0.930, frontDeg: 0, fromMap: true, wall: "S" },
-  { id: "S01", x0: 6.410, y0: 5.040, x1: 7.360, y1: 7.140, footW: 2.100, footD: 0.950, frontDeg: 270, fromMap: true, wall: "E", h: 0.75, floorY: TERRACE_Y },
-  { id: "C01", x0: 6.680, y0: 4.600, x1: 7.080, y1: 5.000, footW: 0.400, footD: 0.400, frontDeg: 0, fromMap: true, wall: "S", floorY: TERRACE_Y },
-  { id: "C01", x0: 5.957, y0: 5.169, x1: 6.357, y1: 5.569, footW: 0.400, footD: 0.400, frontDeg: 90, fromMap: true, wall: "W", floorY: TERRACE_Y },
-  { id: "C01", x0: 7.407, y0: 5.169, x1: 7.797, y1: 5.569, footW: 0.400, footD: 0.390, frontDeg: 270, fromMap: true, wall: "E", floorY: TERRACE_Y },
-  { id: "C01", x0: 5.957, y0: 5.969, x1: 6.357, y1: 6.369, footW: 0.400, footD: 0.400, frontDeg: 90, fromMap: true, wall: "W", floorY: TERRACE_Y },
-  { id: "C01", x0: 7.407, y0: 5.969, x1: 7.797, y1: 6.369, footW: 0.400, footD: 0.390, frontDeg: 270, fromMap: true, wall: "E", floorY: TERRACE_Y },
-  { id: "C01", x0: 5.957, y0: 6.719, x1: 6.357, y1: 7.119, footW: 0.400, footD: 0.400, frontDeg: 90, fromMap: true, wall: "W", floorY: TERRACE_Y },
-  { id: "C01", x0: 7.407, y0: 6.719, x1: 7.797, y1: 7.119, footW: 0.400, footD: 0.390, frontDeg: 270, fromMap: true, wall: "E", floorY: TERRACE_Y },
-  { id: "C01", x0: 6.690, y0: 7.290, x1: 7.090, y1: 7.690, footW: 0.400, footD: 0.400, frontDeg: 180, fromMap: true, wall: "N", floorY: TERRACE_Y },
-  { id: "P02", x0: -4.001, y0: 17.598, x1: -2.588, y1: 18.477, footW: 1.413, footD: 0.879, frontDeg: 0, fromMap: true, wall: "S", h: 0.75 },
-  { id: "P02", x0: -2.628, y0: 17.604, x1: -1.220, y1: 18.476, footW: 1.408, footD: 0.872, frontDeg: 0, fromMap: true, wall: "S", h: 0.75 },
-  { id: "A01", x0: -3.490, y0: 17.008, x1: -3.010, y1: 17.498, footW: 0.480, footD: 0.490, frontDeg: 0, fromMap: true, wall: "S" },
-  { id: "A01", x0: -2.220, y0: 17.084, x1: -1.588, y1: 17.722, footW: 0.632, footD: 0.638, frontDeg: 0, fromMap: true, wall: "S" },
-  { id: "H17", x0: -0.002, y0: 18.050, x1: 0.798, y1: 18.500, footW: 0.800, footD: 0.450, frontDeg: 180, fromMap: true, wall: "N", h: 0.75 },
-  { id: "W07", x0: -2.127, y0: 15.543, x1: -0.298, y1: 16.138, footW: 1.829, footD: 0.595, frontDeg: 0, fromMap: true, wall: "S", h: 2.04 },
-  { id: "G03", x0: -2.370, y0: 13.593, x1: -1.790, y1: 14.737, footW: 1.144, footD: 0.580, frontDeg: 270, fromMap: true, wall: "E", h: 2.20 },
-  { id: "G07", x0: 6.788, y0: 16.541, x1: 8.159, y1: 17.141, footW: 1.371, footD: 0.600, frontDeg: 0, fromMap: true, wall: "S", h: 2.15 },
-  { id: "G07", x0: 5.355, y0: 14.612, x1: 6.711, y1: 15.212, footW: 1.356, footD: 0.600, frontDeg: 0, fromMap: true, wall: "S", h: 2.15 },
-  { id: "G03", x0: 8.918, y0: 10.761, x1: 9.498, y1: 11.661, footW: 0.900, footD: 0.580, frontDeg: 270, fromMap: true, wall: "E", h: 2.20 },
-  { id: "G03", x0: 8.923, y0: 11.690, x1: 9.503, y1: 12.590, footW: 0.900, footD: 0.580, frontDeg: 270, fromMap: true, wall: "E", h: 2.20 },
-  { id: "W08", x0: 8.020, y0: 12.090, x1: 8.890, y1: 12.610, footW: 0.870, footD: 0.520, frontDeg: 180, fromMap: true, wall: "N", h: 1.48 },
-  { id: "K04", x0: 1.060, y0: 16.270, x1: 3.213, y1: 17.860, footW: 1.590, footD: 2.153, frontDeg: 90, fromMap: true, wall: "W", h: 1.27 },
-  { id: "N01", x0: 1.044, y0: 15.750, x1: 1.544, y1: 16.250, footW: 0.500, footD: 0.500, frontDeg: 90, fromMap: true, wall: "W", h: 0.55 },
-  { id: "N01", x0: 1.044, y0: 17.900, x1: 1.544, y1: 18.400, footW: 0.500, footD: 0.500, frontDeg: 90, fromMap: true, wall: "W", h: 0.55 },
-  { id: "W01", x0: 4.319, y0: 16.617, x1: 4.908, y1: 18.476, footW: 1.859, footD: 0.589, frontDeg: 270, fromMap: true, wall: "E", h: 2.10 },
-  { id: "P02", x0: 3.197, y0: 14.606, x1: 4.891, y1: 15.328, footW: 1.694, footD: 0.722, frontDeg: 0, fromMap: true, wall: "S", h: 0.75 },
-  { id: "A02", x0: 4.070, y0: 15.440, x1: 4.470, y1: 15.830, footW: 0.400, footD: 0.390, frontDeg: 180, fromMap: true, wall: "N" },
-  { id: "K01", x0: 9.896, y0: 14.621, x1: 11.776, y1: 16.779, footW: 1.880, footD: 2.158, frontDeg: 0, fromMap: true, wall: "S", h: 1.10 },
-  { id: "N01", x0: 9.348, y0: 14.610, x1: 9.848, y1: 15.110, footW: 0.500, footD: 0.500, frontDeg: 0, fromMap: true, wall: "S", h: 0.55 },
-  { id: "N01", x0: 11.822, y0: 14.639, x1: 12.322, y1: 15.139, footW: 0.500, footD: 0.500, frontDeg: 0, fromMap: true, wall: "S", h: 0.55 },
-  { id: "M01", x0: 11.753, y0: 17.933, x1: 12.978, y1: 18.446, footW: 1.225, footD: 0.513, frontDeg: 0, fromMap: true, wall: "S" },
-  { id: "A02", x0: 12.190, y0: 17.140, x1: 12.590, y1: 17.530, footW: 0.400, footD: 0.390, frontDeg: 0, fromMap: true, wall: "S" },
-  { id: "K01", x0: 9.766, y0: 10.796, x1: 11.902, y1: 12.686, footW: 1.890, footD: 2.136, frontDeg: 90, fromMap: true, wall: "W", h: 1.10 },
-  { id: "N02", x0: 9.740, y0: 10.182, x1: 10.350, y1: 10.732, footW: 0.610, footD: 0.550, frontDeg: 180, fromMap: true, wall: "N", h: 0.83 },
-  { id: "N02", x0: 9.743, y0: 12.740, x1: 10.353, y1: 13.290, footW: 0.610, footD: 0.550, frontDeg: 180, fromMap: true, wall: "N", h: 0.83 },
-  { id: "M01", x0: 11.870, y0: 13.880, x1: 12.970, y1: 14.350, footW: 1.100, footD: 0.470, frontDeg: 0, fromMap: true, wall: "S" },
-  { id: "B04", x0: 12.395, y0: 13.248, x1: 12.902, y1: 13.747, footW: 0.507, footD: 0.499, frontDeg: 0, fromMap: true, wall: "S" },
-  { id: "V03", x0: 1.800, y0: 10.950, x1: 2.600, y1: 12.660, footW: 0.800, footD: 1.710, frontDeg: 0, fromMap: true, wall: "S" },
-  { id: "W08", x0: 2.727, y0: 12.194, x1: 3.904, y1: 12.600, footW: 1.177, footD: 0.406, frontDeg: 180, fromMap: true, wall: "N", h: 1.48 },
-  { id: "R02", x0: 3.962, y0: 10.911, x1: 4.902, y1: 11.471, footW: 0.940, footD: 0.560, frontDeg: 180, fromMap: true, wall: "N", h: 1.17 },
-  { id: "T01", x0: 3.150, y0: 10.900, x1: 3.600, y1: 11.500, footW: 0.450, footD: 0.600, frontDeg: 0, fromMap: true, wall: "S" },
-  { id: "R02", x0: 5.326, y0: 9.516, x1: 5.886, y1: 10.456, footW: 0.940, footD: 0.560, frontDeg: 90, fromMap: true, wall: "W", h: 1.17 },
-  { id: "V03", x0: 5.390, y0: 11.840, x1: 7.100, y1: 12.640, footW: 0.800, footD: 1.710, frontDeg: 270, fromMap: true, wall: "E" },
-  { id: "T01", x0: -1.545, y0: 14.670, x1: -1.007, y1: 15.079, footW: 0.409, footD: 0.538, frontDeg: 90, fromMap: true, wall: "W" },
-  { id: "R02", x0: -1.554, y0: 13.597, x1: -1.110, y1: 14.355, footW: 0.758, footD: 0.444, frontDeg: 270, fromMap: true, wall: "E", h: 1.17 },
-  { id: "B03", x0: -3.010, y0: 10.950, x1: -2.140, y1: 11.490, footW: 0.870, footD: 0.540, frontDeg: 0, fromMap: true, wall: "S" },
-  { id: "W08", x0: -3.059, y0: 13.037, x1: -2.189, y1: 13.355, footW: 0.870, footD: 0.318, frontDeg: 180, fromMap: true, wall: "N", h: 1.48 },
-  { id: "W06", x0: -2.141, y0: 13.041, x1: -1.275, y1: 13.346, footW: 0.866, footD: 0.305, frontDeg: 180, fromMap: true, wall: "N", h: 1.32 },
-  { id: "W06", x0: -2.764, y0: 8.501, x1: -2.274, y1: 9.181, footW: 0.680, footD: 0.490, frontDeg: 270, fromMap: true, wall: "E", h: 1.32 },
-  { id: "X06", x0: -2.763, y0: 9.247, x1: -2.268, y1: 9.949, footW: 0.495, footD: 0.702, frontDeg: 0, fromMap: true, wall: "S" },
-  { id: "W06", x0: -2.756, y0: 10.015, x1: -2.266, y1: 10.695, footW: 0.680, footD: 0.490, frontDeg: 270, fromMap: true, wall: "E", h: 1.32 },
-  { id: "H17", x0: -0.800, y0: 9.084, x1: -0.350, y1: 9.812, footW: 0.728, footD: 0.450, frontDeg: 270, fromMap: true, wall: "E", h: 0.75 },
-  { id: "H17", x0: -0.799, y0: 8.304, x1: -0.365, y1: 9.061, footW: 0.757, footD: 0.434, frontDeg: 270, fromMap: true, wall: "E", h: 0.75 },
-  { id: "W08", x0: -0.739, y0: 9.829, x1: -0.335, y1: 10.699, footW: 0.870, footD: 0.404, frontDeg: 270, fromMap: true, wall: "E", h: 1.48 },
-  { id: "H04", x0: -2.689, y0: 2.965, x1: -1.956, y1: 3.491, footW: 0.733, footD: 0.526, frontDeg: 0, fromMap: true, wall: "S", h: CAB_H },
-  { id: "W08", x0: 8.463, y0: 15.931, x1: 8.925, y1: 16.970, footW: 1.039, footD: 0.462, frontDeg: 90, fromMap: true, wall: "W", h: 1.48, mirror: true },
-  { id: "W08", x0: 8.500, y0: 18.031, x1: 10.392, y1: 18.492, footW: 1.892, footD: 0.461, frontDeg: 180, fromMap: true, wall: "N", h: 1.48 },
-  { id: "G03", x0: 7.394, y0: 10.765, x1: 7.974, y1: 11.665, footW: 0.900, footD: 0.580, frontDeg: 90, fromMap: true, wall: "W", h: 2.20 },
-  { id: "G03", x0: 7.394, y0: 11.705, x1: 7.974, y1: 12.605, footW: 0.900, footD: 0.580, frontDeg: 90, fromMap: true, wall: "W", h: 2.20 },
-  { id: "T01", x0: 5.327, y0: 10.909, x1: 5.927, y1: 11.359, footW: 0.450, footD: 0.600, frontDeg: 90, fromMap: true, wall: "W" },
-  { id: "G03", x0: 5.339, y0: 16.558, x1: 6.751, y1: 17.138, footW: 1.412, footD: 0.580, frontDeg: 0, fromMap: true, wall: "S", h: 2.20, mirror: true },
-  { id: "G01", x0: 5.325, y0: 17.145, x1: 5.983, y1: 18.476, footW: 1.331, footD: 0.658, frontDeg: 90, fromMap: true, wall: "W", h: 2.08, mirror: true },
-  { id: "G03", x0: 6.761, y0: 14.634, x1: 8.173, y1: 15.214, footW: 1.412, footD: 0.580, frontDeg: 0, fromMap: true, wall: "S", h: 2.20, mirror: true },
-  { id: "X06", x0: 6.005, y0: 18.158, x1: 7.063, y1: 18.463, footW: 1.058, footD: 0.305, frontDeg: 0, fromMap: true, wall: "S" },
-  { id: "X06", x0: 7.141, y0: 18.170, x1: 8.169, y1: 18.475, footW: 1.028, footD: 0.305, frontDeg: 0, fromMap: true, wall: "S" },
-  { id: "G01", x0: 7.541, y0: 15.267, x1: 8.199, y1: 16.292, footW: 1.025, footD: 0.658, frontDeg: 270, fromMap: true, wall: "E", h: 2.08 },
-  { id: "W07", x0: -4.009, y0: 15.532, x1: -2.179, y1: 16.127, footW: 1.830, footD: 0.595, frontDeg: 0, fromMap: true, wall: "S", h: 2.04 },
-  { id: "G03", x0: -4.002, y0: 14.746, x1: -2.891, y1: 15.326, footW: 1.111, footD: 0.580, frontDeg: 180, fromMap: true, wall: "N", h: 2.20 },
-  { id: "G03", x0: -2.873, y0: 14.748, x1: -1.788, y1: 15.328, footW: 1.085, footD: 0.580, frontDeg: 180, fromMap: true, wall: "N", h: 2.20 },
-  { id: "X06", x0: -2.011, y0: 7.699, x1: -1.450, y1: 8.292, footW: 0.561, footD: 0.593, frontDeg: 0, fromMap: true, wall: "S" },
-  { id: "X06", x0: -1.430, y0: 7.700, x1: -0.869, y1: 8.293, footW: 0.561, footD: 0.593, frontDeg: 0, fromMap: true, wall: "S" },
-  { id: "X06", x0: -0.844, y0: 7.689, x1: -0.371, y1: 8.282, footW: 0.473, footD: 0.593, frontDeg: 0, fromMap: true, wall: "S" },
-  { id: "X06", x0: -2.770, y0: 7.733, x1: -2.275, y1: 8.435, footW: 0.495, footD: 0.702, frontDeg: 0, fromMap: true, wall: "S" },
-  { id: "J03", x0: -4.014, y0: 7.695, x1: -3.427, y1: 8.284, footW: 0.587, footD: 0.589, frontDeg: 0, fromMap: true, wall: "S" },
-  { id: "J03", x0: -3.410, y0: 7.704, x1: -2.799, y1: 8.301, footW: 0.611, footD: 0.597, frontDeg: 0, fromMap: true, wall: "S" },
-  { id: "W08", x0: 6.803, y0: 10.558, x1: 7.171, y1: 11.634, footW: 1.076, footD: 0.368, frontDeg: 270, fromMap: true, wall: "E", h: 1.48 },
-];
+export const D2_FURNITURE = [];
 
 export async function mountFurniture(group, api, items) {
   const catalog = await fetch(fileUrl("catalog.json")).then((r) => r.json());
@@ -573,14 +472,6 @@ export async function mountFurniture(group, api, items) {
 }
 
 export async function mountD2Furniture(group, api) {
-  const catalog = await fetch(fileUrl("catalog.json")).then((r) => r.json());
-  buildKitchenCounters(group, api);
-  buildTV(group, api, 1.93, 10.24, 3.88, 10.40);
-  await Promise.all(
-    D2_FURNITURE.map((item) =>
-      placeInBox(group, api, item, catalog).catch((err) => {
-        console.warn("furniture", item.id, err);
-      })
-    )
-  );
+  // Старая карта/жёсткая расстановка снята — мебель только из data/furniture/{variant}.json
+  return mountFurniture(group, api, D2_FURNITURE);
 }

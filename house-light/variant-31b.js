@@ -3,7 +3,7 @@
 // Посадка: abrikosovaya-22-layout-variant-3.1b-1-100.svg.
 // Координаты — метры плана участка (как у Д4): x на восток, y на север.
 import * as THREE from "three";
-import { addVar31FurnitureFloor, markHouseFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31-furniture-floor.js?v=8";
+import { addVar31FurnitureFloor, markHouseFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31-furniture-floor.js?v=9";
 
 export const V31B_BASE = { x: 0, y: 0 };
 

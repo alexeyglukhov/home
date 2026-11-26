@@ -4,7 +4,7 @@ import { GLTFLoader } from "./vendor/GLTFLoader.js";
 import { mergeVertices } from "./vendor/utils/BufferGeometryUtils.js";
 import geo from "./geometry.js?v=21";
 import { FURNITURE_LINES } from "./furniture-sketch.js?v=4";
-import { FURNITURE_D } from "./furniture-d.js?v=6";
+import { FURNITURE_D } from "./furniture-d.js?v=7";
 import { WALL_LINES } from "./wall-sketch.js?v=2";
 import { buildFacadeOverlays, paintFacadeFaces, wallFace } from "./facade-overlay.js?v=102";
 import { FACADE_CHOICES, applyFacadeStyle } from "./facade-styles.js?v=86";
@@ -15,14 +15,14 @@ import { buildVariantD4 as buildVariantD6, d4WalkBoxes as d6WalkBoxes, d4FenceSe
 import { buildVariant31, v31WalkBoxes, v31FenceSegments, V31_WINDOWS, V31_BASE } from "./variant-31.js?v=50";
 import { buildVariant31a, v31aWalkBoxes, v31aFenceSegments, V31A_WINDOWS, V31A_BASE } from "./variant-31a.js?v=22";
 import { buildVariant31b, v31bWalkBoxes, v31bFenceSegments, V31B_WINDOWS, V31B_BASE } from "./variant-31b.js?v=37";
-import { buildVariant31d, v31dWalkBoxes, v31dFenceSegments, V31D_WINDOWS, V31D_BASE } from "./variant-31d.js?v=136";
+import { buildVariant31d, v31dWalkBoxes, v31dFenceSegments, V31D_WINDOWS, V31D_BASE } from "./variant-31d.js?v=137";
 import { buildVariant31c, v31cWalkBoxes, v31cFenceSegments, V31C_WINDOWS, V31C_BASE } from "./variant-31c.js?v=120";
 import { createD2Tour, createTourDaylight, D3_WINDOWS } from "./tour-d2.js?v=24";
 import { syncPrintSheets } from "./print-sheets.js?v=48";
-import { mountFurnitureCatalog } from "./furniture-catalog.js?v=11";
-import { createTourFurniturePlace } from "./furniture-tour-place.js?v=5";
-import { mountD2Furniture } from "./furniture-place-d2.js?v=43";
-import { mountD5Furniture } from "./furniture-place-d5.js?v=7";
+import { mountFurnitureCatalog } from "./furniture-catalog.js?v=13";
+import { createTourFurniturePlace } from "./furniture-tour-place.js?v=26";
+import { mountD2Furniture } from "./furniture-place-d2.js?v=44";
+import { mountD5Furniture } from "./furniture-place-d5.js?v=8";
 import { buildTopochnayaV3, topoCameraRigs } from "./topochnaya-v3.js?v=96";
 
 const panel = document.getElementById("panel");
@@ -6128,6 +6128,8 @@ controls.addEventListener("change", () => {
 roofToggle.addEventListener("change", () => {
   if (tourActive && !roofToggle.checked) stopTour(true);
   showRoofs(roofToggle.checked);
+  if (tourFurniturePlace) tourFurniturePlace.tick(0);
+  syncFurnitureOrbitLock();
   saveView();
   syncTourButton();
   if (tourFurniturePlace) tourFurniturePlace.onVariantChange();
@@ -6453,18 +6455,43 @@ function tourFurnitureHitTargets() {
 }
 
 const tourFurnHint = document.getElementById("tour-furn-hint");
+const tourGazeReticle = document.getElementById("tour-gaze-reticle");
+function setTourGazeReticle(mode) {
+  if (!tourGazeReticle) return;
+  // Прицел только в экскурсии; в осмотре выбор мышкой.
+  const aim = tourActive && (mode === "edit" || mode === "delete" || mode === "copy");
+  tourGazeReticle.hidden = !aim;
+  tourGazeReticle.classList.toggle("edit", mode === "edit");
+  tourGazeReticle.classList.toggle("delete", mode === "delete");
+  tourGazeReticle.classList.toggle("copy", mode === "copy");
+}
 function setTourFurnHint(msg, mode) {
+  setTourGazeReticle(mode || "off");
   if (!tourFurnHint) return;
   if (!msg) {
     tourFurnHint.hidden = true;
     tourFurnHint.textContent = "";
-    tourFurnHint.classList.remove("place", "delete");
+    tourFurnHint.classList.remove("place", "delete", "edit", "copy");
     return;
   }
   tourFurnHint.hidden = false;
   tourFurnHint.textContent = msg;
   tourFurnHint.classList.toggle("place", mode === "place");
   tourFurnHint.classList.toggle("delete", mode === "delete");
+  tourFurnHint.classList.toggle("edit", mode === "edit");
+  tourFurnHint.classList.toggle("copy", mode === "copy");
+}
+
+function canEditFurniture() {
+  // Экскурсия или осмотр со снятой крышей.
+  return tourActive || !roofToggle.checked;
+}
+
+function syncFurnitureOrbitLock() {
+  if (tourActive) return;
+  // В C/X осмотра орбита нужна, чтобы навёсть и кликнуть; блок только при переносе.
+  const busy = !!furnitureCatalogApi?.isOpen() || !!tourFurniturePlace?.isPlacing();
+  controls.enabled = !busy;
 }
 
 tourFurniturePlace = createTourFurniturePlace({
@@ -6472,16 +6499,21 @@ tourFurniturePlace = createTourFurniturePlace({
   planToWorld,
   worldToPlan,
   walkGround,
+  canEditFurniture,
   isTourActive: () => tourActive,
   camera,
   scene,
   bucket: tourFurnitureBucket,
+  domElement: renderer.domElement,
   hitTargets: tourFurnitureHitTargets,
   setStatus: (msg) => {
     const el = document.getElementById("furniture-catalog-status");
     if (el) el.textContent = msg;
   },
   setHint: setTourFurnHint,
+  onModeChange: () => {
+    syncFurnitureOrbitLock();
+  },
 });
 
 function collectWalkPolys(kind) {
@@ -6590,6 +6622,7 @@ function stopTour(restore) {
   syncTourButton();
   if (restore) saveView();
   if (tourFurniturePlace) tourFurniturePlace.onTourStop();
+  syncFurnitureOrbitLock();
 }
 
 let lookPtr = null;
@@ -6625,10 +6658,36 @@ function tourMoveCode(code) {
     || code === "ArrowLeft" || code === "KeyA"
     || code === "ArrowRight" || code === "KeyD";
 }
+function tourFurnitureNested() {
+  return !!(
+    tourFurniturePlace
+    && (tourFurniturePlace.isPlacing() || tourFurniturePlace.isDeleting() || tourFurniturePlace.isEditing())
+  );
+}
+
 window.addEventListener("keydown", (event) => {
-  if (!tourActive) return;
   if (furnitureCatalogApi?.isOpen()) return;
   if (event.target instanceof Element && event.target.closest("input, textarea")) return;
+
+  // Осмотр без крыши: те же C/X/IJKL/Esc, без pointer lock.
+  if (!tourActive) {
+    if (!canEditFurniture() || !tourFurniturePlace) return;
+    if (event.code === "KeyM" && !event.ctrlKey && !event.altKey && !event.metaKey) {
+      // M уже открывает каталог отдельным слушателем
+      return;
+    }
+    if (event.key === "Escape" && tourFurnitureNested()) {
+      event.preventDefault();
+      tourFurniturePlace.onKey("Escape", true, event);
+      syncFurnitureOrbitLock();
+      return;
+    }
+    if (tourFurniturePlace.onKey(event.code, true, event)) {
+      event.preventDefault();
+      syncFurnitureOrbitLock();
+    }
+    return;
+  }
 
   // M — каталог (без мыши в pointer lock)
   if (event.code === "KeyM" && !event.ctrlKey && !event.altKey && !event.metaKey) {
@@ -6637,19 +6696,21 @@ window.addEventListener("keydown", (event) => {
     return;
   }
 
-  if (event.key === "Escape" && (tourFurniturePlace?.isPlacing() || tourFurniturePlace?.isDeleting())) {
+  if (event.key === "Escape") {
     event.preventDefault();
-    tourRelockIgnore = performance.now() + 400;
-    tourFurniturePlace.onKey("Escape", true, event);
+    // Esc уже обработан в pointerlockchange (выход из C/X/правки) — не стопать экскурсию.
+    if (performance.now() < tourEscNestUntil) return;
+    if (tourFurnitureNested()) {
+      tourRelockIgnore = performance.now() + 500;
+      tourEscNestUntil = performance.now() + 500;
+      tourFurniturePlace.onKey("Escape", true, event);
+      return;
+    }
+    stopTour(true);
     return;
   }
   if (tourFurniturePlace && tourFurniturePlace.onKey(event.code, true, event)) {
     event.preventDefault();
-    return;
-  }
-  if (event.key === "Escape") {
-    event.preventDefault();
-    stopTour(true);
     return;
   }
   if (event.key >= "1" && event.key <= "9" && event.key.length === 1) {
@@ -6665,11 +6726,12 @@ window.addEventListener("keydown", (event) => {
 });
 window.addEventListener("keyup", (event) => {
   if (tourMoveCode(event.code)) activeTour().setMove(event.code, false);
-  if (tourActive && tourFurniturePlace) tourFurniturePlace.onKey(event.code, false, event);
+  if (tourFurniturePlace && canEditFurniture()) tourFurniturePlace.onKey(event.code, false, event);
 });
 window.addEventListener("blur", () => activeTour().clearMove());
 let tourPointerLocked = false;
 let tourRelockIgnore = 0;
+let tourEscNestUntil = 0;
 document.addEventListener("pointerlockchange", () => {
   const locked = document.pointerLockElement === renderer.domElement;
   if (locked) {
@@ -6678,9 +6740,18 @@ document.addEventListener("pointerlockchange", () => {
   }
   if (tourPointerLocked && tourActive) {
     tourPointerLocked = false;
-    if (tourUiPause) return;
-    // Esc в place/delete: отмена без выхода из экскурсии.
+    // Каталог (M) открыт — не стопать экскурсию.
+    if (tourUiPause || furnitureCatalogApi?.isOpen()) return;
     if (performance.now() < tourRelockIgnore) {
+      renderer.domElement.requestPointerLock?.();
+      return;
+    }
+    // Esc приходит в unlock раньше keydown: сначала выходим из C/X/вставки, не из экскурсии.
+    if (tourFurnitureNested()) {
+      tourFurniturePlace.onKey("Escape", true, { key: "Escape", code: "Escape" });
+      tourEscNestUntil = performance.now() + 500;
+      tourRelockIgnore = performance.now() + 500;
+      tourLookIgnoreUntil = performance.now() + 220;
       renderer.domElement.requestPointerLock?.();
       return;
     }
@@ -6690,13 +6761,34 @@ document.addEventListener("pointerlockchange", () => {
 window.addEventListener("contextmenu", (event) => {
   if (tourActive) event.preventDefault();
 });
+// Осмотр: курсор задаёт точку вставки; клик по мебели до OrbitControls.
+renderer.domElement.addEventListener("pointermove", (event) => {
+  if (!tourFurniturePlace) return;
+  tourFurniturePlace.onPointerMove(event);
+});
+renderer.domElement.addEventListener("pointerdown", (event) => {
+  if (tourActive) return;
+  if (!canEditFurniture() || !tourFurniturePlace) return;
+  if (event.button !== 0) return;
+  if (tourFurniturePlace.onPointerDown(event)) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    syncFurnitureOrbitLock();
+  }
+}, true);
+
 window.addEventListener("pointerdown", (event) => {
-  if (!tourActive) return;
   if (!(event.target instanceof Element)) return;
   if (event.target.closest("#panel, #prints, #furniture-catalog, #share-dialog, #auth-dialog, button, input, select, label")) return;
+  if (!tourActive) return;
+
   if (event.button === 2) {
     event.preventDefault();
     activeTour().jump();
+    return;
+  }
+  if (event.button === 0 && tourFurniturePlace && tourFurniturePlace.onPointerDown(event)) {
+    event.preventDefault();
     return;
   }
   if (document.pointerLockElement !== renderer.domElement && !tourUiPause) {
@@ -6705,7 +6797,7 @@ window.addEventListener("pointerdown", (event) => {
 });
 
 window.addEventListener("wheel", (event) => {
-  if (!tourActive || !tourFurniturePlace) return;
+  if (!tourFurniturePlace || !canEditFurniture()) return;
   if (!tourFurniturePlace.isPlacing()) return;
   if (tourFurniturePlace.onWheel(event.deltaY)) event.preventDefault();
 }, { passive: false });
@@ -6818,7 +6910,10 @@ function frame() {
     activeDaylight().setElevation(sunElevation);
     if (!activeTour().step(dt)) stopTour(true);
     if (tourFurniturePlace) tourFurniturePlace.tick(dt);
-  } else controls.update();
+  } else {
+    if (tourFurniturePlace) tourFurniturePlace.tick(dt);
+    if (controls.enabled) controls.update();
+  }
   try {
     renderer.render(scene, camera);
     if (glOkFrames < 8) {
@@ -6847,7 +6942,22 @@ furnitureCatalogApi = mountFurnitureCatalog({
     }
   },
   onOpenChange: (open) => {
-    if (!tourActive) return;
+    if (!tourActive) {
+      syncFurnitureOrbitLock();
+      if (open) {
+        setTourFurnHint(
+          canEditFurniture()
+            ? "Каталог: клик — вставка (крыша снята) · Esc / M — закрыть"
+            : "Каталог: для вставки снимите крышу или включите «Экскурсию» · Esc / M — закрыть",
+          "idle",
+        );
+      } else if (tourFurniturePlace) {
+        tourFurniturePlace.tick(0);
+      } else {
+        setTourFurnHint("", "off");
+      }
+      return;
+    }
     if (open) {
       tourUiPause = true;
       lookPtr = null;

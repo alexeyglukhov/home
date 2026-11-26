@@ -16,7 +16,7 @@ export function markHouseFloor(mesh) {
 export const V31_FLOOR_WEST = [-5.212, 7.781, 8.501, 17.814];
 export const V31_FLOOR_EAST = [8.361, 0.796, 14.221, 17.814];
 
-const TEX_URL = new URL("./var31d-furniture-plan.png?v=16", import.meta.url).href;
+const TEX_URL = new URL("./var31d-furniture-plan.png?v=17", import.meta.url).href;
 const IMG = { x0: -13.0, y0: -2.268, x1: 17.945, y1: 20.691 };
 const OPACITY = 0.55;
 

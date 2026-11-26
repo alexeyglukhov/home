@@ -69,6 +69,10 @@
     {
       "id": "X",
       "title": "Коробки"
+    },
+    {
+      "id": "E",
+      "title": "Телевизоры"
     }
   ],
   "items": [
@@ -1384,6 +1388,45 @@
       ],
       "license": "CC0",
       "source": "https://www.innerscene.com/tools/library/3d-parts/toy-box-original-interior-furnishing-322bb842"
+    },
+    {
+      "id": "E01",
+      "group": "E",
+      "name": "ТВ 55″ на стойке",
+      "file": "models/E01.glb",
+      "cm": [
+        123,
+        25,
+        78
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/flat-screen-tv-55-inch-on-a-pedestal-stand-44fcc478"
+    },
+    {
+      "id": "E02",
+      "group": "E",
+      "name": "ТВ 65″ на кронштейне",
+      "file": "models/E02.glb",
+      "cm": [
+        145,
+        9,
+        83
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/flat-screen-tv-65-inch-on-a-slim-wall-bracket-548e9ff7"
+    },
+    {
+      "id": "E03",
+      "group": "E",
+      "name": "ТВ 32″ на ножках",
+      "file": "models/E03.glb",
+      "cm": [
+        72,
+        20,
+        49
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/flat-screen-tv-32-inch-on-feet-6dbdcb82"
     }
   ]
 }

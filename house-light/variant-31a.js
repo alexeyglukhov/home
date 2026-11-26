@@ -3,7 +3,7 @@
 // Координаты — метры плана участка (как у Д4): x на восток, y на север.
 // Крыша по лекалам: тёмно-синий конёк, белые фронтоны; скаты. Водостоки/снегорезы — позже.
 import * as THREE from "three";
-import { addVar31FurnitureFloor, markHouseFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31-furniture-floor.js?v=8";
+import { addVar31FurnitureFloor, markHouseFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31-furniture-floor.js?v=9";
 
 export const V31A_BASE = { x: 0, y: 0 };
 
