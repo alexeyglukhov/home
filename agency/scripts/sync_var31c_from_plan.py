@@ -333,7 +333,7 @@ def export_inoe_png():
             str(tmp),
             f"--export-filename={PNG}",
             "--export-type=png",
-            "--export-dpi=144",
+            "--export-dpi=288",
             "--export-background-opacity=0",
         ],
         check=True,

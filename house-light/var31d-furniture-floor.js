@@ -1,5 +1,6 @@
 // Подложка 3.1d: растр «иное» + «стены» + «помещения» (подписи и метраж).
-// PNG: var31d-furniture-plan.png (viewBox плана −320/−50/250×220 → метры ниже).
+// Дом, терраса, крыльцо и навес — чтобы м²/подписи читались и снаружи.
+// PNG: var31d-furniture-plan.png (viewBox плана −380/−55/310×230 → метры ниже).
 import * as THREE from "three";
 
 export function markHouseFloor(mesh) {
@@ -7,25 +8,30 @@ export function markHouseFloor(mesh) {
   mesh.material.polygonOffset = true;
   mesh.material.polygonOffsetFactor = 2;
   mesh.material.polygonOffsetUnits = 2;
+  // Только метка для raycast мебели — walkGround / высоту ходьбы не меняет.
+  mesh.userData.floorSlab = true;
   return mesh;
 }
 
-export const V31_FLOOR_WEST = [-5.163, 7.780, 8.502, 17.815];
-export const V31_FLOOR_EAST = [8.362, 0.795, 14.222, 17.815];
+export const V31_FLOOR_WEST = [-5.212, 7.781, 8.501, 17.814];
+export const V31_FLOOR_EAST = [8.361, 0.796, 14.221, 17.814];
 
-const TEX_URL = new URL("./var31d-furniture-plan.png", import.meta.url).href;
-const IMG = { x0: -7.01, y0: -1.769, x1: 17.945, y1: 20.192 };
+const TEX_URL = new URL("./var31d-furniture-plan.png?v=16", import.meta.url).href;
+const IMG = { x0: -13.0, y0: -2.268, x1: 17.945, y1: 20.691 };
 const OPACITY = 0.55;
 
-const HALL_S_WALL_X = 2.834;
-const FURN_WEST_HALL = [-5.213, 7.900, HALL_S_WALL_X, 17.815];
-const FURN_WEST_NORTH = [HALL_S_WALL_X, 9.40, 8.452, 17.815];
-const FURN_EAST = [8.452, 0.845, 14.252, 17.815];
-
-const TERRACE_Y_MAX = 7.701;
-const TERRACE_DEEP_Y = 9.35;
-const TERRACE_X0 = -5.662;
-const TERRACE_X1 = 8.302;
+const HALL_S_WALL_X = 2.835;
+// Пол дома без наружного кармана террасы.
+const FURN_WEST_HALL = [-5.262, 7.901, HALL_S_WALL_X, 17.814];
+const FURN_WEST_NORTH = [HALL_S_WALL_X, 9.40, 8.451, 17.814];
+const FURN_EAST = [8.451, 0.846, 14.251, 17.814];
+// Подложка на настиле (не на ступенях — иначе дрожь по южному краю).
+const FURN_TERRACE = [-5.612, 4.67, 8.181, 7.381];
+const FURN_TERRACE_IN = [HALL_S_WALL_X, 7.381, 8.181, 9.40];
+const FURN_PORCH = [-0.078, 18.211, 8.093, 20.066];
+// L-навес: западный прямоугольник + северная полоса до карниза крыльца.
+const FURN_CANOPY_W = [-11.629, 9.947, -5.573, 19.778];
+const FURN_CANOPY_N = [-5.573, 19.058, -0.619, 19.778];
 
 let sharedTex = null;
 
@@ -36,95 +42,56 @@ function uvOf(x, y) {
   ];
 }
 
-function planOfUv(u, v) {
-  const x = IMG.x0 + u * (IMG.x1 - IMG.x0);
-  const y = IMG.y0 + v * (IMG.y1 - IMG.y0);
-  return [x, y];
-}
-
-function onTerrace(x, y) {
-  if (x <= TERRACE_X0 || x >= TERRACE_X1) return false;
-  if (y < TERRACE_Y_MAX) return true;
-  return x > HALL_S_WALL_X && y < TERRACE_DEEP_Y;
-}
-
 function texture() {
   if (sharedTex) return sharedTex;
   const loader = new THREE.TextureLoader();
-  sharedTex = loader.load(TEX_URL, (tex) => {
-    const img = tex.image;
-    if (!img || !img.width) return;
-    const w = img.width;
-    const h = img.height;
-    const canvas = document.createElement("canvas");
-    canvas.width = w;
-    canvas.height = h;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(img, 0, 0);
-    const data = ctx.getImageData(0, 0, w, h);
-    const px = data.data;
-    for (let j = 0; j < h; j++) {
-      for (let i = 0; i < w; i++) {
-        const u = (i + 0.5) / w;
-        const v = 1 - (j + 0.5) / h;
-        const [x, y] = planOfUv(u, v);
-        if (onTerrace(x, y)) {
-          px[(j * w + i) * 4 + 3] = 0;
-        }
-      }
-    }
-    ctx.putImageData(data, 0, 0);
-    tex.image = canvas;
-    tex.needsUpdate = true;
-  });
+  sharedTex = loader.load(TEX_URL);
   if ("colorSpace" in sharedTex && THREE.SRGBColorSpace) {
     sharedTex.colorSpace = THREE.SRGBColorSpace;
   }
-  sharedTex.anisotropy = 8;
+  sharedTex.anisotropy = 16;
   sharedTex.flipY = true;
   return sharedTex;
 }
 
-/** Деколь слоя «иное» на полу 3.1d (без террасы). */
+function boxQuad(b) {
+  return [
+    [b[0], b[1]],
+    [b[2], b[1]],
+    [b[2], b[3]],
+    [b[0], b[3]],
+  ];
+}
+
+/** Деколь слоя «иное» на полу 3.1d: дом + терраса + крыльцо + навес. */
 export function addVar31FurnitureFloor(api, floorZ) {
   const { planToWorld, addMesh } = api;
-  const z = floorZ + 0.005;
-  const quads = [
-    [
-      [FURN_WEST_HALL[0], FURN_WEST_HALL[1]],
-      [FURN_WEST_HALL[2], FURN_WEST_HALL[1]],
-      [FURN_WEST_HALL[2], FURN_WEST_HALL[3]],
-      [FURN_WEST_HALL[0], FURN_WEST_HALL[3]],
-    ],
-    [
-      [FURN_WEST_NORTH[0], FURN_WEST_NORTH[1]],
-      [FURN_WEST_NORTH[2], FURN_WEST_NORTH[1]],
-      [FURN_WEST_NORTH[2], FURN_WEST_NORTH[3]],
-      [FURN_WEST_NORTH[0], FURN_WEST_NORTH[3]],
-    ],
-    [
-      [FURN_EAST[0], FURN_EAST[1]],
-      [FURN_EAST[2], FURN_EAST[1]],
-      [FURN_EAST[2], FURN_EAST[3]],
-      [FURN_EAST[0], FURN_EAST[3]],
-    ],
+  const zFloor = floorZ + 0.012;
+  // Чуть выше плитки парковки (верх ≈0,01), иначе подпись «Навес» тонет в плите.
+  const zYard = 0.045;
+  const layers = [
+    { z: zFloor, boxes: [FURN_WEST_HALL, FURN_WEST_NORTH, FURN_EAST, FURN_TERRACE, FURN_TERRACE_IN, FURN_PORCH] },
+    { z: zYard, boxes: [FURN_CANOPY_W, FURN_CANOPY_N] },
   ];
   const pos = [];
   const uv = [];
-  const push = (x, y) => {
+  const push = (x, y, z) => {
     const [e, n] = planToWorld(x, y);
     pos.push(e, z, n);
     const [u, v] = uvOf(x, y);
     uv.push(u, v);
   };
-  const tri = (a, b, c) => {
-    push(a[0], a[1]);
-    push(b[0], b[1]);
-    push(c[0], c[1]);
+  const tri = (a, b, c, z) => {
+    push(a[0], a[1], z);
+    push(b[0], b[1], z);
+    push(c[0], c[1], z);
   };
-  for (const [a, b, c, d] of quads) {
-    tri(a, b, c);
-    tri(a, c, d);
+  for (const layer of layers) {
+    for (const box of layer.boxes) {
+      const [a, b, c, d] = boxQuad(box);
+      tri(a, b, c, layer.z);
+      tri(a, c, d, layer.z);
+    }
   }
   const geom = new THREE.BufferGeometry();
   geom.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
@@ -142,12 +109,12 @@ export function addVar31FurnitureFloor(api, floorZ) {
     depthTest: true,
     side: THREE.FrontSide,
     polygonOffset: true,
-    polygonOffsetFactor: 2,
-    polygonOffsetUnits: 2,
+    polygonOffsetFactor: -4,
+    polygonOffsetUnits: -4,
   });
   mesh.castShadow = false;
   mesh.receiveShadow = false;
-  mesh.renderOrder = -1;
+  mesh.renderOrder = 3; // выше плитки парковки (renderOrder 2)
   mesh.userData.furniturePlan = true;
   delete mesh.userData.finish;
   return mesh;

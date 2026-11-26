@@ -4,14 +4,20 @@ import { GLTFLoader } from "./vendor/GLTFLoader.js";
 const loader = new GLTFLoader();
 const SPIN = 0.28;
 
-export function mountFurnitureCatalog() {
+export function mountFurnitureCatalog(hooks = {}) {
   const openButton = document.getElementById("furniture-catalog-btn");
   const root = document.getElementById("furniture-catalog");
   const filters = document.getElementById("furniture-catalog-filters");
   const grid = document.getElementById("furniture-catalog-grid");
   const search = document.getElementById("furniture-catalog-search");
   const status = document.getElementById("furniture-catalog-status");
-  if (!openButton || !root || !filters || !grid) return;
+  if (!openButton || !root || !filters || !grid) {
+    return { setOnPick() {}, getItems: () => [], setOnReady() {}, setOpen() {}, isOpen: () => false, toggle() {} };
+  }
+  let onPick = hooks.onPick || null;
+  let onReady = hooks.onReady || null;
+  let onOpenChange = hooks.onOpenChange || null;
+  let itemsRef = [];
 
   let renderer = null;
   let stage = null;
@@ -66,6 +72,8 @@ export function mountFurnitureCatalog() {
 
   function build(data) {
     catalog = data;
+    itemsRef = data.items || [];
+    if (typeof onReady === "function") onReady(itemsRef);
     filters.replaceChildren();
     const all = document.createElement("button");
     all.type = "button";
@@ -206,7 +214,9 @@ export function mountFurnitureCatalog() {
   }
 
   function setOpen(next) {
-    open = next;
+    const want = !!next;
+    if (open === want) return;
+    open = want;
     root.hidden = !open;
     openButton.hidden = open;
     document.body.classList.toggle("catalog-open", open);
@@ -219,9 +229,13 @@ export function mountFurnitureCatalog() {
       }
       applyFilter();
       search.focus();
+      if (status) {
+        status.textContent = "Экскурсия: M — каталог · клик по карточке — вставка · Esc — закрыть. Вне экскурсии клик копирует ID.";
+      }
     } else {
       running = false;
     }
+    if (typeof onOpenChange === "function") onOpenChange(open);
   }
 
   filters.addEventListener("click", (event) => {
@@ -240,13 +254,20 @@ export function mountFurnitureCatalog() {
     const card = event.target.closest(".catalog-card");
     if (!card) return;
     const id = card.dataset.id;
+    const item = itemsRef.find((it) => it.id === id) || null;
     for (const node of grid.querySelectorAll(".catalog-card")) node.classList.toggle("picked", node === card);
     try {
       await navigator.clipboard.writeText(id);
-      status.textContent = `Скопировано ${id}. Например: поставь стол ${id} в кабинет.`;
     } catch {
-      status.textContent = id;
+      /* ignore */
     }
+    if (typeof onPick === "function" && item) {
+      status.textContent = `Выбрано ${id} — в «Экскурсии» появится полупрозрачный призрак для расстановки.`;
+      onPick(item);
+      setOpen(false);
+      return;
+    }
+    status.textContent = `Скопировано ${id}. В «Экскурсии» можно расставлять из каталога.`;
   });
   openButton.addEventListener("click", () => setOpen(true));
   document.getElementById("furniture-catalog-close").addEventListener("click", () => setOpen(false));
@@ -254,10 +275,14 @@ export function mountFurnitureCatalog() {
     if (event.target === root) setOpen(false);
   });
   window.addEventListener("keydown", (event) => {
-    if (!open || event.key !== "Escape") return;
-    event.preventDefault();
-    event.stopPropagation();
-    setOpen(false);
+    if (!open) return;
+    if (event.key === "Escape" || (event.code === "KeyM" && !event.ctrlKey && !event.altKey && !event.metaKey)) {
+      // не закрывать, если печатают «m» в поиске
+      if (event.code === "KeyM" && event.target instanceof Element && event.target.closest("input, textarea")) return;
+      event.preventDefault();
+      event.stopPropagation();
+      setOpen(false);
+    }
   }, true);
 
   fetch(fileUrl("catalog.json"))
@@ -266,4 +291,14 @@ export function mountFurnitureCatalog() {
     .catch(() => {
       status.textContent = "Каталог не загрузился.";
     });
+
+  return {
+    setOnPick(fn) { onPick = fn; },
+    setOnReady(fn) { onReady = fn; },
+    setOnOpenChange(fn) { onOpenChange = fn; },
+    setOpen,
+    isOpen: () => open,
+    toggle() { setOpen(!open); },
+    getItems: () => itemsRef.slice(),
+  };
 }

@@ -21,7 +21,7 @@ FLOOR_JS = ROOT / "house-light" / "var31d-furniture-floor.js"
 U = 22.039284 / 2.2
 X0 = -249.7699155181818
 Y0 = 152.28034229090906
-VIEWBOX = (-320.0, -50.0, 250.0, 220.0)  # x, y, w, h
+VIEWBOX = (-380.0, -55.0, 310.0, 230.0)  # x, y, w, h
 
 
 def parse_transform(tr: str) -> tuple[float, ...]:
@@ -273,19 +273,45 @@ def geom_from_plan(by_id: dict):
         r3(porch_deck[3]),
     ]
 
-    # Терраса: от колонн + запад дома до зап. грани восточного крыла, до юж. стены гостиной.
+    # Терраса: настил по линии подложки (юж. край штриховки), ступени S+W → 42,68 м².
     west = box("rect422")
     liv_s = box("rect354")
     off_w = box("rect420")
     col_s = min(t_w[1], t_e[1])
-    # Свес настила южнее колонн ≈ 1,0 м (как в 3.1c).
-    terr_y0 = r3(col_s - 0.99)
+    # Юг настила = линия на подложке (~4,67), не col−0,99 (иначе край уезжает южнее штриха).
+    terr_y0 = r3(col_s - 0.941)
     terrace = [
         r3(min(west[0], t_w[0])),
         terr_y0,
         r3(off_w[0]),
         r3(liv_s[1]),
     ]
+    # Проступь S+W: наружный контур даёт экспликацию 42,68 м².
+    tw = terrace[2] - terrace[0]
+    td = terrace[3] - terrace[1]
+    # (tw+t)(td+t)=42.68
+    _disc = (tw + td) ** 2 - 4 * (tw * td - 42.68)
+    terr_tread = r3((-(tw + td) + _disc ** 0.5) / 2)
+    terrace_outer = [
+        r3(terrace[0] - terr_tread),
+        r3(terrace[1] - terr_tread),
+        terrace[2],
+        terrace[3],
+    ]
+    terrace_mid = [
+        r3(terrace[0] - terr_tread * 0.5),
+        r3(terrace[1] - terr_tread * 0.5),
+        terrace[2],
+        terrace[3],
+    ]
+    terrace_steps = [terrace_outer, terrace_mid]
+    # Если в SVG уже есть vector-ступени — предпочесть их.
+    if "rect-terrace-outer" in by_id:
+        terrace_steps[0] = [r3(v) for v in box("rect-terrace-outer")]
+    if "rect-terrace-mid" in by_id:
+        terrace_steps[1] = [r3(v) for v in box("rect-terrace-mid")]
+    if "rect-terrace-deck" in by_id:
+        terrace = [r3(v) for v in box("rect-terrace-deck")]
 
     body = {
         "xWallW": r3(west[0]),
@@ -317,6 +343,7 @@ def geom_from_plan(by_id: dict):
         "carport_poly": carport_poly,
         "carport": carport,
         "porch_steps": porch_steps,
+        "terrace_steps": terrace_steps,
         "porch_deck": porch_deck_ext,
         "porch_roof": {
             # Карниз козырька: площадка ± свес 0,80 м.
@@ -330,29 +357,28 @@ def geom_from_plan(by_id: dict):
     }
 
 
-# Чистые габариты помещений по внутренним граням стен 3.1d.
+# Чистые габариты по внутренним граням стен 3.1d (после сверки с АС: 400/120).
 ROOM_CLEARS = {
-    "Гостиная": (-5.163, 7.780, 2.435, 13.467),
-    "Кухня": (-5.163, 13.866, -0.901, 17.815),
-    "Топочная": (-0.751, 15.869, 3.135, 17.815),
-    "Тамбур": (3.284, 13.866, 5.364, 17.815),
-    "Постирочная": (5.514, 15.500, 8.182, 17.815),
-    "С/у мастер": (8.581, 14.881, 10.570, 17.815),
-    "Мастер-спальня": (10.210, 13.610, 14.222, 17.815),
-    "Гардеробная": (10.210, 11.289, 14.222, 13.460),
-    "Спальня-2": (10.210, 8.200, 14.222, 11.139),
-    "Спальня-1": (10.210, 3.375, 14.222, 6.343),
-    "Кабинет": (8.581, 0.795, 14.222, 3.225),
-    "Гардероб-2": (10.210, 6.492, 12.137, 8.051),
-    "Гардероб-1": (12.287, 6.492, 14.222, 8.051),
-    "Хоз.блок": (2.834, 9.755, 5.301, 11.235),
-    "Ванная": (5.450, 9.755, 8.182, 11.726),
-    "Гардероб-3": (5.514, 13.866, 8.182, 15.350),
-    "Кладовая": (-0.901, 13.866, 1.421, 15.719),
-    "С/у": (1.571, 13.866, 3.135, 15.422),
-    "Коридор-1": (8.581, 5.126, 10.060, 13.465),
-    # Коридор-2: поперечный холл южнее северной зоны (сев. хоз/ванной → юг кухни/тамбура).
-    "Коридор-2": (2.834, 11.385, 8.182, 13.467),
+    "Гостиная": (-5.212, 7.781, 2.435, 13.466),
+    "Кухня": (-5.212, 13.866, -0.886, 17.814),
+    "Топочная": (-0.766, 15.854, 3.149, 17.814),
+    "Тамбур": (3.269, 13.866, 5.379, 17.814),
+    "Постирочная": (5.499, 15.485, 8.181, 17.814),
+    "С/у мастер": (8.581, 14.861, 10.585, 17.814),
+    "Мастер-спальня": (10.585, 13.58, 14.221, 17.814),
+    "Гардеробная": (10.195, 11.274, 14.221, 13.46),
+    "Спальня-2": (10.195, 8.186, 14.221, 11.154),
+    "Спальня-1": (10.195, 3.383, 14.221, 6.357),
+    "Кабинет": (8.581, 0.796, 14.221, 3.263),
+    "Гардероб-2": (10.195, 6.477, 12.152, 8.066),
+    "Гардероб-1": (12.272, 6.492, 14.221, 8.066),
+    "Хоз.блок": (2.835, 9.755, 5.316, 11.25),
+    "Ванная": (5.436, 9.755, 8.181, 11.964),
+    "Гардероб-3": (5.514, 13.866, 8.181, 15.365),
+    "Кладовая": (-0.901, 13.866, 1.436, 15.734),
+    "С/у": (1.556, 13.866, 3.149, 15.437),
+    "Коридор-1": (8.581, 5.112, 10.075, 13.48),
+    "Коридор-2": (2.835, 11.37, 8.181, 13.466),
 }
 
 
@@ -361,7 +387,8 @@ def patch_room_labels(svg: str, geom: dict) -> str:
     terr = geom["terrace"]
     porch = geom["porch_steps"][0]
     rooms = dict(ROOM_CLEARS)
-    rooms["Терраса"] = (terr[0], terr[1], terr[2], terr[3])
+    terr_lab = geom.get("terrace_steps", [terr])[0]
+    rooms["Терраса"] = (terr_lab[0], terr_lab[1], terr_lab[2], terr_lab[3])
     rooms["Крыльцо"] = (porch[0], porch[1], porch[2], porch[3])
 
     # name → (meta_text_id, tspan_id) from plan
@@ -516,6 +543,15 @@ def patch_js(walls, opens, geom):
     )
     terr = geom["terrace"]
     terrace_block = f"const TERRACE = [{terr[0]}, {terr[1]}, {terr[2]}, {terr[3]}];"
+    ts = geom.get("terrace_steps")
+    tsteps_const = None
+    if ts:
+        tsteps_const = (
+            "const TERRACE_STEPS = [\n"
+            f"  [{ts[0][0]}, {ts[0][1]}, {ts[0][2]}, {ts[0][3]}], // наружная\n"
+            f"  [{ts[1][0]}, {ts[1][1]}, {ts[1][2]}, {ts[1][3]}], // промежуточная\n"
+            "];"
+        )
     lv = geom["liv_void"]
     liv_void = (
         "const LIV_VOID = { "
@@ -535,6 +571,19 @@ def patch_js(walls, opens, geom):
         r"const CARPORT_COLUMNS = \[.*?\];", carport_cols, js2, count=1, flags=re.S
     )
     js2, n7 = re.subn(r"const TERRACE = \[.*?\];", terrace_block, js2, count=1, flags=re.S)
+    if tsteps_const:
+        js2, n_ts = re.subn(
+            r"const TERRACE_STEPS = \[.*?\];",
+            tsteps_const,
+            js2,
+            count=1,
+            flags=re.S,
+        )
+        if n_ts != 1:
+            js2 = js2.replace(terrace_block, terrace_block + "\n" + tsteps_const, 1)
+            print("TERRACE_STEPS inserted")
+        else:
+            print(f"TERRACE_STEPS replace n={n_ts}")
     js2, n8 = re.subn(r"const LIV_VOID = \{.*?\};", liv_void, js2, count=1, flags=re.S)
     js2, n9 = re.subn(
         r"const LIV_SOUTH_Y = [^;]+;", liv_south, js2, count=1, flags=re.S
@@ -594,6 +643,28 @@ def patch_js(walls, opens, geom):
         count=1,
     )
 
+    # Ступени террасы (S+W).
+    ts = geom.get("terrace_steps")
+    if ts:
+        tsteps_block = (
+            "    const terraceSteps = [\n"
+            f"      [{ts[0][0]}, {ts[0][1]}, {ts[0][2]}, {ts[0][3]}],\n"
+            f"      [{ts[1][0]}, {ts[1][1]}, {ts[1][2]}, {ts[1][3]}],\n"
+            "    ];"
+        )
+        js2, n = re.subn(
+            r"    const terraceSteps = \[.*?\];",
+            tsteps_block,
+            js2,
+            count=1,
+            flags=re.S,
+        )
+        if n != 1:
+            # Не вшивать в блок porchSteps — ступени террасы уже в TERRACE_STEPS / отдельном блоке.
+            print("terraceSteps: const not in JS (use TERRACE_STEPS)")
+        else:
+            print(f"terraceSteps replace n={n}")
+
     # Ступени и площадка крыльца.
     ps = geom["porch_steps"]
     pd = geom["porch_deck"]
@@ -614,7 +685,7 @@ def patch_js(walls, opens, geom):
         "  ], FLOOR * 2 / 3, FLOOR, FLOOR_C, false);"
     )
     js2, n = re.subn(
-        r"  const porchDeck = planBox\(\[\s*\[[^\]]+\],\s*\[[^\]]+\],\s*\[[^\]]+\],\s*\[[^\]]+\]\s*\], FLOOR \* 2 / 3, FLOOR, FLOOR_C, false\);",
+        r"  const porchDeck = planBox\(\[[\s\S]*?\], FLOOR \* 2 / 3, FLOOR, FLOOR_C, false\);",
         deck_block,
         js2,
         count=1,
@@ -733,8 +804,8 @@ def patch_js(walls, opens, geom):
     )
 
 
-def write_furniture_floor_js(img_m: dict, body: dict, terrace: list):
-    """3D-деколь «иное» под новые границы пола."""
+def write_furniture_floor_js(img_m: dict, body: dict, terrace: list, porch: list, carport: dict):
+    """3D-деколь «иное»: дом + терраса + крыльцо + навес (подписи и метраж)."""
     hall_x = body["xWallLivE"]
     west_in = body["xWallWIn"]
     east_in = body["xWallEIn"]
@@ -742,8 +813,13 @@ def write_furniture_floor_js(img_m: dict, body: dict, terrace: list):
     n_in = body["yWallNIn"]
     s_liv = body["yWallSLivIn"]
     s_off = body["yWallSOffIn"]
+    # L-навес: западный рукав + северная полоса
+    cx0, cy0 = carport["x0"], carport["y0"]
+    cx1, cy1 = carport["x1"], carport["y1"]
+    x_arm, y_arm = carport["xArm"], carport["yArm"]
     text = f'''// Подложка 3.1d: растр «иное» + «стены» + «помещения» (подписи и метраж).
-// PNG: var31d-furniture-plan.png (viewBox плана −320/−50/250×220 → метры ниже).
+// Дом, терраса, крыльцо и навес — чтобы м²/подписи читались и снаружи.
+// PNG: var31d-furniture-plan.png (viewBox плана −380/−55/310×230 → метры ниже).
 import * as THREE from "three";
 
 export function markHouseFloor(mesh) {{
@@ -757,7 +833,7 @@ export function markHouseFloor(mesh) {{
 export const V31_FLOOR_WEST = [{west_in:.3f}, {s_liv:.3f}, {off_w + 0.32:.3f}, {n_in:.3f}];
 export const V31_FLOOR_EAST = [{off_w + 0.18:.3f}, {s_off:.3f}, {east_in:.3f}, {n_in:.3f}];
 
-const TEX_URL = new URL("./var31d-furniture-plan.png", import.meta.url).href;
+const TEX_URL = new URL("./var31d-furniture-plan.png?v=6", import.meta.url).href;
 const IMG = {{ x0: {img_m["x0"]}, y0: {img_m["y0"]}, x1: {img_m["x1"]}, y1: {img_m["y1"]} }};
 const OPACITY = 0.55;
 
@@ -765,11 +841,13 @@ const HALL_S_WALL_X = {hall_x:.3f};
 const FURN_WEST_HALL = [{west_in - 0.05:.3f}, {s_liv + 0.12:.3f}, HALL_S_WALL_X, {n_in:.3f}];
 const FURN_WEST_NORTH = [HALL_S_WALL_X, 9.40, {off_w + 0.27:.3f}, {n_in:.3f}];
 const FURN_EAST = [{off_w + 0.27:.3f}, {s_off + 0.05:.3f}, {east_in + 0.03:.3f}, {n_in:.3f}];
-
-const TERRACE_Y_MAX = {terrace[3] + 0.32:.3f};
-const TERRACE_DEEP_Y = 9.35;
-const TERRACE_X0 = {terrace[0] - 0.05:.3f};
-const TERRACE_X1 = {terrace[2] + 0.12:.3f};
+// Подложка на настиле (не на ступенях — иначе дрожь по югу).
+const FURN_TERRACE = [{terrace[0]:.3f}, {terrace[1]:.3f}, {terrace[2]:.3f}, 7.381];
+const FURN_TERRACE_IN = [HALL_S_WALL_X, 7.381, {terrace[2]:.3f}, 9.40];
+const FURN_PORCH = [{porch[0]:.3f}, {porch[1]:.3f}, {porch[2]:.3f}, {porch[3]:.3f}];
+// L-навес: западный прямоугольник + северная полоса до карниза крыльца.
+const FURN_CANOPY_W = [{cx0:.3f}, {cy0:.3f}, {x_arm:.3f}, {cy1:.3f}];
+const FURN_CANOPY_N = [{x_arm:.3f}, {y_arm:.3f}, {cx1:.3f}, {cy1:.3f}];
 
 let sharedTex = null;
 
@@ -780,95 +858,56 @@ function uvOf(x, y) {{
   ];
 }}
 
-function planOfUv(u, v) {{
-  const x = IMG.x0 + u * (IMG.x1 - IMG.x0);
-  const y = IMG.y0 + v * (IMG.y1 - IMG.y0);
-  return [x, y];
-}}
-
-function onTerrace(x, y) {{
-  if (x <= TERRACE_X0 || x >= TERRACE_X1) return false;
-  if (y < TERRACE_Y_MAX) return true;
-  return x > HALL_S_WALL_X && y < TERRACE_DEEP_Y;
-}}
-
 function texture() {{
   if (sharedTex) return sharedTex;
   const loader = new THREE.TextureLoader();
-  sharedTex = loader.load(TEX_URL, (tex) => {{
-    const img = tex.image;
-    if (!img || !img.width) return;
-    const w = img.width;
-    const h = img.height;
-    const canvas = document.createElement("canvas");
-    canvas.width = w;
-    canvas.height = h;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(img, 0, 0);
-    const data = ctx.getImageData(0, 0, w, h);
-    const px = data.data;
-    for (let j = 0; j < h; j++) {{
-      for (let i = 0; i < w; i++) {{
-        const u = (i + 0.5) / w;
-        const v = 1 - (j + 0.5) / h;
-        const [x, y] = planOfUv(u, v);
-        if (onTerrace(x, y)) {{
-          px[(j * w + i) * 4 + 3] = 0;
-        }}
-      }}
-    }}
-    ctx.putImageData(data, 0, 0);
-    tex.image = canvas;
-    tex.needsUpdate = true;
-  }});
+  sharedTex = loader.load(TEX_URL);
   if ("colorSpace" in sharedTex && THREE.SRGBColorSpace) {{
     sharedTex.colorSpace = THREE.SRGBColorSpace;
   }}
-  sharedTex.anisotropy = 8;
+  sharedTex.anisotropy = 16;
   sharedTex.flipY = true;
   return sharedTex;
 }}
 
-/** Деколь слоя «иное» на полу 3.1d (без террасы). */
+function boxQuad(b) {{
+  return [
+    [b[0], b[1]],
+    [b[2], b[1]],
+    [b[2], b[3]],
+    [b[0], b[3]],
+  ];
+}}
+
+/** Деколь слоя «иное» на полу 3.1d: дом + терраса + крыльцо + навес. */
 export function addVar31FurnitureFloor(api, floorZ) {{
   const {{ planToWorld, addMesh }} = api;
-  const z = floorZ + 0.005;
-  const quads = [
-    [
-      [FURN_WEST_HALL[0], FURN_WEST_HALL[1]],
-      [FURN_WEST_HALL[2], FURN_WEST_HALL[1]],
-      [FURN_WEST_HALL[2], FURN_WEST_HALL[3]],
-      [FURN_WEST_HALL[0], FURN_WEST_HALL[3]],
-    ],
-    [
-      [FURN_WEST_NORTH[0], FURN_WEST_NORTH[1]],
-      [FURN_WEST_NORTH[2], FURN_WEST_NORTH[1]],
-      [FURN_WEST_NORTH[2], FURN_WEST_NORTH[3]],
-      [FURN_WEST_NORTH[0], FURN_WEST_NORTH[3]],
-    ],
-    [
-      [FURN_EAST[0], FURN_EAST[1]],
-      [FURN_EAST[2], FURN_EAST[1]],
-      [FURN_EAST[2], FURN_EAST[3]],
-      [FURN_EAST[0], FURN_EAST[3]],
-    ],
+  const zFloor = floorZ + 0.012;
+  // Чуть выше плитки парковки (верх ≈0,01), иначе подпись «Навес» тонет в плите.
+  const zYard = 0.045;
+  const layers = [
+    {{ z: zFloor, boxes: [FURN_WEST_HALL, FURN_WEST_NORTH, FURN_EAST, FURN_TERRACE, FURN_TERRACE_IN, FURN_PORCH] }},
+    {{ z: zYard, boxes: [FURN_CANOPY_W, FURN_CANOPY_N] }},
   ];
   const pos = [];
   const uv = [];
-  const push = (x, y) => {{
+  const push = (x, y, z) => {{
     const [e, n] = planToWorld(x, y);
     pos.push(e, z, n);
     const [u, v] = uvOf(x, y);
     uv.push(u, v);
   }};
-  const tri = (a, b, c) => {{
-    push(a[0], a[1]);
-    push(b[0], b[1]);
-    push(c[0], c[1]);
+  const tri = (a, b, c, z) => {{
+    push(a[0], a[1], z);
+    push(b[0], b[1], z);
+    push(c[0], c[1], z);
   }};
-  for (const [a, b, c, d] of quads) {{
-    tri(a, b, c);
-    tri(a, c, d);
+  for (const layer of layers) {{
+    for (const box of layer.boxes) {{
+      const [a, b, c, d] = boxQuad(box);
+      tri(a, b, c, layer.z);
+      tri(a, c, d, layer.z);
+    }}
   }}
   const geom = new THREE.BufferGeometry();
   geom.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
@@ -886,12 +925,12 @@ export function addVar31FurnitureFloor(api, floorZ) {{
     depthTest: true,
     side: THREE.FrontSide,
     polygonOffset: true,
-    polygonOffsetFactor: 2,
-    polygonOffsetUnits: 2,
+    polygonOffsetFactor: -4,
+    polygonOffsetUnits: -4,
   }});
   mesh.castShadow = false;
   mesh.receiveShadow = false;
-  mesh.renderOrder = -1;
+  mesh.renderOrder = 3;
   mesh.userData.furniturePlan = true;
   delete mesh.userData.finish;
   return mesh;
@@ -975,7 +1014,7 @@ def export_inoe_png(plan: str):
             str(INOE_SVG),
             f"--export-filename={PNG}",
             "--export-type=png",
-            "--export-dpi=144",
+            "--export-dpi=288",
             "--export-background-opacity=0",
         ],
         check=True,
@@ -1016,7 +1055,15 @@ def main():
 
     export_inoe_png(plan2)
     img = viewbox_img_meters()
-    write_furniture_floor_js(img, geom["body"], geom["terrace"])
+    # Подложка террасы — наружный контур ступеней (S+W).
+    terr_furn = geom.get("terrace_steps", [geom["terrace"]])[0]
+    write_furniture_floor_js(
+        img,
+        geom["body"],
+        terr_furn,
+        geom["porch_steps"][0],
+        geom["carport"],
+    )
     print("IMG meters for 3D:", img)
 
 

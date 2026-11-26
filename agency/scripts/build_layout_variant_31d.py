@@ -71,9 +71,7 @@ PORCH_W = PORCH[2] - PORCH[0]
 PORCH_D = PORCH[3] - PORCH[1]
 PORCH_A = PORCH_W * PORCH_D
 
-CANOPY_W = -5.573 - (-11.629)  # западный рукав
-CANOPY_D = 19.778 - 9.947
-CANOPY_A = (CANOPY_W * (19.058 - 9.947)) + ((-0.619) - (-11.629)) * (19.778 - 19.058)
+CANOPY_A = 41.12
 
 
 def ensure_xlink_ns(svg: str) -> str:
@@ -167,15 +165,17 @@ def extra_tag_columns(walls: str) -> str:
 
 
 def open_air_31d() -> str:
-    cx = (-11.629 + -5.573) / 2
-    cy = (9.947 + 19.058) / 2
+    cx = (CARPORT_POLY_M[0][0] + CARPORT_POLY_M[1][0]) / 2
+    cy = (CARPORT_POLY_M[0][1] + CARPORT_POLY_M[2][1]) / 2
+    west_w = CARPORT_POLY_M[1][0] - CARPORT_POLY_M[0][0]
+    west_d = CARPORT_POLY_M[2][1] - CARPORT_POLY_M[0][1]
     return build_open_air_group(
         "open-air-31d",
         roof_pts=ROOF_EAVE_HIP_M,
         porch_pts=ROOF_PORCH_EAVE_M,
         canopy_pts=CARPORT_POLY_M,
         columns=CARPORT_COLUMNS_M,
-        label=f"навес L · {fmt2(CANOPY_W)}×{fmt2(CANOPY_D)} · {fmt2(CANOPY_A)} м²",
+        label=f"навес L · {fmt2(west_w)}×{fmt2(west_d)} · {fmt2(CANOPY_A)} м²",
         label_at=(cx, cy),
     )
 

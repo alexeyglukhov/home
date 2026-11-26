@@ -10,6 +10,9 @@ const GAP_REVEAL = 0.02;
 const PITCH_MIN = -75 * Math.PI / 180;
 const PITCH_MAX = 80 * Math.PI / 180;
 const START = { x: -8.80, y: 12.220 };
+const G = 9.8;
+const JUMP_H = 0.70;
+const JUMP_V0 = Math.sqrt(2 * G * JUMP_H); // вверх: fallV < 0
 
 function inside(x, y, x0, y0, x1, y1) {
   return x >= x0 && x <= x1 && y >= y0 && y <= y1;
@@ -109,7 +112,8 @@ export function createD2Tour(planToWorld, boxes, segments = [], shift = null) {
   let speed = 5;
   let vx = 0;
   let vy = 0;
-  let fallV = 0; // вертикальная скорость при спуске с высоты (м/с, вниз > 0)
+  let fallV = 0; // вертикальная скорость: вниз > 0, вверх (прыжок) < 0
+  let jumpQueued = false;
   const held = new Set();
   const look = new THREE.Vector3();
   const pos = new THREE.Vector3();
@@ -308,6 +312,7 @@ export function createD2Tour(planToWorld, boxes, segments = [], shift = null) {
       vx = 0;
       vy = 0;
       fallV = 0;
+      jumpQueued = false;
       held.clear();
       place();
     },
@@ -317,6 +322,7 @@ export function createD2Tour(planToWorld, boxes, segments = [], shift = null) {
       vx = 0;
       vy = 0;
       fallV = 0;
+      jumpQueued = false;
     },
     setSpeed(v) {
       const n = Math.round(Number(v));
@@ -329,6 +335,12 @@ export function createD2Tour(planToWorld, boxes, segments = [], shift = null) {
     },
     clearMove() {
       held.clear();
+      jumpQueued = false;
+    },
+    /** Прыжок ~70 см по ПКМ; срабатывает при следующем step, если стоим на полу. */
+    jump() {
+      if (!active) return;
+      jumpQueued = true;
     },
     addLook(dx, dy) {
       if (!active || dx === 0 && dy === 0) return;
@@ -346,22 +358,25 @@ export function createD2Tour(planToWorld, boxes, segments = [], shift = null) {
       if (Math.hypot(vx, vy) < 0.01 && Math.hypot(tx, ty) === 0) { vx = 0; vy = 0; }
       [e, n] = slide(e, n, vx * stepDt, vy * stepDt);
       const floor = groundFn(e, n) + EYE;
-      const dy = floor - eye;
-      if (dy < -0.05) {
-        // Падение с ускорением (как g), мягкая посадка у пола.
-        const g = 9.8;
-        fallV = Math.min(18, fallV + g * stepDt);
+      const above = eye - floor;
+      if (jumpQueued) {
+        jumpQueued = false;
+        if (above < 0.06 && fallV >= -0.05) fallV = -JUMP_V0;
+      }
+      // В воздухе (прыжок / падение): одна баллистика g — разгон вверх, стоп в апогее, падение обратно.
+      if (fallV < 0 || above > 0.02) {
+        fallV = Math.min(18, fallV + G * stepDt);
         const next = eye - fallV * stepDt;
-        if (next <= floor) {
+        if (next <= floor && fallV >= 0) {
           eye = floor;
           fallV = 0;
         } else {
           eye = next;
         }
-      } else if (dy > 0.015) {
+      } else if (floor - eye > 0.015) {
         fallV = 0;
         const rise = 1 - Math.exp(-24 * stepDt);
-        eye += dy * rise;
+        eye += (floor - eye) * rise;
       } else {
         eye = floor;
         fallV = 0;

@@ -18,6 +18,8 @@ export function markHouseFloor(mesh) {
   mesh.material.polygonOffset = true;
   mesh.material.polygonOffsetFactor = 2;
   mesh.material.polygonOffsetUnits = 2;
+  // Только метка для raycast мебели — walkGround / высоту ходьбы не меняет.
+  mesh.userData.floorSlab = true;
   return mesh;
 }
 

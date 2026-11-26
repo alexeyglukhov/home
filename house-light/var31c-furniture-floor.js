@@ -5,7 +5,7 @@ import { markHouseFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31-furnitur
 
 export { markHouseFloor, V31_FLOOR_WEST, V31_FLOOR_EAST };
 
-const TEX_URL = new URL("./var31c-furniture-plan.png", import.meta.url).href;
+const TEX_URL = new URL("./var31c-furniture-plan.png?v=2", import.meta.url).href;
 // viewBox плана → метры (эталон 2,20 м / U_PER_M).
 const IMG = { x0: -7.01, y0: -1.769, x1: 17.945, y1: 20.192 };
 const OPACITY = 0.55;
@@ -74,7 +74,7 @@ function texture() {
   if ("colorSpace" in sharedTex && THREE.SRGBColorSpace) {
     sharedTex.colorSpace = THREE.SRGBColorSpace;
   }
-  sharedTex.anisotropy = 8;
+  sharedTex.anisotropy = 16;
   sharedTex.flipY = true;
   return sharedTex;
 }

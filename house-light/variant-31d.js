@@ -2,51 +2,51 @@
 // помещения по agency/var3.1d.svg (хоз.блок, сдвинутые стены/двери/окна).
 // Масштаб: эталон кровати 2,20 м (uu→м как в var3.1c). Координаты — метры плана.
 import * as THREE from "three";
-import { addVar31FurnitureFloor, markHouseFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31d-furniture-floor.js?v=3";
+import { addVar31FurnitureFloor, markHouseFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31d-furniture-floor.js?v=20";
 
 export const V31D_BASE = { x: 0, y: 0 };
 
 const WALLS = [
-  [-5.365, 7.381, 2.811, 7.78],
-  [-5.594, 17.815, 14.579, 18.214],
-  [8.194, 0.396, 14.62, 0.795],
-  [2.684, 9.356, 8.591, 9.755],
-  [-1.484, 13.467, 8.559, 13.866],
-  [14.222, 0.422, 14.621, 18.18],
-  [8.182, 13.46, 8.581, 18.141],
-  [8.182, 0.4, 8.581, 12.053],
-  [-5.612, 7.364, -5.163, 18.201],
-  [2.435, 7.357, 2.834, 12.099],
-  [5.301, 9.358, 5.45, 12.093],
-  [10.06, 3.271, 10.21, 13.598],
-  [10.57, 14.731, 10.72, 18.174],
-  [8.768, 14.888, 8.918, 16.265],
-  [5.364, 15.391, 5.514, 17.962],
-  [3.135, 13.529, 3.284, 18.161],
-  [4.941, 13.543, 5.091, 14.519],
-  [1.421, 13.557, 1.571, 15.895],
-  [-0.901, 15.285, -0.751, 18.198],
-  [4.879, 15.35, 8.369, 15.5],
-  [-0.836, 15.719, 3.226, 15.869],
-  [1.486, 15.422, 3.229, 15.572],
-  [2.757, 11.235, 5.388, 11.385],
-  [5.305, 11.949, 8.588, 12.098],
-  [7.212, 11.726, 8.525, 11.876],
-  [7.108, 11.129, 7.258, 12.055],
-  [8.274, 13.465, 11.713, 13.615],
-  [8.211, 14.72, 10.722, 14.881],
-  [10.084, 11.139, 14.642, 11.289],
-  [13.594, 6.346, 14.536, 6.495],
-  [10.084, 3.225, 14.642, 3.375],
-  [8.214, 4.977, 10.178, 5.126],
-  [-0.901, 13.505, -0.751, 14.53],
-  [10.113, 6.343, 12.741, 6.492],
-  [11.081, 8.051, 14.416, 8.2],
-  [12.699, 13.46, 14.576, 13.61],
-  [6.526, 9.573, 6.676, 10.488],
-  [8.317, 16.129, 9.364, 16.278],
-  [12.137, 6.403, 12.287, 8.16],
-  [12.147, 11.15, 12.297, 12.351],
+  [-5.365, 7.381, 2.811, 7.781],
+  [-5.594, 17.814, 14.579, 18.214],
+  [8.194, 0.396, 14.62, 0.796],
+  [2.684, 9.355, 8.591, 9.755],
+  [-1.484, 13.466, 8.559, 13.866],
+  [14.221, 0.422, 14.621, 18.18],
+  [8.181, 13.46, 8.581, 18.141],
+  [8.181, 0.4, 8.581, 12.053],
+  [-5.612, 7.364, -5.212, 18.201],
+  [2.435, 7.357, 2.835, 12.099],
+  [5.316, 9.358, 5.436, 12.093],
+  [10.075, 3.271, 10.195, 13.598],
+  [10.585, 14.731, 10.705, 18.174],
+  [8.783, 14.888, 8.903, 16.265],
+  [5.379, 15.391, 5.499, 17.962],
+  [3.149, 13.529, 3.269, 18.161],
+  [4.956, 13.543, 5.076, 14.519],
+  [1.436, 13.557, 1.556, 15.895],
+  [-0.886, 15.285, -0.766, 18.198],
+  [4.879, 15.365, 8.369, 15.485],
+  [-0.836, 15.734, 3.226, 15.854],
+  [1.486, 15.437, 3.229, 15.557],
+  [2.757, 11.25, 5.388, 11.37],
+  [5.305, 11.964, 8.588, 12.084],
+  [7.212, 11.741, 8.525, 11.861],
+  [7.123, 11.129, 7.243, 12.055],
+  [8.274, 13.48, 11.713, 13.6],
+  [8.211, 14.741, 10.722, 14.861],
+  [10.084, 11.154, 14.642, 11.274],
+  [13.594, 6.361, 14.536, 6.481],
+  [10.084, 3.263, 14.578, 3.383],
+  [8.214, 4.992, 10.178, 5.112],
+  [-0.886, 13.505, -0.766, 14.53],
+  [10.113, 6.357, 12.741, 6.477],
+  [11.081, 8.066, 14.416, 8.186],
+  [12.7, 13.46, 14.576, 13.58],
+  [6.541, 9.573, 6.661, 10.488],
+  [8.317, 16.143, 9.364, 16.263],
+  [12.152, 6.403, 12.272, 8.16],
+  [12.162, 11.15, 12.282, 12.351],
 ];
 
 const OPENINGS = [
@@ -64,14 +64,14 @@ const OPENINGS = [
   [-3.604, 17.933, -2.233, 18.141, 'y'],
   [14.373, 4.399, 14.58, 5.77, 'y'],
   [14.373, 9.46, 14.58, 10.831, 'y'],
-  [14.373, 13.861, 14.58, 15.157, 'y'],
-  [9.222, 17.942, 9.909, 18.15, 'y'],
-  [6.175, 17.955, 7.242, 18.162, 'y'],
-  [0.806, 17.934, 1.872, 18.142, 'y'],
+  [14.373, 13.829, 14.58, 15.189, 'y'],
+  [9.115, 17.942, 10.015, 18.15, 'y'],
+  [6.029, 17.955, 7.389, 18.162, 'y'],
+  [0.659, 17.934, 2.019, 18.142, 'y'],
   [8.276, 3.413, 8.484, 4.431, 'y'],
   [8.276, 5.785, 8.484, 6.76, 'y'],
   [6.634, 9.457, 7.321, 9.664, 'y'],
-  [11.689, 0.491, 13.229, 0.699, 'y'],
+  [11.439, 0.491, 13.479, 0.699, 'y'],
   [0.01, 7.48, 1.196, 7.687, 'p'],
   [1.221, 7.48, 2.407, 7.687, 'p'],
   [-3.451, 7.48, -2.265, 7.687, 'p'],
@@ -102,11 +102,11 @@ const CARPORT_POLY = [
 ];
 const CARPORT = {
   x0: -11.629,
-  x1: -0.619, // западный карниз козырька крыльца (porchX0)
+  x1: -0.619,
   y0: 9.947,
-  y1: 19.778, // север площадки крыльца
-  xArm: -5.573, // вост. край западного рукава / начало северной полосы
-  yArm: 19.058, // юг северной полосы
+  y1: 19.778,
+  xArm: -5.573, // вост. край навеса (= дом)
+  yArm: 19.058,
 };
 const CARPORT_COLUMNS = [
   // rect1691 — южная широкая
@@ -117,12 +117,16 @@ const CARPORT_COLUMNS = [
   [-11.537, 17.707, -11.038, 18.977],
 ];
 
-// Южная терраса: колонны rect2718/2720 + до зап. грани вост. крыла.
-const TERRACE = [-5.612, 4.602, 8.182, 7.381];
+// Южная терраса: настил по линии подложки; ступени S+W → наружный контур 42,68 м².
+const TERRACE = [-5.612, 4.67, 8.181, 7.381];
+const TERRACE_STEPS = [
+  [-5.926, 4.356, 8.181, 7.381], // наружная
+  [-5.769, 4.513, 8.181, 7.381], // промежуточная
+];
 
 // Второй свет: ширина по внутренним граням гостиной; глубина — до изгиба зап. конька (yValW≈11,56).
 // y0 = наружная грань южной стены (WALLS), не координаты 3.1d.
-const LIV_VOID = { x0: -5.163, x1: 2.435, y0: 7.381, y1: 11.56 };
+const LIV_VOID = { x0: -5.212, x1: 2.435, y0: 7.381, y1: 11.56 };
 const LIV_SOUTH_Y = 7.581; // середина южной стены гостиной
 
 const PLINTH = 0.45;
@@ -301,8 +305,8 @@ export function buildVariant31d(api) {
   const EAVE_PORCH = 0.80;
   const xWallW = -5.612;
   const xWallE = 14.621;
-  const xWallOffW = 8.182;
-  const xWallLivE = 2.834;
+  const xWallOffW = 8.181;
+  const xWallLivE = 2.835;
   const yWallN = 18.214;
   const yWallSLiv = 7.381;
   const yWallSOff = 0.396;
@@ -342,8 +346,8 @@ export function buildVariant31d(api) {
   const zEast = (x) => (x >= xRE ? zEO(x) : zEI(x));
   // Фронтоны по стенам плана (не по карнизу SVG).
   const xLivW = -5.612;
-  const xLivE = 2.834;
-  const xOffW = 8.182;
+  const xLivE = 2.835;
+  const xOffW = 8.181;
   const xOffE = 14.621;
   const yPlateS = 7.381;
   const yPlateSE = 0.396;
@@ -447,13 +451,16 @@ export function buildVariant31d(api) {
             glass(t - 0.015, h.a + fw, t + 0.015, h.b - fw, h.z0 + fw, h.z1 - fw);
           }
         } else {
-          frameBar(h.a, t0, h.a + fw, t1, h.z0, h.z1, color);
-          frameBar(h.b - fw, t0, h.b, t1, h.z0, h.z1, color);
+          // livPan: стойки чуть ниже ригеля второго света — без общей грани.
+          const jambZ1 = livPan ? h.z1 - 0.003 : h.z1;
+          frameBar(h.a, t0, h.a + fw, t1, h.z0, jambZ1, color);
+          frameBar(h.b - fw, t0, h.b, t1, h.z0, jambZ1, color);
           // У livPan верхняя перемычка на HEAD не нужна — её даёт рама второго света.
           if (!livPan) frameBar(h.a, t0, h.b, t1, h.z1 - fw, h.z1, color);
           if (h.kind !== "d" && h.kind !== "i") {
             frameBar(h.a, t0, h.b, t1, h.z0, h.z0 + fw, color);
-            glass(h.a + fw, t - 0.015, h.b - fw, t + 0.015, h.z0 + fw, h.z1 - (livPan ? 0 : fw));
+            // livPan: оставляем зазор под нижний ригель второго света (без дрожи на стыке).
+            glass(h.a + fw, t - 0.015, h.b - fw, t + 0.015, h.z0 + fw, h.z1 - fw);
           }
         }
         if (h.kind === "d") {
@@ -476,9 +483,13 @@ export function buildVariant31d(api) {
   });
 
   withFinish("plinth", () => {
-    // Цоколь отапливаемого контура и террасы — роль plinth (тёмный на стиле roof-d).
-    planBox([[-5.66, 7.25], [8.70, 7.25], [8.70, 18.31], [-5.66, 18.31]], 0.02, PLINTH, 0x2c3038);
+    // Цоколь отапливаемого контура — без выреза наружного кармана террасы (иначе полоса/ступень).
+    const hallX = 2.835;
+    const pocketN = 9.40;
+    planBox([[-5.66, 7.25], [hallX, 7.25], [hallX, 18.31], [-5.66, 18.31]], 0.02, PLINTH, 0x2c3038);
+    planBox([[hallX, pocketN], [8.70, pocketN], [8.70, 18.31], [hallX, 18.31]], 0.02, PLINTH, 0x2c3038);
     planBox([[8.18, 0.35], [14.85, 0.35], [14.85, 18.31], [8.18, 18.31]], 0.02, PLINTH, 0x2c3038);
+    // Цоколь только под настилом террасы — не под ступенями (иначе z-fight / дрожь по югу).
     planBox([
       [TERRACE[0], TERRACE[1]], [TERRACE[2], TERRACE[1]],
       [TERRACE[2], TERRACE[3]], [TERRACE[0], TERRACE[3]],
@@ -495,33 +506,50 @@ export function buildVariant31d(api) {
       planBox([[b[0], b[1]], [b[2], b[1]], [b[2], b[3]], [b[0], b[3]]], 0.02, z1, 0xd8d3cb);
     });
   }
+  // Ступени террасы S+W: от земли до своей высоты, без общего цоколя под ними.
+  {
+    const terraceSteps = TERRACE_STEPS;
+    terraceSteps.forEach((b, i) => {
+      const z0 = i === 0 ? 0.02 : FLOOR * i / 3;
+      const z1 = FLOOR * (i + 1) / 3;
+      planBox([
+        [b[0], b[1]], [b[2], b[1]], [b[2], TERRACE[1]], [b[0], TERRACE[1]],
+      ], z0, z1, 0xd8d3cb);
+      planBox([
+        [b[0], TERRACE[1]], [TERRACE[0], TERRACE[1]], [TERRACE[0], TERRACE[3]], [b[0], TERRACE[3]],
+      ], z0, z1, 0xd8d3cb);
+    });
+  }
 
-  // Нахлёст плит в проёме коридор-1 ↔ коридор-2 — без канавы на стыке.
+  // Пол дома: запад без наружного кармана террасы (карман — тот же настил, что юг).
+  const hallX = 2.835;
+  const pocketN = 9.40;
   markHouseFloor(planBox([
-    [V31_FLOOR_WEST[0], V31_FLOOR_WEST[1]], [V31_FLOOR_WEST[2], V31_FLOOR_WEST[1]],
-    [V31_FLOOR_WEST[2], V31_FLOOR_WEST[3]], [V31_FLOOR_WEST[0], V31_FLOOR_WEST[3]],
+    [V31_FLOOR_WEST[0], V31_FLOOR_WEST[1]], [hallX, V31_FLOOR_WEST[1]],
+    [hallX, V31_FLOOR_WEST[3]], [V31_FLOOR_WEST[0], V31_FLOOR_WEST[3]],
+  ], PLINTH, FLOOR, FLOOR_C, false));
+  markHouseFloor(planBox([
+    [hallX, pocketN], [V31_FLOOR_WEST[2], pocketN],
+    [V31_FLOOR_WEST[2], V31_FLOOR_WEST[3]], [hallX, V31_FLOOR_WEST[3]],
   ], PLINTH, FLOOR, FLOOR_C, false));
   markHouseFloor(planBox([
     [V31_FLOOR_EAST[0], V31_FLOOR_EAST[1]], [V31_FLOOR_EAST[2], V31_FLOOR_EAST[1]],
     [V31_FLOOR_EAST[2], V31_FLOOR_EAST[3]], [V31_FLOOR_EAST[0], V31_FLOOR_EAST[3]],
   ], PLINTH, FLOOR, FLOOR_C, false));
-  // Настил террасы заходит под край пола: одна плоскость, без щели по стыку.
-  // Настил террасы заходит под край пола дома — одна сплошная плоскость.
-  const terraceN = V31_FLOOR_WEST[1] + 0.08;
-  const terraceDeck = planBox([
+  // Терраса L: юг + карман — один уровень с полом дома, без шва/ступеньки между ними.
+  const terraceN = V31_FLOOR_WEST[1] + 0.08; // нахлёст под южную стену гостиной
+  markHouseFloor(planBox([
     [TERRACE[0], TERRACE[1]], [TERRACE[2], TERRACE[1]],
     [TERRACE[2], terraceN], [TERRACE[0], terraceN],
-  ], PLINTH, FLOOR, FLOOR_C, false);
-  terraceDeck.material.polygonOffset = true;
-  terraceDeck.material.polygonOffsetFactor = -1;
-  terraceDeck.material.polygonOffsetUnits = -1;
-  // Верхняя площадка крыльца (rect586) заходит под пол у входной двери.
+  ], PLINTH, FLOOR, FLOOR_C, false));
+  markHouseFloor(planBox([
+    [hallX, TERRACE[3]], [TERRACE[2], TERRACE[3]],
+    [TERRACE[2], pocketN], [hallX, pocketN],
+  ], PLINTH, FLOOR, FLOOR_C, false));
   const porchDeck = planBox([
-    [0.181, 17.815], [7.781, 17.815], [7.781, 19.778], [0.181, 19.778],
-  ], FLOOR * 2 / 3, FLOOR, FLOOR_C, false);
-  porchDeck.material.polygonOffset = true;
-  porchDeck.material.polygonOffsetFactor = -1;
-  porchDeck.material.polygonOffsetUnits = -1;
+    [0.181, 17.814], [7.781, 17.814], [7.781, 19.778], [0.181, 19.778],
+  ], PLINTH, FLOOR, FLOOR_C, false);
+  markHouseFloor(porchDeck);
 
   // Перекрытие: белая плита как у 3.1 (CEIL_BOT…CEIL_TOP) — низ не ниже балки.
   // Вырез второго света до изгиба конька гостиной (yValW). Скрывается с крышей.
@@ -741,9 +769,9 @@ export function buildVariant31d(api) {
   // Наружная грань фронтона = наружная грань стены (одна плоскость облицовки).
   // Наружные грани = WALLS 3.1c (по WALLS 3.1d — иначе фронтон выпирает).
   const yWallSLivOut = 7.381;
-  const yWallSLivIn = 7.78;
+  const yWallSLivIn = 7.781;
   const yWallSOffOut = 0.396;
-  const yWallSOffIn = 0.795;
+  const yWallSOffIn = 0.796;
   gableFillEW(yWallSOffOut, yWallSOffIn, xOffW, xOffE, xRE, ZrE, (x) => zEast(x), southGableBase, 1);
   // Гостиная: фронтон толщиной южной стены; проёмы под второй свет.
   const livUpperWins = OPENINGS
@@ -778,7 +806,7 @@ export function buildVariant31d(api) {
       return null;
     };
     // Торцы фронтона = наружные грани WALLS (запад / livE), не свес кровли 3.16.
-    const xGableE = 2.834;
+    const xGableE = 2.835;
     const xGableW = -5.612;
     const xs = [xGableW, xGableE, xRW];
     for (const w of gableWinSpans) xs.push(w.x0, w.x1);
@@ -969,13 +997,13 @@ export function buildVariant31d(api) {
     }
     for (const g of groups) {
       const zAtG = (x) => g.zt0 + (g.zt1 - g.zt0) * ((x - g.x0) / Math.max(1e-6, g.x1 - g.x0));
+      // Нижний ригель; стойки/импосты — строго между ригелями, без пересечения объёмов (иначе дрожь).
       frameBar(g.x0, t0, g.x1, t1, zBot, zBot + fw, FRAME_W);
+      const zRail0 = zBot + fw;
       const zL = zAtG(g.x0 + fw);
       const zR = zAtG(g.x1 - fw);
-      // Краевые стойки до низа ригеля; наружный торец только снаружи группы.
-      pushTrap(g.x0, g.x0 + fw, t0, t1, zBot, zBot, zL, zL, "L");
-      pushTrap(g.x1 - fw, g.x1, t0, t1, zBot, zBot, zR, zR, "R");
-      // Косой ригель сплошняком по всей группе.
+      pushTrap(g.x0, g.x0 + fw, t0, t1, zRail0, zRail0, zL - fw, zL - fw, "L");
+      pushTrap(g.x1 - fw, g.x1, t0, t1, zRail0, zRail0, zR - fw, zR - fw, "R");
       {
         const spanTop = Math.max(1e-6, g.x1 - g.x0);
         const n = Math.max(8, Math.ceil(spanTop / 0.12));
@@ -988,7 +1016,6 @@ export function buildVariant31d(api) {
           pushTrap(xa, xb, t0, t1, za - fw, zb - fw, za, zb, caps);
         }
       }
-      // Импосты: вся щель + нахлёст в стекло; без торцов — упираются в ригель/порог.
       for (let i = 0; i < g.wins.length - 1; i++) {
         const a = g.wins[i];
         const b = g.wins[i + 1];
@@ -997,25 +1024,27 @@ export function buildVariant31d(api) {
         const m0 = mid - halfM;
         const m1 = mid + halfM;
         const zTop = zAtG((m0 + m1) * 0.5);
-        pushTrap(m0, m1, t0, t1, zBot + fw * 0.45, zBot + fw * 0.45, zTop - fw * 0.45, zTop - fw * 0.45, false);
+        pushTrap(m0, m1, t0, t1, zRail0, zRail0, zTop - fw, zTop - fw, false);
       }
-      const gy0 = t - 0.018;
-      const gy1 = t + 0.018;
+      // Стекло чуть тоньше рамы и с зазором к ригелям — без z-fight внутри проёма.
+      const gy0 = t - 0.012;
+      const gy1 = t + 0.012;
+      const zGlass0 = zRail0 + 0.004;
       for (let wi = 0; wi < g.wins.length; wi++) {
         const w = g.wins[wi];
-        let gx0 = w.x0 + fw;
-        let gx1 = w.x1 - fw;
+        let gx0 = w.x0 + fw + 0.004;
+        let gx1 = w.x1 - fw - 0.004;
         if (wi > 0) {
           const prev = g.wins[wi - 1];
           const mid = (prev.x1 + w.x0) * 0.5;
           const halfM = Math.max(fw * 0.55, (w.x0 - prev.x1) * 0.5 + fw * 0.35);
-          gx0 = Math.max(gx0, mid + halfM);
+          gx0 = Math.max(gx0, mid + halfM + 0.004);
         }
         if (wi < g.wins.length - 1) {
           const next = g.wins[wi + 1];
           const mid = (w.x1 + next.x0) * 0.5;
           const halfM = Math.max(fw * 0.55, (next.x0 - w.x1) * 0.5 + fw * 0.35);
-          gx1 = Math.min(gx1, mid - halfM);
+          gx1 = Math.min(gx1, mid - halfM - 0.004);
         }
         if (gx1 <= gx0 + 0.04) continue;
         const spanG = gx1 - gx0;
@@ -1023,11 +1052,12 @@ export function buildVariant31d(api) {
         for (let i = 0; i < n; i++) {
           const xa = gx0 + (spanG * i) / n;
           const xb = gx0 + (spanG * (i + 1)) / n;
-          const za = zAtG(xa) - fw;
-          const zb = zAtG(xb) - fw;
+          const za = zAtG(xa) - fw - 0.004;
+          const zb = zAtG(xb) - fw - 0.004;
+          if (za <= zGlass0 + 0.02 || zb <= zGlass0 + 0.02) continue;
           const gl = [
-            [xa, gy0, zBot + fw], [xb, gy0, zBot + fw], [xb, gy0, zb], [xa, gy0, za],
-            [xa, gy1, zBot + fw], [xb, gy1, zBot + fw], [xb, gy1, zb], [xa, gy1, za],
+            [xa, gy0, zGlass0], [xb, gy0, zGlass0], [xb, gy0, zb], [xa, gy0, za],
+            [xa, gy1, zGlass0], [xb, gy1, zGlass0], [xb, gy1, zb], [xa, gy1, za],
           ].map((p) => world(...p));
           qTri(glassTrisAll, gl[0], gl[1], gl[2], gl[3]);
           qTri(glassTrisAll, gl[4], gl[7], gl[6], gl[5]);
@@ -1037,7 +1067,13 @@ export function buildVariant31d(api) {
       }
     }
     if (frameTris.length) {
-      withFinish("frame", () => addMesh(geometryFromTriangles(frameTris), FRAME_W, false));
+      withFinish("frame", () => {
+        const mesh = addMesh(geometryFromTriangles(frameTris), FRAME_W, false);
+        mesh.material.polygonOffset = true;
+        mesh.material.polygonOffsetFactor = 1;
+        mesh.material.polygonOffsetUnits = 1;
+        return mesh;
+      });
     }
     if (glassTrisAll.length) {
       const glassMesh = addMesh(geometryFromTriangles(glassTrisAll), GLASS, false);
@@ -1045,14 +1081,18 @@ export function buildVariant31d(api) {
       glassMesh.material.transparent = true;
       glassMesh.material.opacity = 0.16;
       glassMesh.material.depthWrite = false;
+      glassMesh.material.polygonOffset = true;
+      glassMesh.material.polygonOffsetFactor = -1;
+      glassMesh.material.polygonOffsetUnits = -1;
       glassMesh.castShadow = false;
+      glassMesh.renderOrder = 2;
       glassMesh.userData.roof = true;
     }
   }
 
   // Балка в продолжение южной стены гостиной к коридору — опора стропил над террасой.
   {
-    const xCorr = 8.182;
+    const xCorr = 8.181;
     const yBeam = 7.581;
     const zBeam = WALL_TOP - (ROOF_THICK - ROOF_OVER_WALL) * 0.5;
     const [e0, n0] = planToWorld(xLivE, yBeam);
@@ -1130,8 +1170,8 @@ export function buildVariant31d(api) {
       [-6.66, 19.31], [15.85, 19.31], [15.85, -0.65],
       [7.18, -0.65], [7.18, 6.25], [-6.66, 6.25],
     ];
-    // Верх отмостки ниже плитки парковки (0.065), иначе z-fight / моргание.
-    const blind = api.addSlabHole(outer, hole, 0.02, 0.028, 0xd4cfc4);
+    // Верх отмостки ниже плитки парковки (≈0,01), иначе z-fight / моргание.
+    const blind = api.addSlabHole(outer, hole, -0.02, 0.025, 0xd4cfc4);
     if (blind) {
       blind.material.polygonOffset = true;
       blind.material.polygonOffsetFactor = -1;
@@ -1187,8 +1227,9 @@ export function buildVariant31d(api) {
       }
       return mesh;
     };
-    const TILE_Y0 = 0.03;
-    const TILE_H = 0.035;
+    // Плитка у земли (верх ≈0,01): раньше 0,065 — «подиум», колёса утопали.
+    const TILE_Y0 = -0.02;
+    const TILE_H = 0.03;
     const { x0: cx0, x1: cx1, y0: cy0, y1: cy1, xArm, yArm } = CARPORT;
     const westFenceAtY = (y) => {
       const t = (y - nw[1]) / (sw[1] - nw[1]);
@@ -1318,13 +1359,16 @@ export function buildVariant31d(api) {
 
   // Машины с плана (g1245 Кулрей / g1263 Мазда): центр и курс длинной оси polygon.
   // planYawDeg: 0° = восток плана, 90° = север; нос — к северной стороне оси (к воротам).
+  // groundY = верх плитки парковки (−0,02+0,03).
   if (typeof api.addParkedModel === "function") {
+    const parkY = 0.01;
     api.addParkedModel({
       url: "./models/geely-coolray.glb",
       length: 4.33,
       centerE: -9.780 + HOUSE_DX,
       centerN: 16.525 + HOUSE_DY,
       planYawDeg: -96.8,
+      groundY: parkY,
     });
     api.addParkedModel({
       url: "./models/mazda-cx5.glb",
@@ -1332,6 +1376,7 @@ export function buildVariant31d(api) {
       centerE: -7.584 + HOUSE_DX,
       centerN: 13.269 + HOUSE_DY,
       planYawDeg: 84.6,
+      groundY: parkY,
     });
   }
 

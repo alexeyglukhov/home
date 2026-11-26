@@ -15,11 +15,12 @@ import { buildVariantD4 as buildVariantD6, d4WalkBoxes as d6WalkBoxes, d4FenceSe
 import { buildVariant31, v31WalkBoxes, v31FenceSegments, V31_WINDOWS, V31_BASE } from "./variant-31.js?v=50";
 import { buildVariant31a, v31aWalkBoxes, v31aFenceSegments, V31A_WINDOWS, V31A_BASE } from "./variant-31a.js?v=22";
 import { buildVariant31b, v31bWalkBoxes, v31bFenceSegments, V31B_WINDOWS, V31B_BASE } from "./variant-31b.js?v=37";
-import { buildVariant31d, v31dWalkBoxes, v31dFenceSegments, V31D_WINDOWS, V31D_BASE } from "./variant-31d.js?v=118";
-import { buildVariant31c, v31cWalkBoxes, v31cFenceSegments, V31C_WINDOWS, V31C_BASE } from "./variant-31c.js?v=44";
-import { createD2Tour, createTourDaylight, D3_WINDOWS } from "./tour-d2.js?v=23";
+import { buildVariant31d, v31dWalkBoxes, v31dFenceSegments, V31D_WINDOWS, V31D_BASE } from "./variant-31d.js?v=136";
+import { buildVariant31c, v31cWalkBoxes, v31cFenceSegments, V31C_WINDOWS, V31C_BASE } from "./variant-31c.js?v=120";
+import { createD2Tour, createTourDaylight, D3_WINDOWS } from "./tour-d2.js?v=24";
 import { syncPrintSheets } from "./print-sheets.js?v=48";
-import { mountFurnitureCatalog } from "./furniture-catalog.js?v=8";
+import { mountFurnitureCatalog } from "./furniture-catalog.js?v=11";
+import { createTourFurniturePlace } from "./furniture-tour-place.js?v=5";
 import { mountD2Furniture } from "./furniture-place-d2.js?v=43";
 import { mountD5Furniture } from "./furniture-place-d5.js?v=7";
 import { buildTopochnayaV3, topoCameraRigs } from "./topochnaya-v3.js?v=96";
@@ -138,6 +139,9 @@ const variant31aGroup = new THREE.Group();
 const variant31bGroup = new THREE.Group();
 const variant31dGroup = new THREE.Group();
 const variant31cGroup = new THREE.Group();
+const tourFurnitureBucket = new THREE.Group();
+tourFurnitureBucket.name = "tour-furniture-bucket";
+scene.add(tourFurnitureBucket);
 const variantD5Furniture = new THREE.Group();
 variantD5Furniture.name = "d5-furniture";
 variantD5Group.add(variantD5Furniture);
@@ -560,6 +564,19 @@ function planToWorld(x, y) {
   const east = xm * Math.sin(AZ_X) + y * Math.sin(AZ_Y);
   const north = xm * Math.cos(AZ_X) + y * Math.cos(AZ_Y);
   return [east - CE, north - CN];
+}
+
+function worldToPlan(east, north) {
+  const E = east + CE;
+  const N = north + CN;
+  const sX = Math.sin(AZ_X);
+  const sY = Math.sin(AZ_Y);
+  const cX = Math.cos(AZ_X);
+  const cY = Math.cos(AZ_Y);
+  const det = sX * cY - sY * cX;
+  const xm = (E * cY - sY * N) / det;
+  const y = (sX * N - E * cX) / det;
+  return [PLAN_W - xm, y];
 }
 
 const tourPoseOf = {};
@@ -1978,8 +1995,10 @@ const gltfLoader = new GLTFLoader();
 // Верх плитки 0.065. У Coolray шина доходит до низа модели, у Mazda видимое колесо выше.
 const PAVER_TOP = 0.065;
 
-function addParkedModel({ url, length, centerE, centerN, heading = "west", planYawDeg = null }) {
-  const ground = PAVER_TOP - (url.includes("mazda") ? 0.16 : 0.02);
+function addParkedModel({ url, length, centerE, centerN, heading = "west", planYawDeg = null, groundY = null }) {
+  // groundY — верх покрытия; иначе PAVER_TOP. Mazda: лёгкая поправка модели, без утопления на 16 см.
+  const top = groundY != null ? groundY : PAVER_TOP;
+  const ground = top - (url.includes("mazda") ? 0.03 : 0.01);
   const parent = bucket;
   const holder = new THREE.Group();
   // planYawDeg — курс носа в плане: 0° = +X (восток), 90° = +Y (север).
@@ -5847,6 +5866,9 @@ const BLURB_V31D = "Вариант 3.1d. План обновлён: вальмо
 const BLURB_TOPO3 = "Топочная Вариант 3.1. Комната 3,50×1,98×2,70 м: газ, электрокотёл, термоаккумулятор со змеевиком, ТТ, гребёнка/смеситель, лапамойка, топливо, щиты и трубы. Жёлтым подсвечены фронты ≥1 м перед котлами. Крутите вид мышью; Сбоку/Сверху — ракурсы.";
 
 let tourActive = false;
+let tourFurniturePlace = null;
+let tourUiPause = false; // каталог открыт — не крутить взгляд и не стопать экскурсию
+let furnitureCatalogApi = null;
 
 function roundView(n) {
   return Math.round(n * 100) / 100;
@@ -6108,6 +6130,7 @@ roofToggle.addEventListener("change", () => {
   showRoofs(roofToggle.checked);
   saveView();
   syncTourButton();
+  if (tourFurniturePlace) tourFurniturePlace.onVariantChange();
 });
 canopyToggle?.addEventListener("change", () => {
   showCanopies(canopyToggle.checked);
@@ -6242,6 +6265,7 @@ function setVariant(id) {
   saveView();
   syncPrintSheets(viewVariant);
   syncTourButton();
+  if (tourFurniturePlace) tourFurniturePlace.onVariantChange();
   return true;
 }
 
@@ -6401,6 +6425,65 @@ function walkGround(e, n) {
   return best;
 }
 
+function tourFurnitureHitTargets() {
+  const out = [];
+  if (ground.visible) out.push(ground);
+  for (const mesh of walkSurfaces) {
+    if (shownNode(mesh) && mesh.isMesh) out.push(mesh);
+  }
+  scene.traverse((obj) => {
+    if (!obj.isMesh || !shownNode(obj) || !obj.geometry) return;
+    if (obj.userData?.tourFurn || obj.name === "tour-furniture-ghost") return;
+    if (obj.userData?.roof && !obj.userData?.walkTop) return;
+    const mat = Array.isArray(obj.material) ? obj.material[0] : obj.material;
+    if (mat && mat.transparent && mat.opacity < 0.35) return;
+    if (obj.userData?.finish === "door") return;
+    // стены / пол / плиты внутри видимых групп (floorSlab — только для мебели, не walkGround)
+    if (
+      obj.userData?.foot
+      || obj.userData?.walkTop
+      || obj.userData?.floorSlab
+      || obj.userData?.finish === "wall"
+      || obj.userData?.finish === "frame"
+    ) {
+      out.push(obj);
+    }
+  });
+  return out;
+}
+
+const tourFurnHint = document.getElementById("tour-furn-hint");
+function setTourFurnHint(msg, mode) {
+  if (!tourFurnHint) return;
+  if (!msg) {
+    tourFurnHint.hidden = true;
+    tourFurnHint.textContent = "";
+    tourFurnHint.classList.remove("place", "delete");
+    return;
+  }
+  tourFurnHint.hidden = false;
+  tourFurnHint.textContent = msg;
+  tourFurnHint.classList.toggle("place", mode === "place");
+  tourFurnHint.classList.toggle("delete", mode === "delete");
+}
+
+tourFurniturePlace = createTourFurniturePlace({
+  getVariant: () => viewVariant,
+  planToWorld,
+  worldToPlan,
+  walkGround,
+  isTourActive: () => tourActive,
+  camera,
+  scene,
+  bucket: tourFurnitureBucket,
+  hitTargets: tourFurnitureHitTargets,
+  setStatus: (msg) => {
+    const el = document.getElementById("furniture-catalog-status");
+    if (el) el.textContent = msg;
+  },
+  setHint: setTourFurnHint,
+});
+
 function collectWalkPolys(kind) {
   const polys = [];
   scene.traverse((obj) => {
@@ -6426,7 +6509,7 @@ function syncTourButton() {
   tourButton.title = tourActive
     ? "Остановить и вернуть прежний вид"
     : roofToggle.checked
-      ? "Стрелки и W A S D — ход, мышь — взгляд, цифры 1–9 — скорость"
+      ? "Стрелки и W A S D — ход, мышь — взгляд, ПКМ — прыжок, цифры 1–9 — скорость"
       : "Включите крышу, чтобы пройти по дому";
 }
 
@@ -6440,15 +6523,17 @@ function startTour() {
   const keepHouse = viewVariant === "vd1" || viewVariant === "vd2" || viewVariant === "vd3" || viewVariant === "vd4" || viewVariant === "vd5" || viewVariant === "vd6" || viewVariant === "v31" || viewVariant === "v31a" || viewVariant === "v31b" || viewVariant === "v31c" || viewVariant === "v31d";
   const tourReady = keepHouse || !!tourPoseOf[viewVariant];
   if (tourActive || !roofToggle.checked || !tourReady) return;
-  // Старт с текущего положения камеры (взгляд и высота); с высоты плавно опустимся.
-  const lookDir = new THREE.Vector3().subVectors(controls.target, camera.position);
-  const lookLen = lookDir.length() || 1;
-  lookDir.multiplyScalar(1 / lookLen);
+  // Старт с текущего взгляда камеры (world direction — не target−pos: у Orbit бывает сбой угла).
+  const lookDir = new THREE.Vector3();
+  camera.getWorldDirection(lookDir);
+  if (lookDir.lengthSq() < 1e-8) lookDir.set(0, 0, -1);
+  else lookDir.normalize();
+  const horiz = Math.hypot(lookDir.x, lookDir.z) || 1e-6;
   const pose = {
     east: camera.position.x,
     north: camera.position.z,
     yaw: Math.atan2(lookDir.x, lookDir.z),
-    pitch: Math.asin(Math.max(-1, Math.min(1, lookDir.y))),
+    pitch: Math.atan2(lookDir.y, horiz),
     eye: camera.position.y,
   };
   savedTourView = {
@@ -6470,12 +6555,16 @@ function startTour() {
   activeTour().start(camera, controls, {
     pose,
     keepHouse,
-    ground: keepHouse ? null : walkGround,
+    // Пол по walkSurfaces (терраса/дом); иначе D2-высоты и взгляд «плывёт».
+    ground: walkGround,
     obstacles: collectWalkPolys("car").concat(keepHouse ? [] : collectWalkPolys("foot")),
   });
   hideDoorLeaves();
+  lookPtr = null;
+  tourLookIgnoreUntil = performance.now() + 180; // отсечь рывок pointerlock
   if (renderer.domElement.requestPointerLock) renderer.domElement.requestPointerLock();
   syncTourButton();
+  if (tourFurniturePlace) tourFurniturePlace.onTourStart();
 }
 
 function stopTour(restore) {
@@ -6490,21 +6579,29 @@ function stopTour(restore) {
   }
   fillLight.intensity = FILL_LIGHT;
   skyLight.intensity = SKY_LIGHT;
-  tourDaylight.object.visible = false;
-  tourDaylightD3.object.visible = false;
-  tourDaylightD4.object.visible = false;
+  for (const d of [
+    tourDaylight, tourDaylightD3, tourDaylightD4, tourDaylightD6,
+    tourDaylightV31, tourDaylightV31a, tourDaylightV31b, tourDaylightV31c, tourDaylightV31d,
+  ]) d.object.visible = false;
   showRoofs(roofToggle.checked);
   activeTour().clearMove();
   tourPointerLocked = false;
   if (document.pointerLockElement) document.exitPointerLock();
   syncTourButton();
   if (restore) saveView();
+  if (tourFurniturePlace) tourFurniturePlace.onTourStop();
 }
 
 let lookPtr = null;
+let tourLookIgnoreUntil = 0;
 window.addEventListener("mousemove", (event) => {
   if (!tourActive) {
     lookPtr = null;
+    return;
+  }
+  // Каталог / UI-пауза: мышь не крутит взгляд.
+  if (tourUiPause || furnitureCatalogApi?.isOpen()) {
+    lookPtr = [event.clientX, event.clientY];
     return;
   }
   const locked = document.pointerLockElement === renderer.domElement;
@@ -6515,8 +6612,11 @@ window.addEventListener("mousemove", (event) => {
   const dx = locked ? event.movementX : event.clientX - lookPtr[0];
   const dy = locked ? event.movementY : event.clientY - lookPtr[1];
   lookPtr = [event.clientX, event.clientY];
+  if (performance.now() < tourLookIgnoreUntil) return;
   if (!locked && dx * dx + dy * dy < 4) return;
   if (dx === 0 && dy === 0) return;
+  // Отсечь единичный скачок pointerlock (сотни px).
+  if (locked && (Math.abs(dx) > 80 || Math.abs(dy) > 80)) return;
   activeTour().addLook(dx, dy);
 });
 function tourMoveCode(code) {
@@ -6527,13 +6627,32 @@ function tourMoveCode(code) {
 }
 window.addEventListener("keydown", (event) => {
   if (!tourActive) return;
+  if (furnitureCatalogApi?.isOpen()) return;
+  if (event.target instanceof Element && event.target.closest("input, textarea")) return;
+
+  // M — каталог (без мыши в pointer lock)
+  if (event.code === "KeyM" && !event.ctrlKey && !event.altKey && !event.metaKey) {
+    event.preventDefault();
+    furnitureCatalogApi?.setOpen(true);
+    return;
+  }
+
+  if (event.key === "Escape" && (tourFurniturePlace?.isPlacing() || tourFurniturePlace?.isDeleting())) {
+    event.preventDefault();
+    tourRelockIgnore = performance.now() + 400;
+    tourFurniturePlace.onKey("Escape", true, event);
+    return;
+  }
+  if (tourFurniturePlace && tourFurniturePlace.onKey(event.code, true, event)) {
+    event.preventDefault();
+    return;
+  }
   if (event.key === "Escape") {
     event.preventDefault();
     stopTour(true);
     return;
   }
   if (event.key >= "1" && event.key <= "9" && event.key.length === 1) {
-    if (event.target instanceof Element && event.target.closest("input, textarea")) return;
     event.preventDefault();
     tourSpeed = Number(event.key);
     activeTour().setSpeed(tourSpeed);
@@ -6546,23 +6665,50 @@ window.addEventListener("keydown", (event) => {
 });
 window.addEventListener("keyup", (event) => {
   if (tourMoveCode(event.code)) activeTour().setMove(event.code, false);
+  if (tourActive && tourFurniturePlace) tourFurniturePlace.onKey(event.code, false, event);
 });
 window.addEventListener("blur", () => activeTour().clearMove());
 let tourPointerLocked = false;
+let tourRelockIgnore = 0;
 document.addEventListener("pointerlockchange", () => {
   const locked = document.pointerLockElement === renderer.domElement;
-  if (locked) tourPointerLocked = true;
-  else if (tourPointerLocked && tourActive) {
+  if (locked) {
+    tourPointerLocked = true;
+    return;
+  }
+  if (tourPointerLocked && tourActive) {
     tourPointerLocked = false;
+    if (tourUiPause) return;
+    // Esc в place/delete: отмена без выхода из экскурсии.
+    if (performance.now() < tourRelockIgnore) {
+      renderer.domElement.requestPointerLock?.();
+      return;
+    }
     stopTour(true);
   }
+});
+window.addEventListener("contextmenu", (event) => {
+  if (tourActive) event.preventDefault();
 });
 window.addEventListener("pointerdown", (event) => {
   if (!tourActive) return;
   if (!(event.target instanceof Element)) return;
   if (event.target.closest("#panel, #prints, #furniture-catalog, #share-dialog, #auth-dialog, button, input, select, label")) return;
-  if (document.pointerLockElement !== renderer.domElement) renderer.domElement.requestPointerLock();
+  if (event.button === 2) {
+    event.preventDefault();
+    activeTour().jump();
+    return;
+  }
+  if (document.pointerLockElement !== renderer.domElement && !tourUiPause) {
+    renderer.domElement.requestPointerLock();
+  }
 });
+
+window.addEventListener("wheel", (event) => {
+  if (!tourActive || !tourFurniturePlace) return;
+  if (!tourFurniturePlace.isPlacing()) return;
+  if (tourFurniturePlace.onWheel(event.deltaY)) event.preventDefault();
+}, { passive: false });
 
 tourButton.addEventListener("click", () => {
   if (tourActive) stopTour(true);
@@ -6671,6 +6817,7 @@ function frame() {
   if (tourActive) {
     activeDaylight().setElevation(sunElevation);
     if (!activeTour().step(dt)) stopTour(true);
+    if (tourFurniturePlace) tourFurniturePlace.tick(dt);
   } else controls.update();
   try {
     renderer.render(scene, camera);
@@ -6689,7 +6836,49 @@ frameHandle = requestAnimationFrame(frame);
 syncTourButton();
 
 window.__house = { camera, controls, scene, THREE };
-mountFurnitureCatalog();
+furnitureCatalogApi = mountFurnitureCatalog({
+  onPick: (item) => {
+    if (tourFurniturePlace) tourFurniturePlace.beginPlace(item);
+  },
+  onReady: (items) => {
+    if (tourFurniturePlace) {
+      tourFurniturePlace.setCatalog(items);
+      tourFurniturePlace.loadVariant();
+    }
+  },
+  onOpenChange: (open) => {
+    if (!tourActive) return;
+    if (open) {
+      tourUiPause = true;
+      lookPtr = null;
+      if (document.pointerLockElement) document.exitPointerLock();
+      setTourFurnHint(
+        "Каталог: клик по карточке — вставка · Esc / M — закрыть · взгляд не крутится",
+        "idle",
+      );
+      return;
+    }
+    tourUiPause = false;
+    tourLookIgnoreUntil = performance.now() + 200;
+    lookPtr = null;
+    if (tourFurniturePlace) tourFurniturePlace.tick(0);
+    renderer.domElement.requestPointerLock?.();
+  },
+});
+
+// M вне экскурсии тоже открывает каталог (если фокус не в поле ввода)
+window.addEventListener("keydown", (event) => {
+  if (tourActive) return;
+  if (event.code !== "KeyM" || event.ctrlKey || event.altKey || event.metaKey) return;
+  if (event.target instanceof Element && event.target.closest("input, textarea, select")) return;
+  if (furnitureCatalogApi?.isOpen()) {
+    event.preventDefault();
+    furnitureCatalogApi.setOpen(false);
+    return;
+  }
+  event.preventDefault();
+  furnitureCatalogApi?.setOpen(true);
+});
 
 (function mountStyleExamples() {
   const button = document.getElementById("style-examples-btn");
