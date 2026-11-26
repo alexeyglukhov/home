@@ -20,7 +20,7 @@ import { buildVariant31c, v31cWalkBoxes, v31cFenceSegments, V31C_WINDOWS, V31C_B
 import { createD2Tour, createTourDaylight, D3_WINDOWS } from "./tour-d2.js?v=24";
 import { syncPrintSheets } from "./print-sheets.js?v=48";
 import { mountFurnitureCatalog } from "./furniture-catalog.js?v=13";
-import { createTourFurniturePlace } from "./furniture-tour-place.js?v=26";
+import { createTourFurniturePlace } from "./furniture-tour-place.js?v=38";
 import { mountD2Furniture } from "./furniture-place-d2.js?v=44";
 import { mountD5Furniture } from "./furniture-place-d5.js?v=8";
 import { buildTopochnayaV3, topoCameraRigs } from "./topochnaya-v3.js?v=96";
@@ -6124,6 +6124,14 @@ controls.addEventListener("change", () => {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(saveView, 200);
 });
+controls.addEventListener("end", () => {
+  clearTimeout(saveTimer);
+  saveView();
+});
+window.addEventListener("beforeunload", () => {
+  clearTimeout(saveTimer);
+  saveView();
+});
 
 roofToggle.addEventListener("change", () => {
   if (tourActive && !roofToggle.checked) stopTour(true);
@@ -6483,14 +6491,14 @@ function setTourFurnHint(msg, mode) {
 }
 
 function canEditFurniture() {
-  // Экскурсия или осмотр со снятой крышей.
-  return tourActive || !roofToggle.checked;
+  // Только осмотр со снятой крышей — не в «Экскурсии».
+  return !tourActive && !roofToggle.checked;
 }
 
 function syncFurnitureOrbitLock() {
   if (tourActive) return;
-  // В C/X осмотра орбита нужна, чтобы навёсть и кликнуть; блок только при переносе.
-  const busy = !!furnitureCatalogApi?.isOpen() || !!tourFurniturePlace?.isPlacing();
+  // Орбита при выборе/правке/вставке; блок только пока открыт каталог.
+  const busy = !!furnitureCatalogApi?.isOpen() || !!tourFurniturePlace?.blocksOrbit?.();
   controls.enabled = !busy;
 }
 
@@ -6808,8 +6816,8 @@ tourButton.addEventListener("click", () => {
 });
 
 setVariant(pendingVariant);
+// Восстановленный ракурс (в т.ч. пан ПКМ) не сбрасываем к якорю варианта.
 if (!restoredCamera) placeCamera(viewVariant, "side");
-else if (!cameraLockedByUrl && (viewVariant === "vd1" || viewVariant === "vd2" || viewVariant === "vd3" || viewVariant === "vd4" || viewVariant === "vd5" || viewVariant === "vd6" || viewVariant === "v31" || viewVariant === "v31a" || viewVariant === "v31b" || viewVariant === "v31c" || viewVariant === "v31d") && controls.target.distanceTo(focusPoint(viewVariant)) > 4) retargetKeepOffset(viewVariant);
 else saveView();
 dateInput.addEventListener("input", () => {
   applySun(geo);
@@ -6948,7 +6956,7 @@ furnitureCatalogApi = mountFurnitureCatalog({
         setTourFurnHint(
           canEditFurniture()
             ? "Каталог: клик — вставка (крыша снята) · Esc / M — закрыть"
-            : "Каталог: для вставки снимите крышу или включите «Экскурсию» · Esc / M — закрыть",
+            : "Каталог: для вставки снимите крышу (осмотр, не экскурсия) · Esc / M — закрыть",
           "idle",
         );
       } else if (tourFurniturePlace) {
@@ -6963,7 +6971,7 @@ furnitureCatalogApi = mountFurnitureCatalog({
       lookPtr = null;
       if (document.pointerLockElement) document.exitPointerLock();
       setTourFurnHint(
-        "Каталог: клик по карточке — вставка · Esc / M — закрыть · взгляд не крутится",
+        "Каталог: расстановка мебели — только в осмотре без крыши · Esc / M — закрыть",
         "idle",
       );
       return;
