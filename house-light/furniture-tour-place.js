@@ -176,6 +176,8 @@ export function createTourFurniturePlace(opts) {
   projWall.visible = false;
   projWall.renderOrder = 1;
   scene.add(projWall);
+  /** Каркасы габаритов членов группы (не общий AABB). */
+  let groupMemberHelpers = [];
   const _zAxis = new THREE.Vector3(0, 0, 1);
 
   let catalogById = new Map();
@@ -343,6 +345,7 @@ export function createTourFurniturePlace(opts) {
     if (_box.isEmpty()) {
       const fallback = new THREE.BoxHelper(holder, color);
       fallback.userData.selectHelper = true;
+      fallback.raycast = () => {}; // не перехватывать клик мультивыбора
       scene.add(fallback);
       return fallback;
     }
@@ -364,6 +367,7 @@ export function createTourFurniturePlace(opts) {
     const lines = new THREE.LineSegments(edges, mat);
     lines.position.copy(_center);
     lines.userData.selectHelper = true;
+    lines.raycast = () => {}; // каркас в holder иначе сбрасывал предыдущий выбор
     lines.renderOrder = 20;
     holder.add(lines);
     return lines;
@@ -401,8 +405,15 @@ export function createTourFurniturePlace(opts) {
 
   function recordIndexFromHit(hits) {
     for (const h of hits) {
+      if (h.object?.userData?.selectHelper) continue;
       let node = h.object;
-      while (node && !node.userData?.tourFurn) node = node.parent;
+      while (node && !node.userData?.tourFurn) {
+        if (node.userData?.selectHelper) {
+          node = null;
+          break;
+        }
+        node = node.parent;
+      }
       if (!node?.userData?.furnId) continue;
       const idx = records.findIndex((r) => r.data.uid === node.userData.furnId && r.holder.visible);
       if (idx >= 0) return idx;
@@ -448,6 +459,7 @@ export function createTourFurniturePlace(opts) {
     ghostRoot.rotation.set(0, 0, 0);
     projFloor.visible = false;
     projWall.visible = false;
+    disposeGroupBoundsHelper();
     mount = "floor";
     mirror = false;
     mirrorZ = false;
@@ -733,12 +745,21 @@ export function createTourFurniturePlace(opts) {
 
   /** Вылет габарита от центра вдоль dir (горизонталь) — по углам в мире. */
   function extentAlongDir(dir) {
+    const dx = dir.x;
+    const dz = dir.z;
+    let maxT = 0;
+    const ox = ghostRoot.position.x;
+    const oz = ghostRoot.position.z;
+    if (groupMembers?.length) {
+      forEachFootCornerAt(ox, oz, (px, pz) => {
+        const t = (px - ox) * dx + (pz - oz) * dz;
+        if (t > maxT) maxT = t;
+      });
+      return Math.max(maxT, 0.05);
+    }
     const corners = furnitureWorldCorners();
     if (!corners) return 0.2;
     const c = furnitureCenterXZ();
-    let maxT = 0;
-    const dx = dir.x;
-    const dz = dir.z;
     for (let i = 0; i < 8; i++) {
       const t = (corners[i].x - c.x) * dx + (corners[i].z - c.z) * dz;
       if (t > maxT) maxT = t;
@@ -977,7 +998,7 @@ export function createTourFurniturePlace(opts) {
     return bestHit ? { hit: bestHit, gap: bestGap, origin, dist: bestDist } : null;
   }
 
-  /** Выровнять мебель параллельно осям плана (основные стены), не по шуму foot-нормали. */
+  /** Выровнять мебель параллельно осям плана (основные стены). */
   function snapYawToPlanAxes() {
     if (yawFree || groupMembers) return;
     planWallAxes();
@@ -995,11 +1016,43 @@ export function createTourFurniturePlace(opts) {
     if (diff < 1e-3) return;
     yaw = next;
     ghostRoot.rotation.set(0, yaw, 0);
+    invalidateLocalFurnBox();
   }
 
-  /** @deprecated hit-нормаль даёт косой курс — всегда план. */
-  function snapYawToWallHit(_hit) {
-    snapYawToPlanAxes();
+  /**
+   * При упоре в стену: минимальный доворот параллельно стене (ещё до прохода).
+   * Игнорирует yawFree — столкновение = сигнал выровнять «слегка повёрнутое».
+   * @returns {boolean} курс изменился
+   */
+  function snapYawParallelToWall(hit) {
+    if (groupMembers || !hit?.normal) return false;
+    let nx = hit.normal.x;
+    let nz = hit.normal.z;
+    const nLen = Math.hypot(nx, nz);
+    if (nLen < 1e-8) {
+      snapYawToPlanAxes();
+      return false;
+    }
+    nx /= nLen;
+    nz /= nLen;
+    // лицом к стене / от стены / вдоль — ближайший к текущему yaw
+    const next = nearestAngle(yaw, [
+      Math.atan2(nx, nz),
+      Math.atan2(-nx, -nz),
+      Math.atan2(-nz, nx),
+      Math.atan2(nz, -nx),
+    ]);
+    const diff = Math.abs(Math.atan2(Math.sin(yaw - next), Math.cos(yaw - next)));
+    if (diff < 0.015) return false; // уже параллельно (~0.9°)
+    yaw = next;
+    ghostRoot.rotation.set(0, yaw, 0);
+    invalidateLocalFurnBox();
+    ghostRoot.updateMatrixWorld(true);
+    return true;
+  }
+
+  function snapYawToWallHit(hit) {
+    snapYawParallelToWall(hit);
   }
 
   /**
@@ -1142,32 +1195,128 @@ export function createTourFurniturePlace(opts) {
 
   const FOOT_PAD = 0.02;
 
+  /** Локальный AABB содержимого wrap в СК wrap (для OBB-углов члена группы). */
+  function measureWrapLocalBox(wrap, out) {
+    out.makeEmpty();
+    if (!wrap) return out;
+    wrap.updateMatrixWorld(true);
+    _selInv.copy(wrap.matrixWorld).invert();
+    wrap.traverse((obj) => {
+      if (!obj.isMesh || !obj.geometry || obj.userData.selectHelper) return;
+      if (!obj.geometry.boundingBox) obj.geometry.computeBoundingBox();
+      const bb = obj.geometry.boundingBox;
+      if (!bb || bb.isEmpty()) return;
+      _selMat.multiplyMatrices(_selInv, obj.matrixWorld);
+      _box.copy(bb).applyMatrix4(_selMat);
+      out.union(_box);
+    });
+    return out;
+  }
+
   /**
    * Углы пятна в мире при положении ghostRoot → (rootX, rootZ).
-   * Коллизия по контуру, не по кругу от центра (круг давал упор за ~30 см у длинного стола).
+   * Группа: OBB каждого объекта отдельно — не world-AABB и не общий бокс группы.
    */
   function forEachFootCornerAt(rootX, rootZ, fn) {
-    const corners = furnitureWorldCorners();
-    if (!corners) {
-      fn(rootX, rootZ);
-      return;
-    }
     const dx = rootX - ghostRoot.position.x;
     const dz = rootZ - ghostRoot.position.z;
     const seen = [];
-    for (let i = 0; i < 8; i++) {
-      const px = corners[i].x + dx;
-      const pz = corners[i].z + dz;
-      let dup = false;
+    const emit = (px, pz) => {
       for (let s = 0; s < seen.length; s += 2) {
-        if (Math.abs(seen[s] - px) < 1e-4 && Math.abs(seen[s + 1] - pz) < 1e-4) {
-          dup = true;
-          break;
-        }
+        if (Math.abs(seen[s] - px) < 1e-4 && Math.abs(seen[s + 1] - pz) < 1e-4) return;
       }
-      if (dup) continue;
       seen.push(px, pz);
       fn(px, pz);
+    };
+
+    if (groupMembers?.length) {
+      ghostRoot.updateMatrixWorld(true);
+      for (const m of groupMembers) {
+        const wrap = m.wrap;
+        if (!wrap) continue;
+        measureWrapLocalBox(wrap, _selBox);
+        if (_selBox.isEmpty()) continue;
+        wrap.updateMatrixWorld(true);
+        for (let ix = 0; ix < 2; ix++) {
+          for (let iy = 0; iy < 2; iy++) {
+            for (let iz = 0; iz < 2; iz++) {
+              _corner
+                .set(
+                  ix ? _selBox.max.x : _selBox.min.x,
+                  iy ? _selBox.max.y : _selBox.min.y,
+                  iz ? _selBox.max.z : _selBox.min.z,
+                )
+                .applyMatrix4(wrap.matrixWorld);
+              emit(_corner.x + dx, _corner.z + dz);
+            }
+          }
+        }
+      }
+      if (!seen.length) emit(rootX, rootZ);
+      return;
+    }
+
+    const corners = furnitureWorldCorners();
+    if (!corners) {
+      emit(rootX, rootZ);
+      return;
+    }
+    for (let i = 0; i < 8; i++) {
+      emit(corners[i].x + dx, corners[i].z + dz);
+    }
+  }
+
+  function disposeGroupBoundsHelper() {
+    for (const h of groupMemberHelpers) {
+      if (h.parent) h.parent.remove(h);
+      h.geometry?.dispose?.();
+      h.material?.dispose?.();
+    }
+    groupMemberHelpers = [];
+  }
+
+  /** Подсветка: ориентированный каркас каждого члена группы. */
+  function ensureGroupMemberHelpers() {
+    if (!groupMembers?.length) {
+      disposeGroupBoundsHelper();
+      return;
+    }
+    if (groupMemberHelpers.length === groupMembers.length) return;
+    disposeGroupBoundsHelper();
+    const mat = new THREE.LineBasicMaterial({
+      color: 0xe8a020,
+      depthTest: false,
+      transparent: true,
+      opacity: 0.95,
+    });
+    for (const m of groupMembers) {
+      const wrap = m.wrap;
+      if (!wrap) continue;
+      measureWrapLocalBox(wrap, _selBox);
+      if (_selBox.isEmpty() && m.data0) {
+        const w = Math.max(0.05, (m.data0.cmW || 0.8) * Math.abs(m.data0.sx || 1));
+        const d = Math.max(0.05, (m.data0.cmD || 0.8) * Math.abs(m.data0.sz || 1));
+        const h = Math.max(0.05, (m.data0.cmH || 0.8) * Math.abs(m.data0.sy || 1));
+        _selBox.min.set(-w * 0.5, 0, -d * 0.5);
+        _selBox.max.set(w * 0.5, h, d * 0.5);
+      }
+      if (_selBox.isEmpty()) continue;
+      _selBox.getSize(_size);
+      _selBox.getCenter(_center);
+      const boxGeo = new THREE.BoxGeometry(
+        Math.max(_size.x, 0.02),
+        Math.max(_size.y, 0.02),
+        Math.max(_size.z, 0.02),
+      );
+      const edges = new THREE.EdgesGeometry(boxGeo);
+      boxGeo.dispose();
+      const lines = new THREE.LineSegments(edges, mat.clone());
+      lines.position.copy(_center);
+      lines.userData.selectHelper = true;
+      lines.raycast = () => {};
+      lines.renderOrder = 22;
+      wrap.add(lines);
+      groupMemberHelpers.push(lines);
     }
   }
 
@@ -1338,6 +1487,14 @@ export function createTourFurniturePlace(opts) {
       pushOutOfFootWalls(clearance);
     }
 
+    // первые упоры: выровнять параллельно стене минимальным доворотом — до прохода
+    if (blockHit && !wallPassActive) {
+      contactWall = { point: blockHit.point.clone(), normal: blockHit.normal.clone() };
+      if (snapYawParallelToWall(blockHit)) {
+        pushOutOfFootWalls();
+      }
+    }
+
     const open = noteWallBumpProgress(dt, wallBumpTapArmed);
     if (open) {
       openWallPass(dir);
@@ -1348,10 +1505,6 @@ export function createTourFurniturePlace(opts) {
       ghostRoot.updateMatrixWorld(true);
       noteWallPassTravel(stepIn, dir);
       return false;
-    }
-    if (blockHit) {
-      contactWall = { point: blockHit.point.clone(), normal: blockHit.normal.clone() };
-      // snapYaw при упоре сбрасывал hold у большого стола — не крутим здесь
     }
     return true;
   }
@@ -1443,18 +1596,15 @@ export function createTourFurniturePlace(opts) {
   }
 
   function updateProjections() {
-    const box = measureGhostBox();
     if (groupMembers?.length) {
-      projFloor.visible = true;
+      ensureGroupMemberHelpers();
+      // без общего пятна/AABB — только каркасы объектов
+      projFloor.visible = false;
       projWall.visible = false;
-      const gw = Math.max(0.2, _size.x);
-      const gd = Math.max(0.2, _size.z);
-      projFloor.geometry.dispose();
-      projFloor.geometry = new THREE.PlaneGeometry(gw, gd);
-      projFloor.position.set(_center.x, box.min.y + 0.015, _center.z);
-      projFloor.rotation.set(-Math.PI / 2, ghostRoot.rotation.y, 0);
       return;
     }
+    disposeGroupBoundsHelper();
+    const box = measureGhostBox();
     // Локальное пятно по курсу мебели (не world-AABB — иначе ромб при повороте).
     const localW = Math.max(0.05, baseSize.w * sx);
     const localD = Math.max(0.05, baseSize.d * sz);

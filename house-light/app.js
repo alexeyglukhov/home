@@ -20,7 +20,7 @@ import { buildVariant31c, v31cWalkBoxes, v31cFenceSegments, V31C_WINDOWS, V31C_B
 import { createD2Tour, createTourDaylight, D3_WINDOWS } from "./tour-d2.js?v=24";
 import { syncPrintSheets } from "./print-sheets.js?v=48";
 import { mountFurnitureCatalog } from "./furniture-catalog.js?v=14";
-import { createTourFurniturePlace } from "./furniture-tour-place.js?v=59";
+import { createTourFurniturePlace } from "./furniture-tour-place.js?v=63";
 import { buildTopochnayaV3, topoCameraRigs } from "./topochnaya-v3.js?v=96";
 
 const panel = document.getElementById("panel");
