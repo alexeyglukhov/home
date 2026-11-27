@@ -1,14 +1,28 @@
 // Топочная Вариант 3 — комната 3,50×1,98×2,70 м по topochnaya-…-v2-stena.svg
 // X: запад→восток, Z: север→юг, Y: вверх. (0,0,0) = центр пола.
+// embed в 3.1d: без стен/пола/потолка, ROOM под чистый габарит, mirrorX под дверь/окно дома.
 import * as THREE from "three";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
+import { MeshoptDecoder } from "./vendor/meshopt_decoder.module.js";
 
-const ROOM = { w: 3.5, d: 1.98, h: 2.7 };
+/** Эталон плана (plan-v3); фактический ROOM может быть шире (3.1d ≈ 3,92×1,96). */
+const REF_ROOM = { w: 3.5, d: 1.98, h: 2.7 };
+let ROOM = { ...REF_ROOM };
+/** Опции текущего build (дверь/окно/embed). */
+let BUILD_OPTS = {};
 const WALL = 0.15;
 const S = 200; // svg px / m
 
 const loader = new GLTFLoader();
+loader.setMeshoptDecoder(MeshoptDecoder);
 const cache = new Map();
+
+function sx(x) {
+  return x * (ROOM.w / REF_ROOM.w);
+}
+function sz(z) {
+  return z * (ROOM.d / REF_ROOM.d);
+}
 
 function assetUrl(rel) {
   return new URL(rel, import.meta.url).href;
@@ -395,18 +409,18 @@ function layoutPorts() {
   const xW = -ROOM.w / 2;
   const xE = ROOM.w / 2;
 
-  // пятна с plan-v3.svg (правки пользователя); ТТ — mini-11 у востока
-  const gas = { x: -1.39, z: 0.827 }; // южная стена, фронт на север
-  const el = { x: -0.942, z: 0.827 }; // южная стена, фронт на север
-  const bkn = { x: 0.614, z: -0.709 }; // термоаккумулятор со змеевиком
-  const fuel = { x: 1.317, z: 0.148 };
-  const fe = { x: 1.495, z: -0.708 };
-  const f1 = { x: 1.68, z: -0.222 };
-  const f2 = { x: 1.682, z: -0.392 };
-  const lap = { x: -1.443, z: -0.693 }; // западная стена, сдвиг от наличника двери
+  // пятна с plan-v3.svg; при ROOM ≠ REF — пропорционально sx/sz
+  const gas = { x: sx(-1.39), z: sz(0.827) }; // южная стена, фронт на север
+  const el = { x: sx(-0.942), z: sz(0.827) }; // южная стена, фронт на север
+  const bkn = { x: sx(0.614), z: sz(-0.709) }; // термоаккумулятор со змеевиком
+  const fuel = { x: sx(1.317), z: sz(0.148) };
+  const fe = { x: sx(1.495), z: sz(-0.708) };
+  const f1 = { x: sx(1.68), z: sz(-0.222) };
+  const f2 = { x: sx(1.682), z: sz(-0.392) };
+  const lap = { x: sx(-1.443), z: sz(-0.693) }; // западная стена, сдвиг от наличника двери
   const lapRotY = -Math.PI / 2;
-  const grebPos = { x: -0.834, z: -0.916 }; // северная стена
-  const mixPos = { x: -0.791, z: -0.916 };
+  const grebPos = { x: sx(-0.834), z: sz(-0.916) }; // северная стена
+  const mixPos = { x: sx(-0.791), z: sz(-0.916) };
 
   const grebLen = 0.26;
   const mixLen = 0.34;
@@ -425,7 +439,7 @@ function layoutPorts() {
   const ttD = 0.66; // вдоль X (глубина корпуса)
   const ttH = 0.56;
   const ttRear = 0.1;
-  const tt = { x: snap(xE - ttRear - ttD / 2), z: 0.6 }; // x≈1,32
+  const tt = { x: snap(xE - ttRear - ttD / 2), z: sz(0.6) };
   const ttZ = tt.z;
   const ttRotY = -Math.PI / 2; // дверца на −X (в комнату)
 
@@ -452,20 +466,22 @@ function layoutPorts() {
     gas: 1.55,
     vent: 1.45,
   };
-  // СВШ западнее Н-ТА (bknEast≈0,84) и Н-ТТ (0,97) — зазор ≥25 см
+  // СВШ западнее Н-ТА и Н-ТТ — зазор ≥25 см
   const soNodes = {
-    nSo: snap(-0.083),
-    man: snap(0.18),
-    gs: snap(0.36),
-    svsh: snap(0.52),
+    nSo: snap(sx(-0.083)),
+    man: snap(sx(0.18)),
+    gs: snap(sx(0.36)),
+    svsh: snap(sx(0.52)),
   };
   const nRail = snap(zN + 0.1);
   const wRail = snap(xW + 0.12);
-  const BEYOND = 0.1;
-  const wallOutW = snap(xW - WALL - BEYOND);
-  const wallOutS = snap(zS + WALL + BEYOND);
-  const wallOutN = snap(zN - WALL - BEYOND);
-  const wallOutE = snap(xE + WALL + BEYOND);
+  // в embed выводы не торчат сквозь стены дома (дом уже даёт оболочку)
+  const BEYOND = BUILD_OPTS.embed ? 0 : 0.1;
+  const wallT = BUILD_OPTS.embed ? 0 : WALL;
+  const wallOutW = snap(xW - wallT - BEYOND);
+  const wallOutS = snap(zS + wallT + BEYOND);
+  const wallOutN = snap(zN - wallT - BEYOND);
+  const wallOutE = snap(xE + wallT + BEYOND);
   const xRise = snap(-0.55);
   const gasBoilerZ = boilerZ(gas);
   const elBoilerZ = boilerZ(el);
@@ -477,13 +493,13 @@ function layoutPorts() {
   // ТТ: фронт на запад (−X), тыл к восточной стене
   const ttFrontX = snap(tt.x - ttD / 2);
   const ttRearX = snap(tt.x + ttD / 2);
-  // дверь на западе: трубы вдоль wRail не пересекают проём
-  const doorZ = 0;
-  const doorW = 0.7;
-  const doorH = 2.1;
+  // дверь на западе (в embed + mirrorX → восток дома); z/w из BUILD_OPTS под проём 3.1d
+  const doorZ = BUILD_OPTS.doorZ != null ? BUILD_OPTS.doorZ : 0;
+  const doorW = BUILD_OPTS.doorW != null ? BUILD_OPTS.doorW : 0.7;
+  const doorH = BUILD_OPTS.doorH != null ? BUILD_OPTS.doorH : 2.1;
   const doorZ0 = snap(doorZ - doorW / 2);
   const doorZ1 = snap(doorZ + doorW / 2);
-  const yOverDoor = snap(doorH + 0.12); // 2,22 — база над притолокой
+  const yOverDoor = snap(doorH + 0.12); // база над притолокой
   // Магистрали: разные полосы от стены (≥6 см) + разнос по Y/zPad.
   // Нельзя вести разные нитки в одной линии X или Z — сливаются и пересекаются.
   const xWest = {
@@ -526,15 +542,15 @@ function layoutPorts() {
     // устаревшие алиасы (если где-то остались)
     yDoorCold: yDoorHvs, yDoorHot: yDoorSo, zPadCold: zPadHvs, zPadHot: zPadSo,
     nZ: nRail, wX: wRail,
-    avt: { x: -1.416, z: -0.927 }, // северная стена, фронт на юг
+    avt: { x: sx(-1.416), z: sz(-0.927) }, // северная стена, фронт на юг
     avtW: 0.4,
     avtD: 0.12,
     avtH: 0.35 * 1.7,
     avtTop: 1.35 + 0.35, // 1,70
     // ИБП / АКБ — пятна с plan-v3.svg (южная стена)
-    ibp: { x: -1.248, z: 0.899 },
-    akb: { x: -1.566, z: 0.897 },
-    vent: { x: 1.681, z: 0.009 },
+    ibp: { x: sx(-1.248), z: sz(0.899) },
+    akb: { x: sx(-1.566), z: sz(0.897) },
+    vent: { x: sx(1.681), z: sz(0.009) },
     // насосы: труба сквозь корпус; корпуса вне объёма ТА (R=bknR)
     nTt: { x: snap(bkn.x + bknR + 0.38), z: nRail }, // ~1,24 — восток от ТА и Н-ТА
     nBkn: {
@@ -543,7 +559,7 @@ function layoutPorts() {
     },
     yPump: Y.so,
     yPumpTa: snap((Y.so + 0.78) / 2), // на вертикали к змеевику
-    ch4: { x: -0.298, z: -0.941 },
+    ch4: { x: sx(-0.298), z: sz(-0.941) },
     port: {
       // ГАЗ/ЭЛ на юге: смотрим с севера — слева (+X) подача, справа (−X) обратка
       gasSo: pt(gas.x + 0.1, gasY0 - 0.02, gasBoilerZ),
@@ -581,8 +597,8 @@ function layoutPorts() {
       manIn: pt(soNodes.man, Y.soMid + 0.08, nRail + 0.08),
       gsIn: pt(soNodes.gs, Y.gs, nRail + 0.08),
       svshIn: pt(soNodes.svsh, Y.svsh, nRail + 0.08),
-      rbSo: pt(-0.093, rbY, rbZ),
-      rbKotly: pt(0.22, rbY, rbZ),
+      rbSo: pt(sx(-0.093), rbY, rbZ),
+      rbKotly: pt(sx(0.22), rbY, rbZ),
       f1In: pt(eRail + 0.03, yFil, f1.z),
       f1Out: pt(eRail, yFil, f1.z - 0.04),
       feIn: pt(eRail, yFil, fe.z + 0.18),
@@ -591,7 +607,7 @@ function layoutPorts() {
       f2In: pt(eRail, yFil, f2.z + 0.04),
       f2Out: pt(eRail + 0.03, yFil, f2.z),
       lapDrain: pt(lap.x, Y.drain, lap.z),
-      k1: pt(0.045, 0.02, -0.013),
+      k1: pt(sx(0.045), 0.02, sz(-0.013)),
       soOut: pt(snap(xW + 0.24), Y.so, snap(zS - 0.22)),
       gasInWall: pt(wallOutW, Y.gas, gas.z),
       hvsInWall: pt(wallOutE, yFil, f1.z),
@@ -608,13 +624,33 @@ function nodeTag(group, text, x, y, z, face = "N", opts = {}) {
   wallTag(group, text, [x, y, z], face, opts);
 }
 
-/** Стены с проёмами. Низ (cut) всегда; верх + потолок — userData.roof (кнопка «Крыша»). */
+/**
+ * Стены с проёмами. Низ (cut) всегда; верх + потолок — userData.roof.
+ * embed: только габариты проёмов (стены/пол/потолок даёт дом 3.1d).
+ */
 function buildShell(group) {
+  const embed = !!BUILD_OPTS.embed;
+  const doorZ = BUILD_OPTS.doorZ != null ? BUILD_OPTS.doorZ : 0;
+  const doorW = BUILD_OPTS.doorW != null ? BUILD_OPTS.doorW : 0.7;
+  const doorH = BUILD_OPTS.doorH != null ? BUILD_OPTS.doorH : 2.1;
+  const winW = BUILD_OPTS.winW != null ? BUILD_OPTS.winW : 0.8;
+  const winH = BUILD_OPTS.winH != null ? BUILD_OPTS.winH : 0.8;
+  // в доме подоконник ~0,80 от пола; в разрезе topo3 — ниже, чтобы было видно
+  const winSill = BUILD_OPTS.winSill != null ? BUILD_OPTS.winSill : (embed ? 0.8 : 0.55);
+  const winX = BUILD_OPTS.winX != null ? BUILD_OPTS.winX : 0;
+  const zN = -ROOM.d / 2 - WALL / 2;
+  const zS = ROOM.d / 2 + WALL / 2;
+  const xW = -ROOM.w / 2 - WALL / 2;
+  const CUT = 1.55;
+
+  if (embed) {
+    return { doorZ, doorW, doorH, winX, winW, winH, winSill, xW, zN, zS, CUT, embed: true };
+  }
+
   const wallM = mat(0xe8eef2, { roughness: 0.92, metalness: 0.02 });
   const wallHi = mat(0xdde4ea, { roughness: 0.92, metalness: 0.02, opacity: 0.55 });
   const floorM = mat(0xcfd8dc, { roughness: 0.88, metalness: 0.04 });
   const ceilM = mat(0xf5f7fa, { roughness: 0.95, metalness: 0 });
-  const CUT = 1.55; // разрез чуть выше подоконника, окно остаётся в стене
 
   const floor = meshBox(ROOM.w, 0.06, ROOM.d, floorM);
   floor.position.y = -0.03;
@@ -626,9 +662,6 @@ function buildShell(group) {
   ceil.userData.roof = true;
   group.add(ceil);
 
-  const zN = -ROOM.d / 2 - WALL / 2;
-  const zS = ROOM.d / 2 + WALL / 2;
-  const xW = -ROOM.w / 2 - WALL / 2;
   const xE = ROOM.w / 2 + WALL / 2;
 
   function wallSeg(w, h, d, x, y0, z, roofOnly = false) {
@@ -643,10 +676,6 @@ function buildShell(group) {
   wallSeg(ROOM.w + WALL * 2, CUT, WALL, 0, 0, zN);
   wallSeg(WALL, CUT, ROOM.d + WALL * 2, xE, 0, 0);
 
-  const door = svgRect(300, 528, 1, 140);
-  const doorW = 0.7;
-  const doorH = 2.1;
-  const doorZ = door.z;
   const westLeftZ1 = doorZ - doorW / 2;
   const westRightZ0 = doorZ + doorW / 2;
   const zOuterN = -ROOM.d / 2 - WALL;
@@ -656,11 +685,6 @@ function buildShell(group) {
   if (lenN > 0.05) wallSeg(WALL, CUT, lenN, xW, 0, zOuterN + lenN / 2);
   if (lenS > 0.05) wallSeg(WALL, CUT, lenS, xW, 0, zOuterS - lenS / 2);
 
-  const winW = 0.8;
-  const winH = 0.8;
-  const winSill = 0.55; // в зоне разреза (реальная ~1,15; здесь видно в стене)
-  const winX = 0; // середина южной стены
-  // проём шире рамы (рама 0,80 + 2×0,045), зазор ~1 см — без z-fight боковин с торцом стены
   const winHole = winW + 0.12;
   const xOuterW = -ROOM.w / 2 - WALL;
   const xOuterE = ROOM.w / 2 + WALL;
@@ -668,12 +692,10 @@ function buildShell(group) {
   const rightW = xOuterE - (winX + winHole / 2);
   if (leftW > 0.05) wallSeg(leftW, CUT, WALL, xOuterW + leftW / 2, 0, zS);
   if (rightW > 0.05) wallSeg(rightW, CUT, WALL, xOuterE - rightW / 2, 0, zS);
-  // подоконник (стенка под проёмом)
   wallSeg(winHole + 0.02, winSill, WALL, winX, 0, zS);
   const winTop = winSill + winH;
   if (winTop < CUT) wallSeg(winHole + 0.02, CUT - winTop, WALL, winX, winTop, zS);
 
-  // --- верх стен (полная высота, скрыт без «Крыши») ---
   const hi = ROOM.h - CUT;
   if (hi > 0.05) {
     wallSeg(ROOM.w + WALL * 2, hi, WALL, 0, CUT, zN, true);
@@ -686,7 +708,7 @@ function buildShell(group) {
     if (winTop < ROOM.h) wallSeg(winHole + 0.02, ROOM.h - winTop, WALL, winX, winTop, zS, true);
   }
 
-  return { doorZ, doorW, doorH, winX, winW, winH, winSill, xW, zN, zS, CUT };
+  return { doorZ, doorW, doorH, winX, winW, winH, winSill, xW, zN, zS, CUT, embed: false };
 }
 
 /**
@@ -1007,12 +1029,16 @@ function makeCrate() {
   const g = new THREE.Group();
   const wood = mat(0x6d4c41, { roughness: 0.88, metalness: 0.04 });
   const plank = mat(0x8d6e63, { roughness: 0.82, metalness: 0.05 });
+  plank.polygonOffset = true;
+  plank.polygonOffsetFactor = -1;
+  plank.polygonOffsetUnits = -1;
   const coal = mat(0x1a1a1a, { roughness: 0.95, metalness: 0.06 });
   const coalHi = mat(0x2c2c2c, { roughness: 0.9, metalness: 0.1 });
   const w = 0.55;
   const d = 0.5;
   const h = 0.55;
   const t = 0.035;
+  const rimH = 0.028;
   const innerW = w - t * 2;
   const innerD = d - t * 2;
 
@@ -1020,7 +1046,8 @@ function makeCrate() {
   bottom.position.y = 0.025;
   g.add(bottom);
 
-  const sideH = h - 0.05;
+  // стенки чуть ниже обода — без общей плоскости (иначе дрожит верх)
+  const sideH = h - 0.05 - rimH;
   const sy = 0.05 + sideH / 2;
   g.add(
     (() => { const m = meshBox(w, sideH, t, wood); m.position.set(0, sy, -d / 2 + t / 2); return m; })(),
@@ -1028,13 +1055,14 @@ function makeCrate() {
     (() => { const m = meshBox(t, sideH, innerD, wood); m.position.set(-w / 2 + t / 2, sy, 0); return m; })(),
     (() => { const m = meshBox(t, sideH, innerD, wood); m.position.set(w / 2 - t / 2, sy, 0); return m; })()
   );
-  // только кромка борта — верх открыт
-  const rimY = h - 0.015;
+  // обод сверху стенок (зазор 1 мм), верх открыт
+  const rimY = 0.05 + sideH + rimH / 2 + 0.001;
+  const rimT = 0.032;
   g.add(
-    (() => { const m = meshBox(w, 0.03, 0.03, plank); m.position.set(0, rimY, -d / 2 + 0.015); return m; })(),
-    (() => { const m = meshBox(w, 0.03, 0.03, plank); m.position.set(0, rimY, d / 2 - 0.015); return m; })(),
-    (() => { const m = meshBox(0.03, 0.03, innerD, plank); m.position.set(-w / 2 + 0.015, rimY, 0); return m; })(),
-    (() => { const m = meshBox(0.03, 0.03, innerD, plank); m.position.set(w / 2 - 0.015, rimY, 0); return m; })()
+    (() => { const m = meshBox(w, rimH, rimT, plank); m.position.set(0, rimY, -d / 2 + rimT / 2); return m; })(),
+    (() => { const m = meshBox(w, rimH, rimT, plank); m.position.set(0, rimY, d / 2 - rimT / 2); return m; })(),
+    (() => { const m = meshBox(rimT, rimH, innerD, plank); m.position.set(-w / 2 + rimT / 2, rimY, 0); return m; })(),
+    (() => { const m = meshBox(rimT, rimH, innerD, plank); m.position.set(w / 2 - rimT / 2, rimY, 0); return m; })()
   );
 
   // насыпь угля внутри (видна сверху)
@@ -1605,9 +1633,14 @@ async function buildEquipment(group, shell) {
     });
   }
 
-  const door = makeDoorLeaf(shell.doorW - 0.02, shell.doorH - 0.02);
-  add(group, door, xW, 0, shell.doorZ); // без поворота: петли на севере, открыта наружу
-  wallTag(group, "дверь 0,70×H2100 наружу", [xW, 1.4, shell.doorZ], "W", { y: 1.65, front: 0.07 });
+  // в embed дверь даёт дом (3.1d) — своё полотно не ставим (ломалось/двоилось)
+  if (!shell.embed) {
+    const door = makeDoorLeaf(shell.doorW - 0.02, shell.doorH - 0.02);
+    add(group, door, xW, 0, shell.doorZ); // петли на севере, открыта наружу
+    wallTag(group, "дверь 0,70×H2100 наружу", [xW, 1.4, shell.doorZ], "W", {
+      y: 1.65, front: 0.07,
+    });
+  }
 
   add(group, makeSink(), lap.x, 0, lap.z, L.lapRotY);
   wallTag(group, "лапамойка", [lap.x, 0.28, lap.z], "W", { y: 0.4, front: 0.29 + 0.07 });
@@ -1637,7 +1670,8 @@ async function buildEquipment(group, shell) {
 
   const win = makeWindowInWall(shell.winW, shell.winH, WALL * 0.95);
   add(group, win, shell.winX, shell.winSill + shell.winH / 2, shell.zS, Math.PI);
-  wallTag(group, "окно 0,80×0,80", [shell.winX, shell.winSill + shell.winH / 2, zS], "S", {
+  const winLabel = `окно ${(shell.winW).toFixed(2)}×${(shell.winH).toFixed(2)}`;
+  wallTag(group, winLabel, [shell.winX, shell.winSill + shell.winH / 2, zS], "S", {
     y: shell.winSill + shell.winH + 0.12, front: 0.07,
   });
 
@@ -1666,22 +1700,61 @@ function addLights(group) {
   group.add(new THREE.HemisphereLight(0xf0f4ff, 0x8d8578, 0.4));
 }
 
-export function buildTopochnayaV3() {
+/**
+ * @param {object} [opts]
+ * @param {boolean} [opts.embed] — без стен/пола/потолка (вставка в дом)
+ * @param {{w:number,d:number,h?:number}} [opts.room] — чистый габарит комнаты
+ * @param {number} [opts.doorZ] [opts.doorW] [opts.doorH]
+ * @param {number} [opts.winX] [opts.winW] [opts.winH] [opts.winSill]
+ * @param {boolean} [opts.mirrorX] — зеркало по X (дверь W→E, юг топочной → север дома)
+ * @param {boolean} [opts.lights] — точечный свет (в доме обычно false)
+ */
+export function buildTopochnayaV3(opts = {}) {
+  const prevRoom = ROOM;
+  const prevOpts = BUILD_OPTS;
+  ROOM = {
+    w: opts.room?.w ?? REF_ROOM.w,
+    d: opts.room?.d ?? REF_ROOM.d,
+    h: opts.room?.h ?? REF_ROOM.h,
+  };
+  BUILD_OPTS = { ...opts };
   resetTags();
   const group = new THREE.Group();
-  group.name = "topochnaya-v3";
+  group.name = opts.embed ? "topochnaya-v3-embed" : "topochnaya-v3";
   const shell = buildShell(group);
   buildFronts(group);
   buildPipes(group);
-  addLights(group);
-  const ready = buildEquipment(group, shell);
+  if (opts.lights !== false && !opts.embed) addLights(group);
+  const roomSnap = { ...ROOM };
+  const applyMirrorMats = () => {
+    group.traverse((obj) => {
+      if (!obj.isMesh) return;
+      const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+      for (const m of mats) {
+        if (m) m.side = THREE.DoubleSide;
+      }
+      obj.frustumCulled = false;
+    });
+  };
+  if (opts.mirrorX) group.scale.x = -1;
+  const ready = Promise.resolve(buildEquipment(group, shell))
+    .then(() => {
+      if (opts.mirrorX) applyMirrorMats();
+    })
+    .finally(() => {
+      ROOM = prevRoom;
+      BUILD_OPTS = prevOpts;
+    });
   return {
     group,
     focus: new THREE.Vector3(0, 1.15, 0),
-    room: ROOM,
+    room: roomSnap,
     ready,
   };
 }
+
+/** Чистый габарит топочной в плане 3.1d (внутренние грани). */
+export const V31D_TOPO_CLEAR = { x0: -0.766, y0: 15.854, x1: 3.149, y1: 17.814 };
 
 export function topoCameraRigs(focus = new THREE.Vector3(0, 0.85, 0)) {
   const d = 3.6;

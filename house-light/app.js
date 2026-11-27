@@ -21,8 +21,8 @@ import { buildVariant31c, v31cWalkBoxes, v31cFenceSegments, V31C_WINDOWS, V31C_B
 import { createD2Tour, createTourDaylight, D3_WINDOWS } from "./tour-d2.js?v=24";
 import { syncPrintSheets } from "./print-sheets.js?v=48";
 import { mountFurnitureCatalog } from "./furniture-catalog.js?v=15";
-import { createTourFurniturePlace } from "./furniture-tour-place.js?v=70";
-import { buildTopochnayaV3, topoCameraRigs } from "./topochnaya-v3.js?v=96";
+import { createTourFurniturePlace } from "./furniture-tour-place.js?v=88";
+import { buildTopochnayaV3, topoCameraRigs, V31D_TOPO_CLEAR } from "./topochnaya-v3.js?v=100";
 
 const panel = document.getElementById("panel");
 const dateInput = document.getElementById("date");
@@ -5442,6 +5442,44 @@ function addVariant31dScene() {
       sectionHeight = value;
     },
   });
+  // Содержимое топочной (без стен/пола/потолка) в чистый габарит 3,92×1,96.
+  // Оси группы = оси плана дома (AZ_*), иначе контент «мировой» и лезет сквозь стены.
+  // +π: дверь W→E (тамбур), окно S→N (фасад).
+  {
+    const { x0, y0, x1, y1 } = V31D_TOPO_CLEAR;
+    const roomW = x1 - x0;
+    const roomD = y1 - y0;
+    const cx = (x0 + x1) / 2;
+    const cy = (y0 + y1) / 2;
+    // проёмы 3.1d: дверь в вост. стене [3.145..3.276 × 16.522..17.501], окно на севере [0.659..2.019]
+    const doorCy = (16.522 + 17.501) / 2;
+    const doorW = Math.max(0.7, 17.501 - 16.522 - 0.04);
+    const winCx = (0.659 + 2.019) / 2;
+    const winW = Math.max(0.8, 2.019 - 0.659 - 0.16);
+    const doorZ = doorCy - cy; // локальный +Z = юг топочной; после +π → север плана
+    const winX = -(winCx - cx); // после +π локальный +X → запад плана
+    const FLOOR_Y = 0.45 + 0.12; // PLINTH+стяжка как в variant-31d
+    const embedded = buildTopochnayaV3({
+      embed: true,
+      lights: false,
+      room: { w: roomW, d: roomD, h: 2.7 },
+      doorZ,
+      doorW,
+      doorH: 2.1,
+      winX,
+      winW,
+      winH: 1.1, // YELL: подоконник FLOOR+0.8 → HEAD 2.45
+      winSill: 0.8,
+    });
+    const [e, n] = planToWorld(cx + V31D_BASE.x, cy + V31D_BASE.y);
+    // local +X → plan +x (как у стен дома); +π меняет двери/окно под проёмы 3.1d
+    const dirX = planDeltaToWorld(1, 0);
+    const yawPlanX = Math.atan2(-dirX.z, dirX.x); // Three.js: +X → (cos θ, −sin θ)
+    embedded.group.position.set(e, FLOOR_Y, n);
+    embedded.group.rotation.y = yawPlanX + Math.PI;
+    variant31dGroup.add(embedded.group);
+    embedded.ready?.catch?.((err) => console.warn("topo embed", err));
+  }
 }
 
 function addVariant31cScene() {
@@ -6350,6 +6388,13 @@ function walkGround(e, n) {
   return best;
 }
 
+function underTourFurniture(obj) {
+  for (let p = obj; p; p = p.parent) {
+    if (p.userData?.tourFurn || p.name === "tour-furniture-ghost") return true;
+  }
+  return false;
+}
+
 function tourFurnitureHitTargets() {
   const out = [];
   if (ground.visible) out.push(ground);
@@ -6358,7 +6403,8 @@ function tourFurnitureHitTargets() {
   }
   scene.traverse((obj) => {
     if (!obj.isMesh || !shownNode(obj) || !obj.geometry) return;
-    if (obj.userData?.tourFurn || obj.name === "tour-furniture-ghost") return;
+    // дети holder/ghost тоже мебель — иначе sampleFloorY сажает ванну на собственный борт/дно
+    if (underTourFurniture(obj)) return;
     if (obj.userData?.roof && !obj.userData?.walkTop) return;
     const mat = Array.isArray(obj.material) ? obj.material[0] : obj.material;
     if (mat && mat.transparent && mat.opacity < 0.35) return;

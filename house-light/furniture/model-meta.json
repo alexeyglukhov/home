@@ -1,0 +1,4998 @@
+{
+  "v": 1,
+  "updated": "2026-11-27T21:51:06.288Z",
+  "models": {
+    "D01": {
+      "file": "models/D01.glb",
+      "catalogCm": [
+        228,
+        93,
+        92
+      ],
+      "fit": 1.002,
+      "fittedM": {
+        "w": 2.28,
+        "d": 0.927,
+        "h": 0.919
+      },
+      "nativeM": {
+        "w": 2.275,
+        "d": 0.925,
+        "h": 0.917
+      },
+      "nativeMin": [
+        -1.137,
+        0.005,
+        -0.458
+      ],
+      "nativeMax": [
+        1.138,
+        0.922,
+        0.467
+      ],
+      "nativeCenter": [
+        0,
+        0.464,
+        0.005
+      ],
+      "seatOffset": [
+        0,
+        -0.005,
+        -0.005
+      ],
+      "feetY": 0.005,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "D02": {
+      "file": "models/D02.glb",
+      "catalogCm": [
+        260,
+        95,
+        84
+      ],
+      "fit": 0.998,
+      "fittedM": {
+        "w": 2.595,
+        "d": 0.95,
+        "h": 0.835
+      },
+      "nativeM": {
+        "w": 2.6,
+        "d": 0.952,
+        "h": 0.837
+      },
+      "nativeMin": [
+        -1.3,
+        0,
+        -0.467
+      ],
+      "nativeMax": [
+        1.3,
+        0.837,
+        0.485
+      ],
+      "nativeCenter": [
+        0,
+        0.418,
+        0.009
+      ],
+      "seatOffset": [
+        0,
+        0,
+        -0.009
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "D03": {
+      "file": "models/D03.glb",
+      "catalogCm": [
+        264,
+        115,
+        92
+      ],
+      "fit": 0.998,
+      "fittedM": {
+        "w": 2.639,
+        "d": 1.148,
+        "h": 0.739
+      },
+      "nativeM": {
+        "w": 2.644,
+        "d": 1.15,
+        "h": 0.74
+      },
+      "nativeMin": [
+        -1.322,
+        0.18,
+        -0.6
+      ],
+      "nativeMax": [
+        1.322,
+        0.92,
+        0.55
+      ],
+      "nativeCenter": [
+        0,
+        0.55,
+        -0.025
+      ],
+      "seatOffset": [
+        0,
+        -0.18,
+        0.025
+      ],
+      "feetY": 0.18,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "D04": {
+      "file": "models/D04.glb",
+      "catalogCm": [
+        242,
+        89,
+        93
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 2.418,
+        "d": 0.888,
+        "h": 0.93
+      },
+      "nativeM": {
+        "w": 2.418,
+        "d": 0.888,
+        "h": 0.93
+      },
+      "nativeMin": [
+        -1.209,
+        0,
+        -0.442
+      ],
+      "nativeMax": [
+        1.209,
+        0.93,
+        0.445
+      ],
+      "nativeCenter": [
+        0,
+        0.465,
+        0.002
+      ],
+      "seatOffset": [
+        0,
+        0,
+        -0.002
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "D05": {
+      "file": "models/D05.glb",
+      "catalogCm": [
+        233,
+        87,
+        100
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 2.329,
+        "d": 0.865,
+        "h": 0.975
+      },
+      "nativeM": {
+        "w": 2.329,
+        "d": 0.865,
+        "h": 0.975
+      },
+      "nativeMin": [
+        -1.164,
+        0,
+        -0.425
+      ],
+      "nativeMax": [
+        1.164,
+        0.975,
+        0.441
+      ],
+      "nativeCenter": [
+        0,
+        0.488,
+        0.008
+      ],
+      "seatOffset": [
+        0,
+        0,
+        -0.008
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "D06": {
+      "file": "models/D06.glb",
+      "catalogCm": [
+        224,
+        89,
+        94
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 2.24,
+        "d": 0.886,
+        "h": 0.938
+      },
+      "nativeM": {
+        "w": 2.24,
+        "d": 0.886,
+        "h": 0.938
+      },
+      "nativeMin": [
+        -1.12,
+        0,
+        -0.446
+      ],
+      "nativeMax": [
+        1.12,
+        0.938,
+        0.44
+      ],
+      "nativeCenter": [
+        0,
+        0.469,
+        -0.003
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0.003
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "D07": {
+      "file": "models/D07.glb",
+      "catalogCm": [
+        221,
+        95,
+        88
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 2.209,
+        "d": 0.945,
+        "h": 0.877
+      },
+      "nativeM": {
+        "w": 2.209,
+        "d": 0.945,
+        "h": 0.877
+      },
+      "nativeMin": [
+        -1.105,
+        0,
+        -0.495
+      ],
+      "nativeMax": [
+        1.104,
+        0.877,
+        0.45
+      ],
+      "nativeCenter": [
+        0,
+        0.438,
+        -0.023
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0.023
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "D08": {
+      "file": "models/D08.glb",
+      "catalogCm": [
+        260,
+        174,
+        90
+      ],
+      "fit": 0.986,
+      "fittedM": {
+        "w": 2.564,
+        "d": 1.739,
+        "h": 0.779
+      },
+      "nativeM": {
+        "w": 2.6,
+        "d": 1.764,
+        "h": 0.79
+      },
+      "nativeMin": [
+        -1.3,
+        0.11,
+        -0.479
+      ],
+      "nativeMax": [
+        1.3,
+        0.9,
+        1.285
+      ],
+      "nativeCenter": [
+        0,
+        0.505,
+        0.403
+      ],
+      "seatOffset": [
+        0,
+        -0.11,
+        -0.403
+      ],
+      "feetY": 0.11,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 0.9,
+        "sz": 1.0,
+        "mirror": true,
+        "mirrorZ": false
+      }
+    },
+    "K01": {
+      "file": "models/K01.glb",
+      "catalogCm": [
+        183,
+        254,
+        116
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 1.83,
+        "d": 2.54,
+        "h": 1.16
+      },
+      "nativeM": {
+        "w": 1.83,
+        "d": 2.54,
+        "h": 1.16
+      },
+      "nativeMin": [
+        -0.915,
+        0,
+        -1.27
+      ],
+      "nativeMax": [
+        0.915,
+        1.16,
+        1.27
+      ],
+      "nativeCenter": [
+        0,
+        0.58,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 0.9,
+        "sy": 0.9,
+        "sz": 0.9,
+        "mirror": true,
+        "mirrorZ": false
+      }
+    },
+    "K02": {
+      "file": "models/K02.glb",
+      "catalogCm": [
+        170,
+        215,
+        106
+      ],
+      "fit": 0.998,
+      "fittedM": {
+        "w": 1.701,
+        "d": 2.15,
+        "h": 1.06
+      },
+      "nativeM": {
+        "w": 1.704,
+        "d": 2.154,
+        "h": 1.062
+      },
+      "nativeMin": [
+        -0.852,
+        0,
+        -1.077
+      ],
+      "nativeMax": [
+        0.852,
+        1.062,
+        1.077
+      ],
+      "nativeCenter": [
+        0,
+        0.531,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "K03": {
+      "file": "models/K03.glb",
+      "catalogCm": [
+        195,
+        228,
+        57
+      ],
+      "fit": 0.997,
+      "fittedM": {
+        "w": 1.947,
+        "d": 2.276,
+        "h": 0.57
+      },
+      "nativeM": {
+        "w": 1.953,
+        "d": 2.283,
+        "h": 0.572
+      },
+      "nativeMin": [
+        -0.977,
+        0,
+        -1.141
+      ],
+      "nativeMax": [
+        0.977,
+        0.572,
+        1.141
+      ],
+      "nativeCenter": [
+        0,
+        0.286,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "K04": {
+      "file": "models/K04.glb",
+      "catalogCm": [
+        108,
+        206,
+        127
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 1.08,
+        "d": 2.06,
+        "h": 1.27
+      },
+      "nativeM": {
+        "w": 1.08,
+        "d": 2.06,
+        "h": 1.27
+      },
+      "nativeMin": [
+        -0.54,
+        0,
+        -1.047
+      ],
+      "nativeMax": [
+        0.54,
+        1.27,
+        1.013
+      ],
+      "nativeCenter": [
+        0,
+        0.635,
+        -0.017
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0.017
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "K05": {
+      "file": "models/K05.glb",
+      "catalogCm": [
+        114,
+        216,
+        127
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 1.135,
+        "d": 2.16,
+        "h": 1.27
+      },
+      "nativeM": {
+        "w": 1.135,
+        "d": 2.16,
+        "h": 1.27
+      },
+      "nativeMin": [
+        -0.595,
+        0,
+        -1.097
+      ],
+      "nativeMax": [
+        0.54,
+        1.27,
+        1.062
+      ],
+      "nativeCenter": [
+        -0.027,
+        0.635,
+        -0.017
+      ],
+      "seatOffset": [
+        0.027,
+        0,
+        0.017
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "K06": {
+      "file": "models/K06.glb",
+      "catalogCm": [
+        196,
+        80,
+        72
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 1.96,
+        "d": 0.8,
+        "h": 0.719
+      },
+      "nativeM": {
+        "w": 1.96,
+        "d": 0.8,
+        "h": 0.719
+      },
+      "nativeMin": [
+        -0.98,
+        0,
+        -0.4
+      ],
+      "nativeMax": [
+        0.98,
+        0.719,
+        0.4
+      ],
+      "nativeCenter": [
+        0,
+        0.359,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "K07": {
+      "file": "models/K07.glb",
+      "catalogCm": [
+        265,
+        282,
+        135
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 2.65,
+        "d": 2.815,
+        "h": 1.35
+      },
+      "nativeM": {
+        "w": 2.65,
+        "d": 2.815,
+        "h": 1.35
+      },
+      "nativeMin": [
+        -1.325,
+        0,
+        -1.12
+      ],
+      "nativeMax": [
+        1.325,
+        1.35,
+        1.695
+      ],
+      "nativeCenter": [
+        0,
+        0.675,
+        0.287
+      ],
+      "seatOffset": [
+        0,
+        0,
+        -0.287
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "W01": {
+      "file": "models/W01.glb",
+      "catalogCm": [
+        120,
+        67,
+        210
+      ],
+      "fit": 0.994,
+      "fittedM": {
+        "w": 1.193,
+        "d": 0.67,
+        "h": 2.087
+      },
+      "nativeM": {
+        "w": 1.2,
+        "d": 0.674,
+        "h": 2.1
+      },
+      "nativeMin": [
+        -0.6,
+        0,
+        -0.3
+      ],
+      "nativeMax": [
+        0.6,
+        2.1,
+        0.374
+      ],
+      "nativeCenter": [
+        0,
+        1.05,
+        0.037
+      ],
+      "seatOffset": [
+        0,
+        0,
+        -0.037
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "W02": {
+      "file": "models/W02.glb",
+      "catalogCm": [
+        180,
+        67,
+        210
+      ],
+      "fit": 0.994,
+      "fittedM": {
+        "w": 1.789,
+        "d": 0.67,
+        "h": 2.087
+      },
+      "nativeM": {
+        "w": 1.8,
+        "d": 0.674,
+        "h": 2.1
+      },
+      "nativeMin": [
+        -0.9,
+        0,
+        -0.3
+      ],
+      "nativeMax": [
+        0.9,
+        2.1,
+        0.374
+      ],
+      "nativeCenter": [
+        0,
+        1.05,
+        0.037
+      ],
+      "seatOffset": [
+        0,
+        0,
+        -0.037
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "W03": {
+      "file": "models/W03.glb",
+      "catalogCm": [
+        240,
+        71,
+        230
+      ],
+      "fit": 0.996,
+      "fittedM": {
+        "w": 2.39,
+        "d": 0.71,
+        "h": 2.291
+      },
+      "nativeM": {
+        "w": 2.4,
+        "d": 0.713,
+        "h": 2.3
+      },
+      "nativeMin": [
+        -1.2,
+        0,
+        -0.325
+      ],
+      "nativeMax": [
+        1.2,
+        2.3,
+        0.388
+      ],
+      "nativeCenter": [
+        0,
+        1.15,
+        0.032
+      ],
+      "seatOffset": [
+        0,
+        0,
+        -0.032
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "W04": {
+      "file": "models/W04.glb",
+      "catalogCm": [
+        123,
+        68,
+        212
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 1.23,
+        "d": 0.675,
+        "h": 2.117
+      },
+      "nativeM": {
+        "w": 1.23,
+        "d": 0.675,
+        "h": 2.117
+      },
+      "nativeMin": [
+        -0.615,
+        0,
+        -0.305
+      ],
+      "nativeMax": [
+        0.615,
+        2.117,
+        0.37
+      ],
+      "nativeCenter": [
+        0,
+        1.058,
+        0.032
+      ],
+      "seatOffset": [
+        0,
+        0,
+        -0.032
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 0.9113832574195445,
+        "sy": 0.9113832574195445,
+        "sz": 0.8113832574195444,
+        "mirror": false,
+        "mirrorZ": true
+      }
+    },
+    "W05": {
+      "file": "models/W05.glb",
+      "catalogCm": [
+        128,
+        128,
+        209
+      ],
+      "fit": 0.998,
+      "fittedM": {
+        "w": 1.278,
+        "d": 1.278,
+        "h": 2.09
+      },
+      "nativeM": {
+        "w": 1.281,
+        "d": 1.281,
+        "h": 2.094
+      },
+      "nativeMin": [
+        -0.646,
+        0.006,
+        -0.635
+      ],
+      "nativeMax": [
+        0.635,
+        2.1,
+        0.646
+      ],
+      "nativeCenter": [
+        -0.006,
+        1.053,
+        0.006
+      ],
+      "seatOffset": [
+        0.006,
+        -0.006,
+        -0.006
+      ],
+      "feetY": 0.006,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "W06": {
+      "file": "models/W06.glb",
+      "catalogCm": [
+        68,
+        49,
+        132
+      ],
+      "fit": 0.999,
+      "fittedM": {
+        "w": 0.68,
+        "d": 0.489,
+        "h": 1.317
+      },
+      "nativeM": {
+        "w": 0.681,
+        "d": 0.489,
+        "h": 1.318
+      },
+      "nativeMin": [
+        -0.341,
+        0,
+        -0.235
+      ],
+      "nativeMax": [
+        0.341,
+        1.318,
+        0.254
+      ],
+      "nativeCenter": [
+        0,
+        0.659,
+        0.009
+      ],
+      "seatOffset": [
+        0,
+        0,
+        -0.009
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "W07": {
+      "file": "models/W07.glb",
+      "catalogCm": [
+        167,
+        69,
+        204
+      ],
+      "fit": 0.999,
+      "fittedM": {
+        "w": 1.67,
+        "d": 0.69,
+        "h": 2.034
+      },
+      "nativeM": {
+        "w": 1.672,
+        "d": 0.691,
+        "h": 2.036
+      },
+      "nativeMin": [
+        -0.836,
+        0,
+        -0.32
+      ],
+      "nativeMax": [
+        0.836,
+        2.036,
+        0.371
+      ],
+      "nativeCenter": [
+        0,
+        1.018,
+        0.025
+      ],
+      "seatOffset": [
+        0,
+        0,
+        -0.025
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "W08": {
+      "file": "models/W08.glb",
+      "catalogCm": [
+        87,
+        52,
+        148
+      ],
+      "fit": 0.998,
+      "fittedM": {
+        "w": 0.864,
+        "d": 0.52,
+        "h": 1.474
+      },
+      "nativeM": {
+        "w": 0.866,
+        "d": 0.521,
+        "h": 1.477
+      },
+      "nativeMin": [
+        -0.433,
+        0,
+        -0.227
+      ],
+      "nativeMax": [
+        0.433,
+        1.477,
+        0.294
+      ],
+      "nativeCenter": [
+        0,
+        0.739,
+        0.033
+      ],
+      "seatOffset": [
+        0,
+        0,
+        -0.033
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.3200419000673569,
+        "sy": 0.9778618672663615,
+        "sz": 0.9778618672663615,
+        "mirror": false,
+        "mirrorZ": true
+      }
+    },
+    "G01": {
+      "file": "models/G01.glb",
+      "catalogCm": [
+        172,
+        58,
+        208
+      ],
+      "fit": 0.999,
+      "fittedM": {
+        "w": 1.72,
+        "d": 0.578,
+        "h": 1.954
+      },
+      "nativeM": {
+        "w": 1.722,
+        "d": 0.579,
+        "h": 1.956
+      },
+      "nativeMin": [
+        -0.861,
+        0,
+        -0.278
+      ],
+      "nativeMax": [
+        0.861,
+        1.956,
+        0.3
+      ],
+      "nativeCenter": [
+        0,
+        0.978,
+        0.011
+      ],
+      "seatOffset": [
+        0,
+        0,
+        -0.011
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "G02": {
+      "file": "models/G02.glb",
+      "catalogCm": [
+        134,
+        48,
+        167
+      ],
+      "fit": 0.999,
+      "fittedM": {
+        "w": 1.339,
+        "d": 0.48,
+        "h": 1.67
+      },
+      "nativeM": {
+        "w": 1.34,
+        "d": 0.48,
+        "h": 1.672
+      },
+      "nativeMin": [
+        -0.67,
+        0,
+        -0.24
+      ],
+      "nativeMax": [
+        0.67,
+        1.672,
+        0.24
+      ],
+      "nativeCenter": [
+        0,
+        0.836,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "G03": {
+      "file": "models/G03.glb",
+      "catalogCm": [
+        90,
+        58,
+        220
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 0.9,
+        "d": 0.58,
+        "h": 2.2
+      },
+      "nativeM": {
+        "w": 0.9,
+        "d": 0.58,
+        "h": 2.2
+      },
+      "nativeMin": [
+        -0.45,
+        0,
+        -0.29
+      ],
+      "nativeMax": [
+        0.45,
+        2.2,
+        0.29
+      ],
+      "nativeCenter": [
+        0,
+        1.1,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "G04": {
+      "file": "models/G04.glb",
+      "catalogCm": [
+        60,
+        50,
+        220
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 0.6,
+        "d": 0.5,
+        "h": 2.2
+      },
+      "nativeM": {
+        "w": 0.6,
+        "d": 0.5,
+        "h": 2.2
+      },
+      "nativeMin": [
+        -0.3,
+        0,
+        -0.25
+      ],
+      "nativeMax": [
+        0.3,
+        2.2,
+        0.25
+      ],
+      "nativeCenter": [
+        0,
+        1.1,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "G05": {
+      "file": "models/G05.glb",
+      "catalogCm": [
+        90,
+        62,
+        120
+      ],
+      "fit": 0.994,
+      "fittedM": {
+        "w": 0.895,
+        "d": 0.62,
+        "h": 1.193
+      },
+      "nativeM": {
+        "w": 0.9,
+        "d": 0.624,
+        "h": 1.2
+      },
+      "nativeMin": [
+        -0.45,
+        0,
+        -0.275
+      ],
+      "nativeMax": [
+        0.45,
+        1.2,
+        0.349
+      ],
+      "nativeCenter": [
+        0,
+        0.6,
+        0.037
+      ],
+      "seatOffset": [
+        0,
+        0,
+        -0.037
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "G06": {
+      "file": "models/G06.glb",
+      "catalogCm": [
+        120,
+        120,
+        220
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 1.2,
+        "d": 1.2,
+        "h": 2.2
+      },
+      "nativeM": {
+        "w": 1.2,
+        "d": 1.2,
+        "h": 2.2
+      },
+      "nativeMin": [
+        -0.6,
+        0,
+        -0.6
+      ],
+      "nativeMax": [
+        0.6,
+        2.2,
+        0.6
+      ],
+      "nativeCenter": [
+        0,
+        1.1,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "G07": {
+      "file": "models/G07.glb",
+      "catalogCm": [
+        120,
+        60,
+        215
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 1.2,
+        "d": 0.6,
+        "h": 2.15
+      },
+      "nativeM": {
+        "w": 1.2,
+        "d": 0.6,
+        "h": 2.15
+      },
+      "nativeMin": [
+        -0.6,
+        0,
+        -0.3
+      ],
+      "nativeMax": [
+        0.6,
+        2.15,
+        0.3
+      ],
+      "nativeCenter": [
+        0,
+        1.075,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "G08": {
+      "file": "models/G08.glb",
+      "catalogCm": [
+        30,
+        29,
+        110
+      ],
+      "fit": 0.99,
+      "fittedM": {
+        "w": 0.296,
+        "d": 0.29,
+        "h": 1.085
+      },
+      "nativeM": {
+        "w": 0.299,
+        "d": 0.293,
+        "h": 1.096
+      },
+      "nativeMin": [
+        -0.15,
+        0,
+        -0.147
+      ],
+      "nativeMax": [
+        0.15,
+        1.096,
+        0.147
+      ],
+      "nativeCenter": [
+        0,
+        0.548,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "C01": {
+      "file": "models/C01.glb",
+      "catalogCm": [
+        50,
+        58,
+        89
+      ],
+      "fit": 0.995,
+      "fittedM": {
+        "w": 0.499,
+        "d": 0.58,
+        "h": 0.89
+      },
+      "nativeM": {
+        "w": 0.502,
+        "d": 0.583,
+        "h": 0.894
+      },
+      "nativeMin": [
+        -0.251,
+        0,
+        -0.325
+      ],
+      "nativeMax": [
+        0.251,
+        0.895,
+        0.257
+      ],
+      "nativeCenter": [
+        0,
+        0.447,
+        -0.034
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0.034
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "C02": {
+      "file": "models/C02.glb",
+      "catalogCm": [
+        55,
+        59,
+        98
+      ],
+      "fit": 0.996,
+      "fittedM": {
+        "w": 0.55,
+        "d": 0.584,
+        "h": 0.971
+      },
+      "nativeM": {
+        "w": 0.552,
+        "d": 0.586,
+        "h": 0.975
+      },
+      "nativeMin": [
+        -0.276,
+        0,
+        -0.313
+      ],
+      "nativeMax": [
+        0.276,
+        0.975,
+        0.273
+      ],
+      "nativeCenter": [
+        0,
+        0.487,
+        -0.02
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0.02
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "C03": {
+      "file": "models/C03.glb",
+      "catalogCm": [
+        69,
+        55,
+        93
+      ],
+      "fit": 0.995,
+      "fittedM": {
+        "w": 0.689,
+        "d": 0.55,
+        "h": 0.927
+      },
+      "nativeM": {
+        "w": 0.692,
+        "d": 0.553,
+        "h": 0.932
+      },
+      "nativeMin": [
+        -0.346,
+        0,
+        -0.295
+      ],
+      "nativeMax": [
+        0.346,
+        0.932,
+        0.258
+      ],
+      "nativeCenter": [
+        0,
+        0.466,
+        -0.019
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0.019
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "C04": {
+      "file": "models/C04.glb",
+      "catalogCm": [
+        54,
+        58,
+        98
+      ],
+      "fit": 0.997,
+      "fittedM": {
+        "w": 0.535,
+        "d": 0.578,
+        "h": 0.98
+      },
+      "nativeM": {
+        "w": 0.537,
+        "d": 0.58,
+        "h": 0.983
+      },
+      "nativeMin": [
+        -0.269,
+        0,
+        -0.318
+      ],
+      "nativeMax": [
+        0.269,
+        0.983,
+        0.262
+      ],
+      "nativeCenter": [
+        0,
+        0.491,
+        -0.028
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0.028
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.05,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "C05": {
+      "file": "models/C05.glb",
+      "catalogCm": [
+        63,
+        66,
+        93
+      ],
+      "fit": 0.994,
+      "fittedM": {
+        "w": 0.63,
+        "d": 0.652,
+        "h": 0.928
+      },
+      "nativeM": {
+        "w": 0.634,
+        "d": 0.656,
+        "h": 0.934
+      },
+      "nativeMin": [
+        -0.317,
+        0,
+        -0.34
+      ],
+      "nativeMax": [
+        0.317,
+        0.935,
+        0.316
+      ],
+      "nativeCenter": [
+        0,
+        0.467,
+        -0.012
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0.012
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "C06": {
+      "file": "models/C06.glb",
+      "catalogCm": [
+        68,
+        62,
+        103
+      ],
+      "fit": 0.992,
+      "fittedM": {
+        "w": 0.672,
+        "d": 0.62,
+        "h": 1.018
+      },
+      "nativeM": {
+        "w": 0.677,
+        "d": 0.625,
+        "h": 1.026
+      },
+      "nativeMin": [
+        -0.338,
+        0,
+        -0.339
+      ],
+      "nativeMax": [
+        0.338,
+        1.026,
+        0.286
+      ],
+      "nativeCenter": [
+        0,
+        0.513,
+        -0.027
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0.027
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "S01": {
+      "file": "models/S01.glb",
+      "catalogCm": [
+        225,
+        90,
+        76
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 2.246,
+        "d": 0.9,
+        "h": 0.755
+      },
+      "nativeM": {
+        "w": 2.246,
+        "d": 0.9,
+        "h": 0.755
+      },
+      "nativeMin": [
+        -1.123,
+        0,
+        -0.45
+      ],
+      "nativeMax": [
+        1.123,
+        0.755,
+        0.45
+      ],
+      "nativeCenter": [
+        0,
+        0.378,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "S02": {
+      "file": "models/S02.glb",
+      "catalogCm": [
+        210,
+        105,
+        75
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 2.1,
+        "d": 1.05,
+        "h": 0.75
+      },
+      "nativeM": {
+        "w": 2.1,
+        "d": 1.05,
+        "h": 0.75
+      },
+      "nativeMin": [
+        -1.05,
+        0,
+        -0.525
+      ],
+      "nativeMax": [
+        1.05,
+        0.75,
+        0.525
+      ],
+      "nativeCenter": [
+        0,
+        0.375,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "S03": {
+      "file": "models/S03.glb",
+      "catalogCm": [
+        120,
+        120,
+        75
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 1.2,
+        "d": 1.2,
+        "h": 0.75
+      },
+      "nativeM": {
+        "w": 1.2,
+        "d": 1.2,
+        "h": 0.75
+      },
+      "nativeMin": [
+        -0.6,
+        0,
+        -0.6
+      ],
+      "nativeMax": [
+        0.6,
+        0.75,
+        0.6
+      ],
+      "nativeCenter": [
+        0,
+        0.375,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "S04": {
+      "file": "models/S04.glb",
+      "catalogCm": [
+        160,
+        92,
+        75
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 1.6,
+        "d": 0.92,
+        "h": 0.75
+      },
+      "nativeM": {
+        "w": 1.6,
+        "d": 0.92,
+        "h": 0.75
+      },
+      "nativeMin": [
+        -0.8,
+        0,
+        -0.46
+      ],
+      "nativeMax": [
+        0.8,
+        0.75,
+        0.46
+      ],
+      "nativeCenter": [
+        0,
+        0.375,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "S05": {
+      "file": "models/S05.glb",
+      "catalogCm": [
+        201,
+        93,
+        76
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 2.01,
+        "d": 0.926,
+        "h": 0.76
+      },
+      "nativeM": {
+        "w": 2.01,
+        "d": 0.926,
+        "h": 0.76
+      },
+      "nativeMin": [
+        -1.005,
+        0,
+        -0.463
+      ],
+      "nativeMax": [
+        1.005,
+        0.76,
+        0.463
+      ],
+      "nativeCenter": [
+        0,
+        0.38,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.5,
+        "sy": 0.95,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "S06": {
+      "file": "models/S06.glb",
+      "catalogCm": [
+        200,
+        90,
+        76
+      ],
+      "fit": 0.996,
+      "fittedM": {
+        "w": 1.987,
+        "d": 0.9,
+        "h": 0.753
+      },
+      "nativeM": {
+        "w": 1.995,
+        "d": 0.904,
+        "h": 0.756
+      },
+      "nativeMin": [
+        -0.998,
+        0,
+        -0.452
+      ],
+      "nativeMax": [
+        0.998,
+        0.756,
+        0.452
+      ],
+      "nativeCenter": [
+        0,
+        0.378,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "A01": {
+      "file": "models/A01.glb",
+      "catalogCm": [
+        73,
+        70,
+        117
+      ],
+      "fit": 0.999,
+      "fittedM": {
+        "w": 0.73,
+        "d": 0.7,
+        "h": 1.167
+      },
+      "nativeM": {
+        "w": 0.731,
+        "d": 0.701,
+        "h": 1.168
+      },
+      "nativeMin": [
+        -0.366,
+        0,
+        -0.406
+      ],
+      "nativeMax": [
+        0.366,
+        1.168,
+        0.295
+      ],
+      "nativeCenter": [
+        0,
+        0.584,
+        -0.056
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0.056
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "A02": {
+      "file": "models/A02.glb",
+      "catalogCm": [
+        69,
+        75,
+        111
+      ],
+      "fit": 0.997,
+      "fittedM": {
+        "w": 0.688,
+        "d": 0.75,
+        "h": 1.103
+      },
+      "nativeM": {
+        "w": 0.69,
+        "d": 0.752,
+        "h": 1.106
+      },
+      "nativeMin": [
+        -0.342,
+        0,
+        -0.415
+      ],
+      "nativeMax": [
+        0.348,
+        1.106,
+        0.337
+      ],
+      "nativeCenter": [
+        0.003,
+        0.553,
+        -0.039
+      ],
+      "seatOffset": [
+        -0.003,
+        0,
+        0.039
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "A03": {
+      "file": "models/A03.glb",
+      "catalogCm": [
+        90,
+        87,
+        89
+      ],
+      "fit": 0.997,
+      "fittedM": {
+        "w": 0.899,
+        "d": 0.87,
+        "h": 0.886
+      },
+      "nativeM": {
+        "w": 0.902,
+        "d": 0.873,
+        "h": 0.889
+      },
+      "nativeMin": [
+        -0.451,
+        0,
+        -0.451
+      ],
+      "nativeMax": [
+        0.451,
+        0.889,
+        0.422
+      ],
+      "nativeCenter": [
+        0,
+        0.444,
+        -0.014
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0.014
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "P01": {
+      "file": "models/P01.glb",
+      "catalogCm": [
+        123,
+        90,
+        75
+      ],
+      "fit": 0.995,
+      "fittedM": {
+        "w": 1.224,
+        "d": 0.897,
+        "h": 0.75
+      },
+      "nativeM": {
+        "w": 1.23,
+        "d": 0.902,
+        "h": 0.754
+      },
+      "nativeMin": [
+        -0.615,
+        0,
+        -0.395
+      ],
+      "nativeMax": [
+        0.615,
+        0.754,
+        0.507
+      ],
+      "nativeCenter": [
+        0,
+        0.377,
+        0.056
+      ],
+      "seatOffset": [
+        0,
+        0,
+        -0.056
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "P02": {
+      "file": "models/P02.glb",
+      "catalogCm": [
+        140,
+        65,
+        76
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 1.4,
+        "d": 0.65,
+        "h": 0.758
+      },
+      "nativeM": {
+        "w": 1.4,
+        "d": 0.65,
+        "h": 0.758
+      },
+      "nativeMin": [
+        -0.7,
+        0,
+        -0.325
+      ],
+      "nativeMax": [
+        0.7,
+        0.758,
+        0.325
+      ],
+      "nativeCenter": [
+        0,
+        0.379,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "P03": {
+      "file": "models/P03.glb",
+      "catalogCm": [
+        200,
+        95,
+        79
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 2,
+        "d": 0.947,
+        "h": 0.787
+      },
+      "nativeM": {
+        "w": 2,
+        "d": 0.947,
+        "h": 0.787
+      },
+      "nativeMin": [
+        -1,
+        0,
+        -0.469
+      ],
+      "nativeMax": [
+        1,
+        0.787,
+        0.478
+      ],
+      "nativeCenter": [
+        0,
+        0.394,
+        0.004
+      ],
+      "seatOffset": [
+        0,
+        0,
+        -0.004
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 0.65,
+        "sy": 1.0,
+        "sz": 0.7,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "P04": {
+      "file": "models/P04.glb",
+      "catalogCm": [
+        160,
+        143,
+        76
+      ],
+      "fit": 0.997,
+      "fittedM": {
+        "w": 1.595,
+        "d": 1.43,
+        "h": 0.757
+      },
+      "nativeM": {
+        "w": 1.6,
+        "d": 1.434,
+        "h": 0.759
+      },
+      "nativeMin": [
+        -0.8,
+        0,
+        -0.744
+      ],
+      "nativeMax": [
+        0.8,
+        0.759,
+        0.69
+      ],
+      "nativeCenter": [
+        0,
+        0.379,
+        -0.027
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0.027
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "M01": {
+      "file": "models/M01.glb",
+      "catalogCm": [
+        110,
+        47,
+        143
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 1.1,
+        "d": 0.47,
+        "h": 1.425
+      },
+      "nativeM": {
+        "w": 1.1,
+        "d": 0.47,
+        "h": 1.425
+      },
+      "nativeMin": [
+        -0.55,
+        0,
+        -0.235
+      ],
+      "nativeMax": [
+        0.55,
+        1.425,
+        0.235
+      ],
+      "nativeCenter": [
+        0,
+        0.713,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.2000000000000002,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": true
+      }
+    },
+    "B01": {
+      "file": "models/B01.glb",
+      "catalogCm": [
+        88,
+        88,
+        51
+      ],
+      "fit": 0.998,
+      "fittedM": {
+        "w": 0.88,
+        "d": 0.88,
+        "h": 0.431
+      },
+      "nativeM": {
+        "w": 0.882,
+        "d": 0.882,
+        "h": 0.432
+      },
+      "nativeMin": [
+        -0.441,
+        0,
+        -0.441
+      ],
+      "nativeMax": [
+        0.441,
+        0.432,
+        0.441
+      ],
+      "nativeCenter": [
+        0,
+        0.216,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "B02": {
+      "file": "models/B02.glb",
+      "catalogCm": [
+        151,
+        51,
+        67
+      ],
+      "fit": 0.993,
+      "fittedM": {
+        "w": 1.502,
+        "d": 0.506,
+        "h": 0.67
+      },
+      "nativeM": {
+        "w": 1.513,
+        "d": 0.51,
+        "h": 0.675
+      },
+      "nativeMin": [
+        -0.757,
+        0,
+        -0.255
+      ],
+      "nativeMax": [
+        0.757,
+        0.675,
+        0.255
+      ],
+      "nativeCenter": [
+        0,
+        0.337,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "B03": {
+      "file": "models/B03.glb",
+      "catalogCm": [
+        154,
+        54,
+        53
+      ],
+      "fit": 0.993,
+      "fittedM": {
+        "w": 1.529,
+        "d": 0.534,
+        "h": 0.53
+      },
+      "nativeM": {
+        "w": 1.54,
+        "d": 0.538,
+        "h": 0.534
+      },
+      "nativeMin": [
+        -0.77,
+        0,
+        -0.269
+      ],
+      "nativeMax": [
+        0.77,
+        0.534,
+        0.269
+      ],
+      "nativeCenter": [
+        0,
+        0.267,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "B04": {
+      "file": "models/B04.glb",
+      "catalogCm": [
+        75,
+        75,
+        52
+      ],
+      "fit": 0.996,
+      "fittedM": {
+        "w": 0.745,
+        "d": 0.745,
+        "h": 0.52
+      },
+      "nativeM": {
+        "w": 0.748,
+        "d": 0.748,
+        "h": 0.522
+      },
+      "nativeMin": [
+        -0.374,
+        0,
+        -0.374
+      ],
+      "nativeMax": [
+        0.374,
+        0.522,
+        0.374
+      ],
+      "nativeCenter": [
+        0,
+        0.261,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 0.6999999999999997,
+        "sy": 1.0,
+        "sz": 0.6999999999999997,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "B05": {
+      "file": "models/B05.glb",
+      "catalogCm": [
+        102,
+        43,
+        55
+      ],
+      "fit": 0.991,
+      "fittedM": {
+        "w": 1.016,
+        "d": 0.43,
+        "h": 0.543
+      },
+      "nativeM": {
+        "w": 1.025,
+        "d": 0.434,
+        "h": 0.548
+      },
+      "nativeMin": [
+        -0.512,
+        0,
+        -0.217
+      ],
+      "nativeMax": [
+        0.513,
+        0.548,
+        0.217
+      ],
+      "nativeCenter": [
+        0,
+        0.274,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "H01": {
+      "file": "models/H01.glb",
+      "catalogCm": [
+        91,
+        74,
+        200
+      ],
+      "fit": 0.998,
+      "fittedM": {
+        "w": 0.91,
+        "d": 0.734,
+        "h": 1.994
+      },
+      "nativeM": {
+        "w": 0.912,
+        "d": 0.735,
+        "h": 1.998
+      },
+      "nativeMin": [
+        -0.456,
+        0,
+        -0.235
+      ],
+      "nativeMax": [
+        0.456,
+        1.998,
+        0.5
+      ],
+      "nativeCenter": [
+        0,
+        0.999,
+        0.132
+      ],
+      "seatOffset": [
+        0,
+        0,
+        -0.132
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "H02": {
+      "file": "models/H02.glb",
+      "catalogCm": [
+        121,
+        70,
+        90
+      ],
+      "fit": 0.997,
+      "fittedM": {
+        "w": 1.21,
+        "d": 0.698,
+        "h": 0.897
+      },
+      "nativeM": {
+        "w": 1.214,
+        "d": 0.7,
+        "h": 0.9
+      },
+      "nativeMin": [
+        -0.614,
+        0,
+        -0.35
+      ],
+      "nativeMax": [
+        0.6,
+        0.9,
+        0.35
+      ],
+      "nativeCenter": [
+        -0.007,
+        0.45,
+        0
+      ],
+      "seatOffset": [
+        0.007,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "H03": {
+      "file": "models/H03.glb",
+      "catalogCm": [
+        105,
+        57,
+        91
+      ],
+      "fit": 0.997,
+      "fittedM": {
+        "w": 1.05,
+        "d": 0.529,
+        "h": 0.9
+      },
+      "nativeM": {
+        "w": 1.053,
+        "d": 0.531,
+        "h": 0.903
+      },
+      "nativeMin": [
+        -0.525,
+        0,
+        -0.243
+      ],
+      "nativeMax": [
+        0.529,
+        0.903,
+        0.288
+      ],
+      "nativeCenter": [
+        0.002,
+        0.452,
+        0.023
+      ],
+      "seatOffset": [
+        -0.002,
+        0,
+        -0.023
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "H04": {
+      "file": "models/H04.glb",
+      "catalogCm": [
+        45,
+        45,
+        75
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 0.43,
+        "d": 0.45,
+        "h": 0.45
+      },
+      "nativeM": {
+        "w": 0.43,
+        "d": 0.45,
+        "h": 0.45
+      },
+      "nativeMin": [
+        0,
+        0,
+        -0.45
+      ],
+      "nativeMax": [
+        0.43,
+        0.45,
+        0
+      ],
+      "nativeCenter": [
+        0.215,
+        0.225,
+        -0.225
+      ],
+      "seatOffset": [
+        -0.215,
+        0,
+        0.225
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "H05": {
+      "file": "models/H05.glb",
+      "catalogCm": [
+        45,
+        45,
+        75
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 0.43,
+        "d": 0.45,
+        "h": 0.45
+      },
+      "nativeM": {
+        "w": 0.43,
+        "d": 0.45,
+        "h": 0.45
+      },
+      "nativeMin": [
+        0,
+        0,
+        -0.45
+      ],
+      "nativeMax": [
+        0.43,
+        0.45,
+        0
+      ],
+      "nativeCenter": [
+        0.215,
+        0.225,
+        -0.225
+      ],
+      "seatOffset": [
+        -0.215,
+        0,
+        0.225
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "H06": {
+      "file": "models/H06.glb",
+      "catalogCm": [
+        45,
+        35,
+        55
+      ],
+      "fit": 1.047,
+      "fittedM": {
+        "w": 0.45,
+        "d": 0.23,
+        "h": 0.408
+      },
+      "nativeM": {
+        "w": 0.43,
+        "d": 0.22,
+        "h": 0.39
+      },
+      "nativeMin": [
+        0,
+        0,
+        -0.21
+      ],
+      "nativeMax": [
+        0.43,
+        0.39,
+        0.01
+      ],
+      "nativeCenter": [
+        0.215,
+        0.195,
+        -0.1
+      ],
+      "seatOffset": [
+        -0.215,
+        0,
+        0.1
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "H07": {
+      "file": "models/H07.glb",
+      "catalogCm": [
+        90,
+        35,
+        55
+      ],
+      "fit": 1.41,
+      "fittedM": {
+        "w": 0.606,
+        "d": 0.31,
+        "h": 0.55
+      },
+      "nativeM": {
+        "w": 0.43,
+        "d": 0.22,
+        "h": 0.39
+      },
+      "nativeMin": [
+        0,
+        0,
+        -0.21
+      ],
+      "nativeMax": [
+        0.43,
+        0.39,
+        0.01
+      ],
+      "nativeCenter": [
+        0.215,
+        0.195,
+        -0.1
+      ],
+      "seatOffset": [
+        -0.215,
+        0,
+        0.1
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "H08": {
+      "file": "models/H08.glb",
+      "catalogCm": [
+        45,
+        35,
+        35
+      ],
+      "fit": 1.047,
+      "fittedM": {
+        "w": 0.45,
+        "d": 0.23,
+        "h": 0.204
+      },
+      "nativeM": {
+        "w": 0.43,
+        "d": 0.22,
+        "h": 0.195
+      },
+      "nativeMin": [
+        0,
+        0,
+        -0.21
+      ],
+      "nativeMax": [
+        0.43,
+        0.195,
+        0.01
+      ],
+      "nativeCenter": [
+        0.215,
+        0.098,
+        -0.1
+      ],
+      "seatOffset": [
+        -0.215,
+        0,
+        0.1
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "H09": {
+      "file": "models/H09.glb",
+      "catalogCm": [
+        90,
+        90,
+        75
+      ],
+      "fit": 1.667,
+      "fittedM": {
+        "w": 0.75,
+        "d": 0.75,
+        "h": 0.75
+      },
+      "nativeM": {
+        "w": 0.45,
+        "d": 0.45,
+        "h": 0.45
+      },
+      "nativeMin": [
+        0,
+        0,
+        -0.45
+      ],
+      "nativeMax": [
+        0.45,
+        0.45,
+        0
+      ],
+      "nativeCenter": [
+        0.225,
+        0.225,
+        -0.225
+      ],
+      "seatOffset": [
+        -0.225,
+        0,
+        0.225
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "H10": {
+      "file": "models/H10.glb",
+      "catalogCm": [
+        61,
+        70,
+        93
+      ],
+      "fit": 0.996,
+      "fittedM": {
+        "w": 0.607,
+        "d": 0.7,
+        "h": 0.927
+      },
+      "nativeM": {
+        "w": 0.609,
+        "d": 0.703,
+        "h": 0.931
+      },
+      "nativeMin": [
+        -0.305,
+        0,
+        -0.31
+      ],
+      "nativeMax": [
+        0.305,
+        0.931,
+        0.392
+      ],
+      "nativeCenter": [
+        0,
+        0.465,
+        0.041
+      ],
+      "seatOffset": [
+        0,
+        0,
+        -0.041
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "H11": {
+      "file": "models/H11.glb",
+      "catalogCm": [
+        60,
+        51,
+        5
+      ],
+      "fit": 0.992,
+      "fittedM": {
+        "w": 0.595,
+        "d": 0.51,
+        "h": 0.047
+      },
+      "nativeM": {
+        "w": 0.6,
+        "d": 0.514,
+        "h": 0.047
+      },
+      "nativeMin": [
+        -0.3,
+        0,
+        -0.257
+      ],
+      "nativeMax": [
+        0.3,
+        0.047,
+        0.257
+      ],
+      "nativeCenter": [
+        0,
+        0.023,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "H12": {
+      "file": "models/H12.glb",
+      "catalogCm": [
+        60,
+        60,
+        90
+      ],
+      "fit": 1.333,
+      "fittedM": {
+        "w": 0.573,
+        "d": 0.6,
+        "h": 0.6
+      },
+      "nativeM": {
+        "w": 0.43,
+        "d": 0.45,
+        "h": 0.45
+      },
+      "nativeMin": [
+        0,
+        0,
+        -0.45
+      ],
+      "nativeMax": [
+        0.43,
+        0.45,
+        0
+      ],
+      "nativeCenter": [
+        0.215,
+        0.225,
+        -0.225
+      ],
+      "seatOffset": [
+        -0.215,
+        0,
+        0.225
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "H13": {
+      "file": "models/H13.glb",
+      "catalogCm": [
+        160,
+        65,
+        106
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 1.6,
+        "d": 0.65,
+        "h": 1.055
+      },
+      "nativeM": {
+        "w": 1.6,
+        "d": 0.65,
+        "h": 1.055
+      },
+      "nativeMin": [
+        -0.8,
+        0,
+        -0.325
+      ],
+      "nativeMax": [
+        0.8,
+        1.055,
+        0.325
+      ],
+      "nativeCenter": [
+        0,
+        0.528,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "H14": {
+      "file": "models/H14.glb",
+      "catalogCm": [
+        182,
+        52,
+        78
+      ],
+      "fit": 0.996,
+      "fittedM": {
+        "w": 1.813,
+        "d": 0.515,
+        "h": 0.78
+      },
+      "nativeM": {
+        "w": 1.82,
+        "d": 0.517,
+        "h": 0.783
+      },
+      "nativeMin": [
+        -0.91,
+        0,
+        -0.237
+      ],
+      "nativeMax": [
+        0.91,
+        0.783,
+        0.28
+      ],
+      "nativeCenter": [
+        0,
+        0.391,
+        0.021
+      ],
+      "seatOffset": [
+        0,
+        0,
+        -0.021
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "H15": {
+      "file": "models/H15.glb",
+      "catalogCm": [
+        112,
+        50,
+        80
+      ],
+      "fit": 0.998,
+      "fittedM": {
+        "w": 1.118,
+        "d": 0.5,
+        "h": 0.8
+      },
+      "nativeM": {
+        "w": 1.12,
+        "d": 0.501,
+        "h": 0.802
+      },
+      "nativeMin": [
+        -0.56,
+        0,
+        -0.23
+      ],
+      "nativeMax": [
+        0.56,
+        0.802,
+        0.271
+      ],
+      "nativeCenter": [
+        0,
+        0.401,
+        0.021
+      ],
+      "seatOffset": [
+        0,
+        0,
+        -0.021
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "H16": {
+      "file": "models/H16.glb",
+      "catalogCm": [
+        60,
+        60,
+        90
+      ],
+      "fit": 0.926,
+      "fittedM": {
+        "w": 0.466,
+        "d": 0.6,
+        "h": 0.795
+      },
+      "nativeM": {
+        "w": 0.503,
+        "d": 0.648,
+        "h": 0.859
+      },
+      "nativeMin": [
+        -0.251,
+        0,
+        -0.3
+      ],
+      "nativeMax": [
+        0.251,
+        0.859,
+        0.348
+      ],
+      "nativeCenter": [
+        0,
+        0.429,
+        0.024
+      ],
+      "seatOffset": [
+        0,
+        0,
+        -0.024
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "H17": {
+      "file": "models/H17.glb",
+      "catalogCm": [
+        80,
+        45,
+        75
+      ],
+      "fit": 0.399,
+      "fittedM": {
+        "w": 0.455,
+        "d": 0.195,
+        "h": 0.751
+      },
+      "nativeM": {
+        "w": 1.141,
+        "d": 0.488,
+        "h": 1.881
+      },
+      "nativeMin": [
+        -0.571,
+        0,
+        -0.248
+      ],
+      "nativeMax": [
+        0.571,
+        1.881,
+        0.24
+      ],
+      "nativeCenter": [
+        0,
+        0.941,
+        -0.004
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0.004
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "H18": {
+      "file": "models/H18.glb",
+      "catalogCm": [
+        131,
+        70,
+        95
+      ],
+      "fit": 1.053,
+      "fittedM": {
+        "w": 1.31,
+        "d": 0.694,
+        "h": 0.922
+      },
+      "nativeM": {
+        "w": 1.244,
+        "d": 0.659,
+        "h": 0.876
+      },
+      "nativeMin": [
+        -0.548,
+        0,
+        -0.317
+      ],
+      "nativeMax": [
+        0.696,
+        0.876,
+        0.342
+      ],
+      "nativeCenter": [
+        0.074,
+        0.438,
+        0.013
+      ],
+      "seatOffset": [
+        -0.074,
+        0,
+        -0.013
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "N01": {
+      "file": "models/N01.glb",
+      "catalogCm": [
+        51,
+        48,
+        55
+      ],
+      "fit": 0.998,
+      "fittedM": {
+        "w": 0.509,
+        "d": 0.48,
+        "h": 0.544
+      },
+      "nativeM": {
+        "w": 0.51,
+        "d": 0.481,
+        "h": 0.545
+      },
+      "nativeMin": [
+        -0.255,
+        0,
+        -0.218
+      ],
+      "nativeMax": [
+        0.255,
+        0.545,
+        0.263
+      ],
+      "nativeCenter": [
+        0,
+        0.273,
+        0.023
+      ],
+      "seatOffset": [
+        0,
+        0,
+        -0.023
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "N02": {
+      "file": "models/N02.glb",
+      "catalogCm": [
+        61,
+        55,
+        83
+      ],
+      "fit": 0.995,
+      "fittedM": {
+        "w": 0.61,
+        "d": 0.55,
+        "h": 0.828
+      },
+      "nativeM": {
+        "w": 0.613,
+        "d": 0.553,
+        "h": 0.832
+      },
+      "nativeMin": [
+        -0.285,
+        0,
+        -0.26
+      ],
+      "nativeMax": [
+        0.328,
+        0.832,
+        0.293
+      ],
+      "nativeCenter": [
+        0.021,
+        0.416,
+        0.016
+      ],
+      "seatOffset": [
+        -0.021,
+        0,
+        -0.016
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 0.8,
+        "sy": 0.85,
+        "sz": 0.9,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "J01": {
+      "file": "models/J01.glb",
+      "catalogCm": [
+        122,
+        66,
+        36
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 1.22,
+        "d": 0.66,
+        "h": 0.36
+      },
+      "nativeM": {
+        "w": 1.22,
+        "d": 0.66,
+        "h": 0.36
+      },
+      "nativeMin": [
+        -0.61,
+        0,
+        -0.33
+      ],
+      "nativeMax": [
+        0.61,
+        0.36,
+        0.33
+      ],
+      "nativeCenter": [
+        0,
+        0.18,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "J02": {
+      "file": "models/J02.glb",
+      "catalogCm": [
+        96,
+        54,
+        40
+      ],
+      "fit": 0.999,
+      "fittedM": {
+        "w": 0.96,
+        "d": 0.539,
+        "h": 0.4
+      },
+      "nativeM": {
+        "w": 0.961,
+        "d": 0.54,
+        "h": 0.4
+      },
+      "nativeMin": [
+        -0.48,
+        0,
+        -0.27
+      ],
+      "nativeMax": [
+        0.481,
+        0.4,
+        0.27
+      ],
+      "nativeCenter": [
+        0,
+        0.2,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "J03": {
+      "file": "models/J03.glb",
+      "catalogCm": [
+        78,
+        78,
+        38
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 0.78,
+        "d": 0.78,
+        "h": 0.375
+      },
+      "nativeM": {
+        "w": 0.78,
+        "d": 0.78,
+        "h": 0.375
+      },
+      "nativeMin": [
+        -0.39,
+        0,
+        -0.39
+      ],
+      "nativeMax": [
+        0.39,
+        0.375,
+        0.39
+      ],
+      "nativeCenter": [
+        0,
+        0.187,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 1,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "J04": {
+      "file": "models/J04.glb",
+      "catalogCm": [
+        114,
+        74,
+        47
+      ],
+      "fit": 0.996,
+      "fittedM": {
+        "w": 1.136,
+        "d": 0.735,
+        "h": 0.47
+      },
+      "nativeM": {
+        "w": 1.141,
+        "d": 0.738,
+        "h": 0.472
+      },
+      "nativeMin": [
+        -0.556,
+        0,
+        -0.385
+      ],
+      "nativeMax": [
+        0.585,
+        0.472,
+        0.353
+      ],
+      "nativeCenter": [
+        0.015,
+        0.236,
+        -0.016
+      ],
+      "seatOffset": [
+        -0.015,
+        0,
+        0.016
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "J05": {
+      "file": "models/J05.glb",
+      "catalogCm": [
+        90,
+        90,
+        42
+      ],
+      "fit": 0.995,
+      "fittedM": {
+        "w": 0.896,
+        "d": 0.896,
+        "h": 0.42
+      },
+      "nativeM": {
+        "w": 0.9,
+        "d": 0.9,
+        "h": 0.422
+      },
+      "nativeMin": [
+        -0.45,
+        0,
+        -0.45
+      ],
+      "nativeMax": [
+        0.45,
+        0.422,
+        0.45
+      ],
+      "nativeCenter": [
+        0,
+        0.211,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "J06": {
+      "file": "models/J06.glb",
+      "catalogCm": [
+        106,
+        71,
+        63
+      ],
+      "fit": 0.994,
+      "fittedM": {
+        "w": 1.058,
+        "d": 0.703,
+        "h": 0.63
+      },
+      "nativeM": {
+        "w": 1.064,
+        "d": 0.707,
+        "h": 0.634
+      },
+      "nativeMin": [
+        -0.532,
+        0,
+        -0.27
+      ],
+      "nativeMax": [
+        0.532,
+        0.634,
+        0.437
+      ],
+      "nativeCenter": [
+        0,
+        0.317,
+        0.084
+      ],
+      "seatOffset": [
+        0,
+        0,
+        -0.084
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "V01": {
+      "file": "models/V01.glb",
+      "catalogCm": [
+        76,
+        158,
+        81
+      ],
+      "fit": 0.997,
+      "fittedM": {
+        "w": 0.76,
+        "d": 1.575,
+        "h": 0.808
+      },
+      "nativeM": {
+        "w": 0.762,
+        "d": 1.58,
+        "h": 0.81
+      },
+      "nativeMin": [
+        -0.381,
+        0,
+        -0.79
+      ],
+      "nativeMax": [
+        0.381,
+        0.81,
+        0.79
+      ],
+      "nativeCenter": [
+        0,
+        0.405,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "V02": {
+      "file": "models/V02.glb",
+      "catalogCm": [
+        78,
+        170,
+        63
+      ],
+      "fit": 0.994,
+      "fittedM": {
+        "w": 0.777,
+        "d": 1.688,
+        "h": 0.63
+      },
+      "nativeM": {
+        "w": 0.782,
+        "d": 1.698,
+        "h": 0.634
+      },
+      "nativeMin": [
+        -0.391,
+        0,
+        -0.849
+      ],
+      "nativeMax": [
+        0.391,
+        0.634,
+        0.849
+      ],
+      "nativeCenter": [
+        0,
+        0.317,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "V03": {
+      "file": "models/V03.glb",
+      "catalogCm": [
+        80,
+        171,
+        53
+      ],
+      "fit": 0.998,
+      "fittedM": {
+        "w": 0.8,
+        "d": 1.706,
+        "h": 0.526
+      },
+      "nativeM": {
+        "w": 0.802,
+        "d": 1.709,
+        "h": 0.527
+      },
+      "nativeMin": [
+        -0.401,
+        0,
+        -0.855
+      ],
+      "nativeMax": [
+        0.401,
+        0.527,
+        0.854
+      ],
+      "nativeCenter": [
+        0,
+        0.264,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.15,
+        "mirror": true,
+        "mirrorZ": false
+      }
+    },
+    "V04": {
+      "file": "models/V04.glb",
+      "catalogCm": [
+        140,
+        140,
+        80
+      ],
+      "fit": 0.999,
+      "fittedM": {
+        "w": 1.401,
+        "d": 1.401,
+        "h": 0.794
+      },
+      "nativeM": {
+        "w": 1.402,
+        "d": 1.402,
+        "h": 0.795
+      },
+      "nativeMin": [
+        -0.701,
+        0,
+        -0.701
+      ],
+      "nativeMax": [
+        0.701,
+        0.795,
+        0.701
+      ],
+      "nativeCenter": [
+        0,
+        0.397,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "T01": {
+      "file": "models/T01.glb",
+      "catalogCm": [
+        43,
+        74,
+        93
+      ],
+      "fit": 0.995,
+      "fittedM": {
+        "w": 0.43,
+        "d": 0.737,
+        "h": 0.927
+      },
+      "nativeM": {
+        "w": 0.432,
+        "d": 0.741,
+        "h": 0.932
+      },
+      "nativeMin": [
+        -0.216,
+        0,
+        -0.456
+      ],
+      "nativeMax": [
+        0.216,
+        0.932,
+        0.285
+      ],
+      "nativeCenter": [
+        0,
+        0.466,
+        -0.085
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0.085
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 0.8499999999999999,
+        "sy": 1.0,
+        "sz": 0.8999999999999999,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "T02": {
+      "file": "models/T02.glb",
+      "catalogCm": [
+        43,
+        67,
+        81
+      ],
+      "fit": 0.995,
+      "fittedM": {
+        "w": 0.43,
+        "d": 0.665,
+        "h": 0.809
+      },
+      "nativeM": {
+        "w": 0.432,
+        "d": 0.668,
+        "h": 0.813
+      },
+      "nativeMin": [
+        -0.216,
+        0,
+        -0.383
+      ],
+      "nativeMax": [
+        0.216,
+        0.813,
+        0.285
+      ],
+      "nativeCenter": [
+        0,
+        0.407,
+        -0.049
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0.049
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "T03": {
+      "file": "models/T03.glb",
+      "catalogCm": [
+        52,
+        81,
+        192
+      ],
+      "fit": 0.994,
+      "fittedM": {
+        "w": 0.52,
+        "d": 0.805,
+        "h": 1.904
+      },
+      "nativeM": {
+        "w": 0.523,
+        "d": 0.81,
+        "h": 1.915
+      },
+      "nativeMin": [
+        -0.261,
+        0,
+        -0.524
+      ],
+      "nativeMax": [
+        0.261,
+        1.915,
+        0.285
+      ],
+      "nativeCenter": [
+        0,
+        0.958,
+        -0.12
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0.12
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "R01": {
+      "file": "models/R01.glb",
+      "catalogCm": [
+        61,
+        51,
+        97
+      ],
+      "fit": 1.004,
+      "fittedM": {
+        "w": 0.608,
+        "d": 0.51,
+        "h": 0.969
+      },
+      "nativeM": {
+        "w": 0.606,
+        "d": 0.508,
+        "h": 0.965
+      },
+      "nativeMin": [
+        -0.303,
+        0,
+        -0.266
+      ],
+      "nativeMax": [
+        0.303,
+        0.965,
+        0.242
+      ],
+      "nativeCenter": [
+        0,
+        0.483,
+        -0.012
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0.012
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "R02": {
+      "file": "models/R02.glb",
+      "catalogCm": [
+        94,
+        56,
+        117
+      ],
+      "fit": 0.998,
+      "fittedM": {
+        "w": 0.934,
+        "d": 0.56,
+        "h": 1.164
+      },
+      "nativeM": {
+        "w": 0.936,
+        "d": 0.561,
+        "h": 1.166
+      },
+      "nativeMin": [
+        -0.468,
+        0,
+        -0.26
+      ],
+      "nativeMax": [
+        0.468,
+        1.166,
+        0.301
+      ],
+      "nativeCenter": [
+        0,
+        0.583,
+        0.02
+      ],
+      "seatOffset": [
+        0,
+        0,
+        -0.02
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 0.7499999999999998,
+        "sy": 1.0,
+        "sz": 0.7499999999999998,
+        "mirror": false,
+        "mirrorZ": true
+      }
+    },
+    "R03": {
+      "file": "models/R03.glb",
+      "catalogCm": [
+        79,
+        53,
+        29
+      ],
+      "fit": 0.986,
+      "fittedM": {
+        "w": 0.778,
+        "d": 0.522,
+        "h": 0.29
+      },
+      "nativeM": {
+        "w": 0.789,
+        "d": 0.529,
+        "h": 0.294
+      },
+      "nativeMin": [
+        -0.394,
+        0,
+        -0.265
+      ],
+      "nativeMax": [
+        0.394,
+        0.294,
+        0.265
+      ],
+      "nativeCenter": [
+        0,
+        0.147,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "R04": {
+      "file": "models/R04.glb",
+      "catalogCm": [
+        52,
+        36,
+        15
+      ],
+      "fit": 0.994,
+      "fittedM": {
+        "w": 0.517,
+        "d": 0.36,
+        "h": 0.148
+      },
+      "nativeM": {
+        "w": 0.52,
+        "d": 0.362,
+        "h": 0.149
+      },
+      "nativeMin": [
+        -0.26,
+        0,
+        -0.181
+      ],
+      "nativeMax": [
+        0.26,
+        0.149,
+        0.181
+      ],
+      "nativeCenter": [
+        0,
+        0.074,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.4500000000000004,
+        "sy": 0.7999999999999998,
+        "sz": 2.1500000000000004,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "R05": {
+      "file": "models/R05.glb",
+      "catalogCm": [
+        44,
+        44,
+        17
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 0.436,
+        "d": 0.436,
+        "h": 0.17
+      },
+      "nativeM": {
+        "w": 0.436,
+        "d": 0.436,
+        "h": 0.17
+      },
+      "nativeMin": [
+        -0.218,
+        0,
+        -0.218
+      ],
+      "nativeMax": [
+        0.218,
+        0.17,
+        0.218
+      ],
+      "nativeCenter": [
+        0,
+        0.085,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "R06": {
+      "file": "models/R06.glb",
+      "catalogCm": [
+        99,
+        54,
+        22
+      ],
+      "fit": 0.996,
+      "fittedM": {
+        "w": 0.99,
+        "d": 0.533,
+        "h": 0.219
+      },
+      "nativeM": {
+        "w": 0.994,
+        "d": 0.535,
+        "h": 0.22
+      },
+      "nativeMin": [
+        -0.45,
+        0,
+        -0.268
+      ],
+      "nativeMax": [
+        0.544,
+        0.22,
+        0.268
+      ],
+      "nativeCenter": [
+        0.047,
+        0.11,
+        0
+      ],
+      "seatOffset": [
+        -0.047,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "X01": {
+      "file": "models/X01.glb",
+      "catalogCm": [
+        40,
+        30,
+        30
+      ],
+      "fit": 0.581,
+      "fittedM": {
+        "w": 0.225,
+        "d": 0.3,
+        "h": 0.199
+      },
+      "nativeM": {
+        "w": 0.387,
+        "d": 0.516,
+        "h": 0.342
+      },
+      "nativeMin": [
+        -0.193,
+        -0.007,
+        -0.225
+      ],
+      "nativeMax": [
+        0.195,
+        0.335,
+        0.291
+      ],
+      "nativeCenter": [
+        0.001,
+        0.164,
+        0.033
+      ],
+      "seatOffset": [
+        -0.001,
+        0.007,
+        -0.033
+      ],
+      "feetY": -0.007,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "X02": {
+      "file": "models/X02.glb",
+      "catalogCm": [
+        60,
+        40,
+        40
+      ],
+      "fit": 0.727,
+      "fittedM": {
+        "w": 0.6,
+        "d": 0.297,
+        "h": 0.254
+      },
+      "nativeM": {
+        "w": 0.825,
+        "d": 0.409,
+        "h": 0.35
+      },
+      "nativeMin": [
+        -0.413,
+        -0.008,
+        -0.196
+      ],
+      "nativeMax": [
+        0.413,
+        0.342,
+        0.213
+      ],
+      "nativeCenter": [
+        0,
+        0.167,
+        0.008
+      ],
+      "seatOffset": [
+        0,
+        0.008,
+        -0.008
+      ],
+      "feetY": -0.008,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "X03": {
+      "file": "models/X03.glb",
+      "catalogCm": [
+        40,
+        30,
+        28
+      ],
+      "fit": 0.735,
+      "fittedM": {
+        "w": 0.219,
+        "d": 0.3,
+        "h": 0.194
+      },
+      "nativeM": {
+        "w": 0.298,
+        "d": 0.408,
+        "h": 0.264
+      },
+      "nativeMin": [
+        -0.149,
+        0,
+        -0.204
+      ],
+      "nativeMax": [
+        0.149,
+        0.264,
+        0.204
+      ],
+      "nativeCenter": [
+        0,
+        0.132,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "X04": {
+      "file": "models/X04.glb",
+      "catalogCm": [
+        48,
+        36,
+        24
+      ],
+      "fit": 0.98,
+      "fittedM": {
+        "w": 0.468,
+        "d": 0.351,
+        "h": 0.24
+      },
+      "nativeM": {
+        "w": 0.478,
+        "d": 0.358,
+        "h": 0.245
+      },
+      "nativeMin": [
+        -0.239,
+        0,
+        -0.172
+      ],
+      "nativeMax": [
+        0.239,
+        0.245,
+        0.186
+      ],
+      "nativeCenter": [
+        0,
+        0.123,
+        0.007
+      ],
+      "seatOffset": [
+        0,
+        0,
+        -0.007
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "X05": {
+      "file": "models/X05.glb",
+      "catalogCm": [
+        37,
+        30,
+        28
+      ],
+      "fit": 0.989,
+      "fittedM": {
+        "w": 0.37,
+        "d": 0.293,
+        "h": 0.279
+      },
+      "nativeM": {
+        "w": 0.374,
+        "d": 0.296,
+        "h": 0.282
+      },
+      "nativeMin": [
+        -0.187,
+        0,
+        -0.148
+      ],
+      "nativeMax": [
+        0.187,
+        0.282,
+        0.148
+      ],
+      "nativeCenter": [
+        0,
+        0.141,
+        0
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "X06": {
+      "file": "models/X06.glb",
+      "catalogCm": [
+        83,
+        52,
+        50
+      ],
+      "fit": 1,
+      "fittedM": {
+        "w": 0.83,
+        "d": 0.516,
+        "h": 0.495
+      },
+      "nativeM": {
+        "w": 0.83,
+        "d": 0.516,
+        "h": 0.495
+      },
+      "nativeMin": [
+        -0.415,
+        0,
+        -0.247
+      ],
+      "nativeMax": [
+        0.415,
+        0.495,
+        0.269
+      ],
+      "nativeCenter": [
+        0,
+        0.247,
+        0.011
+      ],
+      "seatOffset": [
+        0,
+        0,
+        -0.011
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "E01": {
+      "file": "models/E01.glb",
+      "catalogCm": [
+        123,
+        25,
+        78
+      ],
+      "fit": 0.997,
+      "fittedM": {
+        "w": 1.227,
+        "d": 0.249,
+        "h": 0.78
+      },
+      "nativeM": {
+        "w": 1.231,
+        "d": 0.25,
+        "h": 0.782
+      },
+      "nativeMin": [
+        -0.615,
+        0,
+        -0.165
+      ],
+      "nativeMax": [
+        0.615,
+        0.782,
+        0.085
+      ],
+      "nativeCenter": [
+        0,
+        0.391,
+        -0.04
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0.04
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "E02": {
+      "file": "models/E02.glb",
+      "catalogCm": [
+        145,
+        9,
+        83
+      ],
+      "fit": 0.999,
+      "fittedM": {
+        "w": 1.451,
+        "d": 0.089,
+        "h": 0.826
+      },
+      "nativeM": {
+        "w": 1.452,
+        "d": 0.089,
+        "h": 0.827
+      },
+      "nativeMin": [
+        -0.726,
+        0,
+        -0.088
+      ],
+      "nativeMax": [
+        0.726,
+        0.827,
+        0.001
+      ],
+      "nativeCenter": [
+        0,
+        0.413,
+        -0.044
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0.044
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.25,
+        "sy": 1.25,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    },
+    "E03": {
+      "file": "models/E03.glb",
+      "catalogCm": [
+        72,
+        20,
+        49
+      ],
+      "fit": 0.994,
+      "fittedM": {
+        "w": 0.72,
+        "d": 0.197,
+        "h": 0.488
+      },
+      "nativeM": {
+        "w": 0.724,
+        "d": 0.198,
+        "h": 0.491
+      },
+      "nativeMin": [
+        -0.362,
+        0,
+        -0.123
+      ],
+      "nativeMax": [
+        0.362,
+        0.491,
+        0.075
+      ],
+      "nativeCenter": [
+        0,
+        0.246,
+        -0.024
+      ],
+      "seatOffset": [
+        0,
+        0,
+        0.024
+      ],
+      "feetY": 0,
+      "droppedMeshes": 0,
+      "lastPose": {
+        "sx": 1.0,
+        "sy": 1.0,
+        "sz": 1.0,
+        "mirror": false,
+        "mirrorZ": false
+      }
+    }
+  }
+}

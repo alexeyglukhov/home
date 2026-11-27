@@ -30,6 +30,7 @@ TOKEN_TTL_SEC = 60 * 60 * 24 * 30
 ROOT = Path.cwd().resolve()
 LIKES_PATH = ROOT / "data" / "style-likes.json"
 FURNITURE_DIR = ROOT / "data" / "furniture"
+FURNITURE_META_PATH = ROOT / "furniture" / "model-meta.json"
 THUMBS_DIR = ROOT / "style-thumbs"
 SECRET = hashlib.sha256(f"house-author:{PASSWORD}".encode("utf-8")).digest()
 SAFE_THUMB = __import__("re").compile(r"^[A-Za-z0-9._-]{1,64}$")
@@ -136,6 +137,67 @@ def write_furniture(variant: str, data: dict) -> dict | None:
     tmp = path.with_suffix(".tmp")
     tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     tmp.replace(path)
+    return payload
+
+
+def read_furniture_meta() -> dict:
+    try:
+        raw = json.loads(FURNITURE_META_PATH.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return {"v": 1, "models": {}}
+    except (OSError, json.JSONDecodeError):
+        return {"v": 1, "models": {}}
+    if not isinstance(raw, dict):
+        return {"v": 1, "models": {}}
+    models = raw.get("models", {})
+    if not isinstance(models, dict):
+        models = {}
+    return {
+        "v": int(raw.get("v") or 1),
+        "updated": raw.get("updated"),
+        "models": models,
+    }
+
+
+def write_furniture_meta(data: dict) -> dict | None:
+    """Слить models с диском: native* от bake не затираем клиентским lastPose-only PUT."""
+    if not isinstance(data, dict):
+        return None
+    incoming = data.get("models", {})
+    if not isinstance(incoming, dict):
+        return None
+    if len(json.dumps(incoming)) > 1_500_000:
+        return None
+    existing = read_furniture_meta()
+    merged = dict(existing.get("models") or {})
+    for mid, entry in incoming.items():
+        if not isinstance(mid, str) or not mid or not isinstance(entry, dict):
+            continue
+        prev = merged.get(mid) if isinstance(merged.get(mid), dict) else {}
+        next_entry = dict(prev)
+        # габариты — только если клиент/bake прислал nativeM
+        for key in ("file", "catalogCm", "fit", "nativeM", "nativeMin", "nativeMax", "nativeCenter"):
+            if key in entry and entry[key] is not None:
+                next_entry[key] = entry[key]
+        pose = entry.get("lastPose")
+        if isinstance(pose, dict):
+            next_entry["lastPose"] = {
+                "sx": max(0.05, abs(float(pose.get("sx") or 1))),
+                "sy": max(0.05, abs(float(pose.get("sy") or 1))),
+                "sz": max(0.05, abs(float(pose.get("sz") or 1))),
+                "mirror": bool(pose.get("mirror")),
+                "mirrorZ": bool(pose.get("mirrorZ")),
+            }
+        merged[mid] = next_entry
+    payload = {
+        "v": int(data.get("v") or existing.get("v") or 1),
+        "updated": data.get("updated") or existing.get("updated"),
+        "models": merged,
+    }
+    FURNITURE_META_PATH.parent.mkdir(parents=True, exist_ok=True)
+    tmp = FURNITURE_META_PATH.with_suffix(".tmp")
+    tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    tmp.replace(FURNITURE_META_PATH)
     return payload
 
 
@@ -296,6 +358,14 @@ class Handler(SimpleHTTPRequestHandler):
             tmp.replace(out)
             self.send_json(HTTPStatus.OK, {"ok": True, "path": f"style-thumbs/{thumb_id}.jpg"})
             return
+        if path == "/api/furniture-meta":
+            data = self.read_json()
+            saved = write_furniture_meta(data)
+            if saved is None:
+                self.send_json(HTTPStatus.BAD_REQUEST, {"error": "bad_meta"})
+                return
+            self.send_json(HTTPStatus.OK, saved)
+            return
         if path.startswith("/api/furniture/"):
             variant = unquote(path[len("/api/furniture/") :]).strip()
             if not SAFE_VARIANT.match(variant):
@@ -318,6 +388,9 @@ class Handler(SimpleHTTPRequestHandler):
             return
         if path == "/api/likes":
             self.send_json(HTTPStatus.OK, {"likes": read_likes()})
+            return
+        if path == "/api/furniture-meta":
+            self.send_json(HTTPStatus.OK, read_furniture_meta())
             return
         if path.startswith("/api/furniture/"):
             variant = unquote(path[len("/api/furniture/") :]).strip()

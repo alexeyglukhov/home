@@ -3,6 +3,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
 import { MeshoptDecoder } from "./vendor/meshopt_decoder.module.js";
+import { selectVisibleParts } from "./furniture-visible-bounds.js";
 
 const loader = new GLTFLoader();
 loader.setMeshoptDecoder(MeshoptDecoder);
@@ -12,13 +13,13 @@ const HINT_IDLE_TOUR =
 const HINT_IDLE_VIEW =
   "M — каталог · клик — выбор · Shift/Ctrl+клик — группа · E правка · C копия · X удалить · Ctrl+Z";
 const HINT_PLACE_TOUR =
-  "Стрелки — двигать · Home/End — поворот · Insert слева↔справа · Delete спереди↔сзади · PgUp/PgDn · T · х/ъ · -/= · Enter · Esc · Ctrl+Z";
+  "Стрелки — двигать · Home/End — поворот · Insert слева↔справа · Delete спереди↔сзади · PgUp/PgDn · T · ,/. масштаб · х/ъ · -/= · Enter · Esc · Ctrl+Z";
 const HINT_PLACE_AIM =
-  "Мышь — точка · клик или Enter — в правку · Esc — отмена";
+  "Мышь — точка · ,/. масштаб · клик или Enter — в правку · Esc — отмена";
 const HINT_PLACE_VIEW =
-  "Стрелки · у стены: держать/~3 нажатия — проход · Home/End · Insert слева↔справа · Delete спереди↔сзади · PgUp/PgDn · T · х/ъ · -/= · Enter · Esc";
+  "Стрелки · у стены: держать/~3 нажатия — проход · Home/End · Insert слева↔справа · Delete спереди↔сзади · PgUp/PgDn · T · ,/. масштаб · х/ъ · -/= · Enter · Esc";
 const HINT_PLACE_GROUP =
-  "Группа: стрелки · Home/End · Insert слева↔справа · Delete спереди↔сзади · у стены держать/~3 · х/ъ · -/= · Enter · Esc";
+  "Группа: стрелки · Home/End · Insert слева↔справа · Delete спереди↔сзади · у стены держать/~3 · ,/. масштаб · х/ъ · -/= · Enter · Esc";
 const HINT_SELECT_VIEW =
   "Выбрано · E — правка · C — копия · X — удалить · клик — сменить · Shift/Ctrl+клик — группа · Esc — снять";
 const HINT_DELETE_TOUR =
@@ -35,8 +36,13 @@ const STEP = 1.35; // м/с
 const LIFT_STEP = 0.9; // м/с вдоль стены
 const WALL_MAX_H = 2.55;
 
+/** bump при strip/optimize GLB — иначе браузер держит старый хелпер ±1 м (W08). */
+const FURN_GLB_V = 2;
+
 function fileUrl(file) {
-  return new URL("./furniture/" + file, import.meta.url).href;
+  const u = new URL("./furniture/" + file, import.meta.url);
+  u.searchParams.set("v", String(FURN_GLB_V));
+  return u.href;
 }
 
 function loadModel(file) {
@@ -235,6 +241,14 @@ export function createTourFurniturePlace(opts) {
   const _wallPassDir = new THREE.Vector3();
   const undoStack = [];
   const UNDO_MAX = 40;
+  /** Последние sx/sy/sz/mirror по id каталога — повторная вставка с теми же трансформами. */
+  const lastPoseById = new Map();
+  /** Предрасчитанные габариты + lastPose: furniture/model-meta.json */
+  let modelMeta = { v: 1, models: {} };
+  let modelMetaReady = null;
+  let metaSaveTimer = null;
+  const META_URL = "/api/furniture-meta";
+  const META_STATIC = new URL("./furniture/model-meta.json", import.meta.url).href;
   const _groupQuat = new THREE.Quaternion();
   const _groupScale = new THREE.Vector3();
   const _groupPos = new THREE.Vector3();
@@ -251,11 +265,19 @@ export function createTourFurniturePlace(opts) {
   const _n = new THREE.Vector3();
   const _tangent = new THREE.Vector3();
   const _box = new THREE.Box3();
+  const _tmpBox = new THREE.Box3();
   const _size = new THREE.Vector3();
   const _center = new THREE.Vector3();
   const _corner = new THREE.Vector3();
   const FOOT_EPS = 0.004;
   const WALL_EPS = 0.003;
+  /** Зазор до контура стены: почти вплотную (не 4 см — иначе унитаз/шкаф не подходят). */
+  const FOOT_PAD = 0.002;
+  /**
+   * При расширении в нишу оставлять ≥1 см до каждой стены —
+   * иначе вплотную по ширине нельзя ездить вперёд-назад.
+   */
+  const NICHE_CLEAR = 0.01;
   const _obCorners = Array.from({ length: 8 }, () => new THREE.Vector3());
   const _localFurnBox = new THREE.Box3();
   let _localFurnBoxValid = false;
@@ -263,6 +285,8 @@ export function createTourFurniturePlace(opts) {
   const _wallAxisA = new THREE.Vector3();
   const _wallAxisB = new THREE.Vector3();
   const _snapDir = new THREE.Vector3();
+  const _scaleDir = new THREE.Vector3();
+  const _scaleDirN = new THREE.Vector3();
   const _selInv = new THREE.Matrix4();
   const _selMat = new THREE.Matrix4();
   const _selBox = new THREE.Box3();
@@ -338,16 +362,8 @@ export function createTourFurniturePlace(opts) {
   function makeOrientedSelectHelper(holder, color, data) {
     holder.updateMatrixWorld(true);
     _selInv.copy(holder.matrixWorld).invert();
-    _box.makeEmpty();
-    holder.traverse((obj) => {
-      if (!obj.isMesh || !obj.geometry || obj.userData.selectHelper) return;
-      if (!obj.geometry.boundingBox) obj.geometry.computeBoundingBox();
-      const bb = obj.geometry.boundingBox;
-      if (!bb || bb.isEmpty()) return;
-      _selMat.multiplyMatrices(_selInv, obj.matrixWorld);
-      _selBox.copy(bb).applyMatrix4(_selMat);
-      _box.union(_selBox);
-    });
+    // точные вершины без junk-хелперов (±1 м у W08), не quantized boundingBox
+    measureMeshBoxPrecise(holder, _box, _selInv);
     if (_box.isEmpty() && data) {
       const w = Math.max(0.05, (data.cmW || 0.8) * Math.abs(data.sx || 1));
       const d = Math.max(0.05, (data.cmD || 0.8) * Math.abs(data.sz || 1));
@@ -622,8 +638,87 @@ export function createTourFurniturePlace(opts) {
     return true;
   }
 
+  /** Материал реально рисуется (не invisible / opacity≈0). */
+  function meshHasShadingThree(obj) {
+    const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+    for (const m of mats) {
+      if (!m) continue;
+      if (m.visible === false) continue;
+      if (m.transparent && m.opacity <= 0.02) continue;
+      return true;
+    }
+    return false;
+  }
+
+  function meshAncestorVisible(obj) {
+    let p = obj;
+    while (p) {
+      if (p.visible === false) return false;
+      p = p.parent;
+    }
+    return true;
+  }
+
   /**
-   * Масштаб + ноги в локальный y=0 по AABB.
+   * Собрать части модели для selectVisibleParts (только потенциально видимые меши).
+   * @returns {{ name: string, min: number[], max: number[], visible: boolean, hasShading: boolean, box: THREE.Box3 }[]}
+   */
+  function collectMeshBoundParts(root, toLocalInv, precise) {
+    const parts = [];
+    if (!root) return parts;
+    root.updateMatrixWorld(true);
+    root.traverse((obj) => {
+      if (!obj.isMesh || !obj.geometry || obj.userData.selectHelper) return;
+      _selMat.copy(obj.matrixWorld);
+      if (toLocalInv) _selMat.premultiply(toLocalInv);
+      _tmpBox.makeEmpty();
+      if (precise) {
+        const pos = obj.geometry.attributes.position;
+        if (!pos) return;
+        for (let i = 0; i < pos.count; i++) {
+          _corner.fromBufferAttribute(pos, i).applyMatrix4(_selMat);
+          _tmpBox.expandByPoint(_corner);
+        }
+      } else {
+        obj.geometry.computeBoundingBox();
+        const bb = obj.geometry.boundingBox;
+        if (!bb || bb.isEmpty()) return;
+        _tmpBox.copy(bb).applyMatrix4(_selMat);
+      }
+      if (_tmpBox.isEmpty()) return;
+      parts.push({
+        name: (obj.name || "").trim(),
+        min: [_tmpBox.min.x, _tmpBox.min.y, _tmpBox.min.z],
+        max: [_tmpBox.max.x, _tmpBox.max.y, _tmpBox.max.z],
+        visible: meshAncestorVisible(obj),
+        hasShading: meshHasShadingThree(obj),
+        box: _tmpBox.clone(),
+      });
+    });
+    return parts;
+  }
+
+  /**
+   * AABB только по видимым деталям (`furniture-visible-bounds.js`).
+   * toLocalInv — бокс в этой СК (wrap/ghostRoot).
+   */
+  function measureMeshBox(root, out = _box, toLocalInv = null) {
+    out.makeEmpty();
+    const kept = selectVisibleParts(collectMeshBoundParts(root, toLocalInv, false));
+    for (const p of kept) out.union(p.box);
+    return out;
+  }
+
+  /** Точный AABB по вершинам видимых мешей (посадка ног / коллизии / каркас). */
+  function measureMeshBoxPrecise(root, out = _box, toLocalInv = null) {
+    out.makeEmpty();
+    const kept = selectVisibleParts(collectMeshBoundParts(root, toLocalInv, true));
+    for (const p of kept) out.union(p.box);
+    return out;
+  }
+
+  /**
+   * Масштаб + ноги в локальный y=0 по фактическим вершинам мешей.
    * Вызывать только пока предок в начале координат (иначе world≠local).
    */
   function seatModelFeet(model, scaleX, scaleY, scaleZ) {
@@ -633,30 +728,98 @@ export function createTourFurniturePlace(opts) {
     model.updateMatrixWorld(true);
     model.scale.set(scaleX, scaleY, scaleZ);
     model.updateMatrixWorld(true);
-    _box.setFromObject(model);
+    measureMeshBoxPrecise(model, _box);
+    if (_box.isEmpty()) measureMeshBox(model, _box);
+    if (_box.isEmpty()) return;
     _box.getCenter(_center);
     model.position.x -= _center.x;
     model.position.z -= _center.z;
     model.position.y -= _box.min.y;
     model.updateMatrixWorld(true);
+    measureMeshBoxPrecise(model, _box);
+    if (_box.isEmpty()) measureMeshBox(model, _box);
+    if (!_box.isEmpty() && Math.abs(_box.min.y) > 1e-4) {
+      model.position.y -= _box.min.y;
+      model.updateMatrixWorld(true);
+    }
+  }
+
+  /**
+   * baseSize = габарит модели после fit, БЕЗ sx/sy/sz wrap и scale ghostRoot.
+   * Иначе после правки cm «впекают» масштаб и при загрузке он применяется дважды —
+   * визуально объект проседает/ломает ноги относительно пола.
+   */
+  function syncBaseSizeFromModel(model) {
+    if (!model) return;
+    const scaleSaved = [];
+    for (let p = model.parent; p; p = p.parent) {
+      if (p === scene || p === bucket || p === placed) break;
+      scaleSaved.push([p, p.scale.x, p.scale.y, p.scale.z]);
+      p.scale.set(1, 1, 1);
+    }
+    model.updateMatrixWorld(true);
+    measureMeshBox(model, _box);
+    for (let i = scaleSaved.length - 1; i >= 0; i--) {
+      const [p, x, y, z] = scaleSaved[i];
+      p.scale.set(x, y, z);
+    }
+    if (scaleSaved.length) model.updateMatrixWorld(true);
+    if (_box.isEmpty()) return;
+    _box.getSize(_size);
+    baseSize = {
+      w: Math.max(0.02, _size.x),
+      d: Math.max(0.02, _size.z),
+      h: Math.max(0.02, _size.y),
+    };
+    invalidateLocalFurnBox();
   }
 
   function measureGhostBox() {
     ghostRoot.updateMatrixWorld(true);
-    _box.setFromObject(ghostRoot);
+    measureMeshBox(ghostRoot, _box);
+    if (_box.isEmpty()) {
+      // fallback только если мешей нет; precise=true — по вершинам
+      _box.setFromObject(ghostRoot, true);
+    }
     _box.getSize(_size);
     _box.getCenter(_center);
     return _box;
   }
 
-  /** Верх пола: walkGround + луч вниз. Стены/рамы не брать — иначе прыжок на верх стены. */
+  /**
+   * Низ mesh относительно пола.
+   * stickToFloor: прижать к плите (и вверх и вниз).
+   * Иначе только не дать провалиться — сохранённую/поднятую высоту не сбрасывать.
+   */
+  function snapRootFeetToFloor(root, opts = {}) {
+    if (!root) return;
+    const stick = !!opts.stickToFloor;
+    root.updateMatrixWorld(true);
+    measureMeshBoxPrecise(root, _box);
+    if (_box.isEmpty()) measureMeshBox(root, _box);
+    if (_box.isEmpty()) return;
+    _box.getCenter(_center);
+    const floorY = sampleFloorY(_center.x, _center.z);
+    const dy = floorY + FOOT_EPS - _box.min.y;
+    if (dy > 0 || stick) root.position.y += dy;
+  }
+
+  function underFurnitureRoot(obj) {
+    for (let p = obj; p; p = p.parent) {
+      if (p === ghostRoot || p === placed || p.userData?.tourFurn) return true;
+      if (p.name === "tour-furniture-ghost" || p.name === "tour-furniture-placed") return true;
+    }
+    return false;
+  }
+
+  /** Верх пола: walkGround + луч вниз. Стены/рамы/мебель не брать — иначе ванна садится на свой борт или проваливается. */
   function sampleFloorY(x, z) {
     let y = walkGround(x, z);
     raycaster.set(_tmp.set(x, 10, z), _n.set(0, -1, 0));
     raycaster.far = 14;
     const hits = raycaster.intersectObjects(meshTargets(), true);
     for (const h of hits) {
-      if (!h.face) continue;
+      if (!h.face || underFurnitureRoot(h.object)) continue;
       const ud = h.object.userData || {};
       if (ud.finish === "wall" || ud.finish === "frame" || ud.finish === "door") continue;
       if (ud.foot && ud.finish !== "floor" && !ud.floorSlab && !ud.walkTop) continue;
@@ -670,29 +833,48 @@ export function createTourFurniturePlace(opts) {
     return y;
   }
 
-  function snapFeet(strictFloor) {
-    const box = measureGhostBox();
+  /**
+   * @param {boolean|{stick?: boolean}} [opts]
+   *   stick — прижать низ к полу; без stick только подъём из пола (PgUp/сохранённый z живы).
+   */
+  function snapFeet(opts = {}) {
+    const stick = opts === true || !!opts?.stick;
+    ghostRoot.updateMatrixWorld(true);
+    measureMeshBoxPrecise(ghostRoot, _box);
+    if (_box.isEmpty()) measureGhostBox();
+    else {
+      _box.getSize(_size);
+      _box.getCenter(_center);
+    }
     const floorY = sampleFloorY(_center.x, _center.z);
-    const dy = floorY + FOOT_EPS - box.min.y;
-    // в проходе сквозь стену — только не проваливаться, вверх не поднимать
+    const dy = floorY + FOOT_EPS - _box.min.y;
+    // в проходе сквозь стену — только не проваливаться
     if (wallPassActive) {
       if (dy > 0) ghostRoot.position.y += dy;
       return;
     }
-    if (strictFloor || dy > 0) ghostRoot.position.y += dy;
+    if (dy > 0 || stick) ghostRoot.position.y += dy;
   }
 
-  /** Не проваливаться в пол; при необходимости — потолок. По низу/верху AABB, не по pivot. */
+  /** Не проваливаться в пол; при необходимости — потолок. По низу/верху меша, не по pivot. */
   function clampGhostToFloorAndCeiling() {
-    measureGhostBox();
+    ghostRoot.updateMatrixWorld(true);
+    measureMeshBoxPrecise(ghostRoot, _box);
+    if (_box.isEmpty()) measureGhostBox();
+    else {
+      _box.getSize(_size);
+      _box.getCenter(_center);
+    }
     const floorY = sampleFloorY(_center.x, _center.z);
     const lift = (floorY + FOOT_EPS) - _box.min.y;
     if (lift > 0) ghostRoot.position.y += lift;
-    measureGhostBox();
+    measureMeshBoxPrecise(ghostRoot, _box);
+    if (_box.isEmpty()) measureGhostBox();
     const maxTop = floorY + WALL_MAX_H;
     if (_box.max.y > maxTop) {
       ghostRoot.position.y -= _box.max.y - maxTop;
-      measureGhostBox();
+      measureMeshBoxPrecise(ghostRoot, _box);
+      if (_box.isEmpty()) measureGhostBox();
       const again = (floorY + FOOT_EPS) - _box.min.y;
       if (again > 0) ghostRoot.position.y += again;
     }
@@ -718,9 +900,9 @@ export function createTourFurniturePlace(opts) {
   }
 
   /**
-   * AABB содержимого в СК ghostRoot (root → identity), затем углы × matrixWorld.
+   * AABB содержимого в СК ghostRoot по фактическим вершинам (не quantized boundingBox —
+   * иначе шкаф «упирается» за ~40 см до стены).
    * Scale root сбрасываем на время замера — иначе он попадёт и в AABB, и в matrixWorld.
-   * Wrap.scale / wrap.rotation / offset остаются и входят в локальный бокс.
    */
   function ensureLocalFurnBox() {
     if (_localFurnBoxValid) return;
@@ -733,10 +915,11 @@ export function createTourFurniturePlace(opts) {
     ghostRoot.quaternion.identity();
     ghostRoot.scale.set(1, 1, 1);
     ghostRoot.updateMatrixWorld(true);
+    _selInv.copy(ghostRoot.matrixWorld).invert();
     _localFurnBox.makeEmpty();
     for (const wrap of wraps) {
       if (!wrap) continue;
-      _box.setFromObject(wrap);
+      measureMeshBoxPrecise(wrap, _box, _selInv);
       if (!_box.isEmpty()) _localFurnBox.union(_box);
     }
     ghostRoot.position.copy(_savedPos);
@@ -1252,24 +1435,15 @@ export function createTourFurniturePlace(opts) {
     return Math.max(0.05, Math.min(ex, ez)) + 0.015;
   }
 
-  const FOOT_PAD = 0.04;
-
   /** Локальный AABB содержимого wrap в СК wrap (для OBB-углов члена группы). */
   function measureWrapLocalBox(wrap, out) {
-    out.makeEmpty();
-    if (!wrap) return out;
+    if (!wrap) {
+      out.makeEmpty();
+      return out;
+    }
     wrap.updateMatrixWorld(true);
     _selInv.copy(wrap.matrixWorld).invert();
-    wrap.traverse((obj) => {
-      if (!obj.isMesh || !obj.geometry || obj.userData.selectHelper) return;
-      if (!obj.geometry.boundingBox) obj.geometry.computeBoundingBox();
-      const bb = obj.geometry.boundingBox;
-      if (!bb || bb.isEmpty()) return;
-      _selMat.multiplyMatrices(_selInv, obj.matrixWorld);
-      _box.copy(bb).applyMatrix4(_selMat);
-      out.union(_box);
-    });
-    return out;
+    return measureMeshBoxPrecise(wrap, out, _selInv);
   }
 
   /**
@@ -1531,9 +1705,11 @@ export function createTourFurniturePlace(opts) {
     const blockHit = nearAt?.hit || null;
     const wantBlocked = furnitureBlockedAt(wantX, wantZ)
       || furnitureInsideAnyWall(wantX, wantZ);
+    // Только у самого контакта (не 25 см) — иначе унитаз/шкаф «упираются» за полметра до стены.
+    const CONTACT_APPROACH = 0.04;
     const pressingIntoWall = !!(
       blockHit
-      && nearAt.gap < 0.25
+      && nearAt.gap < CONTACT_APPROACH
       && dir.dot(blockHit.normal) < -0.12
     );
 
@@ -1570,7 +1746,9 @@ export function createTourFurniturePlace(opts) {
         }
       }
     } else {
-      ghostRoot.position.copy(_movePrev);
+      // Уже почти вплотную и жмём в стену — шаг разрешаем, вытолкнет pushOut (не стопорить за 25 см).
+      ghostRoot.position.x = wantX;
+      ghostRoot.position.z = wantZ;
       ghostRoot.updateMatrixWorld(true);
       pushOutOfFootWalls(clearance);
     }
@@ -1850,6 +2028,7 @@ export function createTourFurniturePlace(opts) {
     ghostRoot.visible = true;
     rec._undoBefore = cloneFurnData(rec.data);
     applyRecordPoseToGhost(rec.data, holder.position);
+    syncBaseSizeFromModel(model);
     setMode("place");
     applySurface({ throughWalls: true });
     status(`Правка ${item.id}: стрелки · Home/End · Insert/Delete · Enter — зафиксировать · Esc — отмена`);
@@ -1884,14 +2063,8 @@ export function createTourFurniturePlace(opts) {
       const cmW = rec.data.cmW || footprintFromCm(item.cm).w;
       const cmD = rec.data.cmD || footprintFromCm(item.cm).d;
       const cmH = rec.data.cmH || footprintFromCm(item.cm).h;
-      _box.setFromObject(model);
-      _box.getSize(_size);
-      const fit = Math.min(
-        cmW / Math.max(_size.x, 1e-3),
-        cmD / Math.max(_size.z, 1e-3),
-        cmH / Math.max(_size.y, 1e-3),
-      );
-      seatModelFeet(model, fit, fit, fit);
+      fitAndSeatModel(model, item.id, { w: cmW, d: cmD, h: cmH });
+      syncBaseSizeFromModel(model);
       const wrap = new THREE.Group();
       wrap.add(model);
       ghostModel = model;
@@ -2097,14 +2270,7 @@ export function createTourFurniturePlace(opts) {
         const cmW = rec.data.cmW || footprintFromCm(item.cm).w;
         const cmD = rec.data.cmD || footprintFromCm(item.cm).d;
         const cmH = rec.data.cmH || footprintFromCm(item.cm).h;
-        _box.setFromObject(model);
-        _box.getSize(_size);
-        const fit = Math.min(
-          cmW / Math.max(_size.x, 1e-3),
-          cmD / Math.max(_size.z, 1e-3),
-          cmH / Math.max(_size.y, 1e-3),
-        );
-        seatModelFeet(model, fit, fit, fit);
+        fitAndSeatModel(model, item.id, { w: cmW, d: cmD, h: cmH });
         const wrap = new THREE.Group();
         wrap.add(model);
         wrap.position.set(
@@ -2216,6 +2382,597 @@ export function createTourFurniturePlace(opts) {
     };
   }
 
+  function poseSnapshot() {
+    return {
+      sx: Math.max(0.05, Math.abs(sx || 1)),
+      sy: Math.max(0.05, Math.abs(sy || 1)),
+      sz: Math.max(0.05, Math.abs(sz || 1)),
+      mirror: !!mirror,
+      mirrorZ: !!mirrorZ,
+    };
+  }
+
+  function metaEntry(id) {
+    return id ? modelMeta.models?.[id] || null : null;
+  }
+
+  /** Нативный AABB из model-meta (метры), без runtime-перемера. */
+  function nativeSizeOf(id, item = null) {
+    const m = metaEntry(id)?.nativeM;
+    if (m && m.w > 0 && m.d > 0 && m.h > 0) return m;
+    if (item?.cm) return footprintFromCm(item.cm);
+    return null;
+  }
+
+  /** Целевой габарит из catalogCm в meta (не из битого cmW инстанса). */
+  function catalogTargetOf(id, item = null) {
+    const cm = metaEntry(id)?.catalogCm;
+    if (Array.isArray(cm) && cm.length >= 3) {
+      return { w: cm[0] / 100, d: cm[1] / 100, h: cm[2] / 100 };
+    }
+    if (item?.cm) return footprintFromCm(item.cm);
+    return null;
+  }
+
+  function fitScaleForTarget(target, native) {
+    if (!target || !native) return 1;
+    return Math.min(
+      target.w / Math.max(native.w, 1e-3),
+      target.d / Math.max(native.d, 1e-3),
+      target.h / Math.max(native.h, 1e-3),
+    );
+  }
+
+  /**
+   * Fit + посадка ног из model-meta (seatOffset / nativeMin).
+   * Инстансный cmW не используем — там часто впекан sx. lastPose → wrap отдельно.
+   */
+  function fitAndSeatModel(model, id, target = null) {
+    const meta = metaEntry(id);
+    const native = nativeSizeOf(id);
+    const tgt = target || catalogTargetOf(id);
+    let fit = 1;
+    if (meta?.fit > 0 && tgt && native) {
+      // meta.fit посчитан к catalogCm — совпадает с tgt из catalog
+      fit = meta.fit;
+    } else if (native && tgt) {
+      fit = fitScaleForTarget(tgt, native);
+    } else {
+      measureMeshBox(model, _box);
+      _box.getSize(_size);
+      if (tgt) {
+        fit = Math.min(
+          tgt.w / Math.max(_size.x, 1e-3),
+          tgt.d / Math.max(_size.z, 1e-3),
+          tgt.h / Math.max(_size.y, 1e-3),
+        );
+      }
+      seatModelFeet(model, fit, fit, fit);
+      return fit;
+    }
+
+    model.position.set(0, 0, 0);
+    model.rotation.set(0, 0, 0);
+    model.scale.set(fit, fit, fit);
+    const off = meta?.seatOffset;
+    if (off && off.length >= 3) {
+      model.position.set(off[0] * fit, off[1] * fit, off[2] * fit);
+    } else if (meta?.nativeCenter && meta?.nativeMin) {
+      const c = meta.nativeCenter;
+      const mn = meta.nativeMin;
+      model.position.set(-c[0] * fit, -mn[1] * fit, -c[2] * fit);
+    } else {
+      seatModelFeet(model, fit, fit, fit);
+      return fit;
+    }
+    model.updateMatrixWorld(true);
+    // страховка: низ не ниже 0 в локали модели
+    measureMeshBox(model, _box);
+    if (!_box.isEmpty() && _box.min.y < -1e-4) {
+      model.position.y -= _box.min.y;
+      model.updateMatrixWorld(true);
+    }
+    return fit;
+  }
+
+  function seedLastPoseFromMeta() {
+    const models = modelMeta.models || {};
+    for (const [id, entry] of Object.entries(models)) {
+      const p = entry?.lastPose;
+      if (!p) continue;
+      lastPoseById.set(id, {
+        sx: Math.max(0.05, Math.abs(p.sx || 1)),
+        sy: Math.max(0.05, Math.abs(p.sy || 1)),
+        sz: Math.max(0.05, Math.abs(p.sz || 1)),
+        mirror: !!p.mirror,
+        mirrorZ: !!p.mirrorZ,
+      });
+    }
+  }
+
+  async function ensureModelMeta() {
+    if (modelMetaReady) return modelMetaReady;
+    modelMetaReady = (async () => {
+      let data = null;
+      try {
+        const res = await fetch(META_URL, { credentials: "same-origin", cache: "no-store" });
+        if (res.ok) data = await res.json();
+      } catch {
+        /* fallback static */
+      }
+      if (!data?.models) {
+        try {
+          const res = await fetch(META_STATIC, { cache: "no-store" });
+          if (res.ok) data = await res.json();
+        } catch {
+          /* ignore */
+        }
+      }
+      if (data?.models && typeof data.models === "object") {
+        modelMeta = { v: data.v || 1, updated: data.updated, models: data.models };
+        seedLastPoseFromMeta();
+      }
+      return modelMeta;
+    })();
+    return modelMetaReady;
+  }
+
+  function scheduleSaveModelMeta() {
+    if (metaSaveTimer) clearTimeout(metaSaveTimer);
+    metaSaveTimer = setTimeout(() => {
+      metaSaveTimer = null;
+      saveModelMeta().catch((err) => console.warn("model-meta save", err));
+    }, 400);
+  }
+
+  async function saveModelMeta() {
+    const models = { ...(modelMeta.models || {}) };
+    for (const [id, pose] of lastPoseById.entries()) {
+      const prev = models[id] && typeof models[id] === "object" ? models[id] : {};
+      models[id] = {
+        ...prev,
+        lastPose: {
+          sx: Math.max(0.05, Math.abs(pose.sx || 1)),
+          sy: Math.max(0.05, Math.abs(pose.sy || 1)),
+          sz: Math.max(0.05, Math.abs(pose.sz || 1)),
+          mirror: !!pose.mirror,
+          mirrorZ: !!pose.mirrorZ,
+        },
+      };
+    }
+    modelMeta = {
+      v: 1,
+      updated: new Date().toISOString(),
+      models,
+    };
+    try {
+      const res = await fetch(META_URL, {
+        method: "PUT",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(modelMeta),
+      });
+      if (!res.ok) console.warn("model-meta PUT", res.status);
+    } catch (err) {
+      console.warn("model-meta PUT", err);
+    }
+  }
+
+  function rememberPoseForId(id, data = null) {
+    if (!id) return;
+    const pose = data
+      ? {
+          sx: Math.max(0.05, Math.abs(data.sx || 1)),
+          sy: Math.max(0.05, Math.abs(data.sy || 1)),
+          sz: Math.max(0.05, Math.abs(data.sz || 1)),
+          mirror: !!data.mirror,
+          mirrorZ: !!data.mirrorZ,
+        }
+      : poseSnapshot();
+    lastPoseById.set(id, pose);
+    const prev = modelMeta.models?.[id] && typeof modelMeta.models[id] === "object"
+      ? modelMeta.models[id]
+      : {};
+    if (!modelMeta.models) modelMeta.models = {};
+    modelMeta.models[id] = { ...prev, lastPose: pose };
+    scheduleSaveModelMeta();
+  }
+
+  /** Взять позы из lastPoseById / model-meta / последней такой же модели в сцене. */
+  function recallPoseForId(id) {
+    if (!id) return null;
+    const hit = lastPoseById.get(id);
+    if (hit) return hit;
+    const fromMeta = metaEntry(id)?.lastPose;
+    if (fromMeta) {
+      const pose = {
+        sx: Math.max(0.05, Math.abs(fromMeta.sx || 1)),
+        sy: Math.max(0.05, Math.abs(fromMeta.sy || 1)),
+        sz: Math.max(0.05, Math.abs(fromMeta.sz || 1)),
+        mirror: !!fromMeta.mirror,
+        mirrorZ: !!fromMeta.mirrorZ,
+      };
+      lastPoseById.set(id, pose);
+      return pose;
+    }
+    for (let i = records.length - 1; i >= 0; i--) {
+      const d = records[i]?.data;
+      if (d?.id === id) {
+        const pose = {
+          sx: Math.max(0.05, Math.abs(d.sx || 1)),
+          sy: Math.max(0.05, Math.abs(d.sy || 1)),
+          sz: Math.max(0.05, Math.abs(d.sz || 1)),
+          mirror: !!d.mirror,
+          mirrorZ: !!d.mirrorZ,
+        };
+        lastPoseById.set(id, pose);
+        return pose;
+      }
+    }
+    return null;
+  }
+
+  function applyRecalledPose(pose) {
+    if (!pose) {
+      sx = sy = sz = 1;
+      mirror = false;
+      mirrorZ = false;
+      return;
+    }
+    sx = pose.sx;
+    sy = pose.sy;
+    sz = pose.sz;
+    mirror = !!pose.mirror;
+    mirrorZ = !!pose.mirrorZ;
+  }
+
+  /** Равномерный масштаб </> : было 0.4…2.5 — мало для проёма; теперь 0.15…8. */
+  const SCALE_MIN = 0.15;
+  const SCALE_MAX = 8;
+
+  function clampScale(v) {
+    return Math.min(SCALE_MAX, Math.max(SCALE_MIN, v));
+  }
+
+  /** Локальная +X/+Z → мир (yaw предмета или группы). */
+  function localAxisWorld(axis, out = _scaleDir) {
+    const gy = groupMembers?.length ? ghostRoot.rotation.y : yaw;
+    const c = Math.cos(gy);
+    const s = Math.sin(gy);
+    if (axis === "x") out.set(c, 0, -s);
+    else out.set(s, 0, c);
+    return out;
+  }
+
+  /** Свободный зазор от ведущей грани OBB до стены вдоль dir (mesh-луч). */
+  function freeGapAlongRay(dir, maxDist = 8) {
+    ghostRoot.updateMatrixWorld(true);
+    const found = findWallHitFromCorners(dir, maxDist);
+    if (!found || !Number.isFinite(found.along)) return Infinity;
+    // вплотную (along≈0) — зазор 0; не вычитать WALL_EPS заранее (иначе ниша не заполняется)
+    return Math.max(0, found.along);
+  }
+
+  /**
+   * Упор / проникновение вдоль dir (нормаль стены против dir).
+   * Близость к перпендикулярной стене (спинка) не считается.
+   * @param {"touch"|"penetrate"} mode touch — зазор < WALL_EPS; penetrate — внутри / gap < 0
+   */
+  function contactAlongDirAt(px, pz, dir, mode = "touch") {
+    if (furnitureInsideAnyWall(px, pz)) {
+      const near = nearestBlockingFoot(px, pz);
+      if (!near?.hit) return true;
+      if (near.hit.normal.dot(dir) >= -0.2) return false;
+      return mode === "penetrate" ? near.gap < -0.002 : true;
+    }
+    const near = nearestBlockingFoot(px, pz);
+    if (!near?.hit) return false;
+    if (near.hit.normal.dot(dir) >= -0.35) return false;
+    if (mode === "penetrate") return near.gap < -0.002;
+    return near.gap < WALL_EPS;
+  }
+
+  /**
+   * Зазор по контурам: сколько можно сдвинуть центр вдоль dir, пока пятно
+   * не упрётся в стену *в этом направлении* (≈ прирост грани).
+   */
+  function freeGapAlongFoot(dir, maxDist = 6) {
+    _scaleDir.copy(dir).setY(0);
+    if (_scaleDir.lengthSq() < 1e-12) return Infinity;
+    _scaleDir.normalize();
+    const ox = ghostRoot.position.x;
+    const oz = ghostRoot.position.z;
+    // уже внутри — расти нельзя; вплотную (gap≈0) — тоже 0
+    if (contactAlongDirAt(ox, oz, _scaleDir, "penetrate")) return 0;
+    if (contactAlongDirAt(ox, oz, _scaleDir, "touch")) return 0;
+    let lo = 0;
+    let hi = maxDist;
+    for (let i = 0; i < 14; i++) {
+      const mid = (lo + hi) * 0.5;
+      const px = ox + _scaleDir.x * mid;
+      const pz = oz + _scaleDir.z * mid;
+      if (contactAlongDirAt(px, pz, _scaleDir, "touch")) hi = mid;
+      else lo = mid;
+    }
+    return Math.max(0, lo);
+  }
+
+  /**
+   * Зазор для роста: предпочитаем mesh-луч (точный до плоскости стены).
+   * Foot — только если луча нет (иначе ложный 0 оставляет щель в нише).
+   */
+  function freeGapAlong(dir, maxDist = 8) {
+    const ray = freeGapAlongRay(dir, maxDist);
+    if (Number.isFinite(ray) && ray < 1e5) return ray;
+    return freeGapAlongFoot(dir, maxDist);
+  }
+
+  /** После роста — только реальное проникновение в стену (не касание вровень). */
+  function growthStillBlocked(rooms) {
+    const px = ghostRoot.position.x;
+    const pz = ghostRoot.position.z;
+    if (furnitureInsideAnyWall(px, pz)) return true;
+    for (const room of rooms) {
+      _scaleDir.set(room.ux, 0, room.uz);
+      _scaleDirN.copy(_scaleDir).negate();
+      if (
+        contactAlongDirAt(px, pz, _scaleDir, "penetrate")
+        || contactAlongDirAt(px, pz, _scaleDirN, "penetrate")
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /** Зазор, доступный для роста: сырой минус NICHE_CLEAR (1 см до стены). */
+  function usableNicheGap(rawGap) {
+    if (!Number.isFinite(rawGap)) return 1e6;
+    return Math.max(0, rawGap - NICHE_CLEAR);
+  }
+
+  /**
+   * Снимок зазоров/полуразмеров до увеличения масштаба вдоль оси u (XZ).
+   * gap* уже с вычетом NICHE_CLEAR — рост не доводит до упора вплотную.
+   * @returns {{ ePos: number, eNeg: number, gapPos: number, gapNeg: number, ux: number, uz: number }}
+   */
+  function captureAxisRoom(u) {
+    _scaleDir.copy(u).setY(0);
+    if (_scaleDir.lengthSq() < 1e-12) _scaleDir.set(1, 0, 0);
+    else _scaleDir.normalize();
+    _scaleDirN.copy(_scaleDir).negate();
+    ghostRoot.updateMatrixWorld(true);
+    return {
+      ePos: extentAlongDir(_scaleDir),
+      eNeg: extentAlongDir(_scaleDirN),
+      gapPos: usableNicheGap(freeGapAlong(_scaleDir)),
+      gapNeg: usableNicheGap(freeGapAlong(_scaleDirN)),
+      ux: _scaleDir.x,
+      uz: _scaleDir.z,
+    };
+  }
+
+  /**
+   * Насколько нужно ужать текущий габарит, чтобы прирост влез в sum(gap).
+   * 1 = места хватает; <1 — умножить линейный масштаб на это.
+   */
+  function growthFitRatio(room) {
+    _scaleDir.set(room.ux, 0, room.uz);
+    _scaleDirN.copy(_scaleDir).negate();
+    ghostRoot.updateMatrixWorld(true);
+    const ePos2 = extentAlongDir(_scaleDir);
+    const eNeg2 = extentAlongDir(_scaleDirN);
+    const oldW = room.ePos + room.eNeg;
+    const newW = ePos2 + eNeg2;
+    const grow = newW - oldW;
+    if (!(grow > 1e-8) || !(oldW > 1e-8)) return 1;
+    const gapPos = Number.isFinite(room.gapPos) ? room.gapPos : 1e6;
+    const gapNeg = Number.isFinite(room.gapNeg) ? room.gapNeg : 1e6;
+    const maxGrow = Math.max(0, gapPos) + Math.max(0, gapNeg);
+    if (grow <= maxGrow + 1e-7) return 1;
+    return Math.max(1e-4, (oldW + maxGrow) / newW);
+  }
+
+  /**
+   * Сдвиг центра: рост уходит в свободную сторону; у стены грань остаётся.
+   * Вызывать после финального масштаба (уже ужатого под проём).
+   */
+  function shiftScaleGrowthToFreeSide(room) {
+    _scaleDir.set(room.ux, 0, room.uz);
+    _scaleDirN.copy(_scaleDir).negate();
+    ghostRoot.updateMatrixWorld(true);
+    const ePos2 = extentAlongDir(_scaleDir);
+    const eNeg2 = extentAlongDir(_scaleDirN);
+    const growPos = Math.max(0, ePos2 - room.ePos);
+    const growNeg = Math.max(0, eNeg2 - room.eNeg);
+    const gapPos = Number.isFinite(room.gapPos) ? room.gapPos : 1e6;
+    const gapNeg = Number.isFinite(room.gapNeg) ? room.gapNeg : 1e6;
+    const overflowNeg = Math.max(0, growNeg - gapNeg);
+    const overflowPos = Math.max(0, growPos - gapPos);
+    const shift = overflowNeg - overflowPos;
+    if (Math.abs(shift) < 1e-7) return;
+    ghostRoot.position.x += room.ux * shift;
+    ghostRoot.position.z += room.uz * shift;
+  }
+
+  /**
+   * После увеличения: вписать в проём и сдвинуть в свободную сторону.
+   * @param {ReturnType<typeof captureAxisRoom>[]} rooms
+   * @param {{ sx: number, sy: number, sz: number }} prev — scale до шага
+   * @param {(pose: { sx: number, sy: number, sz: number }) => void} applyPose
+   */
+  function settleGrowthAgainstWalls(rooms, prev, applyPose) {
+    if (wallPassActive || mount === "wall" || !rooms?.length) return;
+
+    const readPose = () => ({
+      sx: groupMembers?.length ? ghostRoot.scale.x : sx,
+      sy: groupMembers?.length ? ghostRoot.scale.y : sy,
+      sz: groupMembers?.length ? ghostRoot.scale.z : sz,
+    });
+
+    let ratio = 1;
+    for (const room of rooms) {
+      ratio = Math.min(ratio, growthFitRatio(room));
+    }
+    let cur = readPose();
+    if (ratio < 1 - 1e-9) {
+      cur = {
+        sx: cur.sx * ratio,
+        sy: cur.sy * ratio,
+        sz: cur.sz * ratio,
+      };
+      if (!groupMembers) {
+        cur.sx = clampScale(Math.abs(cur.sx)) * Math.sign(cur.sx || 1);
+        cur.sy = clampScale(Math.abs(cur.sy)) * Math.sign(cur.sy || 1);
+        cur.sz = clampScale(Math.abs(cur.sz)) * Math.sign(cur.sz || 1);
+      } else {
+        const mag = clampScale(Math.abs(cur.sx) || Math.abs(cur.sy) || 1);
+        cur = {
+          sx: mag * (Math.sign(cur.sx) || 1),
+          sy: mag,
+          sz: mag * (Math.sign(cur.sz) || 1),
+        };
+      }
+      applyPose(cur);
+      ghostRoot.updateMatrixWorld(true);
+      invalidateLocalFurnBox();
+    }
+
+    const lerpPose = (t) => ({
+      sx: prev.sx + (cur.sx - prev.sx) * t,
+      sy: prev.sy + (cur.sy - prev.sy) * t,
+      sz: prev.sz + (cur.sz - prev.sz) * t,
+    });
+
+    const applyShifted = (pose) => {
+      applyPose(pose);
+      ghostRoot.updateMatrixWorld(true);
+      invalidateLocalFurnBox();
+      for (const room of rooms) shiftScaleGrowthToFreeSide(room);
+      ghostRoot.updateMatrixWorld(true);
+      invalidateLocalFurnBox();
+    };
+
+    applyShifted(cur);
+
+    // только если реально вошли в стену — откат; касание вровень (ниша заполнена) — ок
+    if (growthStillBlocked(rooms)) {
+      let lo = 0;
+      let hi = 1;
+      for (let i = 0; i < 12; i++) {
+        const mid = (lo + hi) * 0.5;
+        applyShifted(lerpPose(mid));
+        if (growthStillBlocked(rooms)) hi = mid;
+        else lo = mid;
+      }
+      applyShifted(lerpPose(lo));
+    }
+    // дожать зазор ровно ~NICHE_CLEAR, если случайно ближе (без выталкивания «в комнату»)
+    for (const room of rooms) ensureNicheClearAlong(room);
+  }
+
+  /** Если грань ближе NICHE_CLEAR к стене вдоль оси — чуть ужать не нужно, сдвинуть центр. */
+  function ensureNicheClearAlong(room) {
+    _scaleDir.set(room.ux, 0, room.uz);
+    _scaleDirN.copy(_scaleDir).negate();
+    ghostRoot.updateMatrixWorld(true);
+    const gPos = freeGapAlongRay(_scaleDir, 4);
+    const gNeg = freeGapAlongRay(_scaleDirN, 4);
+    let shift = 0;
+    if (Number.isFinite(gPos) && gPos < NICHE_CLEAR) shift -= (NICHE_CLEAR - gPos);
+    if (Number.isFinite(gNeg) && gNeg < NICHE_CLEAR) shift += (NICHE_CLEAR - gNeg);
+    if (Math.abs(shift) < 1e-7) return;
+    ghostRoot.position.x += room.ux * shift;
+    ghostRoot.position.z += room.uz * shift;
+  }
+
+  function liftGhostOutOfFloor() {
+    measureMeshBox(ghostRoot, _box);
+    if (_box.isEmpty()) return;
+    _box.getCenter(_center);
+    const floorY = sampleFloorY(_center.x, _center.z);
+    const dy = floorY + FOOT_EPS - _box.min.y;
+    if (dy > 0) ghostRoot.position.y += dy;
+  }
+
+  function applySinglePose(pose) {
+    sx = clampScale(Math.abs(pose.sx)) * (Math.sign(pose.sx) || 1);
+    sy = clampScale(Math.abs(pose.sy)) * (Math.sign(pose.sy) || 1);
+    sz = clampScale(Math.abs(pose.sz)) * (Math.sign(pose.sz) || 1);
+    applyGhostScale();
+  }
+
+  function applyGroupPose(pose) {
+    ghostRoot.scale.set(pose.sx, pose.sy, pose.sz);
+    invalidateLocalFurnBox();
+  }
+
+  /** </> : равномерный масштаб ±5%, низ не уходит в пол. Рост — в свободную сторону / стоп по проёму. */
+  function scaleUniformPercent(sign) {
+    const factor = sign < 0 ? 0.95 : 1.05;
+    const growing = sign > 0;
+    if (groupMembers?.length) {
+      if (!wallPassActive && growing) pushOutOfNearbyWalls();
+      const rooms = growing
+        ? [captureAxisRoom(localAxisWorld("x")), captureAxisRoom(localAxisWorld("z"))]
+        : [];
+      const prev = {
+        sx: ghostRoot.scale.x,
+        sy: ghostRoot.scale.y,
+        sz: ghostRoot.scale.z,
+      };
+      const ax = Math.abs(ghostRoot.scale.x) || 1;
+      const s = clampScale(ax * factor);
+      const sxSign = Math.sign(ghostRoot.scale.x) || 1;
+      const szSign = Math.sign(ghostRoot.scale.z) || 1;
+      ghostRoot.scale.set(s * sxSign, s, s * szSign);
+      invalidateLocalFurnBox();
+      if (growing) settleGrowthAgainstWalls(rooms, prev, applyGroupPose);
+      liftGhostOutOfFloor();
+      invalidateLocalFurnBox();
+      updateProjections();
+      status(`Масштаб группы ×${Math.abs(ghostRoot.scale.x).toFixed(2)} (лимит ${SCALE_MIN}…${SCALE_MAX})`);
+      return;
+    }
+    if (!wallPassActive && growing) pushOutOfNearbyWalls();
+    const rooms = growing
+      ? [captureAxisRoom(localAxisWorld("x")), captureAxisRoom(localAxisWorld("z"))]
+      : [];
+    const prev = { sx, sy, sz };
+    sx = clampScale(sx * factor);
+    sy = clampScale(sy * factor);
+    sz = clampScale(sz * factor);
+    applyGhostScale();
+    ghostRoot.rotation.set(0, yaw, 0);
+    if (growing) settleGrowthAgainstWalls(rooms, prev, applySinglePose);
+    // throughWalls: не выталкивать из ниши после заполнения
+    applySurface({ throughWalls: true });
+    status(`Масштаб ×${sx.toFixed(2)} (лимит ${SCALE_MIN}…${SCALE_MAX})`);
+  }
+
+  /**
+   * Масштаб — только event.code (физические клавиши), не event.key/символ/раскладка.
+   * Comma / Period = клавиши </> на US; IntlBackslash = <>| у левого Shift (ISO).
+   */
+  function isScaleUniformKey(code, _event) {
+    return (
+      code === "Comma"
+      || code === "Period"
+      || code === "IntlBackslash"
+      || code === "Backslash"
+    );
+  }
+
+  function scaleUniformKeySign(code, event) {
+    if (code === "Comma") return -1;
+    if (code === "Period") return 1;
+    // ISO <>|: без Shift — уменьшить, с Shift — увеличить
+    if (code === "IntlBackslash" || code === "Backslash") {
+      return event?.shiftKey ? 1 : -1;
+    }
+    return 0;
+  }
+
   function applyGhostScale() {
     // fitScale в model; на wrap — масштаб + зеркало (ось лево/право от взгляда).
     if (ghost) {
@@ -2317,11 +3074,11 @@ export function createTourFurniturePlace(opts) {
       return;
     }
 
-    // пол: ноги на плиту; при пересечении — вытолкнуть (поворот — сквозь стены)
+    // пол: не проваливаться; высоту (PgUp / сохранённый z) не сбрасывать
     ghostRoot.rotation.set(0, yaw, 0);
-    snapFeet(true);
+    snapFeet();
     if (!throughWalls) alignFloorToNearbyWall();
-    snapFeet(true);
+    snapFeet();
     updateProjections();
   }
 
@@ -2375,6 +3132,8 @@ export function createTourFurniturePlace(opts) {
     ghostRoot.position.addScaledVector(nudge, 0.18);
     mount = "floor";
     applySurface();
+    snapFeet({ stick: true }); // T с стены → ноги на плиту
+    updateProjections();
     status("На полу: стрелки — двигать");
   }
 
@@ -2478,12 +3237,73 @@ export function createTourFurniturePlace(opts) {
   }
 
   /**
+   * Начальная вставка (aim): всегда на пол под курсором — даже если луч
+   * сначала попал в стену или другую мебель. Не клеиться к стене, не выталкивать.
+   */
+  function placeGhostOnFloorAtPointer() {
+    if (!ghost || !ghostModel || !lastPointerNdc.ok) return false;
+    cameraFlatAxes();
+    const prefer = Math.atan2(_fwd.x, _fwd.z);
+    raycaster.setFromCamera(_ndc.set(lastPointerNdc.x, lastPointerNdc.y), camera);
+    raycaster.far = 250;
+    const hits = raycaster.intersectObjects(meshTargets(), true);
+
+    let x;
+    let z;
+    let floorYHint = null;
+    // пол по лучу — даже если ближе стена/мебель (hits отсортированы по дистанции)
+    for (const h of hits) {
+      if (!h.face) continue;
+      _n.copy(h.face.normal).transformDirection(h.object.matrixWorld).normalize();
+      if (_n.y > 0.55) {
+        x = h.point.x;
+        z = h.point.z;
+        floorYHint = h.point.y;
+        break;
+      }
+    }
+    if (x == null && hits.length) {
+      // только стена/мебель — XZ с попадания, Y с пола под ним
+      x = hits[0].point.x;
+      z = hits[0].point.z;
+    }
+    if (x == null) {
+      // пустой луч — плоскость y≈0 под взглядом
+      const origin = raycaster.ray.origin;
+      const dir = raycaster.ray.direction;
+      if (Math.abs(dir.y) < 1e-6) return false;
+      const t = -origin.y / dir.y;
+      if (!(t > 0)) return false;
+      x = origin.x + dir.x * t;
+      z = origin.z + dir.z * t;
+    }
+
+    mount = "floor";
+    contactWall = null;
+    const fy = sampleFloorY(x, z);
+    ghostRoot.position.set(x, floorYHint != null ? floorYHint : fy, z);
+    if (!yawFree) {
+      const probe = _tmp.set(x, Math.max(fy, 1.2) + 0.5, z);
+      yaw = yawParallelToWalls(prefer, probe);
+    }
+    // throughWalls: не выталкивать из стены/мебели на этапе aim
+    applySurface({ throughWalls: true });
+    snapFeet({ stick: true });
+    updateProjections();
+    return true;
+  }
+
+  /**
    * Осмотр: поставить ghost в точку под курсором (пол или стена).
+   * Вставка aim — только пол (см. placeGhostOnFloorAtPointer).
    * @returns {boolean}
    */
   function placeGhostAtPointer() {
     if (!ghost || !ghostModel) return false;
     if (!lastPointerNdc.ok) return false;
+    if (placeIntent === "insert" && insertPhase === "aim") {
+      return placeGhostOnFloorAtPointer();
+    }
     cameraFlatAxes();
     const prefer = Math.atan2(_fwd.x, _fwd.z);
     raycaster.setFromCamera(_ndc.set(lastPointerNdc.x, lastPointerNdc.y), camera);
@@ -2560,6 +3380,7 @@ export function createTourFurniturePlace(opts) {
       status("Расстановка: снимите крышу в осмотре (не в «Экскурсии»), затем каталог (M).");
       return;
     }
+    await ensureModelMeta();
     exitSelectMode();
     editingRec = null;
     groupMembers = null;
@@ -2567,29 +3388,36 @@ export function createTourFurniturePlace(opts) {
     insertPhase = "aim";
     clearGhost();
     ghostItem = item;
-    baseSize = footprintFromCm(item.cm);
-    sx = sy = sz = 1;
-    mirror = false;
-    mirrorZ = false;
+    const target = catalogTargetOf(item.id, item) || footprintFromCm(item.cm);
+    baseSize = { ...target };
+    applyRecalledPose(recallPoseForId(item.id));
     try {
       const model = await loadModel(item.file);
       ghostify(model);
       model.position.set(0, 0, 0);
       model.scale.set(1, 1, 1);
       model.updateMatrixWorld(true);
-      _box.setFromObject(model);
-      _box.getSize(_size);
-      fitScale = Math.min(
-        baseSize.w / Math.max(_size.x, 1e-3),
-        baseSize.d / Math.max(_size.z, 1e-3),
-        baseSize.h / Math.max(_size.y, 1e-3),
-      );
-      seatModelFeet(model, fitScale, fitScale, fitScale);
+      fitScale = fitAndSeatModel(model, item.id, target);
+      const native = nativeSizeOf(item.id, item);
+      const fitted = metaEntry(item.id)?.fittedM;
+      // baseSize = после catalog-fit, без wrap sx/sy/sz
+      if (fitted) {
+        baseSize = { w: fitted.w, d: fitted.d, h: fitted.h };
+      } else if (native) {
+        baseSize = {
+          w: Math.max(0.02, native.w * fitScale),
+          d: Math.max(0.02, native.d * fitScale),
+          h: Math.max(0.02, native.h * fitScale),
+        };
+      } else {
+        syncBaseSizeFromModel(model);
+      }
       const wrap = new THREE.Group();
       wrap.add(model);
       ghostModel = model;
       ghost = wrap;
       ghostRoot.add(wrap);
+      applyGhostScale();
       ghostRoot.visible = true;
       invalidateLocalFurnBox();
       resetWallPassState();
@@ -2598,7 +3426,12 @@ export function createTourFurniturePlace(opts) {
       // Сначала за мышью; Enter — правка; ещё Enter — фиксация.
       yawFree = false;
       spawnAtAim();
-      status(`Вставка ${item.id}: мышь — точка · клик или Enter — в правку`);
+      const recalled = lastPoseById.has(item.id);
+      status(
+        recalled
+          ? `Вставка ${item.id} (как раньше ×${sx.toFixed(2)}): мышь · клик/Enter — в правку`
+          : `Вставка ${item.id}: мышь — точка · клик или Enter — в правку`,
+      );
       publishHint();
     } catch (err) {
       console.warn(err);
@@ -2611,7 +3444,10 @@ export function createTourFurniturePlace(opts) {
     if (placeIntent !== "insert" || insertPhase !== "aim" || !ghost) return false;
     insertPhase = "tune";
     yawFree = false;
-    applySurface(); // зафиксировать позу и выровнять по стене
+    mount = "floor";
+    // остаёмся на полу в точке aim — без прилипания к стене/выталкивания
+    applySurface({ throughWalls: true });
+    snapFeet({ stick: true });
     status(`Правка ${ghostItem?.id || ""}: стрелки · Home/End · Insert/Delete · Enter · Esc`);
     publishHint();
     return true;
@@ -2757,14 +3593,13 @@ export function createTourFurniturePlace(opts) {
     model.position.set(0, 0, 0);
     model.scale.set(1, 1, 1);
     model.updateMatrixWorld(true);
-    _box.setFromObject(model);
-    _box.getSize(_size);
-    const s0 = Math.min(
-      (data.cmW || baseSize.w) / Math.max(_size.x, 1e-3),
-      (data.cmD || baseSize.d) / Math.max(_size.z, 1e-3),
-      (data.cmH || baseSize.h) / Math.max(_size.y, 1e-3),
-    );
-    seatModelFeet(model, s0, s0, s0);
+    const target = {
+      w: data.cmW || baseSize.w || 0.8,
+      d: data.cmD || baseSize.d || 0.8,
+      h: data.cmH || baseSize.h || 0.8,
+    };
+    const catTarget = catalogTargetOf(data.id) || target;
+    const fit = fitAndSeatModel(model, data.id, catTarget);
     enableFurnitureShadows(model);
     const wrap = new THREE.Group();
     {
@@ -2780,16 +3615,28 @@ export function createTourFurniturePlace(opts) {
     wrap.add(model);
     holder.add(wrap);
     const [e, n] = planToWorld(data.x, data.y);
-    holder.position.set(e, data.z, n);
+    // Сохранённый z (PgUp); затем только выталкиваем из пола — высоту не сбрасываем.
+    holder.position.set(e, Number.isFinite(data.z) ? data.z : 0, n);
     holder.rotation.y = data.yaw || 0;
     holder.updateMatrixWorld(true);
-    _box.setFromObject(holder);
-    _box.getCenter(_center);
-    const floorY = sampleFloorY(_center.x, _center.z);
-    if (!data.wall) {
-      holder.position.y += floorY + FOOT_EPS - _box.min.y;
-    } else if (_box.min.y < floorY + FOOT_EPS) {
-      holder.position.y += floorY + FOOT_EPS - _box.min.y;
+    snapRootFeetToFloor(holder);
+    // Если низ всё ещё в плите (битый z) — дотолкнуть
+    measureMeshBox(holder, _box);
+    if (!_box.isEmpty()) {
+      const floorY = sampleFloorY(
+        (_box.min.x + _box.max.x) * 0.5,
+        (_box.min.z + _box.max.z) * 0.5,
+      );
+      if (_box.min.y < floorY + FOOT_EPS) {
+        holder.position.y += floorY + FOOT_EPS - _box.min.y;
+      }
+    }
+    // обновить data.cm* к каталожному fit (без sx) — чтобы следующий spawn не двоил масштаб
+    const native = nativeSizeOf(data.id);
+    if (native && fit > 0) {
+      data.cmW = Math.round(native.w * fit * 1000) / 1000;
+      data.cmD = Math.round(native.d * fit * 1000) / 1000;
+      data.cmH = Math.round(native.h * fit * 1000) / 1000;
     }
     return holder;
   }
@@ -2851,6 +3698,7 @@ export function createTourFurniturePlace(opts) {
           wall: !!m.data0.wall,
         };
         undoAfter.push(cloneFurnData(data));
+        rememberPoseForId(data.id, data);
         if (editing && m.rec) {
           const wrap = m.wrap;
           const holder = m.rec.holder;
@@ -2946,6 +3794,7 @@ export function createTourFurniturePlace(opts) {
         placed.add(holder);
         if (!records.includes(rec)) records.push(rec);
         editingRec = null;
+        rememberPoseForId(data.id, data);
         resetGhostFlags();
         if (undoBefore) pushUndo({ type: "edit", before: [undoBefore], after: [cloneFurnData(data)] });
         await saveAll();
@@ -2953,6 +3802,7 @@ export function createTourFurniturePlace(opts) {
       } else {
         const placedId = ghostItem.id;
         await spawnRecord(data, ghostItem);
+        rememberPoseForId(data.id, data);
         clearGhost();
         pushUndo({ type: "add", items: [cloneFurnData(data)] });
         await saveAll();
@@ -2972,6 +3822,8 @@ export function createTourFurniturePlace(opts) {
 
   async function loadVariant() {
     const seq = ++loadSeq;
+    await ensureModelMeta();
+    if (seq !== loadSeq) return;
     while (placed.children.length) placed.remove(placed.children[0]);
     records.length = 0;
     undoStack.length = 0;
@@ -3026,6 +3878,7 @@ export function createTourFurniturePlace(opts) {
       if (seq !== loadSeq) return;
       try {
         await spawnRecord(data, item);
+        rememberPoseForId(data.id, data);
       } catch (err) {
         console.warn("furn load", data.id, err);
       }
@@ -3082,25 +3935,26 @@ export function createTourFurniturePlace(opts) {
           toggleMirrorFB();
           return true;
         }
+        if (isScaleUniformKey(code, event)) {
+          const sign = scaleUniformKeySign(code, event);
+          if (sign) scaleUniformPercent(sign);
+          return true;
+        }
         if (code === "BracketLeft") {
-          const s = Math.max(0.4, ghostRoot.scale.x - 0.05);
-          ghostRoot.scale.set(s, s, s);
-          updateProjections();
+          scaleGroupViewWidth(-0.05);
           return true;
         }
         if (code === "BracketRight") {
-          const s = Math.min(2.5, ghostRoot.scale.x + 0.05);
-          ghostRoot.scale.set(s, s, s);
-          updateProjections();
+          scaleGroupViewWidth(0.05);
           return true;
         }
         if (code === "Minus" || code === "NumpadSubtract") {
-          ghostRoot.scale.y = Math.max(0.4, ghostRoot.scale.y - 0.05);
+          ghostRoot.scale.y = clampScale(ghostRoot.scale.y - 0.05);
           updateProjections();
           return true;
         }
         if (code === "Equal" || code === "NumpadAdd") {
-          ghostRoot.scale.y = Math.min(2.5, ghostRoot.scale.y + 0.05);
+          ghostRoot.scale.y = clampScale(ghostRoot.scale.y + 0.05);
           updateProjections();
           return true;
         }
@@ -3112,11 +3966,16 @@ export function createTourFurniturePlace(opts) {
         }
         return false;
       }
-      // В фазе aim (за мышью) — только Enter / Esc.
+      // В фазе aim (за мышью) — Esc / </> (масштаб).
       if (placeIntent === "insert" && insertPhase === "aim") {
         if (code === "Escape") {
           clearGhost();
           status("Отмена расстановки");
+          return true;
+        }
+        if (isScaleUniformKey(code, event)) {
+          const sign = scaleUniformKeySign(code, event);
+          if (sign) scaleUniformPercent(sign);
           return true;
         }
         return false;
@@ -3143,15 +4002,20 @@ export function createTourFurniturePlace(opts) {
         return true;
       }
       if (code === "KeyT") { toggleMount(); return true; }
+      if (isScaleUniformKey(code, event)) {
+        const sign = scaleUniformKeySign(code, event);
+        if (sign) scaleUniformPercent(sign);
+        return true;
+      }
       if (code === "BracketLeft") { scaleViewWidth(-0.05); return true; }
       if (code === "BracketRight") { scaleViewWidth(0.05); return true; }
       if (code === "Minus" || code === "NumpadSubtract") {
-        sy = Math.max(0.4, sy - 0.05);
+        sy = clampScale(sy - 0.05);
         applySurface({ throughWalls: true });
         return true;
       }
       if (code === "Equal" || code === "NumpadAdd") {
-        sy = Math.min(2.5, sy + 0.05);
+        sy = clampScale(sy + 0.05);
         applySurface({ throughWalls: true });
         return true;
       }
@@ -3182,7 +4046,7 @@ export function createTourFurniturePlace(opts) {
     return false;
   }
 
-  /** Масштаб «вширь» — ось предмета, ближе к горизонтали взгляда. */
+  /** Масштаб «вширь» — ось предмета, ближе к горизонтали взгляда. Рост → в свободную сторону / стоп по проёму. */
   function scaleViewWidth(delta) {
     cameraFlatAxes();
     const lx = Math.cos(yaw);
@@ -3191,9 +4055,47 @@ export function createTourFurniturePlace(opts) {
     const zx = Math.sin(yaw);
     const zz = Math.cos(yaw);
     const alignZ = Math.abs(zx * _right.x + zz * _right.z);
-    if (alignX >= alignZ) sx = Math.min(2.5, Math.max(0.4, sx + delta));
-    else sz = Math.min(2.5, Math.max(0.4, sz + delta));
-    applySurface();
+    const axis = alignX >= alignZ ? "x" : "z";
+    const growing = delta > 0;
+    if (!wallPassActive && growing) pushOutOfNearbyWalls();
+    const rooms = growing ? [captureAxisRoom(localAxisWorld(axis))] : [];
+    const prev = { sx, sy, sz };
+    if (axis === "x") sx = clampScale(sx + delta);
+    else sz = clampScale(sz + delta);
+    applyGhostScale();
+    ghostRoot.rotation.set(0, yaw, 0);
+    if (growing) settleGrowthAgainstWalls(rooms, prev, applySinglePose);
+    applySurface({ throughWalls: true });
+  }
+
+  /** Группа: х/ъ меняют только ширину (ось влево-вправо на экране), не равномерный scale. */
+  function scaleGroupViewWidth(delta) {
+    if (!groupMembers?.length) return;
+    cameraFlatAxes();
+    const gy = ghostRoot.rotation.y;
+    const lx = Math.cos(gy);
+    const lz = -Math.sin(gy);
+    const alignX = Math.abs(lx * _right.x + lz * _right.z);
+    const zx = Math.sin(gy);
+    const zz = Math.cos(gy);
+    const alignZ = Math.abs(zx * _right.x + zz * _right.z);
+    const axis = alignX >= alignZ ? "x" : "z";
+    const growing = delta > 0;
+    if (!wallPassActive && growing) pushOutOfNearbyWalls();
+    const rooms = growing ? [captureAxisRoom(localAxisWorld(axis))] : [];
+    const prev = {
+      sx: ghostRoot.scale.x,
+      sy: ghostRoot.scale.y,
+      sz: ghostRoot.scale.z,
+    };
+    const cur = ghostRoot.scale[axis];
+    const sign = Math.sign(cur) || 1;
+    ghostRoot.scale[axis] = clampScale(Math.abs(cur) + delta) * sign;
+    invalidateLocalFurnBox();
+    if (growing) settleGrowthAgainstWalls(rooms, prev, applyGroupPose);
+    liftGhostOutOfFloor();
+    updateProjections();
+    status(`Ширина группы ×${Math.abs(ghostRoot.scale[axis]).toFixed(2)}`);
   }
 
   function onWheel(_deltaY) {

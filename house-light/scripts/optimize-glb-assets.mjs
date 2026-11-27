@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 /**
- * Сжимает мебель и машины: gltf-transform optimize (meshopt + webp + simplify).
- * Перезаписывает на месте; мультифайловые .gltf → один .glb + правки catalog.json.
+ * Сжимает ассеты GLB.
+ * Мебель/топочная: optimize (meshopt + webp + simplify).
+ * Машины: мягко (dedup/prune/meshopt) — без simplify и webp, иначе ломается
+ * KHR_materials_pbrSpecularGlossiness (пятна, пропавший блеск).
  *
  *   node house-light/scripts/optimize-glb-assets.mjs
  *   node house-light/scripts/optimize-glb-assets.mjs --dry-run
@@ -20,6 +22,7 @@ const CARS = [
   path.join(ROOT, "models", "geely-coolray.glb"),
   path.join(ROOT, "models", "mazda-cx5.glb"),
 ];
+const TOPO_MODELS = path.join(ROOT, "topochnaya", "models");
 
 const dryRun = process.argv.includes("--dry-run");
 
@@ -38,8 +41,18 @@ function fmt(n) {
   return `${(n / (1024 * 1024)).toFixed(2)} MB`;
 }
 
+function npxCli(args) {
+  if (dryRun) {
+    console.log(`[dry-run] npx ${args.join(" ")}`);
+    return true;
+  }
+  const r = spawnSync("npx", args, { stdio: "inherit", shell: false });
+  return r.status === 0;
+}
+
+/** Полный optimize для мебели (допустимо упрощение сетки). */
 function runOptimize(src, dest) {
-  const args = [
+  return npxCli([
     "--yes",
     "@gltf-transform/cli@4.2.1",
     "optimize",
@@ -49,30 +62,50 @@ function runOptimize(src, dest) {
     "meshopt",
     "--texture-compress",
     "webp",
-  ];
-  if (dryRun) {
-    console.log(`[dry-run] npx ${args.join(" ")}`);
-    return true;
-  }
-  const r = spawnSync("npx", args, { stdio: "inherit", shell: false });
-  return r.status === 0;
+  ]);
 }
 
-function optimizeInPlace(filePath) {
+/**
+ * Мягко для машин: сохранить UV/материалы/JPEG|PNG.
+ * Цепочка во временный файл → dest.
+ */
+function runGentleMeshopt(src, dest) {
+  const mid = `${dest}.mid-${process.pid}.glb`;
+  try {
+    if (!npxCli(["--yes", "@gltf-transform/cli@4.2.1", "dedup", src, mid])) return false;
+    if (!npxCli(["--yes", "@gltf-transform/cli@4.2.1", "prune", mid, mid])) return false;
+    if (!npxCli(["--yes", "@gltf-transform/cli@4.2.1", "meshopt", mid, dest, "--level", "medium"])) {
+      return false;
+    }
+    return true;
+  } finally {
+    try {
+      fs.unlinkSync(mid);
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
+function optimizeInPlace(filePath, { gentle = false } = {}) {
   const before = fs.statSync(filePath).size;
   const tmp = path.join(
     os.tmpdir(),
     `glb-opt-${path.basename(filePath)}-${process.pid}-${Date.now()}.glb`,
   );
   try {
-    if (!runOptimize(filePath, tmp)) {
+    const ok = gentle ? runGentleMeshopt(filePath, tmp) : runOptimize(filePath, tmp);
+    if (!ok) {
       console.error("FAIL", filePath);
       return { ok: false, before, after: before };
     }
     if (dryRun) return { ok: true, before, after: before };
     const after = fs.statSync(tmp).size;
     fs.renameSync(tmp, filePath);
-    console.log(`OK  ${fmt(before)} → ${fmt(after)}  ${path.relative(ROOT, filePath)}`);
+    console.log(
+      `OK  ${fmt(before)} → ${fmt(after)}  ${path.relative(ROOT, filePath)}` +
+        (gentle ? " [gentle]" : ""),
+    );
     return { ok: true, before, after };
   } finally {
     try {
@@ -154,17 +187,28 @@ function main() {
   }
   updateCatalog();
 
-  console.log("=== cars ===");
+  console.log("=== cars (gentle: no simplify / no webp) ===");
   for (const file of CARS) {
     if (!fs.existsSync(file)) {
       console.warn("skip missing", file);
       continue;
     }
-    const r = optimizeInPlace(file);
+    const r = optimizeInPlace(file, { gentle: true });
     totalBefore += r.before;
     totalAfter += r.after;
     if (r.ok) ok += 1;
     else fail += 1;
+  }
+
+  console.log("=== topochnaya ===");
+  if (fs.existsSync(TOPO_MODELS)) {
+    for (const file of listGlbs(TOPO_MODELS)) {
+      const r = optimizeInPlace(file);
+      totalBefore += r.before;
+      totalAfter += r.after;
+      if (r.ok) ok += 1;
+      else fail += 1;
+    }
   }
 
   console.log("---");
@@ -172,6 +216,30 @@ function main() {
     `done: ${ok} ok, ${fail} fail; ${fmt(totalBefore)} → ${fmt(totalAfter)}` +
       (totalAfter ? ` (${(totalBefore / totalAfter).toFixed(2)}×)` : ""),
   );
+
+  console.log("=== strip junk helper meshes (±1 / empty blobs) ===");
+  if (!dryRun) {
+    const strip = spawnSync(
+      process.execPath,
+      [path.join(__dirname, "strip-furniture-junk-meshes.mjs")],
+      { stdio: "inherit", shell: false },
+    );
+    if (strip.status !== 0) fail += 1;
+  } else {
+    console.log("[dry-run] skip strip-furniture-junk-meshes.mjs");
+  }
+
+  console.log("=== furniture model-meta (габариты) ===");
+  if (!dryRun) {
+    const bake = spawnSync(process.execPath, [path.join(__dirname, "bake-furniture-meta.mjs")], {
+      stdio: "inherit",
+      shell: false,
+    });
+    if (bake.status !== 0) fail += 1;
+  } else {
+    console.log("[dry-run] skip bake-furniture-meta.mjs");
+  }
+
   if (fail) process.exitCode = 1;
 }
 
