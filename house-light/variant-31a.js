@@ -766,8 +766,10 @@ export function buildVariant31a(api) {
     const z0 = k === "d" && y0 > 17.7 ? FLOOR : undefined;
     return [opening(u0, u1, faceKind, z0)];
   });
+  // soffit = низ кровли (как 3.1d); без него eaveSoffitAt вычитает GABLE_SHELL и секции не доходят.
   const gableMain = (u0, u1) => ({
     u0, u1, peakU: yR0, peakZ: Zr0 - ROOF_THICK, eave: WALL_TOP, over: 0, drop: 0,
+    soffit: (u) => zMain(0, u) - ROOF_THICK,
   });
   if (typeof api.mountOverlays === "function") {
     api.mountOverlays((overlayApi) => {
@@ -783,7 +785,10 @@ export function buildVariant31a(api) {
         face({ name: "v31aS", along: "x", outer: 7.318, sign: -1, span0: -5.36, span1: 3.16, eave: WALL_TOP, openings: fromPlan("x", 7.52, -5.36, 3.16) }),
         face({
           name: "v31aSE", along: "x", outer: 0.846, sign: -1, span0: 8.27, span1: 14.80, eave: WALL_TOP,
-          gable: { u0: xPlateSpine, u1: xPlateE, peakU: xR1, peakZ: Zr1 - ROOF_THICK, eave: WALL_TOP, over: 0, drop: 0 },
+          gable: {
+            u0: xPlateSpine, u1: xPlateE, peakU: xR1, peakZ: Zr1 - ROOF_THICK, eave: WALL_TOP, over: 0, drop: 0,
+            soffit: (u) => zEast(u) - ROOF_THICK,
+          },
           openings: fromPlan("x", 1.05, 8.27, 14.80),
         }),
         face({

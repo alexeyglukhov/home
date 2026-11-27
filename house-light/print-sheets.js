@@ -17,21 +17,21 @@ const PRINTS = {
       name: "сравнение-а-д4",
     },
   ],
-  vd2: [
+  vd1: [
     {
       label: "Дом",
       file: "prints/plan-1-etazh-variant-d2-print.svg?v=3",
-      name: "дом-д2",
+      name: "дом-д1",
     },
     {
       label: "Участок",
       file: "prints/abrikosovaya-22-layout-variant-d2-1-100-print.svg?v=3",
-      name: "участок-д2",
+      name: "участок-д1",
     },
     {
       label: "Планировка",
       file: "prints/plan-1-etazh-variant-d2-dom-print.svg?v=6",
-      name: "планировка-д2",
+      name: "планировка-д1",
     },
   ],
   vd3: [
@@ -83,8 +83,6 @@ const PRINTS = {
 };
 
 function sheetsOf(variant) {
-  if (variant === "vd1") return PRINTS.vd2;
-  if (variant === "vd5") return PRINTS.vd4;
   return PRINTS[variant] || [];
 }
 

@@ -706,9 +706,9 @@
       "name": "Стол офисный стальной",
       "file": "models/P03.glb",
       "cm": [
-        130,
-        72,
-        141
+        200,
+        95,
+        79
       ],
       "license": "CC0",
       "source": "https://www.innerscene.com/tools/library/3d-parts/steel-office-desk-16158a62"

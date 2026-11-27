@@ -393,6 +393,42 @@
       "mirror": true,
       "mirrorZ": false,
       "wall": false
+    },
+    {
+      "uid": "f_mwyheun9_c5tvd",
+      "id": "P03",
+      "file": "models/P03.glb",
+      "cmW": 2,
+      "cmD": 0.95,
+      "cmH": 0.79,
+      "x": 13.548,
+      "y": 8.638,
+      "z": 0.454,
+      "yaw": 5.951,
+      "sx": 0.6499999999999997,
+      "sy": 1,
+      "sz": 0.6999999999999997,
+      "mirror": false,
+      "mirrorZ": false,
+      "wall": false
+    },
+    {
+      "uid": "f_mwyhgu5v_0_t5zxx",
+      "id": "P03",
+      "file": "models/P03.glb",
+      "cmW": 2,
+      "cmD": 0.95,
+      "cmH": 0.79,
+      "x": 13.791,
+      "y": 4.168,
+      "z": 0.454,
+      "yaw": 1.239,
+      "sx": 0.715,
+      "sy": 1.1,
+      "sz": 0.77,
+      "mirror": false,
+      "mirrorZ": false,
+      "wall": false
     }
   ]
 }

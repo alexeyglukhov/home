@@ -189,13 +189,17 @@ export function createTourFurniturePlace(opts) {
   let yawFree = false; // true после 9/0/G — не сбрасывать yaw выравниванием к стене каждый кадр
   let loadSeq = 0; // защита от гонок loadVariant
   const records = [];
-  /** Упоры в одну стену: после WALL_BUMP_NEED — проход; новая стена сбрасывает. */
+  /** Упор → 3 попытки → проход стен на WALL_PASS_DIST м; преодолённые плоскости не блокируют, пока снова не подойдём. */
   const WALL_BUMP_NEED = 3;
   const WALL_BUMP_HOLD = 0.4; // сек непрерывного упора = одна попытка
-  let wallBumpKey = "";
+  const WALL_PASS_DIST = 1.0; // м пути в режиме прохода, затем снова упор
+  const WALL_CLEAR_GAP = 0.18; // полностью отошли от преодолённой стены
   let wallBumpTries = 0;
-  let wallBumpPass = false;
   let wallBumpHold = 0;
+  let wallPassActive = false;
+  let wallPassTravel = 0;
+  /** key → true: стена пройдена; снова блокирует только после отхода и движения к ней. */
+  const clearedWalls = new Set();
   const _groupQuat = new THREE.Quaternion();
   const _groupScale = new THREE.Vector3();
   const _groupPos = new THREE.Vector3();
@@ -359,10 +363,8 @@ export function createTourFurniturePlace(opts) {
     placeIntent = "insert";
     insertPhase = "aim";
     yawFree = false;
-    wallBumpKey = "";
-    wallBumpTries = 0;
-    wallBumpPass = false;
-    wallBumpHold = 0;
+    resetWallPassState();
+    invalidateLocalFurnBox();
     ghostRoot.visible = false;
     ghostRoot.scale.set(1, 1, 1);
     ghostRoot.rotation.set(0, 0, 0);
@@ -511,20 +513,27 @@ export function createTourFurniturePlace(opts) {
   }
 
   /**
-   * Локальный AABB содержимого ghostRoot (в его СК при identity pos/rot),
+   * Локальный AABB содержимого ghostRoot (в его СК при identity pos/rot/scale),
    * затем углы → matrixWorld = реальные углы в пространстве дома.
+   * Scale тоже сбрасываем — иначе setFromObject уже с масштабом, а matrixWorld
+   * применит его ещё раз и OBB раздувается (стол «упирается» за метр до стены).
    */
   function ensureLocalFurnBox() {
     if (_localFurnBoxValid || !ghost) return;
     _savedPos.copy(ghostRoot.position);
     _savedQuat.copy(ghostRoot.quaternion);
+    const sx0 = ghostRoot.scale.x;
+    const sy0 = ghostRoot.scale.y;
+    const sz0 = ghostRoot.scale.z;
     ghostRoot.position.set(0, 0, 0);
     ghostRoot.quaternion.identity();
+    ghostRoot.scale.set(1, 1, 1);
     ghostRoot.updateMatrixWorld(true);
     // только модель/wrap — без проекций сцены
     _localFurnBox.setFromObject(ghostRoot);
     ghostRoot.position.copy(_savedPos);
     ghostRoot.quaternion.copy(_savedQuat);
+    ghostRoot.scale.set(sx0, sy0, sz0);
     ghostRoot.updateMatrixWorld(true);
     _localFurnBoxValid = true;
   }
@@ -633,35 +642,88 @@ export function createTourFurniturePlace(opts) {
     }
   }
 
+  function resetWallPassState() {
+    wallBumpTries = 0;
+    wallBumpHold = 0;
+    wallPassActive = false;
+    wallPassTravel = 0;
+    clearedWalls.clear();
+  }
+
+  /** Ключ плоскости: нормаль + смещение (двойные/тройные стены — разные ключи). */
   function wallPlaneKey(hit) {
-    // только ориентация стены — точка на плоскости плавает и сбрасывала счётчик
-    const nx = Math.round(hit.normal.x * 4) / 4;
-    const nz = Math.round(hit.normal.z * 4) / 4;
-    return `${nx}:${nz}`;
+    let nx = Math.round(hit.normal.x * 4) / 4;
+    let nz = Math.round(hit.normal.z * 4) / 4;
+    const len = Math.hypot(nx, nz) || 1;
+    nx /= len;
+    nz /= len;
+    // одна ориентация на пару ±n, чтобы одна стена не двоилась
+    let sign = 1;
+    if (nx < -1e-6 || (Math.abs(nx) <= 1e-6 && nz < 0)) sign = -1;
+    const nxx = nx * sign;
+    const nzz = nz * sign;
+    const d = Math.round((nxx * hit.point.x + nzz * hit.point.z) * 20) / 20;
+    return `${nxx.toFixed(2)}:${nzz.toFixed(2)}:${d.toFixed(2)}`;
   }
 
-  function wallAllowsPass(hit) {
-    return wallBumpPass && wallBumpKey === wallPlaneKey(hit);
+  function markWallCleared(hit) {
+    if (!hit) return;
+    clearedWalls.add(wallPlaneKey(hit));
   }
 
-  /** Упор: NEED раз по ~WALL_BUMP_HOLD сек удержания, затем проход; новая стена — с нуля. */
-  function registerWallBump(hit) {
-    const key = wallPlaneKey(hit);
-    if (key !== wallBumpKey) {
-      wallBumpKey = key;
-      wallBumpTries = 0;
-      wallBumpPass = false;
-      wallBumpHold = 0;
+  /**
+   * Стена не блокирует: режим прохода, либо уже преодолена.
+   * Преодолённая снова мешает, только когда отошли и двигаемся к ней.
+   */
+  function wallAllowsPass(hit, moveDir = null) {
+    if (!hit) return false;
+    if (wallPassActive) {
+      markWallCleared(hit);
+      return true;
     }
-    if (wallBumpPass) return true;
+    const key = wallPlaneKey(hit);
+    if (!clearedWalls.has(key)) return false;
+    const gap = gapToWallPlane(hit.point, hit.normal);
+    // ещё в теле / рядом после прохода
+    if (gap < WALL_CLEAR_GAP) return true;
+    // отошли; если снова прём в стену — вернуть упор
+    if (moveDir && moveDir.dot(hit.normal) < -0.12) {
+      clearedWalls.delete(key);
+      return false;
+    }
+    return true;
+  }
+
+  /** Упор: NEED попыток (любая стена) → режим прохода на WALL_PASS_DIST м. */
+  function registerWallBump(hit) {
+    if (wallPassActive) {
+      markWallCleared(hit);
+      return true;
+    }
     wallBumpTries += 1;
     if (wallBumpTries >= WALL_BUMP_NEED) {
-      wallBumpPass = true;
-      status("Стена: проход разрешён (на следующей — снова упор)");
+      wallPassActive = true;
+      wallPassTravel = 0;
+      wallBumpTries = 0;
+      wallBumpHold = 0;
+      markWallCleared(hit);
+      status(`Проход стен: ещё ${WALL_PASS_DIST.toFixed(1)} м`);
       return true;
     }
     status(`Стена: упор ${wallBumpTries}/${WALL_BUMP_NEED}`);
     return false;
+  }
+
+  function noteWallPassTravel(moved) {
+    if (!wallPassActive || moved < 1e-8) return;
+    wallPassTravel += moved;
+    if (wallPassTravel >= WALL_PASS_DIST) {
+      wallPassActive = false;
+      wallPassTravel = 0;
+      wallBumpTries = 0;
+      wallBumpHold = 0;
+      status("Проход стен: выкл — снова упор в препятствия");
+    }
   }
 
   function ghostProbeOrigin() {
@@ -680,14 +742,14 @@ export function createTourFurniturePlace(opts) {
     return _tmp.set(c.x, y, c.z);
   }
 
-  /** Только вертикальные стены дома — не пол/плиты (иначе стол «залипает» в центре). */
+  /** Только вертикальные стены дома — не пол/плиты/рамы (рамы давали упор далеко от стены). */
   function wallMeshTargets() {
     return hitTargets().filter((m) => {
       if (!m || !m.visible || !m.isMesh) return false;
       const ud = m.userData || {};
       if (ud.floorSlab || ud.walkTop || ud.roof || ud.ceiling) return false;
-      if (ud.finish === "door") return false;
-      if (ud.finish === "wall" || ud.finish === "frame") return true;
+      if (ud.finish === "door" || ud.finish === "frame") return false;
+      if (ud.finish === "wall") return true;
       if (ud.foot && ud.finish !== "floor") return true;
       return false;
     });
@@ -754,16 +816,20 @@ export function createTourFurniturePlace(opts) {
     return bestHit ? { hit: bestHit, gap: bestGap, origin, dist: bestDist } : null;
   }
 
+  /** Выровнять мебель параллельно стене (ближайший из 4 курсов). */
   function snapYawToWallHit(hit) {
     if (yawFree || !hit) return;
     const nx = hit.normal.x;
     const nz = hit.normal.z;
-    yaw = nearestAngle(yaw, [
+    const next = nearestAngle(yaw, [
       Math.atan2(nx, nz),
       Math.atan2(-nx, -nz),
       Math.atan2(-nz, nx),
       Math.atan2(nz, -nx),
     ]);
+    const diff = Math.abs(Math.atan2(Math.sin(yaw - next), Math.cos(yaw - next)));
+    if (diff < 1e-3) return;
+    yaw = next;
     ghostRoot.rotation.set(0, yaw, 0);
   }
 
@@ -780,7 +846,10 @@ export function createTourFurniturePlace(opts) {
     if (gap >= WALL_EPS) return;
     // ложная дальняя плоскость: зазор больше реального габарита
     if (gap < -(furnitureRadiusXZ() * 1.5 + 0.2)) return;
-    if (wallAllowsPass(hit)) return;
+    if (wallAllowsPass(hit, moveDir)) {
+      markWallCleared(hit);
+      return;
+    }
     snapYawToWallHit(hit);
     pushOutOfPlane(hit.point, hit.normal);
   }
@@ -813,7 +882,8 @@ export function createTourFurniturePlace(opts) {
   }
 
   /**
-   * IJKL: упор по реальным углам; удержание ~0.4с × 3 = проход этой стены.
+   * IJKL: упор → выравнивание Parallel; 3 упора → проход на 1 м;
+   * преодолённые стены не мешают, пока снова не подойдём к ним.
    */
   function resolveMoveAgainstWalls(move, dt) {
     _movePrev.copy(ghostRoot.position);
@@ -827,10 +897,9 @@ export function createTourFurniturePlace(opts) {
     const dir = _moveDelta.clone().normalize();
     const extent = extentAlongDir(dir);
     const nearLimit = extent + 0.2;
-    // временно на предыдущей позе — углы до шага
+    // углы на позе до шага
     ghostRoot.position.copy(_movePrev);
     ghostRoot.updateMatrixWorld(true);
-    invalidateLocalFurnBox();
 
     const fromCorners = findWallHitFromCorners(dir, dist + nearLimit + 0.05);
     const origin = ghostProbeOrigin().clone();
@@ -850,27 +919,31 @@ export function createTourFurniturePlace(opts) {
 
     if (hit) {
       const intoWall = dir.dot(hit.normal) < -0.12;
-      const close = hitAlong <= dist + 0.08;
-      if (intoWall && close && !wallAllowsPass(hit)) {
-        wallBumpHold += dt;
-        if (wallBumpHold >= WALL_BUMP_HOLD) {
-          registerWallBump(hit);
-          wallBumpHold = 0;
-        }
-        if (!wallAllowsPass(hit)) {
-          // остановить так, чтобы передний угол был у WALL_EPS от стены
-          const stop = Math.max(0, Math.min(dist, hitAlong - WALL_EPS));
-          ghostRoot.position.set(
-            _movePrev.x + dir.x * stop,
-            _movePrev.y,
-            _movePrev.z + dir.z * stop,
-          );
-          ghostRoot.updateMatrixWorld(true);
-          invalidateLocalFurnBox();
-          contactWall = { point: hit.point.clone(), normal: hit.normal.clone() };
-          snapYawToWallHit(hit);
-          pushOutOfPlane(hit.point, hit.normal);
-          return true;
+      const gapNow = gapToWallPlane(hit.point, hit.normal);
+      const close = hitAlong <= dist + 0.08 && gapNow < extent + 0.12;
+      if (intoWall && close) {
+        if (wallAllowsPass(hit, dir)) {
+          markWallCleared(hit);
+        } else {
+          wallBumpHold += dt;
+          if (wallBumpHold >= WALL_BUMP_HOLD) {
+            registerWallBump(hit);
+            wallBumpHold = 0;
+          }
+          if (!wallAllowsPass(hit, dir)) {
+            const stop = Math.max(0, Math.min(dist, Math.min(hitAlong, gapNow) - WALL_EPS));
+            ghostRoot.position.set(
+              _movePrev.x + dir.x * stop,
+              _movePrev.y,
+              _movePrev.z + dir.z * stop,
+            );
+            ghostRoot.updateMatrixWorld(true);
+            contactWall = { point: hit.point.clone(), normal: hit.normal.clone() };
+            snapYawToWallHit(hit);
+            pushOutOfPlane(hit.point, hit.normal);
+            pullFlushToWall(hit.point, hit.normal, Math.max(0.35, extent + 0.08));
+            return true;
+          }
         }
       } else {
         wallBumpHold = 0;
@@ -882,10 +955,21 @@ export function createTourFurniturePlace(opts) {
     ghostRoot.position.x = _movePrev.x + _moveDelta.x;
     ghostRoot.position.z = _movePrev.z + _moveDelta.z;
     ghostRoot.updateMatrixWorld(true);
-    invalidateLocalFurnBox();
+
+    const moved = Math.hypot(
+      ghostRoot.position.x - _movePrev.x,
+      ghostRoot.position.z - _movePrev.z,
+    );
+    noteWallPassTravel(moved);
+
+    // в режиме прохода помечать стены, через которые идём
+    if (wallPassActive) {
+      const mid = findNearbyWallHit(furnitureRadiusXZ() + 0.4, dir);
+      if (mid && mid.gap < WALL_CLEAR_GAP) markWallCleared(mid.hit);
+    }
 
     const found = findNearbyWallHit(nearLimit + 0.2, dir);
-    if (found && found.gap < WALL_EPS && !wallAllowsPass(found.hit)) {
+    if (found && found.gap < WALL_EPS && !wallAllowsPass(found.hit, dir)) {
       if (found.gap < -(furnitureRadiusXZ() * 1.5 + 0.2)) {
         /* ложная дальняя плоскость */
       } else if (dir.dot(found.hit.normal) < -0.12) {
@@ -894,13 +978,16 @@ export function createTourFurniturePlace(opts) {
           registerWallBump(found.hit);
           wallBumpHold = 0;
         }
-        if (!wallAllowsPass(found.hit)) {
+        if (!wallAllowsPass(found.hit, dir)) {
           snapYawToWallHit(found.hit);
           pushOutOfPlane(found.hit.point, found.hit.normal);
+          pullFlushToWall(found.hit.point, found.hit.normal, 0.35);
           contactWall = { point: found.hit.point.clone(), normal: found.hit.normal.clone() };
           return true;
         }
       }
+    } else if (found && wallAllowsPass(found.hit, dir)) {
+      markWallCleared(found.hit);
     }
     return false;
   }
@@ -911,7 +998,11 @@ export function createTourFurniturePlace(opts) {
     contactWall = null;
     if (!found || found.gap >= WALL_EPS) return;
     if (found.gap < -(furnitureRadiusXZ() * 1.5 + 0.2)) return;
-    if (wallAllowsPass(found.hit)) return;
+    if (wallAllowsPass(found.hit)) {
+      markWallCleared(found.hit);
+      return;
+    }
+    snapYawToWallHit(found.hit);
     pushOutOfPlane(found.hit.point, found.hit.normal);
     contactWall = { point: found.hit.point.clone(), normal: found.hit.normal.clone() };
   }
