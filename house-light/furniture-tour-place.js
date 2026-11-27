@@ -2,8 +2,10 @@
 // Клик — выбор; Shift/Ctrl+клик — группа; E/C/X — правка/копия/удаление; Enter/Esc — фиксация/отмена.
 import * as THREE from "three";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
+import { MeshoptDecoder } from "./vendor/meshopt_decoder.module.js";
 
 const loader = new GLTFLoader();
+loader.setMeshoptDecoder(MeshoptDecoder);
 const cache = new Map();
 const HINT_IDLE_TOUR =
   "WASD — ход · мышь — взгляд · Esc — стоп · мебель — только в осмотре без крыши";
@@ -45,6 +47,20 @@ function loadModel(file) {
   });
   cache.set(file, job);
   return job.then((s) => s.clone(true));
+}
+
+/** Параллельно прогреть уникальные GLB (сеть + decode), потом клоны дешёвые. */
+async function warmModelFiles(files) {
+  const unique = [...new Set(files.filter(Boolean))];
+  if (!unique.length) return;
+  await Promise.all(
+    unique.map((file) =>
+      loadModel(file).catch((err) => {
+        console.warn("furn warm", file, err);
+        return null;
+      }),
+    ),
+  );
 }
 
 function ghostify(root) {
@@ -2649,6 +2665,7 @@ export function createTourFurniturePlace(opts) {
   }
 
   async function restoreFurnItems(items) {
+    const jobs = [];
     for (const data of items) {
       if (!data?.file && !catalogById.get(data?.id)?.file) continue;
       const item = catalogById.get(data.id) || {
@@ -2659,6 +2676,10 @@ export function createTourFurniturePlace(opts) {
       if (!item.file) continue;
       // не дублировать, если уже есть
       if (records.some((r) => r.data.uid === data.uid)) continue;
+      jobs.push({ data, item });
+    }
+    await warmModelFiles(jobs.map((j) => j.item.file));
+    for (const { data, item } of jobs) {
       try {
         await spawnRecord(cloneFurnData(data), item);
       } catch (err) {
@@ -2992,11 +3013,17 @@ export function createTourFurniturePlace(opts) {
       seen.add(data.uid);
       items.push(data);
     }
+    const spawnJobs = [];
     for (const data of items) {
-      if (seq !== loadSeq) return;
       const item = catalogById.get(data.id)
         || { id: data.id, file: data.file, cm: [data.cmW * 100, data.cmD * 100, data.cmH * 100] };
       if (!item.file) continue;
+      spawnJobs.push({ data, item });
+    }
+    await warmModelFiles(spawnJobs.map((j) => j.item.file));
+    if (seq !== loadSeq) return;
+    for (const { data, item } of spawnJobs) {
+      if (seq !== loadSeq) return;
       try {
         await spawnRecord(data, item);
       } catch (err) {

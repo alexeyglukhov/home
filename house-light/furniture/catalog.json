@@ -1003,7 +1003,7 @@
       "id": "H16",
       "group": "H",
       "name": "Плита электрическая",
-      "file": "models/H16/electric_stove_1k.gltf",
+      "file": "models/H16.glb",
       "cm": [
         60,
         60,
@@ -1016,7 +1016,7 @@
       "id": "H17",
       "group": "H",
       "name": "Комод с шуфлядками",
-      "file": "models/H17/drawer_cabinet_1k.gltf",
+      "file": "models/H17.glb",
       "cm": [
         80,
         45,
@@ -1315,7 +1315,7 @@
       "id": "X01",
       "group": "X",
       "name": "Коробка картонная",
-      "file": "models/X01/cardboard_box_01_1k.gltf",
+      "file": "models/X01.glb",
       "cm": [
         40,
         30,
@@ -1328,7 +1328,7 @@
       "id": "X02",
       "group": "X",
       "name": "Ящик деревянный",
-      "file": "models/X02/wooden_crate_01_1k.gltf",
+      "file": "models/X02.glb",
       "cm": [
         60,
         40,
@@ -1341,7 +1341,7 @@
       "id": "X03",
       "group": "X",
       "name": "Ящик пластиковый",
-      "file": "models/X03/plastic_crate_01_1k.gltf",
+      "file": "models/X03.glb",
       "cm": [
         40,
         30,

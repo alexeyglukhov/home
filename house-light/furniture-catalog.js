@@ -1,7 +1,9 @@
 import * as THREE from "three";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
+import { MeshoptDecoder } from "./vendor/meshopt_decoder.module.js";
 
 const loader = new GLTFLoader();
+loader.setMeshoptDecoder(MeshoptDecoder);
 const SPIN = 0.28;
 const LOAD_CONCURRENCY = 1; // одна модель за раз — без фриза главного потока
 const RENDER_BUDGET = 2; // сколько превью крутить за кадр

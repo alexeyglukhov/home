@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "./vendor/OrbitControls.js";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
+import { MeshoptDecoder } from "./vendor/meshopt_decoder.module.js";
 import { mergeVertices } from "./vendor/utils/BufferGeometryUtils.js";
 import geo from "./geometry.js?v=21";
 import { FURNITURE_LINES } from "./furniture-sketch.js?v=4";
@@ -19,8 +20,8 @@ import { buildVariant31d, v31dWalkBoxes, v31dFenceSegments, V31D_WINDOWS, V31D_B
 import { buildVariant31c, v31cWalkBoxes, v31cFenceSegments, V31C_WINDOWS, V31C_BASE } from "./variant-31c.js?v=120";
 import { createD2Tour, createTourDaylight, D3_WINDOWS } from "./tour-d2.js?v=24";
 import { syncPrintSheets } from "./print-sheets.js?v=48";
-import { mountFurnitureCatalog } from "./furniture-catalog.js?v=14";
-import { createTourFurniturePlace } from "./furniture-tour-place.js?v=69";
+import { mountFurnitureCatalog } from "./furniture-catalog.js?v=15";
+import { createTourFurniturePlace } from "./furniture-tour-place.js?v=70";
 import { buildTopochnayaV3, topoCameraRigs } from "./topochnaya-v3.js?v=96";
 
 const panel = document.getElementById("panel");
@@ -1980,6 +1981,7 @@ function addSlabHole(outer, holePts, y0, height, color) {
 }
 
 const gltfLoader = new GLTFLoader();
+gltfLoader.setMeshoptDecoder(MeshoptDecoder);
 
 // Модель из glb: длина вдоль Z, вверх Y. Нос на запад или на север, длина заводская.
 // Верх плитки 0.065. У Coolray шина доходит до низа модели, у Mazda видимое колесо выше.
