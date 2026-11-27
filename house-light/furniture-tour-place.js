@@ -3,7 +3,8 @@
 import * as THREE from "three";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
 import { MeshoptDecoder } from "./vendor/meshopt_decoder.module.js";
-import { selectVisibleParts } from "./furniture-visible-bounds.js";
+import { selectVisibleParts, selectFootParts } from "./furniture-visible-bounds.js";
+import { prepareCarModel, isCarCatalogId } from "./car-prepare.js";
 
 const loader = new GLTFLoader();
 loader.setMeshoptDecoder(MeshoptDecoder);
@@ -37,7 +38,7 @@ const LIFT_STEP = 0.9; // м/с вдоль стены
 const WALL_MAX_H = 2.55;
 
 /** bump при strip/optimize GLB — иначе браузер держит старый хелпер ±1 м (W08). */
-const FURN_GLB_V = 3;
+const FURN_GLB_V = 4;
 
 function fileUrl(file) {
   const u = new URL("./furniture/" + file, import.meta.url);
@@ -45,14 +46,22 @@ function fileUrl(file) {
   return u.href;
 }
 
-function loadModel(file) {
+function loadModel(file, itemId = null) {
   const hit = cache.get(file);
-  if (hit) return hit.then((s) => s.clone(true));
+  const after = (s) => {
+    const clone = s.clone(true);
+    const id = itemId || "";
+    if (isCarCatalogId(id) || /Y01|Y02|geely|coolray|mazda/i.test(file + id)) {
+      prepareCarModel(clone, id || file);
+    }
+    return clone;
+  };
+  if (hit) return hit.then(after);
   const job = new Promise((resolve, reject) => {
     loader.load(fileUrl(file), (gltf) => resolve(gltf.scene), undefined, reject);
   });
   cache.set(file, job);
-  return job.then((s) => s.clone(true));
+  return job.then(after);
 }
 
 /** Параллельно прогреть уникальные GLB (сеть + decode), потом клоны дешёвые. */
@@ -269,15 +278,20 @@ export function createTourFurniturePlace(opts) {
   const _size = new THREE.Vector3();
   const _center = new THREE.Vector3();
   const _corner = new THREE.Vector3();
-  const FOOT_EPS = 0.004;
+  /** Зазор низа мебели над полом при посадке (всегда). */
+  const FOOT_CLEAR = 0.01;
+  /** Flush для настенного крепления (ТВ). */
   const WALL_EPS = 0.003;
-  /** Зазор до контура стены: почти вплотную (не 4 см — иначе унитаз/шкаф не подходят). */
-  const FOOT_PAD = 0.002;
   /**
-   * При расширении в нишу оставлять ≥1 см до каждой стены —
-   * иначе вплотную по ширине нельзя ездить вперёд-назад.
+   * Зазор до стены для мебели на полу: 1 см (пятно, упор, ниша).
+   * Не путать с WALL_EPS — тот только для mount=wall.
    */
-  const NICHE_CLEAR = 0.01;
+  const WALL_CLEAR = 0.01;
+  /** Контур почти вплотную; целевой 1 см — WALL_CLEAR в pushOut, не здесь. */
+  const FOOT_PAD = 0.002;
+  const NICHE_CLEAR = WALL_CLEAR;
+  /** @deprecated имя; везде FOOT_CLEAR */
+  const FOOT_EPS = FOOT_CLEAR;
   const _obCorners = Array.from({ length: 8 }, () => new THREE.Vector3());
   const _localFurnBox = new THREE.Box3();
   let _localFurnBoxValid = false;
@@ -687,7 +701,7 @@ export function createTourFurniturePlace(opts) {
       }
       if (_tmpBox.isEmpty()) return;
       parts.push({
-        name: (obj.name || "").trim(),
+        name: (obj.name || obj.parent?.name || "").trim(),
         min: [_tmpBox.min.x, _tmpBox.min.y, _tmpBox.min.z],
         max: [_tmpBox.max.x, _tmpBox.max.y, _tmpBox.max.z],
         visible: meshAncestorVisible(obj),
@@ -699,7 +713,7 @@ export function createTourFurniturePlace(opts) {
   }
 
   /**
-   * AABB только по видимым деталям (`furniture-visible-bounds.js`).
+   * AABB корпуса W×D×H (`selectVisibleParts`).
    * toLocalInv — бокс в этой СК (wrap/ghostRoot).
    */
   function measureMeshBox(root, out = _box, toLocalInv = null) {
@@ -709,7 +723,7 @@ export function createTourFurniturePlace(opts) {
     return out;
   }
 
-  /** Точный AABB по вершинам видимых мешей (посадка ног / коллизии / каркас). */
+  /** Точный AABB корпуса по вершинам (стены / каркас / рост). */
   function measureMeshBoxPrecise(root, out = _box, toLocalInv = null) {
     out.makeEmpty();
     const kept = selectVisibleParts(collectMeshBoundParts(root, toLocalInv, true));
@@ -718,7 +732,41 @@ export function createTourFurniturePlace(opts) {
   }
 
   /**
-   * Масштаб + ноги в локальный y=0 по фактическим вершинам мешей.
+   * Низ модели по всем видимым мешам (не только корпус-якорь).
+   * Иначе snap/seat по hanger frame утапливает шкаф в пол.
+   */
+  function measureFootBoxPrecise(root, out = _box, toLocalInv = null) {
+    out.makeEmpty();
+    const kept = selectFootParts(collectMeshBoundParts(root, toLocalInv, true));
+    for (const p of kept) out.union(p.box);
+    if (out.isEmpty()) measureMeshBoxPrecise(root, out, toLocalInv);
+    return out;
+  }
+
+  /**
+   * Самый низкий Y по ВСЕМ видимым мешам (без selectVisibleParts).
+   * Нужен для посадки: фильтр корпуса/фурнитуры не должен поднимать «ноги».
+   */
+  function measureLowestMeshY(root) {
+    let minY = Infinity;
+    if (!root) return minY;
+    root.updateMatrixWorld(true);
+    root.traverse((obj) => {
+      if (!obj.isMesh || !obj.geometry || obj.userData.selectHelper) return;
+      if (!meshAncestorVisible(obj)) return;
+      const pos = obj.geometry.attributes.position;
+      if (!pos) return;
+      _selMat.copy(obj.matrixWorld);
+      for (let i = 0; i < pos.count; i++) {
+        _corner.fromBufferAttribute(pos, i).applyMatrix4(_selMat);
+        if (_corner.y < minY) minY = _corner.y;
+      }
+    });
+    return minY;
+  }
+
+  /**
+   * Масштаб + ноги в локальный y=0 по самому низкому мешу (все вершины).
    * Вызывать только пока предок в начале координат (иначе world≠local).
    */
   function seatModelFeet(model, scaleX, scaleY, scaleZ) {
@@ -728,18 +776,25 @@ export function createTourFurniturePlace(opts) {
     model.updateMatrixWorld(true);
     model.scale.set(scaleX, scaleY, scaleZ);
     model.updateMatrixWorld(true);
-    measureMeshBoxPrecise(model, _box);
-    if (_box.isEmpty()) measureMeshBox(model, _box);
-    if (_box.isEmpty()) return;
-    _box.getCenter(_center);
-    model.position.x -= _center.x;
-    model.position.z -= _center.z;
-    model.position.y -= _box.min.y;
+    // XZ-центр по корпусу
+    measureMeshBoxPrecise(model, _tmpBox);
+    if (!_tmpBox.isEmpty()) {
+      _tmpBox.getCenter(_center);
+      model.position.x -= _center.x;
+      model.position.z -= _center.z;
+      model.updateMatrixWorld(true);
+    }
+    let minY = measureLowestMeshY(model);
+    if (!Number.isFinite(minY)) {
+      measureFootBoxPrecise(model, _box);
+      if (_box.isEmpty()) return;
+      minY = _box.min.y;
+    }
+    model.position.y -= minY;
     model.updateMatrixWorld(true);
-    measureMeshBoxPrecise(model, _box);
-    if (_box.isEmpty()) measureMeshBox(model, _box);
-    if (!_box.isEmpty() && Math.abs(_box.min.y) > 1e-4) {
-      model.position.y -= _box.min.y;
+    minY = measureLowestMeshY(model);
+    if (Number.isFinite(minY) && Math.abs(minY) > 1e-4) {
+      model.position.y -= minY;
       model.updateMatrixWorld(true);
     }
   }
@@ -795,12 +850,23 @@ export function createTourFurniturePlace(opts) {
     if (!root) return;
     const stick = !!opts.stickToFloor;
     root.updateMatrixWorld(true);
+    const minY = measureLowestMeshY(root);
+    if (!Number.isFinite(minY)) {
+      measureFootBoxPrecise(root, _box);
+      if (_box.isEmpty()) return;
+      _box.getCenter(_center);
+      const floorY = sampleFloorY(_center.x, _center.z);
+      const dy = floorY + FOOT_CLEAR - _box.min.y;
+      if (dy > 0 || stick) root.position.y += dy;
+      return;
+    }
+    // центр для sampleFloor — по корпусу, иначе рубашки/двери сдвигают луч
     measureMeshBoxPrecise(root, _box);
-    if (_box.isEmpty()) measureMeshBox(root, _box);
-    if (_box.isEmpty()) return;
-    _box.getCenter(_center);
+    if (!_box.isEmpty()) _box.getCenter(_center);
+    else _center.set(root.position.x, 0, root.position.z);
     const floorY = sampleFloorY(_center.x, _center.z);
-    const dy = floorY + FOOT_EPS - _box.min.y;
+    const dy = floorY + FOOT_CLEAR - minY;
+    // без stick — только не проваливаться; stick — ровно пол+1см
     if (dy > 0 || stick) root.position.y += dy;
   }
 
@@ -812,7 +878,11 @@ export function createTourFurniturePlace(opts) {
     return false;
   }
 
-  /** Верх пола: walkGround + луч вниз. Стены/рамы/мебель не брать — иначе ванна садится на свой борт или проваливается. */
+  /**
+   * Верх пола: walkGround + луч вниз.
+   * Плиты дома (floorSlab) часто с перевёрнутой нормалью верха — для них берём |n.y|.
+   * Иначе мебель остаётся на цоколе ~0.45 при полу 0.57 и тонет в плите (G03).
+   */
   function sampleFloorY(x, z) {
     let y = walkGround(x, z);
     raycaster.set(_tmp.set(x, 10, z), _n.set(0, -1, 0));
@@ -822,11 +892,16 @@ export function createTourFurniturePlace(opts) {
       if (!h.face || underFurnitureRoot(h.object)) continue;
       const ud = h.object.userData || {};
       if (ud.finish === "wall" || ud.finish === "frame" || ud.finish === "door") continue;
-      if (ud.foot && ud.finish !== "floor" && !ud.floorSlab && !ud.walkTop) continue;
-      if (ud.roof && !ud.walkTop) continue;
+      if (ud.foot && ud.finish !== "floor" && !ud.floorSlab && ud.walkTop == null) continue;
+      if (ud.roof && ud.walkTop == null) continue;
       const n = h.face.normal.clone().transformDirection(h.object.matrixWorld).normalize();
-      if (n.y < 0.55) continue;
-      // потолок/верх стены: не выше разумного пола комнаты
+      const floorLike = !!(ud.floorSlab || ud.walkTop != null || ud.finish === "floor");
+      if (floorLike) {
+        if (Math.abs(n.y) < 0.55) continue;
+      } else if (n.y < 0.55) {
+        continue;
+      }
+      // потолок: не выше разумного пола комнаты над текущим кандидатом
       if (h.point.y > y + 0.85) continue;
       if (h.point.y > y) y = h.point.y;
     }
@@ -840,14 +915,17 @@ export function createTourFurniturePlace(opts) {
   function snapFeet(opts = {}) {
     const stick = opts === true || !!opts?.stick;
     ghostRoot.updateMatrixWorld(true);
+    const minY = measureLowestMeshY(ghostRoot);
     measureMeshBoxPrecise(ghostRoot, _box);
-    if (_box.isEmpty()) measureGhostBox();
-    else {
+    if (!_box.isEmpty()) {
       _box.getSize(_size);
       _box.getCenter(_center);
+    } else {
+      measureGhostBox();
     }
     const floorY = sampleFloorY(_center.x, _center.z);
-    const dy = floorY + FOOT_EPS - _box.min.y;
+    const footY = Number.isFinite(minY) ? minY : _box.min.y;
+    const dy = floorY + FOOT_CLEAR - footY;
     // в проходе сквозь стену — только не проваливаться
     if (wallPassActive) {
       if (dy > 0) ghostRoot.position.y += dy;
@@ -859,7 +937,7 @@ export function createTourFurniturePlace(opts) {
   /** Не проваливаться в пол; при необходимости — потолок. По низу/верху меша, не по pivot. */
   function clampGhostToFloorAndCeiling() {
     ghostRoot.updateMatrixWorld(true);
-    measureMeshBoxPrecise(ghostRoot, _box);
+    measureFootBoxPrecise(ghostRoot, _box);
     if (_box.isEmpty()) measureGhostBox();
     else {
       _box.getSize(_size);
@@ -868,12 +946,15 @@ export function createTourFurniturePlace(opts) {
     const floorY = sampleFloorY(_center.x, _center.z);
     const lift = (floorY + FOOT_EPS) - _box.min.y;
     if (lift > 0) ghostRoot.position.y += lift;
-    measureMeshBoxPrecise(ghostRoot, _box);
+    measureFootBoxPrecise(ghostRoot, _box);
     if (_box.isEmpty()) measureGhostBox();
+    // потолок — по корпусу (высота), не по свисающей рубашке
+    measureMeshBoxPrecise(ghostRoot, _tmpBox);
+    const topBox = _tmpBox.isEmpty() ? _box : _tmpBox;
     const maxTop = floorY + WALL_MAX_H;
-    if (_box.max.y > maxTop) {
-      ghostRoot.position.y -= _box.max.y - maxTop;
-      measureMeshBoxPrecise(ghostRoot, _box);
+    if (topBox.max.y > maxTop) {
+      ghostRoot.position.y -= topBox.max.y - maxTop;
+      measureFootBoxPrecise(ghostRoot, _box);
       if (_box.isEmpty()) measureGhostBox();
       const again = (floorY + FOOT_EPS) - _box.min.y;
       if (again > 0) ghostRoot.position.y += again;
@@ -1615,13 +1696,18 @@ export function createTourFurniturePlace(opts) {
     return best;
   }
 
+  function floorWallClearance() {
+    return mount === "wall" ? WALL_EPS : WALL_CLEAR;
+  }
+
   function pushOutOfFootWalls(_clearanceIgnored) {
     if (wallPassActive) return;
+    const clear = floorWallClearance();
     let px = ghostRoot.position.x;
     let pz = ghostRoot.position.z;
     for (let pass = 0; pass < 12; pass++) {
       const near = nearestBlockingFoot(px, pz);
-      if (!near || near.gap >= WALL_EPS) break;
+      if (!near || near.gap >= clear) break;
       if (wallAllowsPass(near.hit)) break;
       let nx = near.hit.normal.x;
       let nz = near.hit.normal.z;
@@ -1631,7 +1717,7 @@ export function createTourFurniturePlace(opts) {
         nx = -nx;
         nz = -nz;
       }
-      const push = Math.max(WALL_EPS, -near.gap + WALL_EPS);
+      const push = Math.max(clear, -near.gap + clear);
       px += nx * push;
       pz += nz * push;
       ghostRoot.position.x = px;
@@ -1644,6 +1730,20 @@ export function createTourFurniturePlace(opts) {
     }
     ghostRoot.position.x = px;
     ghostRoot.position.z = pz;
+  }
+
+  /**
+   * После spawn/load: низ ≥ FOOT_CLEAR над полом.
+   * Стены здесь НЕ двигаем — AABB повёрнутого шкафа раздувается на десятки см.
+   * Зазор 1 см до стены — при росте/движении (`WALL_CLEAR` / `NICHE_CLEAR`).
+   */
+  function ensurePlacedClearances(holder, data = null) {
+    if (!holder) return;
+    // настенные — не прижимать к полу (ТВ)
+    if (data?.wall) return;
+    holder.updateMatrixWorld(true);
+    // stick: низ ровно на sampleFloorY + FOOT_CLEAR (пол дома 0.57, не цоколь 0.45)
+    snapRootFeetToFloor(holder, { stickToFloor: true });
   }
 
   /** Доля шага к want без входа в стену (группа / крупная мебель). */
@@ -1776,9 +1876,10 @@ export function createTourFurniturePlace(opts) {
 
   function pushOutOfNearbyWalls() {
     if (wallPassActive) return;
+    const clear = floorWallClearance();
     const near = nearestBlockingFoot(ghostRoot.position.x, ghostRoot.position.z);
     contactWall = null;
-    if (!near || near.gap >= WALL_EPS) return;
+    if (!near || near.gap >= clear) return;
     if (wallAllowsPass(near.hit)) return;
     pushOutOfFootWalls();
   }
@@ -2055,7 +2156,7 @@ export function createTourFurniturePlace(opts) {
       return;
     }
     try {
-      const model = await loadModel(item.file);
+      const model = await loadModel(item.file, item.id);
       ghostify(model);
       model.position.set(0, 0, 0);
       model.scale.set(1, 1, 1);
@@ -2262,7 +2363,7 @@ export function createTourFurniturePlace(opts) {
           cm: [(rec.data.cmW || 0.8) * 100, (rec.data.cmD || 0.8) * 100, (rec.data.cmH || 0.8) * 100],
         };
         if (!item.file) continue;
-        const model = await loadModel(item.file);
+        const model = await loadModel(item.file, item.id);
         ghostify(model);
         model.position.set(0, 0, 0);
         model.scale.set(1, 1, 1);
@@ -2424,8 +2525,8 @@ export function createTourFurniturePlace(opts) {
   }
 
   /**
-   * Fit + посадка ног из model-meta (seatOffset / nativeMin).
-   * Инстансный cmW не используем — там часто впекан sx. lastPose → wrap отдельно.
+   * Fit из model-meta; посадка ног всегда по вершинам (`seatModelFeet`),
+   * не по seatOffset из bake — иначе quantized GLB / вешалка уводят шкаф в пол.
    */
   function fitAndSeatModel(model, id, target = null) {
     const meta = metaEntry(id);
@@ -2433,7 +2534,6 @@ export function createTourFurniturePlace(opts) {
     const tgt = target || catalogTargetOf(id);
     let fit = 1;
     if (meta?.fit > 0 && tgt && native) {
-      // meta.fit посчитан к catalogCm — совпадает с tgt из catalog
       fit = meta.fit;
     } else if (native && tgt) {
       fit = fitScaleForTarget(tgt, native);
@@ -2447,31 +2547,8 @@ export function createTourFurniturePlace(opts) {
           tgt.h / Math.max(_size.y, 1e-3),
         );
       }
-      seatModelFeet(model, fit, fit, fit);
-      return fit;
     }
-
-    model.position.set(0, 0, 0);
-    model.rotation.set(0, 0, 0);
-    model.scale.set(fit, fit, fit);
-    const off = meta?.seatOffset;
-    if (off && off.length >= 3) {
-      model.position.set(off[0] * fit, off[1] * fit, off[2] * fit);
-    } else if (meta?.nativeCenter && meta?.nativeMin) {
-      const c = meta.nativeCenter;
-      const mn = meta.nativeMin;
-      model.position.set(-c[0] * fit, -mn[1] * fit, -c[2] * fit);
-    } else {
-      seatModelFeet(model, fit, fit, fit);
-      return fit;
-    }
-    model.updateMatrixWorld(true);
-    // страховка: низ не ниже 0 в локали модели
-    measureMeshBox(model, _box);
-    if (!_box.isEmpty() && _box.min.y < -1e-4) {
-      model.position.y -= _box.min.y;
-      model.updateMatrixWorld(true);
-    }
+    seatModelFeet(model, fit, fit, fit);
     return fit;
   }
 
@@ -2892,11 +2969,14 @@ export function createTourFurniturePlace(opts) {
   }
 
   function liftGhostOutOfFloor() {
-    measureMeshBox(ghostRoot, _box);
-    if (_box.isEmpty()) return;
-    _box.getCenter(_center);
+    const minY = measureLowestMeshY(ghostRoot);
+    measureMeshBoxPrecise(ghostRoot, _box);
+    if (!_box.isEmpty()) _box.getCenter(_center);
+    else _center.set(ghostRoot.position.x, 0, ghostRoot.position.z);
     const floorY = sampleFloorY(_center.x, _center.z);
-    const dy = floorY + FOOT_EPS - _box.min.y;
+    const footY = Number.isFinite(minY) ? minY : (_box.isEmpty() ? NaN : _box.min.y);
+    if (!Number.isFinite(footY)) return;
+    const dy = floorY + FOOT_CLEAR - footY;
     if (dy > 0) ghostRoot.position.y += dy;
   }
 
@@ -3397,7 +3477,7 @@ export function createTourFurniturePlace(opts) {
     baseSize = { ...target };
     applyRecalledPose(recallPoseForId(item.id));
     try {
-      const model = await loadModel(item.file);
+      const model = await loadModel(item.file, item.id);
       ghostify(model);
       model.position.set(0, 0, 0);
       model.scale.set(1, 1, 1);
@@ -3625,17 +3705,7 @@ export function createTourFurniturePlace(opts) {
     holder.rotation.y = data.yaw || 0;
     holder.updateMatrixWorld(true);
     snapRootFeetToFloor(holder);
-    // Если низ всё ещё в плите (битый z) — дотолкнуть
-    measureMeshBox(holder, _box);
-    if (!_box.isEmpty()) {
-      const floorY = sampleFloorY(
-        (_box.min.x + _box.max.x) * 0.5,
-        (_box.min.z + _box.max.z) * 0.5,
-      );
-      if (_box.min.y < floorY + FOOT_EPS) {
-        holder.position.y += floorY + FOOT_EPS - _box.min.y;
-      }
-    }
+    ensurePlacedClearances(holder, data);
     // обновить data.cm* к каталожному fit (без sx) — чтобы следующий spawn не двоил масштаб
     const native = nativeSizeOf(data.id);
     if (native && fit > 0) {
@@ -3643,11 +3713,15 @@ export function createTourFurniturePlace(opts) {
       data.cmD = Math.round(native.d * fit * 1000) / 1000;
       data.cmH = Math.round(native.h * fit * 1000) / 1000;
     }
+    // XZ не переписывать — иначе ложные сдвиги от стен; z только если подняли из пола
+    if (!data.wall) {
+      data.z = Math.round(holder.position.y * 1000) / 1000;
+    }
     return holder;
   }
 
   async function spawnRecord(data, item) {
-    const model = await loadModel(item.file);
+    const model = await loadModel(item.file, item.id || data.id);
     const holder = makeHolder(data, model);
     placed.add(holder);
     records.push({ uuid: holder.uuid, data, holder, itemId: item.id });
@@ -3889,7 +3963,7 @@ export function createTourFurniturePlace(opts) {
       }
     }
     if (seq !== loadSeq) return;
-    // если в файле были дубли — перезаписать чистый список
+    // зазоры 1 см применяются в makeHolder каждый load; сохранить только если убрали дубли
     if (items.length < rawItems.length) await saveAll();
   }
 

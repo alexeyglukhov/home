@@ -8,8 +8,17 @@ export function markHouseFloor(mesh) {
   mesh.material.polygonOffset = true;
   mesh.material.polygonOffsetFactor = 2;
   mesh.material.polygonOffsetUnits = 2;
-  // Только метка для raycast мебели — walkGround / высоту ходьбы не меняет.
   mesh.userData.floorSlab = true;
+  // Верх плиты → walkGround (иначе мебель садится на цоколь 0.45 при полу 0.57).
+  try {
+    mesh.updateMatrixWorld?.(true);
+    const box = new THREE.Box3().setFromObject(mesh);
+    if (Number.isFinite(box.max.y) && box.max.y > 0.05) {
+      mesh.userData.walkTop = box.max.y;
+    }
+  } catch {
+    /* ignore */
+  }
   return mesh;
 }
 
@@ -66,7 +75,8 @@ function boxQuad(b) {
 /** Деколь слоя «иное» на полу 3.1d: дом + терраса + крыльцо + навес. */
 export function addVar31FurnitureFloor(api, floorZ) {
   const { planToWorld, addMesh } = api;
-  const zFloor = floorZ + 0.012;
+  // 2 мм над плитой — ниже FOOT_CLEAR (1 см), иначе деколь режет дно шкафов (G03).
+  const zFloor = floorZ + 0.002;
   // Чуть выше плитки парковки (верх ≈0,01), иначе подпись «Навес» тонет в плите.
   const zYard = 0.045;
   const layers = [

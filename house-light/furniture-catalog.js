@@ -416,7 +416,7 @@ export function mountFurnitureCatalog(hooks = {}) {
     }
   }, true);
 
-  fetch(fileUrl("catalog.json") + "?v=17")
+  fetch(fileUrl("catalog.json") + "?v=18")
     .then((response) => response.json())
     .then(build)
     .catch(() => {

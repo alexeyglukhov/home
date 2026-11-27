@@ -77,6 +77,10 @@
     {
       "id": "E",
       "title": "Телевизоры"
+    },
+    {
+      "id": "Y",
+      "title": "Авто"
     }
   ],
   "items": [
@@ -1457,6 +1461,34 @@
       ],
       "license": "CC0",
       "source": "https://www.innerscene.com/tools/library/3d-parts/flat-screen-tv-32-inch-on-feet-6dbdcb82"
+    },
+    {
+      "id": "Y01",
+      "group": "Y",
+      "name": "Geely Coolray",
+      "file": "models/Y01.glb",
+      "cm": [
+        206,
+        433,
+        155
+      ],
+      "car": true,
+      "license": "model",
+      "source": "house-light/models/geely-coolray.glb"
+    },
+    {
+      "id": "Y02",
+      "group": "Y",
+      "name": "Mazda CX-5",
+      "file": "models/Y02.glb",
+      "cm": [
+        212,
+        455,
+        170
+      ],
+      "car": true,
+      "license": "model",
+      "source": "house-light/models/mazda-cx5.glb"
     }
   ]
 }

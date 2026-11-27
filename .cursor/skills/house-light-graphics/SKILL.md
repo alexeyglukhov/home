@@ -2,11 +2,12 @@
 name: house-light-graphics
 description: >-
   Архитектура графики и управления house-light: meshopt GLB, каталог мебели,
-  машины, орбита/зум, расстановка. Use when adding furniture or car models,
-  optimizing GLB, MeshoptDecoder, furniture-tour-place, catalog.json,
-  model-meta.json, nativeM/cm bounds, crooked dimensions, loadModel,
-  warmModelFiles, orbit after select, or house-light graphics pipeline.
-  Always re-verify visible bounds (bake + catalog cm) when touching furniture models.
+  машины (группа Y), орбита/зум, расстановка. Use when adding furniture or car
+  models, optimizing GLB, MeshoptDecoder, furniture-tour-place, catalog.json,
+  model-meta.json, nativeM/cm bounds, FOOT_CLEAR/WALL_CLEAR 1cm, crooked
+  dimensions, loadModel, warmModelFiles, orbit after select, or house-light
+  graphics pipeline. Always re-verify visible bounds (bake + catalog cm) when
+  touching furniture models.
 ---
 
 # house-light: графика и управление
@@ -22,7 +23,7 @@ description: >-
 node house-light/scripts/optimize-glb-assets.mjs
 ```
 
-- Мебель/топочная: `optimize` (simplify + meshopt + webp).
+- Мебель/топочная: `optimize` (meshopt + webp, **без** `--join` / `--simplify` — иначе полки вроде `Cabinet top bottom` сливаются в боковину, G03).
 - **Машины — только gentle** (dedup/prune/meshopt, без simplify и webp): иначе ломается `KHR_materials_pbrSpecularGlossiness` (пятна на кузове, пропавший блеск). Исходники машин: `house-plot/models/` или git `b1e4dc3`.
 - В конце optimize **всегда** вызывается `bake-furniture-meta.mjs` → обновляет `furniture/model-meta.json`.
 
@@ -126,21 +127,30 @@ node house-light/scripts/bake-furniture-meta.mjs --id V01
 
 - `furniture-tour-place.js` грузит meta (`GET /api/furniture-meta`, fallback на статический JSON).
 - Fit: `nativeM` + `catalog cm` из meta (без повторного «угадывания» размера).
-- Посадка ног: **всегда** по вершинам меша (`measureMeshBoxPrecise` / `seatModelFeet`), не по `nativeMin/Center` из bake — иначе quantized GLB (ванна V03 и др.) уходит в пол.
+- Посадка ног: **всегда** `seatModelFeet` + `measureFootBoxPrecise` / `selectFootParts` (все видимые не-хелперы), **не** `seatOffset` из bake и не только корпус-якорь. Иначе quantized GLB или «hanger frame» как body утапливают шкаф (G02/G03) в пол. W×D×H стен — по-прежнему `selectVisibleParts` (корпус без ручек/brace/hanger).
 - Fallback замера размера только если id нет в meta.
 - После Enter (вставка/правка/копия) `rememberPoseForId` пишет `lastPose` и `PUT /api/furniture-meta` (сервер мержит, не затирая `native*`).
 - Повторная вставка того же `id` сразу с последним `lastPose`.
 
 Сервер: `serve-viewer.py` — `GET/PUT /api/furniture-meta` → `furniture/model-meta.json`.
 
-## Габариты и упор к стене (все модели)
+## Габариты, пол и стены (все модели, включая авто)
 
-1. Источник нативного размера — **`model-meta.json`**, не «сырой» `cm` и не повторный замер на каждый spawn.
-2. OBB/пятно для стен в режиме правки: `measureMeshBox` / `ensureLocalFurnBox` (углы × `ghostRoot.matrixWorld`). Хелперы `selectHelper` не включать. **Не** `Box3.setFromObject` для посадки ног.
-3. `baseSize` / `cmW/D/H` при сохранении — габарит **после fit, без** wrap `sx/sy/sz` (иначе масштаб впекается дважды).
-4. Высота `z` сохраняется и при загрузке не сбрасывается. `snapFeet` / `snapRootFeetToFloor` по умолчанию **только поднимают** из пола; `stick` — лишь при явном «на плиту» (T со стены). PgUp и сохранённый подъём не затирать. Луч пола **не** в мебель/ghost.
-5. `FOOT_PAD` ≈ **2 мм**. В `resolveMoveAgainstWalls` порог `pressingIntoWall` — ~**4 см**, не 25 см.
-6. Правило для **всех** предметов каталога (V/T/W/C/…).
+Константы в `furniture-tour-place.js`:
+
+| Константа | Значение | Смысл |
+| --- | --- | --- |
+| `FOOT_CLEAR` | **1 см** | низ мебели над полом при посадке / snap / load |
+| `WALL_CLEAR` | **1 см** | зазор до стены для мебели **на полу** (пятно, pushOut, ниша) |
+| `NICHE_CLEAR` | = `WALL_CLEAR` | рост в нишу не доводит вплотную |
+| `WALL_EPS` | ~3 мм | только **mount=wall** (ТВ flush) |
+| `FOOT_PAD` | = `WALL_CLEAR` | контур стены в `nearestBlockingFoot` |
+
+1. Источник нативного размера — **`model-meta.json`** (`nativeM` + низ по вершинам).
+2. Посадка Y: **`measureLowestMeshY`** (все видимые меши), не корпус-якорь и не AABB. Иначе вешалка/фильтр → шкаф в полу. Пол дома **0.57** (`floorSlab`), не цоколь **0.45**: `sampleFloorY` для `floorSlab`/`walkTop` принимает **|n.y|** (нормаль верха часто перевёрнута); `markHouseFloor` пишет `walkTop`. После load — `stickToFloor` на `sampleFloorY + FOOT_CLEAR`. **Не** сдвигать XZ от стен при load (AABB повёрнутого шкафа → ложные 30–40 см).
+3. 1 см до стены — при движении/росте (`WALL_CLEAR` / `NICHE_CLEAR`), `FOOT_PAD` ≈ 2 мм (не дублировать clear).
+4. OBB для стен в правке: корпус (`selectVisibleParts`).
+5. `baseSize` / `cmW/D/H` — после fit, без wrap `sx/sy/sz`. Каталог **Y (Авто)** тоже.
 
 При правках коллизий/посадки править `furniture-tour-place.js`, не подгонять `cm` в JSON «с запасом».
 
@@ -176,10 +186,15 @@ URL мебели: `./furniture/` + `file` из каталога (`fileUrl`).
 
 ## Добавление машины (чеклист)
 
-1. Положить `.glb` в `house-light/models/`.
-2. Вписать путь в `CARS` в `optimize-glb-assets.mjs`, прогнать скрипт.
-3. Вызвать `addParkedModel({ url, length, centerE, centerN, … })` из нужного `variant-*.js` / сборки в `app.js`.
-4. Убедиться, что используется общий `gltfLoader` с MeshoptDecoder.
+Машины — обычные позиции каталога (группа **Y**), редактируются как мебель (M / E / стрелки).
+
+1. Положить `.glb` в `house-light/models/` (gentle optimize в `CARS` у `optimize-glb-assets.mjs`).
+2. Симлинк в каталог: `furniture/models/Y0N.glb` → `../../models/….glb`.
+3. Запись в `furniture/catalog.json`: `group: "Y"`, `"car": true`, `cm` = ширина × длина × высота (см), `file: "models/Y0N.glb"`.
+4. `node house-light/scripts/bake-furniture-meta.mjs --id Y0N` (или полный bake).
+5. Материалы: `car-prepare.js` → `prepareCarModel` (вызов из `loadModel` для Y01/Y02).
+6. Позу парковки — в `data/furniture/{variant}.json`, **не** `addParkedModel` в variant-31d (устарело для 3.1d). Другие варианты пока могут звать `addParkedModel` до миграции.
+7. MeshoptDecoder обязателен.
 
 ## Управление (осмотр без крыши)
 
@@ -199,7 +214,7 @@ URL мебели: `./furniture/` + `file` из каталога (`fileUrl`).
 | Comma / Period (и IntlBackslash) | Равномерный масштаб ±5% (лимит **0.15…8**) |
 | BracketLeft/Right / Minus/Equal | Ширина / высота (тот же лимит 0.15…8) |
 
-При **увеличении** ширины/масштаба: рост уходит в свободную сторону; упор в обе стены — заполнение ниши с зазором **`NICHE_CLEAR` = 1 см** до каждой стены (`usableNicheGap`), чтобы потом ездить вперёд-назад. Не `pushOut` после роста; `ensureNicheClearAlong` дожимает 1 см.
+При **увеличении** ширины/масштаба: рост уходит в свободную сторону; упор в обе стены — ниша с зазором **`WALL_CLEAR` / `NICHE_CLEAR` = 1 см**. Не `pushOut` после роста; `ensureNicheClearAlong` дожимает 1 см. Уже стоящая мебель при load проходит `ensurePlacedClearances`.
 
 `settleGrowthAgainstWalls`: ужимать **только оси, выросшие на этом шаге**. Ширина (`BracketLeft`/`Right` → `sx` или `sz`) не должна менять `sy`/другую ось; равномерный `Comma`/`Period` — все три. Не сгонять группу в изотропный scale после ужима.
 

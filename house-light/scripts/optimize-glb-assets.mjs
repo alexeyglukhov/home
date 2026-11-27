@@ -50,7 +50,11 @@ function npxCli(args) {
   return r.status === 0;
 }
 
-/** Полный optimize для мебели (допустимо упрощение сетки). */
+/**
+ * Optimize для мебели: meshopt + webp.
+ * --join false: иначе полки/дно (Cabinet top bottom) сливаются в боковину
+ * и пропадают как отдельные поверхности (G03).
+ */
 function runOptimize(src, dest) {
   return npxCli([
     "--yes",
@@ -62,6 +66,10 @@ function runOptimize(src, dest) {
     "meshopt",
     "--texture-compress",
     "webp",
+    "--join",
+    "false",
+    "--simplify",
+    "false",
   ]);
 }
 

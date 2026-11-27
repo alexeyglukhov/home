@@ -2,7 +2,7 @@
 // помещения по agency/var3.1d.svg (хоз.блок, сдвинутые стены/двери/окна).
 // Масштаб: эталон кровати 2,20 м (uu→м как в var3.1c). Координаты — метры плана.
 import * as THREE from "three";
-import { addVar31FurnitureFloor, markHouseFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31d-furniture-floor.js?v=22";
+import { addVar31FurnitureFloor, markHouseFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31d-furniture-floor.js?v=24";
 
 export const V31D_BASE = { x: 0, y: 0 };
 
@@ -1357,28 +1357,7 @@ export function buildVariant31d(api) {
     });
   }
 
-  // Машины с плана (g1245 Кулрей / g1263 Мазда): центр и курс длинной оси polygon.
-  // planYawDeg: 0° = восток плана, 90° = север; нос — к северной стороне оси (к воротам).
-  // groundY = верх плитки парковки (−0,02+0,03).
-  if (typeof api.addParkedModel === "function") {
-    const parkY = 0.01;
-    api.addParkedModel({
-      url: "./models/geely-coolray.glb",
-      length: 4.33,
-      centerE: -9.780 + HOUSE_DX,
-      centerN: 16.525 + HOUSE_DY,
-      planYawDeg: -96.8,
-      groundY: parkY,
-    });
-    api.addParkedModel({
-      url: "./models/mazda-cx5.glb",
-      length: 4.55,
-      centerE: -7.584 + HOUSE_DX,
-      centerN: 13.269 + HOUSE_DY,
-      planYawDeg: 84.6,
-      groundY: parkY,
-    });
-  }
+  // Машины — в каталоге (Y01/Y02) и data/furniture/v31d.json; редактируются как мебель.
 
   api.sectionHeight(saved);
 }

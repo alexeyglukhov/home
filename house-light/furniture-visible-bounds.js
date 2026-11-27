@@ -3,22 +3,22 @@
  *
  * 1) невидимое / без материала / collision|helper — вне габарита;
  * 2) unit-хелперы ±1 м / blob ~2×2 — вне;
- * 3) якорь — панели/корпус/стекло/поддон (не ручки/растяжки/brace);
- * 4) фурнитура добавляется только если почти не раздувает AABB корпуса
- *    (иначе walk-in экран получает глубину 75 см из-за AABB растяжки).
+ * 3) якорь — панели/корпус/стекло/поддон (не ручки/растяжки/brace/hanger);
+ * 4) фурнитура в W×D×H не входит; для посадки ног — selectFootParts (все
+ *    видимые не-хелперы), иначе «только hanger frame» утапливает шкаф в пол.
  */
 
 /** @typedef {{ name: string, min: number[], max: number[], visible?: boolean, hasShading?: boolean }} BoundsPart */
 
 const HELPER_NAME_RE = /(shadow|collision|proxy|bound|helper|\bplane\b|collider|occluder)/i;
 
-/** Корпус / панели / стекло / поддон — основа габарита. */
+/** Корпус / панели / стекло / поддон — основа габарита W×D×H. */
 const BODY_NAME_RE =
-  /(glass|screen|tray|pan|enclosure|stile|panel|wall|carcass|case|cabinet|door(?!\s*pull)|frame|seat|cushion|top|shelf|drawer|leg|foot(?!\s*cap)|base|basin|bath|tub|bowl|cistern|toilet|sink|vanity|mattress|headboard|sofa|table|desk|chair|wardrobe|closet|cheek|pedestal|stand|housing|bezel)/i;
+  /(glass|screen|tray|pan|enclosure|stile|panel|wall|carcass|case|cabinet|door(?!\s*pull)|(?<!hanger\s)frame|seat|cushion|top|shelf|drawer|leg|foot(?!\s*cap)|base|basin|bath|tub|bowl|cistern|toilet|sink|vanity|mattress|headboard|sofa|table|desk|chair|wardrobe|closet|cheek|pedestal|stand|housing|bezel|hanging\s*(bar|rail)|clothes\s*hanging)/i;
 
 /** Фурнитура / тонкие растяжки — не раздувать габарит. */
 const HARDWARE_NAME_RE =
-  /(brace|rosette|pull|grip|handle|hinge|rail|rod|bar|screw|bolt|knob|hook|roller|track|glide|leveler|foot\s*cap|hardware)/i;
+  /(brace|rosette|pull|grip|handle|hinge|hanger|rail|rod|\bbar\b|screw|bolt|knob|hook|roller|track|glide|leveler|foot\s*cap|hardware)/i;
 
 export function partSize(p) {
   return {
@@ -40,9 +40,14 @@ export function isHelperName(name) {
 export function isBodyPartName(name) {
   const nm = (name || "").trim();
   if (!nm) return false;
-  // ручка / растяжка — не корпус, даже если в имени есть door|enclosure|foot
-  if (/(pull|grip|handle|brace|rosette)/i.test(nm)) return false;
-  if (HARDWARE_NAME_RE.test(nm) && !/(panel|glass|screen|tray|pan|enclosure|stile)/i.test(nm)) {
+  // ручка / вешалка / растяжка — не корпус (иначе G02/G03 садятся на hanger frame)
+  if (/(pull|grip|handle|brace|rosette|\bhanger\b)/i.test(nm)) return false;
+  // штанга гардероба — корпус по объёму
+  if (/(hanging\s*(bar|rail)|clothes\s*hanging)/i.test(nm)) return true;
+  if (
+    HARDWARE_NAME_RE.test(nm)
+    && !/(panel|glass|screen|tray|pan|enclosure|stile|cabinet|wardrobe)/i.test(nm)
+  ) {
     return false;
   }
   return BODY_NAME_RE.test(nm);
@@ -51,9 +56,35 @@ export function isBodyPartName(name) {
 export function isHardwarePartName(name) {
   const nm = (name || "").trim();
   if (!nm) return false;
-  // «door pull» — фурнитура, даже если есть door
-  if (/(pull|grip|handle|brace|rosette)/i.test(nm)) return true;
+  if (/(pull|grip|handle|brace|rosette|\bhanger\b)/i.test(nm)) return true;
   return HARDWARE_NAME_RE.test(nm) && !isBodyPartName(nm);
+}
+
+/** Кандидаты: видимые, с материалом, не хелперы. */
+export function filterBoundsCandidates(parts) {
+  if (!parts?.length) return [];
+  const candidates = parts.filter((p) => {
+    if (p.visible === false) return false;
+    if (p.hasShading === false) return false;
+    const { w, h, d } = partSize(p);
+    if (!(w > 1e-5 && h > 1e-5 && d > 1e-5)) return false;
+    if (isHelperName(p.name) && h < 0.35) return false;
+    if (isGeometricHelper(p)) return false;
+    return true;
+  });
+  if (candidates.length) return candidates;
+  return parts.filter((p) => {
+    const { w, h, d } = partSize(p);
+    return w > 1e-5 && h > 1e-5 && d > 1e-5 && !isGeometricHelper(p);
+  });
+}
+
+/**
+ * Все видимые детали для посадки ног (min.y).
+ * Нельзя сажать только по «корпусу-якорю»: вешалка выше пола → шкаф в плите.
+ */
+export function selectFootParts(parts) {
+  return filterBoundsCandidates(parts);
 }
 
 /** Геометрический хелпер: unit-span / безымянный широкий blob / тонкий столб ±1. */
@@ -112,22 +143,8 @@ function expandsAnchorExcessively(anchor, p, factor = 1.12) {
 export function selectVisibleParts(parts) {
   if (!parts?.length) return [];
 
-  const candidates = parts.filter((p) => {
-    if (p.visible === false) return false;
-    if (p.hasShading === false) return false;
-    const { w, h, d } = partSize(p);
-    if (!(w > 1e-5 && h > 1e-5 && d > 1e-5)) return false;
-    if (isHelperName(p.name) && h < 0.35) return false;
-    if (isGeometricHelper(p)) return false;
-    return true;
-  });
-
-  if (!candidates.length) {
-    return parts.filter((p) => {
-      const { w, h, d } = partSize(p);
-      return w > 1e-5 && h > 1e-5 && d > 1e-5 && !isGeometricHelper(p);
-    });
-  }
+  const candidates = filterBoundsCandidates(parts);
+  if (!candidates.length) return [];
 
   const body = candidates.filter((p) => isBodyPartName(p.name));
   const named = candidates.filter((p) => (p.name || "").trim());
@@ -154,6 +171,8 @@ export function selectVisibleParts(parts) {
 }
 
 /**
+ * Габарит W×D×H по корпусу; min.y / высота — с учётом ног (foot parts),
+ * чтобы seatOffset не ставил шкаф на вешалку.
  * @param {BoundsPart[]} parts
  * @returns {{ min: number[], max: number[], dropped: number, kept: number } | null}
  */
@@ -161,9 +180,14 @@ export function unionVisibleBounds(parts) {
   const kept = selectVisibleParts(parts);
   if (!kept.length) return null;
   const u = unionOf(kept);
+  const feet = selectFootParts(parts);
+  const f = feet.length ? unionOf(feet) : u;
+  // XZ из корпуса; низ — по всем видимым (leveler / cabinet side)
+  const min = [u.min[0], f.min[1], u.min[2]];
+  const max = [u.max[0], Math.max(u.max[1], f.max[1]), u.max[2]];
   return {
-    min: u.min,
-    max: u.max,
+    min,
+    max,
     dropped: Math.max(0, (parts?.length || 0) - kept.length),
     kept: kept.length,
   };
