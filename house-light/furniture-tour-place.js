@@ -1,5 +1,5 @@
 // Расстановка мебели: только осмотр со снятой крышей (не «Экскурсия»).
-// Мультивыбор E/C/X → Enter фиксирует группу → правка/копия/удаление целиком.
+// Клик — выбор; Shift/Ctrl+клик — группа; E/C/X — правка/копия/удаление; Enter/Esc — фиксация/отмена.
 import * as THREE from "three";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
 
@@ -8,27 +8,26 @@ const cache = new Map();
 const HINT_IDLE_TOUR =
   "WASD — ход · мышь — взгляд · Esc — стоп · мебель — только в осмотре без крыши";
 const HINT_IDLE_VIEW =
-  "M — каталог · E — правка · C — копия · X — удаление · Ctrl+Z · мышь — осмотр · расстановка при снятой крыше";
+  "M — каталог · клик — выбор · Shift/Ctrl+клик — группа · E правка · C копия · X удалить · Ctrl+Z";
 const HINT_PLACE_TOUR =
-  "Стрелки — двигать · Home/End — поворот · Insert — зеркало · PgUp/PgDn у стены · Delete — удалить · T · х/ъ · -/= · Enter · Esc · Ctrl+Z";
+  "Стрелки — двигать · Home/End — поворот · Insert слева↔справа · Delete спереди↔сзади · PgUp/PgDn · T · х/ъ · -/= · Enter · Esc · Ctrl+Z";
 const HINT_PLACE_AIM =
-  "Мышь — точка · Enter — в правку · Esc/Delete — отмена";
+  "Мышь — точка · клик или Enter — в правку · Esc — отмена";
 const HINT_PLACE_VIEW =
-  "Стрелки — двигать · у стены: держать/~3 нажатия — проход · Home/End · Insert · PgUp/PgDn · Delete · T · х/ъ · -/= · Enter · Esc · Ctrl+Z";
+  "Стрелки · у стены: держать/~3 нажатия — проход · Home/End · Insert слева↔справа · Delete спереди↔сзади · PgUp/PgDn · T · х/ъ · -/= · Enter · Esc";
 const HINT_PLACE_GROUP =
-  "Группа: стрелки · Home/End · Insert · Delete · у стены держать/~3 нажатия · х/ъ · -/= · Enter · Esc · Ctrl+Z";
+  "Группа: стрелки · Home/End · Insert слева↔справа · Delete спереди↔сзади · у стены держать/~3 · х/ъ · -/= · Enter · Esc";
+const HINT_SELECT_VIEW =
+  "Выбрано · E — правка · C — копия · X — удалить · клик — сменить · Shift/Ctrl+клик — группа · Esc — снять";
 const HINT_DELETE_TOUR =
   "Удаление мебели — только в осмотре без крыши";
 const HINT_EDIT_TOUR =
   "Правка мебели — только в осмотре без крыши";
 const HINT_COPY_TOUR =
   "Копия мебели — только в осмотре без крыши";
-const HINT_DELETE_VIEW =
-  "Клики — выбор нескольких · Enter — удалить группу · X/Esc — выход · Ctrl+Z";
-const HINT_EDIT_VIEW =
-  "Клики — выбор нескольких · Enter — править группу · E/Esc — выход · Ctrl+Z";
-const HINT_COPY_VIEW =
-  "Клики — выбор нескольких · Enter — копия группы (та же поза) · C/Esc — выход · Ctrl+Z";
+const HINT_DELETE_VIEW = HINT_SELECT_VIEW;
+const HINT_EDIT_VIEW = HINT_SELECT_VIEW;
+const HINT_COPY_VIEW = HINT_SELECT_VIEW;
 
 const STEP = 1.35; // м/с
 const LIFT_STEP = 0.9; // м/с вдоль стены
@@ -279,14 +278,12 @@ export function createTourFurniturePlace(opts) {
       if (groupMembers) setHint(HINT_PLACE_GROUP, "place");
       else if (placeIntent === "insert" && insertPhase === "aim") setHint(HINT_PLACE_AIM, "place");
       else setHint(HINT_PLACE_VIEW, "place");
-    } else if (mode === "delete") setHint(HINT_DELETE_VIEW, "delete");
-    else if (mode === "edit") setHint(HINT_EDIT_VIEW, "edit");
-    else if (mode === "copy") setHint(HINT_COPY_VIEW, "copy");
+    } else if (selectedUids.size) setHint(HINT_SELECT_VIEW, "edit");
     else setHint(HINT_IDLE_VIEW, "idle");
   }
 
   function isSelectMode() {
-    return mode === "delete" || mode === "edit" || mode === "copy";
+    return mode !== "place" && selectedUids.size > 0;
   }
 
   function disposeSelectHelpers() {
@@ -375,22 +372,19 @@ export function createTourFurniturePlace(opts) {
 
   function refreshSelectHighlight() {
     disposeSelectHelpers();
-    if (!isSelectMode()) return;
+    if (mode === "place") return;
     const list = selectedRecords();
     if (!list.length) {
-      if (mode === "delete") status("Удаление: кликните по мебели, затем Enter");
-      else if (mode === "edit") status("Правка: кликните по мебели, затем Enter");
-      else if (mode === "copy") status("Копия: кликните по мебели, затем Enter");
+      publishHint();
       return;
     }
-    const color = mode === "delete" ? 0xe23a3a : mode === "copy" ? 0x3a9e6a : 0xd4a017;
+    const color = 0xd4a017;
     for (const rec of list) {
       selectHelpers.push(makeOrientedSelectHelper(rec.holder, color, rec.data));
     }
     const ids = list.map((r) => r.data.id).join(", ");
-    if (mode === "delete") status(`Удаление: ${list.length} — ${ids}. Enter — удалить`);
-    else if (mode === "copy") status(`Копия: ${list.length} — ${ids}. Enter — копировать`);
-    else status(`Правка: ${list.length} — ${ids}. Enter — править`);
+    status(`Выбрано: ${list.length} — ${ids}. E правка · C копия · X удалить`);
+    publishHint();
   }
 
   function toggleSelectByIndex(idx) {
@@ -401,6 +395,25 @@ export function createTourFurniturePlace(opts) {
     else selectedUids.add(uid);
     selectIndex = selectedUids.has(uid) ? idx : (selectedRecords()[0] ? records.indexOf(selectedRecords()[0]) : -1);
     refreshSelectHighlight();
+  }
+
+  /** Без модификаторов — заменить выбор; Shift/Ctrl — добавить/снять. */
+  function applyPointerSelection(idx, multi) {
+    if (multi) {
+      if (idx >= 0) toggleSelectByIndex(idx);
+      return idx >= 0;
+    }
+    selectedUids.clear();
+    selectIndex = -1;
+    if (idx >= 0) {
+      const uid = records[idx]?.data?.uid;
+      if (uid) {
+        selectedUids.add(uid);
+        selectIndex = idx;
+      }
+    }
+    refreshSelectHighlight();
+    return idx >= 0;
   }
 
   function recordIndexFromHit(hits) {
@@ -428,7 +441,7 @@ export function createTourFurniturePlace(opts) {
 
   /** Выбор кликом (осмотр): луч из курсора. */
   function pickSelectByPointer(event) {
-    if (!isSelectMode()) return -1;
+    if (mode === "place") return -1;
     if (!records.length || !domElement) return -1;
     const rect = domElement.getBoundingClientRect();
     if (rect.width < 1 || rect.height < 1) return -1;
@@ -651,6 +664,31 @@ export function createTourFurniturePlace(opts) {
       return;
     }
     if (strictFloor || dy > 0) ghostRoot.position.y += dy;
+  }
+
+  /** Не проваливаться в пол; при необходимости — потолок. По низу/верху AABB, не по pivot. */
+  function clampGhostToFloorAndCeiling() {
+    measureGhostBox();
+    const floorY = sampleFloorY(_center.x, _center.z);
+    const lift = (floorY + FOOT_EPS) - _box.min.y;
+    if (lift > 0) ghostRoot.position.y += lift;
+    measureGhostBox();
+    const maxTop = floorY + WALL_MAX_H;
+    if (_box.max.y > maxTop) {
+      ghostRoot.position.y -= _box.max.y - maxTop;
+      measureGhostBox();
+      const again = (floorY + FOOT_EPS) - _box.min.y;
+      if (again > 0) ghostRoot.position.y += again;
+    }
+  }
+
+  /** Держать OBB в касании со стеной (XZ); Y не трогаем. */
+  function keepFlushToWall() {
+    if (wallNormal.lengthSq() < 1e-8) return;
+    const keepY = ghostRoot.position.y;
+    pushOutOfPlane(wallPlanePoint, wallNormal);
+    pullFlushToWall(wallPlanePoint, wallNormal, 0.5);
+    ghostRoot.position.y = keepY;
   }
 
   function invalidateLocalFurnBox() {
@@ -1025,27 +1063,32 @@ export function createTourFurniturePlace(opts) {
    * @returns {boolean} курс изменился
    */
   function snapYawParallelToWall(hit) {
-    if (groupMembers || !hit?.normal) return false;
+    if (!hit?.normal) return false;
     let nx = hit.normal.x;
     let nz = hit.normal.z;
     const nLen = Math.hypot(nx, nz);
     if (nLen < 1e-8) {
-      snapYawToPlanAxes();
+      if (!groupMembers) snapYawToPlanAxes();
       return false;
     }
     nx /= nLen;
     nz /= nLen;
+    const curYaw = groupMembers ? ghostRoot.rotation.y : yaw;
     // лицом к стене / от стены / вдоль — ближайший к текущему yaw
-    const next = nearestAngle(yaw, [
+    const next = nearestAngle(curYaw, [
       Math.atan2(nx, nz),
       Math.atan2(-nx, -nz),
       Math.atan2(-nz, nx),
       Math.atan2(nz, -nx),
     ]);
-    const diff = Math.abs(Math.atan2(Math.sin(yaw - next), Math.cos(yaw - next)));
+    const diff = Math.abs(Math.atan2(Math.sin(curYaw - next), Math.cos(curYaw - next)));
     if (diff < 0.015) return false; // уже параллельно (~0.9°)
-    yaw = next;
-    ghostRoot.rotation.set(0, yaw, 0);
+    if (groupMembers) {
+      ghostRoot.rotation.y = next;
+    } else {
+      yaw = next;
+      ghostRoot.rotation.set(0, yaw, 0);
+    }
     invalidateLocalFurnBox();
     ghostRoot.updateMatrixWorld(true);
     return true;
@@ -1193,7 +1236,7 @@ export function createTourFurniturePlace(opts) {
     return Math.max(0.05, Math.min(ex, ez)) + 0.015;
   }
 
-  const FOOT_PAD = 0.02;
+  const FOOT_PAD = 0.04;
 
   /** Локальный AABB содержимого wrap в СК wrap (для OBB-углов члена группы). */
   function measureWrapLocalBox(wrap, out) {
@@ -1386,30 +1429,51 @@ export function createTourFurniturePlace(opts) {
     if (wallPassActive) return;
     let px = ghostRoot.position.x;
     let pz = ghostRoot.position.z;
-    if (furnitureInsideAnyWall(px, pz)) return;
-    for (let pass = 0; pass < 8; pass++) {
+    for (let pass = 0; pass < 12; pass++) {
       const near = nearestBlockingFoot(px, pz);
-      if (!near || near.gap >= -1e-4) break;
+      if (!near || near.gap >= WALL_EPS) break;
       if (wallAllowsPass(near.hit)) break;
-      if (near.inside) break;
-      const hit = near.hit;
-      const push = (-near.gap) + WALL_EPS;
-      px += hit.normal.x * push;
-      pz += hit.normal.z * push;
-      // временно сдвинуть root, чтобы следующие углы считались от новой позы
+      let nx = near.hit.normal.x;
+      let nz = near.hit.normal.z;
+      const toX = px - near.hit.point.x;
+      const toZ = pz - near.hit.point.z;
+      if (nx * toX + nz * toZ < 0) {
+        nx = -nx;
+        nz = -nz;
+      }
+      const push = Math.max(WALL_EPS, -near.gap + WALL_EPS);
+      px += nx * push;
+      pz += nz * push;
       ghostRoot.position.x = px;
       ghostRoot.position.z = pz;
       ghostRoot.updateMatrixWorld(true);
-      contactWall = { point: hit.point.clone(), normal: hit.normal.clone() };
+      contactWall = {
+        point: near.hit.point.clone(),
+        normal: new THREE.Vector3(nx, 0, nz),
+      };
     }
     ghostRoot.position.x = px;
     ghostRoot.position.z = pz;
   }
 
+  /** Доля шага к want без входа в стену (группа / крупная мебель). */
+  function maxFreeMoveFrac(wantX, wantZ) {
+    if (!furnitureBlockedAt(wantX, wantZ) && !furnitureInsideAnyWall(wantX, wantZ)) return 1;
+    let lo = 0;
+    let hi = 1;
+    for (let i = 0; i < 10; i++) {
+      const mid = (lo + hi) * 0.5;
+      const mx = _movePrev.x + (wantX - _movePrev.x) * mid;
+      const mz = _movePrev.z + (wantZ - _movePrev.z) * mid;
+      if (furnitureBlockedAt(mx, mz) || furnitureInsideAnyWall(mx, mz)) hi = mid;
+      else lo = mid;
+    }
+    return lo;
+  }
+
   /**
-   * Стрелки: упор по контурам стен (foot).
-   * Удержание или 3 нажатия → проход; внутри стены не выталкивать.
-   * Крупная мебель: длиннее проход, без snap yaw при упоре (иначе сброс прогресса).
+   * Стрелки: упор по контурам стен (foot) — и для группы.
+   * Удержание или 3 нажатия → проход. «Уже внутри» сам проход не открывает.
    */
   function resolveMoveAgainstWalls(move, dt) {
     _movePrev.copy(ghostRoot.position);
@@ -1429,9 +1493,7 @@ export function createTourFurniturePlace(opts) {
     const wantX = _movePrev.x + _moveDelta.x;
     const wantZ = _movePrev.z + _moveDelta.z;
 
-    // проход активен ИЛИ уже внутри стены — двигаем плавно, без выталкивания
-    if (wallPassActive || furnitureInsideAnyWall(_movePrev.x, _movePrev.z)) {
-      if (!wallPassActive) openWallPass(dir);
+    if (wallPassActive) {
       ghostRoot.position.x = wantX;
       ghostRoot.position.z = wantZ;
       ghostRoot.updateMatrixWorld(true);
@@ -1439,15 +1501,24 @@ export function createTourFurniturePlace(opts) {
       return false;
     }
 
-    const nearAt = nearestBlockingFoot(_movePrev.x, _movePrev.z)
+    // внутри стены без режима прохода — вытолкнуть, не ехать сквозь
+    if (furnitureInsideAnyWall(_movePrev.x, _movePrev.z)) {
+      pushOutOfFootWalls();
+      if (furnitureInsideAnyWall(ghostRoot.position.x, ghostRoot.position.z)) {
+        ghostRoot.position.copy(_movePrev);
+        ghostRoot.updateMatrixWorld(true);
+      }
+    }
+
+    const nearAt = nearestBlockingFoot(ghostRoot.position.x, ghostRoot.position.z)
       || nearestBlockingFoot(wantX, wantZ);
     const blockHit = nearAt?.hit || null;
-    const wantBlocked = furnitureBlockedAt(wantX, wantZ, clearance);
-    // упор «в стену»: даже если кадр чуть скользнул вдоль (крупный стол / snap осей)
+    const wantBlocked = furnitureBlockedAt(wantX, wantZ)
+      || furnitureInsideAnyWall(wantX, wantZ);
     const pressingIntoWall = !!(
       blockHit
-      && nearAt.gap < 0.2
-      && dir.dot(blockHit.normal) < -0.15
+      && nearAt.gap < 0.25
+      && dir.dot(blockHit.normal) < -0.12
     );
 
     if (!wantBlocked && !pressingIntoWall) {
@@ -1461,36 +1532,37 @@ export function createTourFurniturePlace(opts) {
       return false;
     }
 
-    if (!wantBlocked && pressingIntoWall) {
-      ghostRoot.position.x = wantX;
-      ghostRoot.position.z = wantZ;
+    if (wantBlocked) {
+      const frac = maxFreeMoveFrac(wantX, wantZ);
+      ghostRoot.position.x = _movePrev.x + (wantX - _movePrev.x) * frac;
+      ghostRoot.position.z = _movePrev.z + (wantZ - _movePrev.z) * frac;
       ghostRoot.updateMatrixWorld(true);
       pushOutOfFootWalls(clearance);
-    } else {
-      let slid = false;
-      if (blockHit) {
+      if (frac < 0.08 && blockHit) {
         const tx = -blockHit.normal.z;
         const tz = blockHit.normal.x;
         const along = _moveDelta.x * tx + _moveDelta.z * tz;
         if (Math.abs(along) > 1e-6) {
-          const sx = tx * along;
-          const sz = tz * along;
-          if (!furnitureBlockedAt(_movePrev.x + sx, _movePrev.z + sz, clearance)) {
-            ghostRoot.position.x = _movePrev.x + sx;
-            ghostRoot.position.z = _movePrev.z + sz;
-            slid = true;
+          const sx = _movePrev.x + tx * along;
+          const sz = _movePrev.z + tz * along;
+          if (!furnitureBlockedAt(sx, sz) && !furnitureInsideAnyWall(sx, sz)) {
+            ghostRoot.position.x = sx;
+            ghostRoot.position.z = sz;
+            ghostRoot.updateMatrixWorld(true);
+            pushOutOfFootWalls(clearance);
           }
         }
       }
-      if (!slid) ghostRoot.position.copy(_movePrev);
+    } else {
+      ghostRoot.position.copy(_movePrev);
       ghostRoot.updateMatrixWorld(true);
       pushOutOfFootWalls(clearance);
     }
 
-    // первые упоры: выровнять параллельно стене минимальным доворотом — до прохода
-    if (blockHit && !wallPassActive) {
-      contactWall = { point: blockHit.point.clone(), normal: blockHit.normal.clone() };
-      if (snapYawParallelToWall(blockHit)) {
+    const hitNow = nearestBlockingFoot(ghostRoot.position.x, ghostRoot.position.z)?.hit || blockHit;
+    if (hitNow && !wallPassActive) {
+      contactWall = { point: hitNow.point.clone(), normal: hitNow.normal.clone() };
+      if (snapYawParallelToWall(hitNow)) {
         pushOutOfFootWalls();
       }
     }
@@ -1498,7 +1570,6 @@ export function createTourFurniturePlace(opts) {
     const open = noteWallBumpProgress(dt, wallBumpTapArmed);
     if (open) {
       openWallPass(dir);
-      // сразу зайти за линию упора (иначе крупный стол остаётся снаружи и «не проходит»)
       const stepIn = Math.max(dist, Math.min(0.45, clearance * 0.55 + 0.1));
       ghostRoot.position.x = _movePrev.x + dir.x * stepIn;
       ghostRoot.position.z = _movePrev.z + dir.z * stepIn;
@@ -1591,7 +1662,7 @@ export function createTourFurniturePlace(opts) {
     // иначе центр «прыгает» внутрь стены.
     wallAnchor.copy(ghostRoot.position);
     yawFree = true;
-    applySurface({ throughWalls: true });
+    applySurface();
     return true;
   }
 
@@ -1633,105 +1704,61 @@ export function createTourFurniturePlace(opts) {
 
   function exitSelectMode() {
     clearSelectHighlight();
-    if (isSelectMode()) setMode("none");
-    publishHint();
-  }
-
-  function enterDeleteMode() {
-    if (!canEditFurniture()) return;
-    if (mode === "delete") {
-      exitSelectMode();
-      status("Режим удаления выключен");
-      return;
-    }
-    clearGhost();
-    exitSelectMode();
-    if (!records.length) {
-      status("Нет расставленной мебели для удаления");
-      setMode("none");
-      publishHint();
-      return;
-    }
-    setMode("delete");
-    selectedUids.clear();
-    selectIndex = -1;
-    refreshSelectHighlight();
-    status("Удаление (X): клики — выбор, Enter — удалить");
-    publishHint();
-  }
-
-  function enterEditMode() {
-    if (!canEditFurniture()) return;
-    if (mode === "edit") {
-      exitSelectMode();
-      status("Режим правки выключен");
-      return;
-    }
-    clearGhost();
-    exitSelectMode();
-    if (!records.length) {
-      status("Нет расставленной мебели для правки");
-      setMode("none");
-      publishHint();
-      return;
-    }
-    setMode("edit");
-    selectedUids.clear();
-    selectIndex = -1;
-    refreshSelectHighlight();
-    status("Правка (E): клики — выбор, Enter — править группу");
-    publishHint();
-  }
-
-  function enterCopyMode() {
-    if (!canEditFurniture()) return;
-    if (mode === "copy") {
-      exitSelectMode();
-      status("Режим копии выключен");
-      return;
-    }
-    clearGhost();
-    exitSelectMode();
-    if (!records.length) {
-      status("Нет мебели для копирования");
-      setMode("none");
-      publishHint();
-      return;
-    }
-    setMode("copy");
-    selectedUids.clear();
-    selectIndex = -1;
-    refreshSelectHighlight();
-    status("Копия (C): клики — выбор, Enter — копировать группу");
+    if (mode === "delete" || mode === "edit" || mode === "copy") setMode("none");
     publishHint();
   }
 
   function cycleSelect(delta) {
-    if (!isSelectMode() || !records.length) return;
+    if (mode === "place" || !records.length) return;
     const idx = (selectIndex + delta + records.length) % records.length;
-    toggleSelectByIndex(idx);
+    applyPointerSelection(idx, false);
   }
 
-  function lockSelectionAction() {
+  /** E — правка выделенного. */
+  function editSelection() {
+    if (!canEditFurniture()) return;
+    if (mode === "place") {
+      status("Сначала Enter или Esc");
+      return;
+    }
     const list = selectedRecords();
     if (!list.length) {
-      status("Сначала кликните по мебели");
+      status("Сначала выберите мебель кликом");
       return;
     }
-    if (mode === "delete") {
-      deleteSelectedGroup(list);
+    if (list.length === 1) beginSingleEdit(list[0]);
+    else beginGroupEdit(list);
+  }
+
+  /** C — копия выделенного. */
+  function copySelection() {
+    if (!canEditFurniture()) return;
+    if (mode === "place") {
+      status("Сначала Enter или Esc");
       return;
     }
-    if (mode === "edit") {
-      // один предмет — тот же путь, что вставка (со стенами); группа — каркас
-      if (list.length === 1) beginSingleEdit(list[0]);
-      else beginGroupEdit(list);
+    const list = selectedRecords();
+    if (!list.length) {
+      status("Сначала выберите мебель кликом");
       return;
     }
-    if (mode === "copy") {
-      if (list.length === 1) beginSingleCopy(list[0]);
-      else beginGroupCopy(list);
+    if (list.length === 1) beginSingleCopy(list[0]);
+    else beginGroupCopy(list);
+  }
+
+  /** X — удалить выделенное (Delete не удаляет). */
+  function deleteSelection() {
+    if (!canEditFurniture()) return;
+    if (mode === "place") {
+      status("Сначала Enter или Esc");
+      return;
     }
+    const list = selectedRecords();
+    if (!list.length) {
+      status("Сначала выберите мебель кликом");
+      return;
+    }
+    deleteSelectedGroup(list);
   }
 
   function applyRecordPoseToGhost(data, worldPos) {
@@ -1763,8 +1790,8 @@ export function createTourFurniturePlace(opts) {
 
   /** Одна правка: как обычный place (стрелки + упор в стены). */
   function beginSingleEdit(rec) {
-    if (mode !== "edit" || !rec?.holder) {
-      status("Кликните по мебели, затем Enter");
+    if (!rec?.holder) {
+      status("Сначала выберите мебель");
       return;
     }
     clearSelectHighlight();
@@ -1809,14 +1836,14 @@ export function createTourFurniturePlace(opts) {
     applyRecordPoseToGhost(rec.data, holder.position);
     setMode("place");
     applySurface({ throughWalls: true });
-    status(`Правка ${item.id}: стрелки · Home/End · Enter — зафиксировать`);
+    status(`Правка ${item.id}: стрелки · Home/End · Insert/Delete · Enter — зафиксировать · Esc — отмена`);
     publishHint();
   }
 
   /** Одна копия: сразу в tune со стенами (не groupMembers). */
   async function beginSingleCopy(rec) {
-    if (mode !== "copy" || !rec?.holder) {
-      status("Кликните по мебели, затем Enter");
+    if (!rec?.holder) {
+      status("Сначала выберите мебель");
       return;
     }
     clearSelectHighlight();
@@ -1864,13 +1891,13 @@ export function createTourFurniturePlace(opts) {
       );
       setMode("place");
       applySurface({ throughWalls: true });
-      status(`Копия ${item.id}: стрелки · упор в стены · Enter — зафиксировать`);
+      status(`Копия ${item.id}: стрелки · Insert/Delete · Enter — зафиксировать · Esc — отмена`);
       publishHint();
     } catch (err) {
       console.warn(err);
       status("Не удалось копировать");
       clearGhost();
-      setMode("copy");
+      setMode("none");
       if (rec.data?.uid) selectedUids.add(rec.data.uid);
       refreshSelectHighlight();
       publishHint();
@@ -1915,10 +1942,9 @@ export function createTourFurniturePlace(opts) {
   }
 
   function deleteSelectedGroup(list) {
-    if (mode !== "delete") return;
     const targets = list || selectedRecords();
     if (!targets.length) {
-      status("Кликните по мебели, затем Enter");
+      status("Сначала выберите мебель");
       return;
     }
     const removedItems = targets.map((r) => cloneFurnData(r.data));
@@ -1930,15 +1956,11 @@ export function createTourFurniturePlace(opts) {
       records.splice(i, 1);
       removed += 1;
     }
-    selectedUids.clear();
+    clearSelectHighlight();
     if (removedItems.length) pushUndo({ type: "remove", items: removedItems });
     saveAll();
     status(`Удалено: ${removed}`);
-    if (!records.length) {
-      exitSelectMode();
-      return;
-    }
-    refreshSelectHighlight();
+    publishHint();
   }
 
   function groupPivotOf(list) {
@@ -1949,8 +1971,8 @@ export function createTourFurniturePlace(opts) {
   }
 
   function beginGroupEdit(list) {
-    if (mode !== "edit" || !list?.length) {
-      status("Кликните по мебели, затем Enter");
+    if (!list?.length) {
+      status("Сначала выберите мебель");
       return;
     }
     clearSelectHighlight();
@@ -2028,13 +2050,13 @@ export function createTourFurniturePlace(opts) {
     resetWallPassState();
     setMode("place");
     updateProjections();
-    status(`Правка группы (${members.length}): стрелки · Enter — зафиксировать · Esc — отмена`);
+    status(`Правка группы (${members.length}): стрелки · Insert/Delete · Enter · Esc`);
     publishHint();
   }
 
   async function beginGroupCopy(list) {
-    if (mode !== "copy" || !list?.length) {
-      status("Кликните по мебели, затем Enter");
+    if (!list?.length) {
+      status("Сначала выберите мебель");
       return;
     }
     clearSelectHighlight();
@@ -2117,13 +2139,13 @@ export function createTourFurniturePlace(opts) {
       resetWallPassState();
       setMode("place");
       updateProjections();
-      status(`Копия группы (${members.length}): та же поза · стрелки · Enter — зафиксировать`);
+      status(`Копия группы (${members.length}): стрелки · Insert/Delete · Enter · Esc`);
       publishHint();
     } catch (err) {
       console.warn(err);
       status("Не удалось копировать группу");
       clearGhost();
-      setMode("copy");
+      setMode("none");
       for (const rec of list) if (rec.data?.uid) selectedUids.add(rec.data.uid);
       refreshSelectHighlight();
       publishHint();
@@ -2205,33 +2227,44 @@ export function createTourFurniturePlace(opts) {
     return alignX >= alignZ ? "x" : "z";
   }
 
-  /** Зеркало левое↔правое относительно взгляда. Одна ось — без накопления mirror+mirrorZ. */
-  function toggleViewMirror() {
+  function applyGroupAxisMirror(axis) {
+    if (axis === "x") ghostRoot.scale.x *= -1;
+    else ghostRoot.scale.z *= -1;
+    ensureMirrorMaterials(ghostRoot);
+    ghostRoot.traverse((obj) => {
+      if (obj.isMesh) {
+        obj.frustumCulled = ghostRoot.scale.x < 0 || ghostRoot.scale.z < 0 ? false : obj.frustumCulled;
+      }
+    });
+    updateProjections();
+  }
+
+  /** Insert: зеркало слева↔справа (локальная X). */
+  function toggleMirrorLR() {
     yawFree = true;
     if (groupMembers) {
-      cameraFlatAxes();
-      if (Math.abs(_right.x) >= Math.abs(_right.z)) ghostRoot.scale.x *= -1;
-      else ghostRoot.scale.z *= -1;
-      ensureMirrorMaterials(ghostRoot);
-      ghostRoot.traverse((obj) => {
-        if (obj.isMesh) obj.frustumCulled = ghostRoot.scale.x < 0 || ghostRoot.scale.z < 0 ? false : obj.frustumCulled;
-      });
-      status("Зеркало: лево↔право от взгляда");
-      updateProjections();
+      applyGroupAxisMirror("x");
+      status("Зеркало группы: слева↔справа");
       return;
     }
-    const axis = viewLeftRightAxis();
-    if (axis === "x") {
-      mirror = !mirror;
-      mirrorZ = false;
-    } else {
-      mirrorZ = !mirrorZ;
-      mirror = false;
-    }
+    mirror = !mirror;
     applyGhostScale();
     applySurface({ throughWalls: true });
-    const on = mirror || mirrorZ;
-    status(on ? "Зеркало: вкл (лево↔право от взгляда)" : "Зеркало: выкл");
+    status(mirror ? "Зеркало: слева↔справа вкл" : "Зеркало: слева↔справа выкл");
+  }
+
+  /** Delete: зеркало спереди↔сзади (локальная Z). Не удаляет. */
+  function toggleMirrorFB() {
+    yawFree = true;
+    if (groupMembers) {
+      applyGroupAxisMirror("z");
+      status("Зеркало группы: спереди↔сзади");
+      return;
+    }
+    mirrorZ = !mirrorZ;
+    applyGhostScale();
+    applySurface({ throughWalls: true });
+    status(mirrorZ ? "Зеркало: спереди↔сзади вкл" : "Зеркало: спереди↔сзади выкл");
   }
 
   /**
@@ -2257,33 +2290,13 @@ export function createTourFurniturePlace(opts) {
         if (diff > 0.2) yaw = target;
       }
       ghostRoot.rotation.set(0, yaw, 0);
-      const wantY = wallAnchor.y;
-      ghostRoot.position.set(wallAnchor.x, wantY, wallAnchor.z);
-      // throughWalls (PgUp с края у стены): только высота, без прыжка на плоскость
-      if (!throughWalls) {
-        const planeD = wallNormal.dot(wallPlanePoint);
-        const dist = wallNormal.dot(ghostRoot.position) - planeD;
-        ghostRoot.position.addScaledVector(wallNormal, -dist);
-        ghostRoot.position.y = wantY;
-        snapFeet(false);
-        if (wantY > ghostRoot.position.y) ghostRoot.position.y = wantY;
-        pushOutOfPlane(wallPlanePoint, wallNormal);
-        pullFlushToWall(wallPlanePoint, wallNormal, 0.2);
-      } else {
-        ghostRoot.position.y = wantY;
-      }
-      {
-        measureGhostBox();
-        const floorY = sampleFloorY(_center.x, _center.z);
-        const maxTop = floorY + WALL_MAX_H;
-        if (_box.max.y > maxTop) {
-          ghostRoot.position.y -= _box.max.y - maxTop;
-          if (!throughWalls) pushOutOfPlane(wallPlanePoint, wallNormal);
-        }
-        const minY = floorY + FOOT_EPS;
-        if (ghostRoot.position.y < minY) ghostRoot.position.y = minY;
-        wallAnchor.copy(ghostRoot.position);
-      }
+      ghostRoot.position.set(wallAnchor.x, wallAnchor.y, wallAnchor.z);
+      // касание стены по OBB (не проекция центра — иначе прыжок внутрь)
+      keepFlushToWall();
+      // пол / потолок по AABB — не проваливаться при PgDn
+      clampGhostToFloorAndCeiling();
+      keepFlushToWall();
+      wallAnchor.copy(ghostRoot.position);
       updateProjections();
       return;
     }
@@ -2569,7 +2582,7 @@ export function createTourFurniturePlace(opts) {
       // Сначала за мышью; Enter — правка; ещё Enter — фиксация.
       yawFree = false;
       spawnAtAim();
-      status(`Вставка ${item.id}: мышь — точка · Enter — в правку`);
+      status(`Вставка ${item.id}: мышь — точка · клик или Enter — в правку`);
       publishHint();
     } catch (err) {
       console.warn(err);
@@ -2583,7 +2596,7 @@ export function createTourFurniturePlace(opts) {
     insertPhase = "tune";
     yawFree = false;
     applySurface(); // зафиксировать позу и выровнять по стене
-    status(`Правка ${ghostItem?.id || ""}: стрелки · Home/End · Insert · Enter — зафиксировать`);
+    status(`Правка ${ghostItem?.id || ""}: стрелки · Home/End · Insert/Delete · Enter · Esc`);
     publishHint();
     return true;
   }
@@ -3035,12 +3048,11 @@ export function createTourFurniturePlace(opts) {
           return true;
         }
         if (code === "Insert") {
-          cameraFlatAxes();
-          if (Math.abs(_right.x) >= Math.abs(_right.z)) ghostRoot.scale.x *= -1;
-          else ghostRoot.scale.z *= -1;
-          ensureMirrorMaterials(ghostRoot);
-          status("Зеркало группы: лево↔право от взгляда");
-          updateProjections();
+          toggleMirrorLR();
+          return true;
+        }
+        if (code === "Delete") {
+          toggleMirrorFB();
           return true;
         }
         if (code === "BracketLeft") {
@@ -3065,10 +3077,6 @@ export function createTourFurniturePlace(opts) {
           updateProjections();
           return true;
         }
-        if (code === "Delete" || code === "Backspace") {
-          deleteWhilePlacing();
-          return true;
-        }
         if (code === "Escape") {
           const wasEdit = placeIntent === "edit";
           clearGhost();
@@ -3077,9 +3085,9 @@ export function createTourFurniturePlace(opts) {
         }
         return false;
       }
-      // В фазе aim (за мышью) — только Enter / Esc / Delete.
+      // В фазе aim (за мышью) — только Enter / Esc.
       if (placeIntent === "insert" && insertPhase === "aim") {
-        if (code === "Escape" || code === "Delete" || code === "Backspace") {
+        if (code === "Escape") {
           clearGhost();
           status("Отмена расстановки");
           return true;
@@ -3100,7 +3108,11 @@ export function createTourFurniturePlace(opts) {
         return true;
       }
       if (code === "Insert") {
-        toggleViewMirror();
+        toggleMirrorLR();
+        return true;
+      }
+      if (code === "Delete") {
+        toggleMirrorFB();
         return true;
       }
       if (code === "KeyT") { toggleMount(); return true; }
@@ -3116,14 +3128,10 @@ export function createTourFurniturePlace(opts) {
         applySurface({ throughWalls: true });
         return true;
       }
-      if (code === "Delete" || code === "Backspace") {
-        deleteWhilePlacing();
-        return true;
-      }
       if (code === "Escape") {
-        const wasEdit = !!editingRec;
+        const wasEdit = placeIntent === "edit" || !!editingRec;
         clearGhost();
-        status(wasEdit ? "Отмена правки" : "Отмена расстановки");
+        status(wasEdit ? "Отмена правки" : placeIntent === "copy" ? "Отмена копии" : "Отмена расстановки");
         return true;
       }
       return false;
@@ -3131,25 +3139,17 @@ export function createTourFurniturePlace(opts) {
 
     if (!down) return false;
 
-    // E / C / X — всегда переключают режим (не глотаются внутри select-блоков)
-    if (code === "KeyE") { enterEditMode(); return true; }
-    if (code === "KeyC") { enterCopyMode(); return true; }
-    if (code === "KeyX") { enterDeleteMode(); return true; }
+    // E / C / X — по текущему выделению
+    if (code === "KeyE") { editSelection(); return true; }
+    if (code === "KeyC") { copySelection(); return true; }
+    if (code === "KeyX") { deleteSelection(); return true; }
 
-    if (mode === "delete" || mode === "edit" || mode === "copy") {
-      if (code === "Tab" && event?.shiftKey) { cycleSelect(-1); return true; }
-      if (code === "Tab") { cycleSelect(1); return true; }
-      if (code === "Enter" || (mode === "delete" && (code === "Delete" || code === "Backspace"))) {
-        lockSelectionAction();
-        return true;
-      }
-      if (code === "Escape") {
-        const which = mode;
-        exitSelectMode();
-        status(which === "delete" ? "Отмена удаления" : which === "copy" ? "Отмена копии" : "Отмена правки");
-        return true;
-      }
-      return false;
+    if (code === "Tab" && event?.shiftKey) { cycleSelect(-1); return true; }
+    if (code === "Tab") { cycleSelect(1); return true; }
+    if (code === "Escape" && selectedUids.size) {
+      exitSelectMode();
+      status("Выделение снято");
+      return true;
     }
 
     return false;
@@ -3184,21 +3184,33 @@ export function createTourFurniturePlace(opts) {
     return false;
   }
 
-  /** ЛКМ: мультивыбор в E/C/X. В place клик не фиксирует — только Enter. */
+  /**
+   * ЛКМ: в aim — первая фиксация (съесть клик);
+   * иначе выбор — клик НЕ глотаем, чтобы OrbitControls вращал сцену.
+   * @returns {boolean} true = не передавать клик орбите
+   */
   function onPointerDown(event) {
     if (!canEditFurniture()) return false;
     if (event.button !== 0) return false;
     updatePointerNdc(event);
-    if (mode === "place") return false;
-    if (!isSelectMode()) return false;
+    if (mode === "place") {
+      // вставка: клик = первая фиксация (как Enter)
+      if (!groupMembers && placeIntent === "insert" && insertPhase === "aim" && ghost) {
+        placeGhostAtPointer();
+        lockInsertToTune();
+        return true;
+      }
+      return false;
+    }
 
     const idx = pickSelectByPointer(event);
-    if (idx < 0) return false; // промах — орбита
-    toggleSelectByIndex(idx);
-    return true;
+    const multi = !!(event.shiftKey || event.ctrlKey || event.metaKey);
+    applyPointerSelection(idx, multi);
+    // выбор не блокирует орбиту и зум колёсиком
+    return false;
   }
 
-  /** Орбиту не блокируем: aim — следование за мышью + пан/орбита ПКМ; tune — ракурс. */
+  /** Орбиту не блокируем: выбор / правка / aim — можно крутить сцену и зумить. */
   function blocksOrbit() {
     return false;
   }
@@ -3283,8 +3295,14 @@ export function createTourFurniturePlace(opts) {
       }
       if (dy !== 0) {
         ghostRoot.position.y += Math.sign(dy) * LIFT_STEP * dt;
+        const found = findNearbyWallHit(furnitureRadiusXZ() + 0.55);
+        if (found && Math.abs(found.gap) < 0.55) {
+          pushOutOfPlane(found.hit.point, found.hit.normal);
+          pullFlushToWall(found.hit.point, found.hit.normal, 0.5);
+        }
       }
       ghostRoot.updateMatrixWorld(true);
+      clampGhostToFloorAndCeiling();
       updateProjections();
       return;
     }
@@ -3318,7 +3336,8 @@ export function createTourFurniturePlace(opts) {
       const probe = wallAnchor.clone().addScaledVector(wallNormal, 0.25);
       const hit = findWallHit(probe, wallNormal.clone().negate(), 0.8);
       if (hit) adoptWallHit(hit);
-      applySurface({ throughWalls: true });
+      // касание стены + упор в пол (через applySurface)
+      applySurface();
       return;
     }
 
@@ -3332,7 +3351,7 @@ export function createTourFurniturePlace(opts) {
   function tick(dt = 0.016) {
     if (!canEditFurniture()) {
       if (ghostRoot.visible) clearGhost();
-      if (mode === "delete" || mode === "edit" || mode === "copy") exitSelectMode();
+      if (selectedUids.size) exitSelectMode();
       setHint(isTourActive() ? HINT_IDLE_TOUR : "", isTourActive() ? "idle" : "off");
       return;
     }
@@ -3372,9 +3391,10 @@ export function createTourFurniturePlace(opts) {
     loadVariant,
     isPlacing: () => mode === "place",
     blocksOrbit,
-    isDeleting: () => mode === "delete",
-    isEditing: () => mode === "edit" || mode === "copy" || !!editingRec || !!groupMembers,
-    isCopying: () => mode === "copy",
+    isDeleting: () => false,
+    isEditing: () => mode === "place" && (placeIntent === "edit" || !!editingRec || !!groupMembers),
+    isCopying: () => mode === "place" && placeIntent === "copy",
+    hasSelection: () => selectedUids.size > 0,
     mode: () => mode,
     onPointerMove,
     hints: {

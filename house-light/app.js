@@ -20,7 +20,7 @@ import { buildVariant31c, v31cWalkBoxes, v31cFenceSegments, V31C_WINDOWS, V31C_B
 import { createD2Tour, createTourDaylight, D3_WINDOWS } from "./tour-d2.js?v=24";
 import { syncPrintSheets } from "./print-sheets.js?v=48";
 import { mountFurnitureCatalog } from "./furniture-catalog.js?v=14";
-import { createTourFurniturePlace } from "./furniture-tour-place.js?v=63";
+import { createTourFurniturePlace } from "./furniture-tour-place.js?v=69";
 import { buildTopochnayaV3, topoCameraRigs } from "./topochnaya-v3.js?v=96";
 
 const panel = document.getElementById("panel");
@@ -6427,7 +6427,8 @@ tourFurniturePlace = createTourFurniturePlace({
   bucket: tourFurnitureBucket,
   domElement: renderer.domElement,
   hitTargets: tourFurnitureHitTargets,
-  getWallObstacles: () => collectWalkPolys("foot"),
+  // стены для упора мебели — и при снятой крыше (не зависеть от visible сечений)
+  getWallObstacles: () => collectFurnitureWallPolys(),
   setStatus: (msg) => {
     const el = document.getElementById("furniture-catalog-status");
     if (el) el.textContent = msg;
@@ -6448,6 +6449,26 @@ function collectWalkPolys(kind) {
     }
     if (!obj.isMesh || !obj.userData.foot || obj.userData.roof || obj.userData.ceiling) return;
     if (obj.userData.finish === "door") return;
+    const mat = Array.isArray(obj.material) ? obj.material[0] : obj.material;
+    if (mat && mat.transparent && mat.opacity < 0.6) return;
+    polys.push(obj.userData.foot);
+  });
+  return polys;
+}
+
+/** Контуры стен для расстановки мебели: активный дом, даже если меш временно не visible. */
+function collectFurnitureWallPolys() {
+  const polys = [];
+  scene.traverse((obj) => {
+    if (!obj.isMesh || !obj.userData) return;
+    if (!obj.userData.foot || obj.userData.roof || obj.userData.ceiling) return;
+    if (obj.userData.finish === "door") return;
+    // скрытая группа варианта (весь дом выключен) — пропуск
+    let node = obj.parent;
+    while (node && node !== scene) {
+      if (node.visible === false && node.parent === scene) return;
+      node = node.parent;
+    }
     const mat = Array.isArray(obj.material) ? obj.material[0] : obj.material;
     if (mat && mat.transparent && mat.opacity < 0.6) return;
     polys.push(obj.userData.foot);
@@ -6692,11 +6713,12 @@ renderer.domElement.addEventListener("pointerdown", (event) => {
   if (tourActive) return;
   if (!canEditFurniture() || !tourFurniturePlace) return;
   if (event.button !== 0) return;
+  // true только для фиксации aim — иначе орбита должна получить тот же клик
   if (tourFurniturePlace.onPointerDown(event)) {
     event.preventDefault();
     event.stopImmediatePropagation();
-    syncFurnitureOrbitLock();
   }
+  syncFurnitureOrbitLock();
 }, true);
 
 window.addEventListener("pointerdown", (event) => {
