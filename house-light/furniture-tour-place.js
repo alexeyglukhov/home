@@ -37,7 +37,7 @@ const LIFT_STEP = 0.9; // м/с вдоль стены
 const WALL_MAX_H = 2.55;
 
 /** bump при strip/optimize GLB — иначе браузер держит старый хелпер ±1 м (W08). */
-const FURN_GLB_V = 2;
+const FURN_GLB_V = 3;
 
 function fileUrl(file) {
   const u = new URL("./furniture/" + file, import.meta.url);
@@ -2797,6 +2797,8 @@ export function createTourFurniturePlace(opts) {
 
   /**
    * После увеличения: вписать в проём и сдвинуть в свободную сторону.
+   * Ужимает только оси, которые реально выросли на этом шаге
+   * (ширина х/ъ не должна трогать высоту/глубину и наоборот).
    * @param {ReturnType<typeof captureAxisRoom>[]} rooms
    * @param {{ sx: number, sy: number, sz: number }} prev — scale до шага
    * @param {(pose: { sx: number, sy: number, sz: number }) => void} applyPose
@@ -2815,33 +2817,36 @@ export function createTourFurniturePlace(opts) {
       ratio = Math.min(ratio, growthFitRatio(room));
     }
     let cur = readPose();
+    // какие оси менял этот шаг (ширина / высота / равномерный </> )
+    const grew = {
+      x: Math.abs(Math.abs(cur.sx) - Math.abs(prev.sx)) > 1e-9,
+      y: Math.abs(Math.abs(cur.sy) - Math.abs(prev.sy)) > 1e-9,
+      z: Math.abs(Math.abs(cur.sz) - Math.abs(prev.sz)) > 1e-9,
+    };
+    if (!grew.x && !grew.y && !grew.z) {
+      grew.x = grew.y = grew.z = true;
+    }
+
+    const clampAxis = (v) => clampScale(Math.abs(v)) * (Math.sign(v) || 1);
+
     if (ratio < 1 - 1e-9) {
       cur = {
-        sx: cur.sx * ratio,
-        sy: cur.sy * ratio,
-        sz: cur.sz * ratio,
+        sx: grew.x ? cur.sx * ratio : prev.sx,
+        sy: grew.y ? cur.sy * ratio : prev.sy,
+        sz: grew.z ? cur.sz * ratio : prev.sz,
       };
-      if (!groupMembers) {
-        cur.sx = clampScale(Math.abs(cur.sx)) * Math.sign(cur.sx || 1);
-        cur.sy = clampScale(Math.abs(cur.sy)) * Math.sign(cur.sy || 1);
-        cur.sz = clampScale(Math.abs(cur.sz)) * Math.sign(cur.sz || 1);
-      } else {
-        const mag = clampScale(Math.abs(cur.sx) || Math.abs(cur.sy) || 1);
-        cur = {
-          sx: mag * (Math.sign(cur.sx) || 1),
-          sy: mag,
-          sz: mag * (Math.sign(cur.sz) || 1),
-        };
-      }
+      if (grew.x) cur.sx = clampAxis(cur.sx);
+      if (grew.y) cur.sy = clampAxis(cur.sy);
+      if (grew.z) cur.sz = clampAxis(cur.sz);
       applyPose(cur);
       ghostRoot.updateMatrixWorld(true);
       invalidateLocalFurnBox();
     }
 
     const lerpPose = (t) => ({
-      sx: prev.sx + (cur.sx - prev.sx) * t,
-      sy: prev.sy + (cur.sy - prev.sy) * t,
-      sz: prev.sz + (cur.sz - prev.sz) * t,
+      sx: grew.x ? prev.sx + (cur.sx - prev.sx) * t : prev.sx,
+      sy: grew.y ? prev.sy + (cur.sy - prev.sy) * t : prev.sy,
+      sz: grew.z ? prev.sz + (cur.sz - prev.sz) * t : prev.sz,
     });
 
     const applyShifted = (pose) => {

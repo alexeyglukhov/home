@@ -20,8 +20,8 @@ import { buildVariant31d, v31dWalkBoxes, v31dFenceSegments, V31D_WINDOWS, V31D_B
 import { buildVariant31c, v31cWalkBoxes, v31cFenceSegments, V31C_WINDOWS, V31C_BASE } from "./variant-31c.js?v=120";
 import { createD2Tour, createTourDaylight, D3_WINDOWS } from "./tour-d2.js?v=24";
 import { syncPrintSheets } from "./print-sheets.js?v=48";
-import { mountFurnitureCatalog } from "./furniture-catalog.js?v=15";
-import { createTourFurniturePlace } from "./furniture-tour-place.js?v=88";
+import { mountFurnitureCatalog } from "./furniture-catalog.js?v=18";
+import { createTourFurniturePlace } from "./furniture-tour-place.js?v=90";
 import { buildTopochnayaV3, topoCameraRigs, V31D_TOPO_CLEAR } from "./topochnaya-v3.js?v=100";
 
 const panel = document.getElementById("panel");

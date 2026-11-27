@@ -1,15 +1,24 @@
 /**
- * Габариты мебели только по видимым деталям (общая логика bake + runtime).
+ * Габариты мебели только по видимому корпусу (bake + runtime).
  *
- * Идея:
- * 1) отбросить невидимое / без материала / helper|collision по имени;
- * 2) якорь — именованные детали (или все, если имён нет);
- * 3) безымянные хелперы (±1 м, blob ~2×2) и то, что раздувает AABB якоря — не в габарит.
+ * 1) невидимое / без материала / collision|helper — вне габарита;
+ * 2) unit-хелперы ±1 м / blob ~2×2 — вне;
+ * 3) якорь — панели/корпус/стекло/поддон (не ручки/растяжки/brace);
+ * 4) фурнитура добавляется только если почти не раздувает AABB корпуса
+ *    (иначе walk-in экран получает глубину 75 см из-за AABB растяжки).
  */
 
 /** @typedef {{ name: string, min: number[], max: number[], visible?: boolean, hasShading?: boolean }} BoundsPart */
 
 const HELPER_NAME_RE = /(shadow|collision|proxy|bound|helper|\bplane\b|collider|occluder)/i;
+
+/** Корпус / панели / стекло / поддон — основа габарита. */
+const BODY_NAME_RE =
+  /(glass|screen|tray|pan|enclosure|stile|panel|wall|carcass|case|cabinet|door(?!\s*pull)|frame|seat|cushion|top|shelf|drawer|leg|foot(?!\s*cap)|base|basin|bath|tub|bowl|cistern|toilet|sink|vanity|mattress|headboard|sofa|table|desk|chair|wardrobe|closet|cheek|pedestal|stand|housing|bezel)/i;
+
+/** Фурнитура / тонкие растяжки — не раздувать габарит. */
+const HARDWARE_NAME_RE =
+  /(brace|rosette|pull|grip|handle|hinge|rail|rod|bar|screw|bolt|knob|hook|roller|track|glide|leveler|foot\s*cap|hardware)/i;
 
 export function partSize(p) {
   return {
@@ -26,6 +35,25 @@ export function isUnitAxis(minV, maxV, size) {
 export function isHelperName(name) {
   const nm = (name || "").trim();
   return !nm ? false : HELPER_NAME_RE.test(nm);
+}
+
+export function isBodyPartName(name) {
+  const nm = (name || "").trim();
+  if (!nm) return false;
+  // ручка / растяжка — не корпус, даже если в имени есть door|enclosure|foot
+  if (/(pull|grip|handle|brace|rosette)/i.test(nm)) return false;
+  if (HARDWARE_NAME_RE.test(nm) && !/(panel|glass|screen|tray|pan|enclosure|stile)/i.test(nm)) {
+    return false;
+  }
+  return BODY_NAME_RE.test(nm);
+}
+
+export function isHardwarePartName(name) {
+  const nm = (name || "").trim();
+  if (!nm) return false;
+  // «door pull» — фурнитура, даже если есть door
+  if (/(pull|grip|handle|brace|rosette)/i.test(nm)) return true;
+  return HARDWARE_NAME_RE.test(nm) && !isBodyPartName(nm);
 }
 
 /** Геометрический хелпер: unit-span / безымянный широкий blob / тонкий столб ±1. */
@@ -71,14 +99,13 @@ function expandsAnchorExcessively(anchor, p, factor = 1.12) {
     const nmin = Math.min(anchor.min[ax.i], p.min[ax.i]);
     const nmax = Math.max(anchor.max[ax.i], p.max[ax.i]);
     const nw = nmax - nmin;
-    // раздув >12% и кусок сам заметно шире половины якоря по этой оси
     if (nw > ax.a * factor && ax.s > ax.a * 0.45) return true;
   }
   return false;
 }
 
 /**
- * Оставить только видимые / полезные для габарита части.
+ * Оставить только видимый корпус для габарита.
  * @param {BoundsPart[]} parts
  * @returns {BoundsPart[]}
  */
@@ -96,27 +123,33 @@ export function selectVisibleParts(parts) {
   });
 
   if (!candidates.length) {
-    // всё отфильтровали — хотя бы не-пустые без unit-хелперов
     return parts.filter((p) => {
       const { w, h, d } = partSize(p);
       return w > 1e-5 && h > 1e-5 && d > 1e-5 && !isGeometricHelper(p);
     });
   }
 
+  const body = candidates.filter((p) => isBodyPartName(p.name));
   const named = candidates.filter((p) => (p.name || "").trim());
-  const anchors = named.length ? named : candidates;
+  // якорь: корпус/панели; иначе все именованные без фурнитуры; иначе всё
+  let anchors = body;
+  if (!anchors.length) {
+    anchors = named.filter((p) => !isHardwarePartName(p.name));
+  }
+  if (!anchors.length) anchors = named.length ? named : candidates;
+  // при наличии корпуса фурнитуру в габарит не берём (ручка/brace раздувают AABB)
+  if (body.length) return anchors;
+
   const anchorUnion = unionOf(anchors);
   const kept = anchors.slice();
-
-  // безымянные (и прочие) — только если не раздувают якорь (типичный ±1 м хелпер)
   for (const p of candidates) {
     if (kept.includes(p)) continue;
     const nm = (p.name || "").trim();
+    if (isHardwarePartName(nm)) continue;
     if (!nm && expandsAnchorExcessively(anchorUnion, p, 1.12)) continue;
-    if (nm && expandsAnchorExcessively(anchorUnion, p, 1.35)) continue;
+    if (nm && expandsAnchorExcessively(anchorUnion, p, 1.25)) continue;
     kept.push(p);
   }
-
   return kept.length ? kept : anchors;
 }
 

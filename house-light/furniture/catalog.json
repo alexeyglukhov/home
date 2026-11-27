@@ -3,6 +3,10 @@
   "credit": "CC0: Innerscene и Poly Haven. Размер: ширина × глубина × высота, см.",
   "groups": [
     {
+      "id": "U",
+      "title": "Душевые кабины"
+    },
+    {
       "id": "D",
       "title": "Диваны"
     },
@@ -1193,6 +1197,32 @@
       ],
       "license": "CC0",
       "source": "https://www.innerscene.com/tools/library/3d-parts/corner-bath-corner-soaking-tub-87447647"
+    },
+    {
+      "id": "V05",
+      "group": "U",
+      "name": "Душевая кабина закрытая",
+      "file": "models/V05.glb",
+      "cm": [
+        95,
+        95,
+        197
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/shower-cabin-framed-shower-enclosure-fde9ecd0"
+    },
+    {
+      "id": "V06",
+      "group": "U",
+      "name": "Душевая открытая (walk-in)",
+      "file": "models/V06.glb",
+      "cm": [
+        90,
+        2,
+        198
+      ],
+      "license": "CC0",
+      "source": "https://www.innerscene.com/tools/library/3d-parts/walk-in-screen-frameless-shower-screen-5556877c"
     },
     {
       "id": "T01",

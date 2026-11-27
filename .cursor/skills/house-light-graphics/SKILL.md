@@ -4,8 +4,9 @@ description: >-
   Архитектура графики и управления house-light: meshopt GLB, каталог мебели,
   машины, орбита/зум, расстановка. Use when adding furniture or car models,
   optimizing GLB, MeshoptDecoder, furniture-tour-place, catalog.json,
-  model-meta.json, loadModel, warmModelFiles, orbit after select, or house-light
-  graphics pipeline.
+  model-meta.json, nativeM/cm bounds, crooked dimensions, loadModel,
+  warmModelFiles, orbit after select, or house-light graphics pipeline.
+  Always re-verify visible bounds (bake + catalog cm) when touching furniture models.
 ---
 
 # house-light: графика и управление
@@ -112,6 +113,15 @@ node house-light/scripts/bake-furniture-meta.mjs --id V01
 
 **Обязательно** после добавления/замены любого `{ID}.glb`: optimize → bake meta (или полный optimize-скрипт). Не оставлять модель без записи в `model-meta.json`.
 
+### Агент: всегда перепроверяй габариты
+
+Любая задача про мебель / GLB / каталог / «кривой размер» / вставку — **не доверять** уже лежащим `cm` и `nativeM` без проверки.
+
+1. Прогнать `selectVisibleParts` / `unionVisibleBounds` по мешам модели (или bake `--id`) и сравнить с `catalog.json` `cm` и `model-meta.json` `nativeM`.
+2. Если расхождение заметное (особенно одна ось раздута ручкой/`brace`/хелпером ±1 м) — поправить логику bounds при необходимости, **переbake**, выровнять `cm` под `nativeM` (тонкое стекло: глубина ≥ `ceil(native·100)` см, иначе `fit` сжимает).
+3. После смены `furniture-visible-bounds.js` — **полный** bake всех моделей + точечная сверка подозрительных id (душа, экраны, угловые шкафы).
+4. Не считать задачу закрытой, пока `nativeM` × `fit` ≈ целевой `cm` и во вьювере пятно совпадает с видимым корпусом.
+
 ### Рантайм
 
 - `furniture-tour-place.js` грузит meta (`GET /api/furniture-meta`, fallback на статический JSON).
@@ -191,6 +201,8 @@ URL мебели: `./furniture/` + `file` из каталога (`fileUrl`).
 
 При **увеличении** ширины/масштаба: рост уходит в свободную сторону; упор в обе стены — заполнение ниши с зазором **`NICHE_CLEAR` = 1 см** до каждой стены (`usableNicheGap`), чтобы потом ездить вперёд-назад. Не `pushOut` после роста; `ensureNicheClearAlong` дожимает 1 см.
 
+`settleGrowthAgainstWalls`: ужимать **только оси, выросшие на этом шаге**. Ширина (`BracketLeft`/`Right` → `sx` или `sz`) не должна менять `sy`/другую ось; равномерный `Comma`/`Period` — все три. Не сгонять группу в изотропный scale после ужима.
+
 ### Горячие клавиши — только физические (`event.code`)
 
 В `furniture-tour-place.js` **нельзя** вешать действия на `event.key` / символ / раскладку. Только `event.code` (физическая клавиша). Раскладка RU/US не должна влиять.
@@ -208,12 +220,12 @@ URL мебели: `./furniture/` + `file` из каталога (`fileUrl`).
 Общая логика: `house-light/furniture-visible-bounds.js` → `selectVisibleParts` / `unionVisibleBounds`.
 
 1. Невидимые / без шейдинга / `shadow|collision|helper|proxy` — вне габарита.
-2. Якорь — **именованные** видимые меши (если имён нет — все прошедшие фильтр).
-3. Безымянные ±1 м / blob ~2×2 и всё, что **раздувает** AABB якоря — отбросить.
-4. Bake (`bake-furniture-meta.mjs`) и рантайм (`measureMeshBox` / `measureMeshBoxPrecise` / каркас выделения) используют один алгоритм.
-5. `strip-furniture-junk-meshes.mjs` вырезает геометрические хелперы из GLB (вызов из optimize).
+2. Якорь — **корпус** по имени (`glass|screen|tray|enclosure|panel|case|leg|…`); ручки/`brace`/`pull`/`grip` — не корпус.
+3. При наличии корпуса фурнитуру в AABB **не** включают (иначе walk-in V06 получает глубину ~75 см из AABB растяжки, закрытая V05 — +3 см от door pull).
+4. Безымянные ±1 м / blob ~2×2 и всё, что сильно раздувает якорь — отбросить.
+5. Bake (`bake-furniture-meta.mjs`) и рантайм используют один алгоритм; `strip-furniture-junk-meshes.mjs` вырезает хелперы из GLB.
 
-Нельзя брать сырой scene AABB. После смены логики — полный bake `model-meta.json`.
+Нельзя брать сырой scene AABB. После смены логики — полный bake `model-meta.json` и поправить `catalog.json` `cm` под новый `nativeM` (тонкое стекло: глубина ≥ ceil(native·100) см, иначе `fit` сжимает модель).
 
 Вставка из каталога: фаза `aim` (призрак за мышью) → клик или Enter → `tune` → Enter фиксирует. Только клик фиксации aim **съедает** pointerdown (орбита с этого клика не стартует).
 **Aim всегда на пол** (`placeGhostOnFloorAtPointer`): даже если под курсором стена или другая мебель — XZ с луча, ноги на `sampleFloorY`, без mount=wall и без `alignFloorToNearbyWall`.
