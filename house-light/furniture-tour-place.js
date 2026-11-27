@@ -8,15 +8,15 @@ const cache = new Map();
 const HINT_IDLE_TOUR =
   "WASD — ход · мышь — взгляд · Esc — стоп · мебель — только в осмотре без крыши";
 const HINT_IDLE_VIEW =
-  "M — каталог · E — правка · C — копия · X — удаление · мышь — осмотр · расстановка при снятой крыше";
+  "M — каталог · E — правка · C — копия · X — удаление · Ctrl+Z · мышь — осмотр · расстановка при снятой крыше";
 const HINT_PLACE_TOUR =
-  "IJKL — двигать · 9/0 — поворот · G — зеркало · R/F у стены · T пол/стена · х/ъ ([ ]) вширь · -/= высота · Enter/ЛКМ — зафиксировать · Esc — отмена";
+  "Стрелки — двигать · Home/End — поворот · Insert — зеркало · PgUp/PgDn у стены · Delete — удалить · T · х/ъ · -/= · Enter · Esc · Ctrl+Z";
 const HINT_PLACE_AIM =
-  "Мышь — точка · Enter — в правку · Esc — отмена";
+  "Мышь — точка · Enter — в правку · Esc/Delete — отмена";
 const HINT_PLACE_VIEW =
-  "IJKL — двигать · 9/0 — поворот · G — зеркало · R/F у стены · T пол/стена · х/ъ ([ ]) вширь · -/= высота · Enter — зафиксировать · мышь — ракурс · Esc — отмена";
+  "Стрелки — двигать · у стены: держать/~3 нажатия — проход · Home/End · Insert · PgUp/PgDn · Delete · T · х/ъ · -/= · Enter · Esc · Ctrl+Z";
 const HINT_PLACE_GROUP =
-  "Группа: IJKL — двигать · 9/0 — поворот · х/ъ — вширь · -/= высота · Enter — зафиксировать · мышь — ракурс · Esc — отмена";
+  "Группа: стрелки · Home/End · Insert · Delete · у стены держать/~3 нажатия · х/ъ · -/= · Enter · Esc · Ctrl+Z";
 const HINT_DELETE_TOUR =
   "Удаление мебели — только в осмотре без крыши";
 const HINT_EDIT_TOUR =
@@ -24,11 +24,11 @@ const HINT_EDIT_TOUR =
 const HINT_COPY_TOUR =
   "Копия мебели — только в осмотре без крыши";
 const HINT_DELETE_VIEW =
-  "Клики — выбор нескольких · Enter — удалить группу · X/Esc — выход";
+  "Клики — выбор нескольких · Enter — удалить группу · X/Esc — выход · Ctrl+Z";
 const HINT_EDIT_VIEW =
-  "Клики — выбор нескольких · Enter — править группу · E/Esc — выход";
+  "Клики — выбор нескольких · Enter — править группу · E/Esc — выход · Ctrl+Z";
 const HINT_COPY_VIEW =
-  "Клики — выбор нескольких · Enter — копия группы (та же поза) · C/Esc — выход";
+  "Клики — выбор нескольких · Enter — копия группы (та же поза) · C/Esc — выход · Ctrl+Z";
 
 const STEP = 1.35; // м/с
 const LIFT_STEP = 0.9; // м/с вдоль стены
@@ -62,11 +62,13 @@ function ghostify(root) {
       c.transparent = true;
       c.opacity = 0.45;
       c.depthWrite = false;
+      c.side = THREE.DoubleSide; // зеркало (scale < 0) иначе пропадает
       return c;
     });
     obj.material = mats.length === 1 ? mats[0] : mats;
     obj.castShadow = false;
     obj.receiveShadow = false;
+    obj.frustumCulled = false; // negative scale ломает sphere culling
   });
 }
 
@@ -97,6 +99,18 @@ function enableFurnitureShadows(root) {
   });
 }
 
+/** Отражение через scale < 0: FrontSide исчезает — DoubleSide. */
+function ensureMirrorMaterials(root) {
+  if (!root) return;
+  root.traverse((obj) => {
+    if (!obj.isMesh || !obj.material) return;
+    const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+    for (const m of mats) {
+      if (m) m.side = THREE.DoubleSide;
+    }
+  });
+}
+
 function footprintFromCm(cm) {
   if (!cm || cm.length < 3) return { w: 0.8, d: 0.8, h: 0.8 };
   return { w: cm[0] / 100, d: cm[1] / 100, h: cm[2] / 100 };
@@ -115,6 +129,7 @@ function footprintFromCm(cm) {
  * @param {THREE.Group} opts.bucket
  * @param {HTMLElement} [opts.domElement] — для клика по мебели в осмотре
  * @param {() => THREE.Object3D[]} opts.hitTargets
+ * @param {() => number[][][]} [opts.getWallObstacles] — контуры стен [e,n][] как в экскурсии
  * @param {(msg:string)=>void} [opts.setStatus]
  * @param {(msg:string, mode:string)=>void} [opts.setHint]
  * @param {(mode:string)=>void} [opts.onModeChange]
@@ -124,7 +139,9 @@ export function createTourFurniturePlace(opts) {
     getVariant, planToWorld, worldToPlan, walkGround,
     canEditFurniture = opts.isTourActive || (() => false),
     isTourActive = () => false,
-    camera, scene, bucket, domElement = null, hitTargets, setStatus = () => {},
+    camera, scene, bucket, domElement = null, hitTargets,
+    getWallObstacles = () => [],
+    setStatus = () => {},
     setHint = () => {},
     onModeChange = () => {},
   } = opts;
@@ -178,7 +195,7 @@ export function createTourFurniturePlace(opts) {
   let wallNormal = new THREE.Vector3(0, 0, 1);
   let wallPlanePoint = new THREE.Vector3(); // точка на плоскости стены
   let wallAnchor = new THREE.Vector3(); // текущая поза у стены (ноги)
-  let contactWall = null; // последняя стена вплотную (для R/F без T)
+  let contactWall = null; // последняя стена вплотную (для PgUp/PgDn без T)
   let selectIndex = -1; // устар.: одиночный; основной — selectedUids
   let selectedUids = new Set();
   let selectHelpers = [];
@@ -186,20 +203,21 @@ export function createTourFurniturePlace(opts) {
   let groupMembers = null; // null | [{ rec?, wrap, model, item, data0, isCopy }]
   let placeIntent = "insert"; // insert | edit | copy
   let insertPhase = "aim"; // aim (за мышью) | tune (правка) — только для insert
-  let yawFree = false; // true после 9/0/G — не сбрасывать yaw выравниванием к стене каждый кадр
+  let yawFree = false; // true после Home/End/Insert — не сбрасывать yaw выравниванием к стене каждый кадр
   let loadSeq = 0; // защита от гонок loadVariant
   const records = [];
-  /** Упор → 3 попытки → проход стен на WALL_PASS_DIST м; преодолённые плоскости не блокируют, пока снова не подойдём. */
-  const WALL_BUMP_NEED = 3;
-  const WALL_BUMP_HOLD = 0.4; // сек непрерывного упора = одна попытка
-  const WALL_PASS_DIST = 1.0; // м пути в режиме прохода, затем снова упор
-  const WALL_CLEAR_GAP = 0.18; // полностью отошли от преодолённой стены
-  let wallBumpTries = 0;
+  /** Удержание WALL_BUMP_TIME с ИЛИ WALL_BUMP_TAPS нажатий → проход сквозь стену. */
+  const WALL_BUMP_TIME = 0.55;
+  const WALL_BUMP_TAPS = 3;
+  const WALL_PASS_DIST = 1.0; // минимум; для крупной мебели удлиняется
   let wallBumpHold = 0;
+  let wallBumpTaps = 0;
+  let wallBumpTapArmed = true; // следующее нажатие после отпускания
   let wallPassActive = false;
   let wallPassTravel = 0;
-  /** key → true: стена пройдена; снова блокирует только после отхода и движения к ней. */
-  const clearedWalls = new Set();
+  const _wallPassDir = new THREE.Vector3();
+  const undoStack = [];
+  const UNDO_MAX = 40;
   const _groupQuat = new THREE.Quaternion();
   const _groupScale = new THREE.Vector3();
   const _groupPos = new THREE.Vector3();
@@ -207,8 +225,8 @@ export function createTourFurniturePlace(opts) {
   const _movePrev = new THREE.Vector3();
   const _moveDelta = new THREE.Vector3();
   const held = {
-    KeyI: false, KeyK: false, KeyJ: false, KeyL: false,
-    KeyR: false, KeyF: false,
+    ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false,
+    PageUp: false, PageDown: false,
   };
   const _fwd = new THREE.Vector3();
   const _right = new THREE.Vector3();
@@ -222,11 +240,19 @@ export function createTourFurniturePlace(opts) {
   const FOOT_EPS = 0.004;
   const WALL_EPS = 0.003;
   const _obCorners = Array.from({ length: 8 }, () => new THREE.Vector3());
-  const _savedPos = new THREE.Vector3();
-  const _savedQuat = new THREE.Quaternion();
   const _localFurnBox = new THREE.Box3();
   let _localFurnBoxValid = false;
   const _centXZ = new THREE.Vector3();
+  const _wallAxisA = new THREE.Vector3();
+  const _wallAxisB = new THREE.Vector3();
+  const _snapDir = new THREE.Vector3();
+  const _selInv = new THREE.Matrix4();
+  const _selMat = new THREE.Matrix4();
+  const _selBox = new THREE.Box3();
+  const _viewDir = new THREE.Vector3();
+  const _savedPos = new THREE.Vector3();
+  const _savedQuat = new THREE.Quaternion();
+  const _savedScale = new THREE.Vector3();
 
   function furnitureUrl(variant = getVariant()) {
     return `/api/furniture/${encodeURIComponent(variant || "v2")}`;
@@ -263,7 +289,8 @@ export function createTourFurniturePlace(opts) {
 
   function disposeSelectHelpers() {
     for (const h of selectHelpers) {
-      scene.remove(h);
+      if (h.parent) h.parent.remove(h);
+      else scene.remove(h);
       h.geometry?.dispose?.();
       h.material?.dispose?.();
     }
@@ -289,6 +316,59 @@ export function createTourFurniturePlace(opts) {
     return list;
   }
 
+  /**
+   * Каркас по локальным габаритам holder (с учётом yaw/scale/mirror),
+   * а не world-AABB BoxHelper — тот даёт «кривой» прямоугольник при повороте.
+   */
+  function makeOrientedSelectHelper(holder, color, data) {
+    holder.updateMatrixWorld(true);
+    _selInv.copy(holder.matrixWorld).invert();
+    _box.makeEmpty();
+    holder.traverse((obj) => {
+      if (!obj.isMesh || !obj.geometry || obj.userData.selectHelper) return;
+      if (!obj.geometry.boundingBox) obj.geometry.computeBoundingBox();
+      const bb = obj.geometry.boundingBox;
+      if (!bb || bb.isEmpty()) return;
+      _selMat.multiplyMatrices(_selInv, obj.matrixWorld);
+      _selBox.copy(bb).applyMatrix4(_selMat);
+      _box.union(_selBox);
+    });
+    if (_box.isEmpty() && data) {
+      const w = Math.max(0.05, (data.cmW || 0.8) * Math.abs(data.sx || 1));
+      const d = Math.max(0.05, (data.cmD || 0.8) * Math.abs(data.sz || 1));
+      const h = Math.max(0.05, (data.cmH || 0.8) * Math.abs(data.sy || 1));
+      _box.min.set(-w * 0.5, 0, -d * 0.5);
+      _box.max.set(w * 0.5, h, d * 0.5);
+    }
+    if (_box.isEmpty()) {
+      const fallback = new THREE.BoxHelper(holder, color);
+      fallback.userData.selectHelper = true;
+      scene.add(fallback);
+      return fallback;
+    }
+    _box.getSize(_size);
+    _box.getCenter(_center);
+    const boxGeo = new THREE.BoxGeometry(
+      Math.max(_size.x, 0.02),
+      Math.max(_size.y, 0.02),
+      Math.max(_size.z, 0.02),
+    );
+    const edges = new THREE.EdgesGeometry(boxGeo);
+    boxGeo.dispose();
+    const mat = new THREE.LineBasicMaterial({
+      color,
+      depthTest: false,
+      transparent: true,
+      opacity: 0.95,
+    });
+    const lines = new THREE.LineSegments(edges, mat);
+    lines.position.copy(_center);
+    lines.userData.selectHelper = true;
+    lines.renderOrder = 20;
+    holder.add(lines);
+    return lines;
+  }
+
   function refreshSelectHighlight() {
     disposeSelectHelpers();
     if (!isSelectMode()) return;
@@ -301,9 +381,7 @@ export function createTourFurniturePlace(opts) {
     }
     const color = mode === "delete" ? 0xe23a3a : mode === "copy" ? 0x3a9e6a : 0xd4a017;
     for (const rec of list) {
-      const helper = new THREE.BoxHelper(rec.holder, color);
-      scene.add(helper);
-      selectHelpers.push(helper);
+      selectHelpers.push(makeOrientedSelectHelper(rec.holder, color, rec.data));
     }
     const ids = list.map((r) => r.data.id).join(", ");
     if (mode === "delete") status(`Удаление: ${list.length} — ${ids}. Enter — удалить`);
@@ -459,6 +537,50 @@ export function createTourFurniturePlace(opts) {
     resetGhostFlags();
   }
 
+  /** Delete в place: правка — стереть объект; вставка/копия — отмена. */
+  function deleteWhilePlacing() {
+    if (groupMembers) {
+      const editing = placeIntent === "edit";
+      const removedItems = editing
+        ? groupMembers.filter((m) => !m.isCopy && m.data0).map((m) => cloneFurnData(m.data0))
+        : [];
+      for (const m of groupMembers) {
+        if (m.wrap?.parent) m.wrap.parent.remove(m.wrap);
+        if (m.wrap) disposeGhostTree(m.wrap);
+      }
+      groupMembers = null;
+      editingRec = null;
+      while (ghostRoot.children.length) ghostRoot.remove(ghostRoot.children[0]);
+      resetGhostFlags();
+      if (editing) {
+        if (removedItems.length) pushUndo({ type: "remove", items: removedItems });
+        saveAll();
+        status("Удалено");
+      } else {
+        status("Отмена копии группы");
+      }
+      return true;
+    }
+    if (editingRec || placeIntent === "edit") {
+      const removedItems = editingRec?.data ? [cloneFurnData(editingRec._undoBefore || editingRec.data)] : [];
+      const wrap = ghost;
+      if (wrap && wrap.parent === ghostRoot) {
+        ghostRoot.remove(wrap);
+        disposeGhostTree(wrap);
+      }
+      editingRec = null;
+      while (ghostRoot.children.length) ghostRoot.remove(ghostRoot.children[0]);
+      resetGhostFlags();
+      if (removedItems.length) pushUndo({ type: "remove", items: removedItems });
+      saveAll();
+      status("Удалено");
+      return true;
+    }
+    clearGhost();
+    status(placeIntent === "copy" ? "Отмена копии" : "Отмена расстановки");
+    return true;
+  }
+
   /**
    * Масштаб + ноги в локальный y=0 по AABB.
    * Вызывать только пока предок в начале координат (иначе world≠local).
@@ -486,7 +608,7 @@ export function createTourFurniturePlace(opts) {
     return _box;
   }
 
-  /** Верх пола: walkGround + луч вниз по мешам (дом/терраса). */
+  /** Верх пола: walkGround + луч вниз. Стены/рамы не брать — иначе прыжок на верх стены. */
   function sampleFloorY(x, z) {
     let y = walkGround(x, z);
     raycaster.set(_tmp.set(x, 10, z), _n.set(0, -1, 0));
@@ -494,8 +616,14 @@ export function createTourFurniturePlace(opts) {
     const hits = raycaster.intersectObjects(meshTargets(), true);
     for (const h of hits) {
       if (!h.face) continue;
+      const ud = h.object.userData || {};
+      if (ud.finish === "wall" || ud.finish === "frame" || ud.finish === "door") continue;
+      if (ud.foot && ud.finish !== "floor" && !ud.floorSlab && !ud.walkTop) continue;
+      if (ud.roof && !ud.walkTop) continue;
       const n = h.face.normal.clone().transformDirection(h.object.matrixWorld).normalize();
       if (n.y < 0.55) continue;
+      // потолок/верх стены: не выше разумного пола комнаты
+      if (h.point.y > y + 0.85) continue;
       if (h.point.y > y) y = h.point.y;
     }
     return y;
@@ -505,6 +633,11 @@ export function createTourFurniturePlace(opts) {
     const box = measureGhostBox();
     const floorY = sampleFloorY(_center.x, _center.z);
     const dy = floorY + FOOT_EPS - box.min.y;
+    // в проходе сквозь стену — только не проваливаться, вверх не поднимать
+    if (wallPassActive) {
+      if (dy > 0) ghostRoot.position.y += dy;
+      return;
+    }
     if (strictFloor || dy > 0) ghostRoot.position.y += dy;
   }
 
@@ -512,35 +645,52 @@ export function createTourFurniturePlace(opts) {
     _localFurnBoxValid = false;
   }
 
+  /** Корни мебели под ghostRoot (один wrap или вся группа). */
+  function furnitureWrapRoots() {
+    if (groupMembers?.length) return groupMembers.map((m) => m.wrap).filter(Boolean);
+    return ghost ? [ghost] : [];
+  }
+
   /**
-   * Локальный AABB содержимого ghostRoot (в его СК при identity pos/rot/scale),
-   * затем углы → matrixWorld = реальные углы в пространстве дома.
-   * Scale тоже сбрасываем — иначе setFromObject уже с масштабом, а matrixWorld
-   * применит его ещё раз и OBB раздувается (стол «упирается» за метр до стены).
+   * AABB содержимого в СК ghostRoot (root → identity), затем углы × matrixWorld.
+   * Scale root сбрасываем на время замера — иначе он попадёт и в AABB, и в matrixWorld.
+   * Wrap.scale / wrap.rotation / offset остаются и входят в локальный бокс.
    */
   function ensureLocalFurnBox() {
-    if (_localFurnBoxValid || !ghost) return;
+    if (_localFurnBoxValid) return;
+    const wraps = furnitureWrapRoots();
+    if (!wraps.length) return;
     _savedPos.copy(ghostRoot.position);
     _savedQuat.copy(ghostRoot.quaternion);
-    const sx0 = ghostRoot.scale.x;
-    const sy0 = ghostRoot.scale.y;
-    const sz0 = ghostRoot.scale.z;
+    _savedScale.copy(ghostRoot.scale);
     ghostRoot.position.set(0, 0, 0);
     ghostRoot.quaternion.identity();
     ghostRoot.scale.set(1, 1, 1);
     ghostRoot.updateMatrixWorld(true);
-    // только модель/wrap — без проекций сцены
-    _localFurnBox.setFromObject(ghostRoot);
+    _localFurnBox.makeEmpty();
+    for (const wrap of wraps) {
+      if (!wrap) continue;
+      _box.setFromObject(wrap);
+      if (!_box.isEmpty()) _localFurnBox.union(_box);
+    }
     ghostRoot.position.copy(_savedPos);
     ghostRoot.quaternion.copy(_savedQuat);
-    ghostRoot.scale.set(sx0, sy0, sz0);
+    ghostRoot.scale.copy(_savedScale);
     ghostRoot.updateMatrixWorld(true);
+    if (_localFurnBox.isEmpty()) {
+      const hw = Math.max(0.05, (baseSize.w * Math.abs(sx || 1)) * 0.5);
+      const hd = Math.max(0.05, (baseSize.d * Math.abs(sz || 1)) * 0.5);
+      const hh = Math.max(0.05, baseSize.h * Math.abs(sy || 1));
+      _localFurnBox.min.set(-hw, 0, -hd);
+      _localFurnBox.max.set(hw, hh, hd);
+    }
     _localFurnBoxValid = true;
   }
 
-  /** 8 углов мебели в мире дома (OBB). */
+  /** 8 углов мебели в мире дома (OBB): локальный AABB × matrixWorld ghostRoot. */
   function furnitureWorldCorners() {
-    if (!ghost) return null;
+    const wraps = furnitureWrapRoots();
+    if (!wraps.length) return null;
     ensureLocalFurnBox();
     ghostRoot.updateMatrixWorld(true);
     let i = 0;
@@ -643,87 +793,92 @@ export function createTourFurniturePlace(opts) {
   }
 
   function resetWallPassState() {
-    wallBumpTries = 0;
     wallBumpHold = 0;
+    wallBumpTaps = 0;
+    wallBumpTapArmed = true;
     wallPassActive = false;
     wallPassTravel = 0;
-    clearedWalls.clear();
+    _wallPassDir.set(0, 0, 0);
   }
 
-  /** Ключ плоскости: нормаль + смещение (двойные/тройные стены — разные ключи). */
-  function wallPlaneKey(hit) {
-    let nx = Math.round(hit.normal.x * 4) / 4;
-    let nz = Math.round(hit.normal.z * 4) / 4;
-    const len = Math.hypot(nx, nz) || 1;
-    nx /= len;
-    nz /= len;
-    // одна ориентация на пару ±n, чтобы одна стена не двоилась
-    let sign = 1;
-    if (nx < -1e-6 || (Math.abs(nx) <= 1e-6 && nz < 0)) sign = -1;
-    const nxx = nx * sign;
-    const nzz = nz * sign;
-    const d = Math.round((nxx * hit.point.x + nzz * hit.point.z) * 20) / 20;
-    return `${nxx.toFixed(2)}:${nzz.toFixed(2)}:${d.toFixed(2)}`;
+  /** Пока активен проход — стены не блокируют. Иначе всегда упор. */
+  function wallAllowsPass(_hit, _moveDir = null) {
+    return wallPassActive;
   }
 
-  function markWallCleared(hit) {
-    if (!hit) return;
-    clearedWalls.add(wallPlaneKey(hit));
+  function closeWallPass(reason) {
+    if (!wallPassActive) return;
+    wallPassActive = false;
+    wallPassTravel = 0;
+    wallBumpHold = 0;
+    wallBumpTaps = 0;
+    wallBumpTapArmed = true;
+    _wallPassDir.set(0, 0, 0);
+    // без телепорта: если ещё в стене — проход держим до выхода (см. noteWallPassTravel)
+    status(reason || "Проход стен: выкл — снова упор");
   }
 
-  /**
-   * Стена не блокирует: режим прохода, либо уже преодолена.
-   * Преодолённая снова мешает, только когда отошли и двигаемся к ней.
-   */
-  function wallAllowsPass(hit, moveDir = null) {
-    if (!hit) return false;
-    if (wallPassActive) {
-      markWallCleared(hit);
-      return true;
-    }
-    const key = wallPlaneKey(hit);
-    if (!clearedWalls.has(key)) return false;
-    const gap = gapToWallPlane(hit.point, hit.normal);
-    // ещё в теле / рядом после прохода
-    if (gap < WALL_CLEAR_GAP) return true;
-    // отошли; если снова прём в стену — вернуть упор
-    if (moveDir && moveDir.dot(hit.normal) < -0.12) {
-      clearedWalls.delete(key);
-      return false;
-    }
-    return true;
+  function wallPassNeedDist(dir = null) {
+    // крупный стол: нужно пройти толщину стены + свой полуразмер, иначе упор в «хвосте»
+    return Math.max(WALL_PASS_DIST, furnClearance(dir) * 2.4 + 0.55);
   }
 
-  /** Упор: NEED попыток (любая стена) → режим прохода на WALL_PASS_DIST м. */
-  function registerWallBump(hit) {
-    if (wallPassActive) {
-      markWallCleared(hit);
-      return true;
+  function openWallPass(dir) {
+    wallPassActive = true;
+    wallPassTravel = 0;
+    wallBumpHold = 0;
+    wallBumpTaps = 0;
+    wallBumpTapArmed = true;
+    if (dir && dir.lengthSq() > 1e-8) _wallPassDir.copy(dir).normalize();
+    else _wallPassDir.set(0, 0, 0);
+    status(`Проход стены: плавно сквозь · ещё ~${wallPassNeedDist(dir).toFixed(1)} м`);
+  }
+
+  /** Тело стены (не полный clearance мебели) — для закрытия прохода у крупных предметов. */
+  function furnitureInWallBody(px, pz, pad = 0.08) {
+    const polys = getWallObstacles();
+    for (const poly of polys) {
+      if (!poly?.length || skipFootPoly(poly)) continue;
+      if (pointInFootPoly(px, pz, poly)) return true;
+      if (closestFootEdge(px, pz, poly).d < pad) return true;
     }
-    wallBumpTries += 1;
-    if (wallBumpTries >= WALL_BUMP_NEED) {
-      wallPassActive = true;
-      wallPassTravel = 0;
-      wallBumpTries = 0;
-      wallBumpHold = 0;
-      markWallCleared(hit);
-      status(`Проход стен: ещё ${WALL_PASS_DIST.toFixed(1)} м`);
-      return true;
-    }
-    status(`Стена: упор ${wallBumpTries}/${WALL_BUMP_NEED}`);
     return false;
   }
 
-  function noteWallPassTravel(moved) {
-    if (!wallPassActive || moved < 1e-8) return;
-    wallPassTravel += moved;
-    if (wallPassTravel >= WALL_PASS_DIST) {
-      wallPassActive = false;
-      wallPassTravel = 0;
-      wallBumpTries = 0;
-      wallBumpHold = 0;
-      status("Проход стен: выкл — снова упор в препятствия");
+  /** Пока в проходе — не выталкивать; закрыть только когда уже вне тела стены. */
+  function noteWallPassTravel(moved, dir) {
+    if (!wallPassActive) return;
+    const inBody = furnitureInWallBody(ghostRoot.position.x, ghostRoot.position.z);
+    if (dir && _wallPassDir.lengthSq() > 1e-8 && dir.lengthSq() > 1e-8) {
+      if (dir.dot(_wallPassDir) < 0.25) {
+        if (!inBody) {
+          closeWallPass("Проход стен: смена направления — упор");
+          return;
+        }
+        _wallPassDir.copy(dir).normalize();
+      }
     }
+    if (moved > 1e-8) wallPassTravel += moved;
+    const need = wallPassNeedDist(dir || _wallPassDir);
+    if (wallPassTravel >= need && !inBody) {
+      closeWallPass("Проход стен: выкл — снова упор");
+    }
+  }
+
+  function noteWallBumpProgress(dt, isNewPress) {
+    if (isNewPress && wallBumpTapArmed) {
+      wallBumpTaps += 1;
+      wallBumpTapArmed = false;
+      status(`Стена: нажатие ${wallBumpTaps}/${WALL_BUMP_TAPS}`);
+      if (wallBumpTaps >= WALL_BUMP_TAPS) return true;
+    }
+    wallBumpHold += dt;
+    if (wallBumpHold >= WALL_BUMP_TIME) return true;
+    if (!isNewPress && wallBumpTaps < WALL_BUMP_TAPS) {
+      const pct = Math.min(99, Math.floor((wallBumpHold / WALL_BUMP_TIME) * 100));
+      status(`Стена: удержание ${pct}% · нажатий ${wallBumpTaps}/${WALL_BUMP_TAPS}`);
+    }
+    return false;
   }
 
   function ghostProbeOrigin() {
@@ -746,6 +901,11 @@ export function createTourFurniturePlace(opts) {
   function wallMeshTargets() {
     return hitTargets().filter((m) => {
       if (!m || !m.visible || !m.isMesh) return false;
+      // не лучь по самому призраку / размещаемой мебели
+      for (let p = m; p; p = p.parent) {
+        if (p === ghostRoot || p === placed || p.name === "tour-furniture-ghost") return false;
+        if (p.userData?.tourFurn) return false;
+      }
       const ud = m.userData || {};
       if (ud.floorSlab || ud.walkTop || ud.roof || ud.ceiling) return false;
       if (ud.finish === "door" || ud.finish === "frame") return false;
@@ -776,7 +936,8 @@ export function createTourFurniturePlace(opts) {
   function findNearbyWallHit(reach, extraDir = null) {
     const origin = ghostProbeOrigin().clone();
     const radius = furnitureRadiusXZ();
-    const nearLimit = radius + 0.35;
+    // reach — желаемая дальность; не режем слишком коротко (копии/группы)
+    const nearLimit = Math.max(radius + 0.45, Math.min(Math.max(reach, 0.6), radius + 1.8));
     cameraFlatAxes();
     const dirs = [
       _fwd.clone(),
@@ -799,7 +960,7 @@ export function createTourFurniturePlace(opts) {
     let bestDist = Infinity;
     for (const dir of dirs) {
       if (!dir || dir.lengthSq() < 1e-8) continue;
-      const hit = findWallHit(origin, dir, Math.min(reach, nearLimit + 0.25));
+      const hit = findWallHit(origin, dir, nearLimit + 0.35);
       if (!hit) continue;
       const hitDist = origin.distanceTo(hit.point);
       if (hitDist > nearLimit) continue;
@@ -816,16 +977,19 @@ export function createTourFurniturePlace(opts) {
     return bestHit ? { hit: bestHit, gap: bestGap, origin, dist: bestDist } : null;
   }
 
-  /** Выровнять мебель параллельно стене (ближайший из 4 курсов). */
-  function snapYawToWallHit(hit) {
-    if (yawFree || !hit) return;
-    const nx = hit.normal.x;
-    const nz = hit.normal.z;
+  /** Выровнять мебель параллельно осям плана (основные стены), не по шуму foot-нормали. */
+  function snapYawToPlanAxes() {
+    if (yawFree || groupMembers) return;
+    planWallAxes();
+    const ax = _wallAxisA.x;
+    const az = _wallAxisA.z;
+    const bx = _wallAxisB.x;
+    const bz = _wallAxisB.z;
     const next = nearestAngle(yaw, [
-      Math.atan2(nx, nz),
-      Math.atan2(-nx, -nz),
-      Math.atan2(-nz, nx),
-      Math.atan2(nz, -nx),
+      Math.atan2(ax, az),
+      Math.atan2(-ax, -az),
+      Math.atan2(bx, bz),
+      Math.atan2(-bx, -bz),
     ]);
     const diff = Math.abs(Math.atan2(Math.sin(yaw - next), Math.cos(yaw - next)));
     if (diff < 1e-3) return;
@@ -833,25 +997,23 @@ export function createTourFurniturePlace(opts) {
     ghostRoot.rotation.set(0, yaw, 0);
   }
 
+  /** @deprecated hit-нормаль даёт косой курс — всегда план. */
+  function snapYawToWallHit(_hit) {
+    snapYawToPlanAxes();
+  }
+
   /**
    * После движения: пересечение только с близкой стеной — вытолкнуть.
    */
   function alignFloorToNearbyWall(moveDir = null) {
-    const reach = furnitureRadiusXZ() + 0.55;
-    const found = findNearbyWallHit(reach, moveDir);
+    if (wallPassActive) return;
+    const near = nearestBlockingFoot(ghostRoot.position.x, ghostRoot.position.z);
     contactWall = null;
-    if (!found) return;
-    const { hit, gap } = found;
-    contactWall = { point: hit.point.clone(), normal: hit.normal.clone() };
-    if (gap >= WALL_EPS) return;
-    // ложная дальняя плоскость: зазор больше реального габарита
-    if (gap < -(furnitureRadiusXZ() * 1.5 + 0.2)) return;
-    if (wallAllowsPass(hit, moveDir)) {
-      markWallCleared(hit);
-      return;
-    }
-    snapYawToWallHit(hit);
-    pushOutOfPlane(hit.point, hit.normal);
+    if (!near) return;
+    contactWall = { point: near.hit.point.clone(), normal: near.hit.normal.clone() };
+    if (near.gap >= WALL_EPS) return;
+    if (wallAllowsPass(near.hit, moveDir)) return;
+    pushOutOfFootWalls();
   }
 
   /** Луч из передних углов мебели (по dir) — ближайшая стена. */
@@ -881,130 +1043,326 @@ export function createTourFurniturePlace(opts) {
     return best ? { hit: best, along: bestAlong } : null;
   }
 
+  /** Контуры стен в мире (как экскурсия) — надёжнее 3D-лучей. */
+  function measureFootPoly(poly) {
+    if (poly.maxEdge != null) return;
+    let minEdge = Infinity;
+    let maxEdge = 0;
+    for (let i = 0; i < poly.length; i++) {
+      const a = poly[i];
+      const b = poly[(i + 1) % poly.length];
+      const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      if (len < minEdge) minEdge = len;
+      if (len > maxEdge) maxEdge = len;
+    }
+    poly.minEdge = minEdge;
+    poly.maxEdge = maxEdge;
+  }
+
+  function skipFootPoly(poly) {
+    measureFootPoly(poly);
+    return poly.minEdge < 0.12 && poly.maxEdge < 0.5;
+  }
+
+  function pointInFootPoly(px, pz, poly) {
+    let inside = false;
+    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+      const xi = poly[i][0];
+      const yi = poly[i][1];
+      const xj = poly[j][0];
+      const yj = poly[j][1];
+      if ((yi > pz) !== (yj > pz) && px < ((xj - xi) * (pz - yi)) / (yj - yi) + xi) inside = !inside;
+    }
+    return inside;
+  }
+
+  function closestFootEdge(px, pz, poly) {
+    let best = Infinity;
+    let qx = px;
+    let qy = pz;
+    let tx = 1;
+    let ty = 0;
+    for (let i = 0; i < poly.length; i++) {
+      const a = poly[i];
+      const b = poly[(i + 1) % poly.length];
+      const dx = b[0] - a[0];
+      const dy = b[1] - a[1];
+      const len2 = dx * dx + dy * dy;
+      const raw = len2 ? ((px - a[0]) * dx + (pz - a[1]) * dy) / len2 : 0;
+      const t = Math.max(0, Math.min(1, raw));
+      const cx = a[0] + t * dx;
+      const cy = a[1] + t * dy;
+      const d = Math.hypot(px - cx, pz - cy);
+      if (d < best) {
+        best = d;
+        qx = cx;
+        qy = cy;
+        tx = dx;
+        ty = dy;
+      }
+    }
+    return { d: best, qx, qy, tx, ty };
+  }
+
+  function hitFromFootEdge(px, pz, edge) {
+    let nx = px - edge.qx;
+    let nz = pz - edge.qy;
+    const len = Math.hypot(nx, nz);
+    if (len < 1e-8) {
+      // наружу от касательной
+      nx = -edge.ty;
+      nz = edge.tx;
+      const nlen = Math.hypot(nx, nz) || 1;
+      nx /= nlen;
+      nz /= nlen;
+    } else {
+      nx /= len;
+      nz /= len;
+    }
+    return {
+      point: new THREE.Vector3(edge.qx, ghostRoot.position.y + 0.5, edge.qy),
+      normal: new THREE.Vector3(nx, 0, nz),
+    };
+  }
+
+  /** Полуразмер к стене: вдоль dir, иначе к нормали контакта / мин. сторона — не диагональ. */
+  function furnClearance(dir = null) {
+    if (dir && dir.lengthSq() > 1e-8) {
+      return Math.max(extentAlongDir(dir), 0.05) + 0.015;
+    }
+    if (contactWall?.normal) {
+      _n.copy(contactWall.normal).negate();
+      return Math.max(extentAlongDir(_n), 0.05) + 0.015;
+    }
+    planWallAxes();
+    const ex = extentAlongDir(_wallAxisA);
+    const ez = extentAlongDir(_wallAxisB);
+    return Math.max(0.05, Math.min(ex, ez)) + 0.015;
+  }
+
+  const FOOT_PAD = 0.02;
+
   /**
-   * IJKL: упор → выравнивание Parallel; 3 упора → проход на 1 м;
-   * преодолённые стены не мешают, пока снова не подойдём к ним.
+   * Углы пятна в мире при положении ghostRoot → (rootX, rootZ).
+   * Коллизия по контуру, не по кругу от центра (круг давал упор за ~30 см у длинного стола).
+   */
+  function forEachFootCornerAt(rootX, rootZ, fn) {
+    const corners = furnitureWorldCorners();
+    if (!corners) {
+      fn(rootX, rootZ);
+      return;
+    }
+    const dx = rootX - ghostRoot.position.x;
+    const dz = rootZ - ghostRoot.position.z;
+    const seen = [];
+    for (let i = 0; i < 8; i++) {
+      const px = corners[i].x + dx;
+      const pz = corners[i].z + dz;
+      let dup = false;
+      for (let s = 0; s < seen.length; s += 2) {
+        if (Math.abs(seen[s] - px) < 1e-4 && Math.abs(seen[s + 1] - pz) < 1e-4) {
+          dup = true;
+          break;
+        }
+      }
+      if (dup) continue;
+      seen.push(px, pz);
+      fn(px, pz);
+    }
+  }
+
+  function furnitureBlockedAt(px, pz, _clearanceIgnored) {
+    const polys = getWallObstacles();
+    let hit = false;
+    forEachFootCornerAt(px, pz, (cx, cz) => {
+      if (hit) return;
+      for (const poly of polys) {
+        if (!poly?.length || skipFootPoly(poly)) continue;
+        if (pointInFootPoly(cx, cz, poly)) {
+          hit = true;
+          return;
+        }
+        if (closestFootEdge(cx, cz, poly).d < FOOT_PAD) {
+          hit = true;
+          return;
+        }
+      }
+    });
+    return hit;
+  }
+
+  /** Центр уже в теле стены — выталкивать нельзя, только плавный выход движением. */
+  function furnitureInsideAnyWall(px, pz) {
+    const polys = getWallObstacles();
+    let inside = false;
+    forEachFootCornerAt(px, pz, (cx, cz) => {
+      if (inside) return;
+      for (const poly of polys) {
+        if (!poly?.length || skipFootPoly(poly)) continue;
+        if (pointInFootPoly(cx, cz, poly)) {
+          inside = true;
+          return;
+        }
+      }
+    });
+    return inside;
+  }
+
+  /** Ближайший упор по углам пятна при корне (px,pz). gap < 0 — пересечение. */
+  function nearestBlockingFoot(px, pz, _clearanceIgnored) {
+    const polys = getWallObstacles();
+    let best = null;
+    let bestGap = Infinity;
+    forEachFootCornerAt(px, pz, (cx, cz) => {
+      for (const poly of polys) {
+        if (!poly?.length || skipFootPoly(poly)) continue;
+        const inside = pointInFootPoly(cx, cz, poly);
+        const edge = closestFootEdge(cx, cz, poly);
+        const gap = inside ? -edge.d - FOOT_PAD : edge.d - FOOT_PAD;
+        if (gap < bestGap) {
+          bestGap = gap;
+          best = {
+            edge,
+            gap,
+            inside,
+            hit: hitFromFootEdge(cx, cz, edge),
+          };
+        }
+      }
+    });
+    return best;
+  }
+
+  function pushOutOfFootWalls(_clearanceIgnored) {
+    if (wallPassActive) return;
+    let px = ghostRoot.position.x;
+    let pz = ghostRoot.position.z;
+    if (furnitureInsideAnyWall(px, pz)) return;
+    for (let pass = 0; pass < 8; pass++) {
+      const near = nearestBlockingFoot(px, pz);
+      if (!near || near.gap >= -1e-4) break;
+      if (wallAllowsPass(near.hit)) break;
+      if (near.inside) break;
+      const hit = near.hit;
+      const push = (-near.gap) + WALL_EPS;
+      px += hit.normal.x * push;
+      pz += hit.normal.z * push;
+      // временно сдвинуть root, чтобы следующие углы считались от новой позы
+      ghostRoot.position.x = px;
+      ghostRoot.position.z = pz;
+      ghostRoot.updateMatrixWorld(true);
+      contactWall = { point: hit.point.clone(), normal: hit.normal.clone() };
+    }
+    ghostRoot.position.x = px;
+    ghostRoot.position.z = pz;
+  }
+
+  /**
+   * Стрелки: упор по контурам стен (foot).
+   * Удержание или 3 нажатия → проход; внутри стены не выталкивать.
+   * Крупная мебель: длиннее проход, без snap yaw при упоре (иначе сброс прогресса).
    */
   function resolveMoveAgainstWalls(move, dt) {
     _movePrev.copy(ghostRoot.position);
     _moveDelta.copy(move).multiplyScalar(STEP * dt);
     const dist = _moveDelta.length();
     if (dist < 1e-8) {
+      wallBumpTapArmed = true;
       wallBumpHold = 0;
       return false;
     }
+    contactWall = null;
 
     const dir = _moveDelta.clone().normalize();
-    const extent = extentAlongDir(dir);
-    const nearLimit = extent + 0.2;
-    // углы на позе до шага
     ghostRoot.position.copy(_movePrev);
     ghostRoot.updateMatrixWorld(true);
+    const clearance = furnClearance(dir);
+    const wantX = _movePrev.x + _moveDelta.x;
+    const wantZ = _movePrev.z + _moveDelta.z;
 
-    const fromCorners = findWallHitFromCorners(dir, dist + nearLimit + 0.05);
-    const origin = ghostProbeOrigin().clone();
-    let hit = fromCorners?.hit || null;
-    let hitAlong = fromCorners?.along ?? Infinity;
-
-    if (!hit) {
-      const centerHit = findWallHit(origin, dir, dist + nearLimit);
-      if (centerHit) {
-        hit = centerHit;
-        _n.copy(origin).sub(hit.point);
-        _n.y = 0;
-        if (_n.lengthSq() > 1e-8 && hit.normal.dot(_n) < 0) hit.normal.negate();
-        hitAlong = hit.point.clone().sub(origin).dot(dir) - extent;
-      }
+    // проход активен ИЛИ уже внутри стены — двигаем плавно, без выталкивания
+    if (wallPassActive || furnitureInsideAnyWall(_movePrev.x, _movePrev.z)) {
+      if (!wallPassActive) openWallPass(dir);
+      ghostRoot.position.x = wantX;
+      ghostRoot.position.z = wantZ;
+      ghostRoot.updateMatrixWorld(true);
+      noteWallPassTravel(dist, dir);
+      return false;
     }
 
-    if (hit) {
-      const intoWall = dir.dot(hit.normal) < -0.12;
-      const gapNow = gapToWallPlane(hit.point, hit.normal);
-      const close = hitAlong <= dist + 0.08 && gapNow < extent + 0.12;
-      if (intoWall && close) {
-        if (wallAllowsPass(hit, dir)) {
-          markWallCleared(hit);
-        } else {
-          wallBumpHold += dt;
-          if (wallBumpHold >= WALL_BUMP_HOLD) {
-            registerWallBump(hit);
-            wallBumpHold = 0;
-          }
-          if (!wallAllowsPass(hit, dir)) {
-            const stop = Math.max(0, Math.min(dist, Math.min(hitAlong, gapNow) - WALL_EPS));
-            ghostRoot.position.set(
-              _movePrev.x + dir.x * stop,
-              _movePrev.y,
-              _movePrev.z + dir.z * stop,
-            );
-            ghostRoot.updateMatrixWorld(true);
-            contactWall = { point: hit.point.clone(), normal: hit.normal.clone() };
-            snapYawToWallHit(hit);
-            pushOutOfPlane(hit.point, hit.normal);
-            pullFlushToWall(hit.point, hit.normal, Math.max(0.35, extent + 0.08));
-            return true;
-          }
-        }
-      } else {
-        wallBumpHold = 0;
-      }
-    } else {
-      wallBumpHold = 0;
-    }
-
-    ghostRoot.position.x = _movePrev.x + _moveDelta.x;
-    ghostRoot.position.z = _movePrev.z + _moveDelta.z;
-    ghostRoot.updateMatrixWorld(true);
-
-    const moved = Math.hypot(
-      ghostRoot.position.x - _movePrev.x,
-      ghostRoot.position.z - _movePrev.z,
+    const nearAt = nearestBlockingFoot(_movePrev.x, _movePrev.z)
+      || nearestBlockingFoot(wantX, wantZ);
+    const blockHit = nearAt?.hit || null;
+    const wantBlocked = furnitureBlockedAt(wantX, wantZ, clearance);
+    // упор «в стену»: даже если кадр чуть скользнул вдоль (крупный стол / snap осей)
+    const pressingIntoWall = !!(
+      blockHit
+      && nearAt.gap < 0.2
+      && dir.dot(blockHit.normal) < -0.15
     );
-    noteWallPassTravel(moved);
 
-    // в режиме прохода помечать стены, через которые идём
-    if (wallPassActive) {
-      const mid = findNearbyWallHit(furnitureRadiusXZ() + 0.4, dir);
-      if (mid && mid.gap < WALL_CLEAR_GAP) markWallCleared(mid.hit);
+    if (!wantBlocked && !pressingIntoWall) {
+      ghostRoot.position.x = wantX;
+      ghostRoot.position.z = wantZ;
+      ghostRoot.updateMatrixWorld(true);
+      pushOutOfFootWalls(clearance);
+      wallBumpHold = 0;
+      wallBumpTaps = 0;
+      wallBumpTapArmed = true;
+      return false;
     }
 
-    const found = findNearbyWallHit(nearLimit + 0.2, dir);
-    if (found && found.gap < WALL_EPS && !wallAllowsPass(found.hit, dir)) {
-      if (found.gap < -(furnitureRadiusXZ() * 1.5 + 0.2)) {
-        /* ложная дальняя плоскость */
-      } else if (dir.dot(found.hit.normal) < -0.12) {
-        wallBumpHold += dt;
-        if (wallBumpHold >= WALL_BUMP_HOLD) {
-          registerWallBump(found.hit);
-          wallBumpHold = 0;
-        }
-        if (!wallAllowsPass(found.hit, dir)) {
-          snapYawToWallHit(found.hit);
-          pushOutOfPlane(found.hit.point, found.hit.normal);
-          pullFlushToWall(found.hit.point, found.hit.normal, 0.35);
-          contactWall = { point: found.hit.point.clone(), normal: found.hit.normal.clone() };
-          return true;
+    if (!wantBlocked && pressingIntoWall) {
+      ghostRoot.position.x = wantX;
+      ghostRoot.position.z = wantZ;
+      ghostRoot.updateMatrixWorld(true);
+      pushOutOfFootWalls(clearance);
+    } else {
+      let slid = false;
+      if (blockHit) {
+        const tx = -blockHit.normal.z;
+        const tz = blockHit.normal.x;
+        const along = _moveDelta.x * tx + _moveDelta.z * tz;
+        if (Math.abs(along) > 1e-6) {
+          const sx = tx * along;
+          const sz = tz * along;
+          if (!furnitureBlockedAt(_movePrev.x + sx, _movePrev.z + sz, clearance)) {
+            ghostRoot.position.x = _movePrev.x + sx;
+            ghostRoot.position.z = _movePrev.z + sz;
+            slid = true;
+          }
         }
       }
-    } else if (found && wallAllowsPass(found.hit, dir)) {
-      markWallCleared(found.hit);
+      if (!slid) ghostRoot.position.copy(_movePrev);
+      ghostRoot.updateMatrixWorld(true);
+      pushOutOfFootWalls(clearance);
     }
-    return false;
+
+    const open = noteWallBumpProgress(dt, wallBumpTapArmed);
+    if (open) {
+      openWallPass(dir);
+      // сразу зайти за линию упора (иначе крупный стол остаётся снаружи и «не проходит»)
+      const stepIn = Math.max(dist, Math.min(0.45, clearance * 0.55 + 0.1));
+      ghostRoot.position.x = _movePrev.x + dir.x * stepIn;
+      ghostRoot.position.z = _movePrev.z + dir.z * stepIn;
+      ghostRoot.updateMatrixWorld(true);
+      noteWallPassTravel(stepIn, dir);
+      return false;
+    }
+    if (blockHit) {
+      contactWall = { point: blockHit.point.clone(), normal: blockHit.normal.clone() };
+      // snapYaw при упоре сбрасывал hold у большого стола — не крутим здесь
+    }
+    return true;
   }
 
   function pushOutOfNearbyWalls() {
-    const reach = furnitureRadiusXZ() + 0.55;
-    const found = findNearbyWallHit(reach);
+    if (wallPassActive) return;
+    const near = nearestBlockingFoot(ghostRoot.position.x, ghostRoot.position.z);
     contactWall = null;
-    if (!found || found.gap >= WALL_EPS) return;
-    if (found.gap < -(furnitureRadiusXZ() * 1.5 + 0.2)) return;
-    if (wallAllowsPass(found.hit)) {
-      markWallCleared(found.hit);
-      return;
-    }
-    snapYawToWallHit(found.hit);
-    pushOutOfPlane(found.hit.point, found.hit.normal);
-    contactWall = { point: found.hit.point.clone(), normal: found.hit.normal.clone() };
+    if (!near || near.gap >= WALL_EPS) return;
+    if (wallAllowsPass(near.hit)) return;
+    pushOutOfFootWalls();
   }
 
   /** Зазор ближайшей точки OBB до плоскости стены (в комнату > 0). */
@@ -1020,9 +1378,25 @@ export function createTourFurniturePlace(opts) {
   }
 
   /**
-   * Прижим к стене для R/F: без телепорта на hit.point (из‑за него ТВ «исчезал»).
+   * Прижим к стене для PgUp/PgDn: без телепорта на hit.point (из‑за него ТВ «исчезал»).
    * Берём текущую позу и проецируем на плоскость стены.
    */
+  /** Обновить плоскость стены только если нормаль не «перепрыгнула» на другую грань. */
+  function adoptWallHit(hit) {
+    if (!hit?.normal) return false;
+    _n.copy(hit.normal);
+    _n.y = 0;
+    if (_n.lengthSq() < 1e-8) return false;
+    _n.normalize();
+    if (wallNormal.lengthSq() > 1e-8) {
+      if (_n.dot(wallNormal) < 0) _n.negate();
+      if (_n.dot(wallNormal) < 0.72) return false;
+    }
+    wallNormal.copy(_n);
+    wallPlanePoint.copy(hit.point);
+    return true;
+  }
+
   function ensureWallMountForLift() {
     if (mount === "wall") return true;
     applySurface(); // обновить contactWall
@@ -1046,23 +1420,25 @@ export function createTourFurniturePlace(opts) {
       hit = best;
     }
     if (!hit) {
-      status("R/F: нет стены рядом — придвиньте IJKL или T");
+      status("PgUp/PgDn: нет стены рядом — придвиньте стрелками или T");
       return false;
     }
     const gap = gapToWallPlane(hit.point, hit.normal);
     // слишком далеко — не приклеивать (иначе прыжок сквозь дом)
     if (gap > 0.45 && gap < 1e6) {
-      status("R/F: сначала вплотную к стене");
+      status("PgUp/PgDn: сначала вплотную к стене");
       return false;
     }
     mount = "wall";
     wallNormal.copy(hit.normal);
+    wallNormal.y = 0;
+    if (wallNormal.lengthSq() > 1e-8) wallNormal.normalize();
     wallPlanePoint.copy(hit.point);
-    // якорь = текущая позиция, спроецированная на плоскость (Y сохраняем)
+    // якорь = текущая поза как есть (край у стены). Не проецировать на плоскость —
+    // иначе центр «прыгает» внутрь стены.
     wallAnchor.copy(ghostRoot.position);
-    const dist = wallNormal.dot(wallAnchor) - wallNormal.dot(wallPlanePoint);
-    wallAnchor.addScaledVector(wallNormal, -dist);
-    applySurface();
+    yawFree = true;
+    applySurface({ throughWalls: true });
     return true;
   }
 
@@ -1197,11 +1573,157 @@ export function createTourFurniturePlace(opts) {
       return;
     }
     if (mode === "edit") {
-      beginGroupEdit(list);
+      // один предмет — тот же путь, что вставка (со стенами); группа — каркас
+      if (list.length === 1) beginSingleEdit(list[0]);
+      else beginGroupEdit(list);
       return;
     }
     if (mode === "copy") {
-      beginGroupCopy(list);
+      if (list.length === 1) beginSingleCopy(list[0]);
+      else beginGroupCopy(list);
+    }
+  }
+
+  function applyRecordPoseToGhost(data, worldPos) {
+    baseSize = {
+      w: data.cmW || footprintFromCm(ghostItem?.cm).w,
+      d: data.cmD || footprintFromCm(ghostItem?.cm).d,
+      h: data.cmH || footprintFromCm(ghostItem?.cm).h,
+    };
+    sx = Math.max(0.05, Math.abs(data.sx || 1));
+    sy = Math.max(0.05, Math.abs(data.sy || 1));
+    sz = Math.max(0.05, Math.abs(data.sz || 1));
+    mirror = !!data.mirror;
+    mirrorZ = !!data.mirrorZ;
+    yaw = data.yaw || 0;
+    yawFree = false;
+    mount = data.wall ? "wall" : "floor";
+    ghostRoot.position.copy(worldPos);
+    ghostRoot.rotation.set(0, yaw, 0);
+    ghostRoot.scale.set(1, 1, 1);
+    wallAnchor.copy(ghostRoot.position);
+    if (mount === "wall") {
+      wallNormal.set(Math.sin(yaw), 0, Math.cos(yaw));
+      wallPlanePoint.copy(ghostRoot.position);
+    }
+    applyGhostScale();
+    invalidateLocalFurnBox();
+    resetWallPassState();
+  }
+
+  /** Одна правка: как обычный place (стрелки + упор в стены). */
+  function beginSingleEdit(rec) {
+    if (mode !== "edit" || !rec?.holder) {
+      status("Кликните по мебели, затем Enter");
+      return;
+    }
+    clearSelectHighlight();
+    clearGhost();
+    const holder = rec.holder;
+    const wrap = holder.children[0];
+    const model = wrap?.children?.[0];
+    if (!wrap || !model) {
+      status("Некорректный объект мебели");
+      return;
+    }
+    const item = catalogById.get(rec.data.id) || {
+      id: rec.data.id,
+      file: rec.data.file,
+      cm: [(rec.data.cmW || 0.8) * 100, (rec.data.cmD || 0.8) * 100, (rec.data.cmH || 0.8) * 100],
+    };
+    const uid = rec.data.uid;
+    for (let i = records.length - 1; i >= 0; i--) {
+      if (records[i].data.uid === uid) {
+        const h = records[i].holder;
+        if (h && h !== holder) placed.remove(h);
+        records.splice(i, 1);
+      }
+    }
+    placed.remove(holder);
+    rec._savedPos = holder.position.clone();
+    rec._savedYaw = holder.rotation.y;
+    holder.remove(wrap);
+    ghostify(model);
+    wrap.position.set(0, 0, 0);
+    wrap.rotation.set(0, 0, 0);
+    ghostRoot.add(wrap);
+    ghost = wrap;
+    ghostModel = model;
+    ghostItem = item;
+    editingRec = rec;
+    groupMembers = null;
+    placeIntent = "edit";
+    insertPhase = "tune";
+    ghostRoot.visible = true;
+    rec._undoBefore = cloneFurnData(rec.data);
+    applyRecordPoseToGhost(rec.data, holder.position);
+    setMode("place");
+    applySurface({ throughWalls: true });
+    status(`Правка ${item.id}: стрелки · Home/End · Enter — зафиксировать`);
+    publishHint();
+  }
+
+  /** Одна копия: сразу в tune со стенами (не groupMembers). */
+  async function beginSingleCopy(rec) {
+    if (mode !== "copy" || !rec?.holder) {
+      status("Кликните по мебели, затем Enter");
+      return;
+    }
+    clearSelectHighlight();
+    editingRec = null;
+    placeIntent = "copy";
+    clearGhost();
+    const item = catalogById.get(rec.data.id) || {
+      id: rec.data.id,
+      file: rec.data.file,
+      cm: [(rec.data.cmW || 0.8) * 100, (rec.data.cmD || 0.8) * 100, (rec.data.cmH || 0.8) * 100],
+    };
+    if (!item.file) {
+      status("Не удалось копировать");
+      return;
+    }
+    try {
+      const model = await loadModel(item.file);
+      ghostify(model);
+      model.position.set(0, 0, 0);
+      model.scale.set(1, 1, 1);
+      model.updateMatrixWorld(true);
+      const cmW = rec.data.cmW || footprintFromCm(item.cm).w;
+      const cmD = rec.data.cmD || footprintFromCm(item.cm).d;
+      const cmH = rec.data.cmH || footprintFromCm(item.cm).h;
+      _box.setFromObject(model);
+      _box.getSize(_size);
+      const fit = Math.min(
+        cmW / Math.max(_size.x, 1e-3),
+        cmD / Math.max(_size.z, 1e-3),
+        cmH / Math.max(_size.y, 1e-3),
+      );
+      seatModelFeet(model, fit, fit, fit);
+      const wrap = new THREE.Group();
+      wrap.add(model);
+      ghostModel = model;
+      ghost = wrap;
+      ghostItem = item;
+      ghostRoot.add(wrap);
+      groupMembers = null;
+      insertPhase = "tune";
+      ghostRoot.visible = true;
+      applyRecordPoseToGhost(
+        { ...rec.data, cmW, cmD, cmH },
+        rec.holder.position.clone(),
+      );
+      setMode("place");
+      applySurface({ throughWalls: true });
+      status(`Копия ${item.id}: стрелки · упор в стены · Enter — зафиксировать`);
+      publishHint();
+    } catch (err) {
+      console.warn(err);
+      status("Не удалось копировать");
+      clearGhost();
+      setMode("copy");
+      if (rec.data?.uid) selectedUids.add(rec.data.uid);
+      refreshSelectHighlight();
+      publishHint();
     }
   }
 
@@ -1249,6 +1771,7 @@ export function createTourFurniturePlace(opts) {
       status("Кликните по мебели, затем Enter");
       return;
     }
+    const removedItems = targets.map((r) => cloneFurnData(r.data));
     const uids = new Set(targets.map((r) => r.data.uid));
     let removed = 0;
     for (let i = records.length - 1; i >= 0; i--) {
@@ -1258,6 +1781,7 @@ export function createTourFurniturePlace(opts) {
       removed += 1;
     }
     selectedUids.clear();
+    if (removedItems.length) pushUndo({ type: "remove", items: removedItems });
     saveAll();
     status(`Удалено: ${removed}`);
     if (!records.length) {
@@ -1350,9 +1874,11 @@ export function createTourFurniturePlace(opts) {
     ghostRoot.scale.set(1, 1, 1);
     ghostRoot.visible = true;
     wallAnchor.copy(ghostRoot.position);
+    invalidateLocalFurnBox();
+    resetWallPassState();
     setMode("place");
     updateProjections();
-    status(`Правка группы (${members.length}): IJKL · Enter — зафиксировать · Esc — отмена`);
+    status(`Правка группы (${members.length}): стрелки · Enter — зафиксировать · Esc — отмена`);
     publishHint();
   }
 
@@ -1437,9 +1963,11 @@ export function createTourFurniturePlace(opts) {
       ghostRoot.scale.set(1, 1, 1);
       ghostRoot.visible = true;
       wallAnchor.copy(ghostRoot.position);
+      invalidateLocalFurnBox();
+      resetWallPassState();
       setMode("place");
       updateProjections();
-      status(`Копия группы (${members.length}): та же поза · IJKL · Enter — зафиксировать`);
+      status(`Копия группы (${members.length}): та же поза · стрелки · Enter — зафиксировать`);
       publishHint();
     } catch (err) {
       console.warn(err);
@@ -1502,7 +2030,16 @@ export function createTourFurniturePlace(opts) {
 
   function applyGhostScale() {
     // fitScale в model; на wrap — масштаб + зеркало (ось лево/право от взгляда).
-    if (ghost) ghost.scale.set(wrapScaleX(), sy, wrapScaleZ());
+    if (ghost) {
+      ghost.scale.set(wrapScaleX(), sy, wrapScaleZ());
+      // negative scale: FrontSide + frustum culling часто «съедают» объект после 2–3 Insert
+      ensureMirrorMaterials(ghost);
+      const mirrored = wrapScaleX() < 0 || wrapScaleZ() < 0;
+      ghost.traverse((obj) => {
+        if (!obj.isMesh) return;
+        obj.frustumCulled = !mirrored;
+      });
+    }
     invalidateLocalFurnBox();
   }
 
@@ -1518,18 +2055,29 @@ export function createTourFurniturePlace(opts) {
     return alignX >= alignZ ? "x" : "z";
   }
 
-  /** Зеркало левое↔правое относительно взгляда наблюдателя. */
+  /** Зеркало левое↔правое относительно взгляда. Одна ось — без накопления mirror+mirrorZ. */
   function toggleViewMirror() {
+    yawFree = true;
     if (groupMembers) {
       cameraFlatAxes();
       if (Math.abs(_right.x) >= Math.abs(_right.z)) ghostRoot.scale.x *= -1;
       else ghostRoot.scale.z *= -1;
+      ensureMirrorMaterials(ghostRoot);
+      ghostRoot.traverse((obj) => {
+        if (obj.isMesh) obj.frustumCulled = ghostRoot.scale.x < 0 || ghostRoot.scale.z < 0 ? false : obj.frustumCulled;
+      });
       status("Зеркало: лево↔право от взгляда");
       updateProjections();
       return;
     }
-    if (viewLeftRightAxis() === "x") mirror = !mirror;
-    else mirrorZ = !mirrorZ;
+    const axis = viewLeftRightAxis();
+    if (axis === "x") {
+      mirror = !mirror;
+      mirrorZ = false;
+    } else {
+      mirrorZ = !mirrorZ;
+      mirror = false;
+    }
     applyGhostScale();
     applySurface({ throughWalls: true });
     const on = mirror || mirrorZ;
@@ -1538,7 +2086,7 @@ export function createTourFurniturePlace(opts) {
 
   /**
    * @param {{ throughWalls?: boolean }} [opts]
-   *   throughWalls — стены пропускают (поворот 9/0); при движении — выталкивание при пересечении
+   *   throughWalls — стены пропускают (поворот Home/End); при движении — выталкивание при пересечении
    */
   function applySurface(opts = {}) {
     const throughWalls = !!opts.throughWalls;
@@ -1551,22 +2099,28 @@ export function createTourFurniturePlace(opts) {
     applyGhostScale();
 
     if (mount === "wall") {
-      // лицом в комнату (forward = normal)
-      yaw = Math.atan2(wallNormal.x, wallNormal.z);
+      // лицом в комнату только если курс не зафиксирован (Home/End / подъём / Insert)
+      if (!yawFree) {
+        const target = Math.atan2(wallNormal.x, wallNormal.z);
+        const diff = Math.abs(Math.atan2(Math.sin(yaw - target), Math.cos(yaw - target)));
+        // мелкое дрожание нормали не крутит объект
+        if (diff > 0.2) yaw = target;
+      }
       ghostRoot.rotation.set(0, yaw, 0);
       const wantY = wallAnchor.y;
       ghostRoot.position.set(wallAnchor.x, wantY, wallAnchor.z);
-      // на плоскость стены
-      const planeD = wallNormal.dot(wallPlanePoint);
-      const dist = wallNormal.dot(ghostRoot.position) - planeD;
-      ghostRoot.position.addScaledVector(wallNormal, -dist);
-      ghostRoot.position.y = wantY;
-      // не ниже пола; выше пола — можно (подъём R)
-      snapFeet(false);
-      if (wantY > ghostRoot.position.y) ghostRoot.position.y = wantY;
+      // throughWalls (PgUp с края у стены): только высота, без прыжка на плоскость
       if (!throughWalls) {
+        const planeD = wallNormal.dot(wallPlanePoint);
+        const dist = wallNormal.dot(ghostRoot.position) - planeD;
+        ghostRoot.position.addScaledVector(wallNormal, -dist);
+        ghostRoot.position.y = wantY;
+        snapFeet(false);
+        if (wantY > ghostRoot.position.y) ghostRoot.position.y = wantY;
         pushOutOfPlane(wallPlanePoint, wallNormal);
         pullFlushToWall(wallPlanePoint, wallNormal, 0.2);
+      } else {
+        ghostRoot.position.y = wantY;
       }
       {
         measureGhostBox();
@@ -1632,7 +2186,7 @@ export function createTourFurniturePlace(opts) {
       floorY + WALL_MAX_H * 0.85,
     );
     applySurface();
-    status("На стене: IJKL вдоль · R/F выше/ниже · T — на пол");
+    status("На стене: стрелки вдоль · PgUp/PgDn выше/ниже · T — на пол");
     return true;
   }
 
@@ -1642,7 +2196,7 @@ export function createTourFurniturePlace(opts) {
     ghostRoot.position.addScaledVector(nudge, 0.18);
     mount = "floor";
     applySurface();
-    status("На полу: IJKL — двигать");
+    status("На полу: стрелки — двигать");
   }
 
   function toggleMount() {
@@ -1858,6 +2412,8 @@ export function createTourFurniturePlace(opts) {
       ghost = wrap;
       ghostRoot.add(wrap);
       ghostRoot.visible = true;
+      invalidateLocalFurnBox();
+      resetWallPassState();
       setMode("place");
       insertPhase = "aim";
       // Сначала за мышью; Enter — правка; ещё Enter — фиксация.
@@ -1877,7 +2433,7 @@ export function createTourFurniturePlace(opts) {
     insertPhase = "tune";
     yawFree = false;
     applySurface(); // зафиксировать позу и выровнять по стене
-    status(`Правка ${ghostItem?.id || ""}: IJKL · 9/0 · G · Enter — зафиксировать`);
+    status(`Правка ${ghostItem?.id || ""}: стрелки · Home/End · Insert · Enter — зафиксировать`);
     publishHint();
     return true;
   }
@@ -1892,6 +2448,92 @@ export function createTourFurniturePlace(opts) {
       items.push(r.data);
     }
     return items;
+  }
+
+  function cloneFurnData(data) {
+    return {
+      uid: data.uid,
+      id: data.id,
+      file: data.file,
+      cmW: data.cmW,
+      cmD: data.cmD,
+      cmH: data.cmH,
+      x: data.x,
+      y: data.y,
+      z: data.z,
+      yaw: data.yaw,
+      sx: data.sx,
+      sy: data.sy,
+      sz: data.sz,
+      mirror: !!data.mirror,
+      mirrorZ: !!data.mirrorZ,
+      wall: !!data.wall,
+    };
+  }
+
+  function pushUndo(entry) {
+    undoStack.push(entry);
+    while (undoStack.length > UNDO_MAX) undoStack.shift();
+  }
+
+  async function removeRecordsByUids(uids) {
+    const set = new Set(uids);
+    for (let i = records.length - 1; i >= 0; i--) {
+      if (!set.has(records[i].data.uid)) continue;
+      placed.remove(records[i].holder);
+      records.splice(i, 1);
+    }
+  }
+
+  async function restoreFurnItems(items) {
+    for (const data of items) {
+      if (!data?.file && !catalogById.get(data?.id)?.file) continue;
+      const item = catalogById.get(data.id) || {
+        id: data.id,
+        file: data.file,
+        cm: [(data.cmW || 0.8) * 100, (data.cmD || 0.8) * 100, (data.cmH || 0.8) * 100],
+      };
+      if (!item.file) continue;
+      // не дублировать, если уже есть
+      if (records.some((r) => r.data.uid === data.uid)) continue;
+      try {
+        await spawnRecord(cloneFurnData(data), item);
+      } catch (err) {
+        console.warn("undo restore", data.id, err);
+      }
+    }
+  }
+
+  /** Ctrl+Z: цепочка отмен после фиксации (вставка / копия / правка / удаление). */
+  async function undoLast() {
+    if (!canEditFurniture()) return false;
+    if (mode === "place" && (ghost || groupMembers)) {
+      status("Сначала Enter или Esc, затем Ctrl+Z");
+      return true;
+    }
+    const entry = undoStack.pop();
+    if (!entry) {
+      status("Нечего отменять");
+      return true;
+    }
+    try {
+      if (entry.type === "add") {
+        await removeRecordsByUids(entry.items.map((d) => d.uid));
+        status("Отмена: вставка/копия убрана");
+      } else if (entry.type === "remove") {
+        await restoreFurnItems(entry.items);
+        status("Отмена: удаление восстановлено");
+      } else if (entry.type === "edit") {
+        await removeRecordsByUids(entry.after.map((d) => d.uid));
+        await restoreFurnItems(entry.before);
+        status("Отмена: поза восстановлена");
+      }
+      await saveAll();
+    } catch (err) {
+      console.warn(err);
+      status("Не удалось отменить");
+    }
+    return true;
   }
 
   async function saveAll() {
@@ -1944,6 +2586,12 @@ export function createTourFurniturePlace(opts) {
     {
       const sc = scaleFromData(data);
       wrap.scale.set(sc.x, sc.y, sc.z);
+      if (sc.x < 0 || sc.z < 0) {
+        ensureMirrorMaterials(wrap);
+        wrap.traverse((obj) => {
+          if (obj.isMesh) obj.frustumCulled = false;
+        });
+      }
     }
     wrap.add(model);
     holder.add(wrap);
@@ -1989,6 +2637,10 @@ export function createTourFurniturePlace(opts) {
     if (!groupMembers?.length || !canEditFurniture()) return;
     ghostRoot.updateMatrixWorld(true);
     const editing = placeIntent === "edit";
+    const undoBefore = editing
+      ? groupMembers.filter((m) => m.data0).map((m) => cloneFurnData(m.data0))
+      : [];
+    const undoAfter = [];
     try {
       for (let mi = 0; mi < groupMembers.length; mi++) {
         const m = groupMembers[mi];
@@ -2014,6 +2666,7 @@ export function createTourFurniturePlace(opts) {
           mirrorZ: !!baked.mirrorZ,
           wall: !!m.data0.wall,
         };
+        undoAfter.push(cloneFurnData(data));
         if (editing && m.rec) {
           const wrap = m.wrap;
           const holder = m.rec.holder;
@@ -2024,6 +2677,7 @@ export function createTourFurniturePlace(opts) {
           {
             const sc = scaleFromData(data);
             wrap.scale.set(sc.x, sc.y, sc.z);
+            if (sc.x < 0 || sc.z < 0) ensureMirrorMaterials(wrap);
           }
           holder.add(wrap);
           holder.position.copy(baked.pos);
@@ -2044,6 +2698,8 @@ export function createTourFurniturePlace(opts) {
       editingRec = null;
       while (ghostRoot.children.length) ghostRoot.remove(ghostRoot.children[0]);
       resetGhostFlags();
+      if (editing) pushUndo({ type: "edit", before: undoBefore, after: undoAfter });
+      else pushUndo({ type: "add", items: undoAfter });
       await saveAll();
       status(editing
         ? `Группа сохранена. E — ещё · C — копия · X — удаление.`
@@ -2066,6 +2722,7 @@ export function createTourFurniturePlace(opts) {
     const [x, y] = worldToPlan(ghostRoot.position.x, ghostRoot.position.z);
     const rec = editingRec;
     const editing = placeIntent === "edit" && !!rec;
+    const undoBefore = editing ? cloneFurnData(rec._undoBefore || rec.data) : null;
     const data = {
       uid: editing ? rec.data.uid : `f_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`,
       id: ghostItem.id,
@@ -2089,6 +2746,12 @@ export function createTourFurniturePlace(opts) {
         unghostify(ghostModel || wrap);
         ghostRoot.remove(wrap);
         wrap.scale.set(wrapScaleX(), sy, wrapScaleZ());
+        if (mirror || mirrorZ) {
+          ensureMirrorMaterials(wrap);
+          wrap.traverse((obj) => {
+            if (obj.isMesh) obj.frustumCulled = false;
+          });
+        }
         holder.add(wrap);
         holder.position.copy(ghostRoot.position);
         holder.rotation.set(0, yaw, 0);
@@ -2100,13 +2763,16 @@ export function createTourFurniturePlace(opts) {
         if (!records.includes(rec)) records.push(rec);
         editingRec = null;
         resetGhostFlags();
+        if (undoBefore) pushUndo({ type: "edit", before: [undoBefore], after: [cloneFurnData(data)] });
         await saveAll();
         status(`Сохранена правка ${data.id}. E — ещё · C — копия · X — удаление.`);
       } else {
+        const placedId = ghostItem.id;
         await spawnRecord(data, ghostItem);
         clearGhost();
+        pushUndo({ type: "add", items: [cloneFurnData(data)] });
         await saveAll();
-        status(`Поставлено ${ghostItem.id}. M — ещё · E — правка · C — копия · X — удаление.`);
+        status(`Поставлено ${placedId}. M — ещё · E — правка · C — копия · X — удаление.`);
       }
     } catch (err) {
       console.warn(err);
@@ -2124,6 +2790,7 @@ export function createTourFurniturePlace(opts) {
     const seq = ++loadSeq;
     while (placed.children.length) placed.remove(placed.children[0]);
     records.length = 0;
+    undoStack.length = 0;
     editingRec = null;
     placeIntent = "insert";
     clearGhost();
@@ -2184,6 +2851,13 @@ export function createTourFurniturePlace(opts) {
 
   function onKey(code, down, event) {
     if (!canEditFurniture()) return false;
+    // Enter на цифровой клавиатуре — тот же смысл
+    if (code === "NumpadEnter") code = "Enter";
+
+    if (down && code === "KeyZ" && (event?.ctrlKey || event?.metaKey) && !event?.altKey) {
+      undoLast();
+      return true;
+    }
 
     if (mode === "place" && (ghost || groupMembers)) {
       if (code in held) {
@@ -2200,21 +2874,21 @@ export function createTourFurniturePlace(opts) {
         return true;
       }
       if (groupMembers) {
-        if (code === "Digit9" || code === "Numpad9") {
+        if (code === "Home") {
           ghostRoot.rotation.y += Math.PI / 12;
           updateProjections();
           return true;
         }
-        if (code === "Digit0" || code === "Numpad0") {
+        if (code === "End") {
           ghostRoot.rotation.y -= Math.PI / 12;
           updateProjections();
           return true;
         }
-        if (code === "KeyG") {
-          // лево↔право от взгляда: отразить вдоль экранной горизонтали в мире
+        if (code === "Insert") {
           cameraFlatAxes();
           if (Math.abs(_right.x) >= Math.abs(_right.z)) ghostRoot.scale.x *= -1;
           else ghostRoot.scale.z *= -1;
+          ensureMirrorMaterials(ghostRoot);
           status("Зеркало группы: лево↔право от взгляда");
           updateProjections();
           return true;
@@ -2241,6 +2915,10 @@ export function createTourFurniturePlace(opts) {
           updateProjections();
           return true;
         }
+        if (code === "Delete" || code === "Backspace") {
+          deleteWhilePlacing();
+          return true;
+        }
         if (code === "Escape") {
           const wasEdit = placeIntent === "edit";
           clearGhost();
@@ -2249,9 +2927,9 @@ export function createTourFurniturePlace(opts) {
         }
         return false;
       }
-      // В фазе aim (за мышью) — только Enter / Esc; поворот и IJKL после Enter.
+      // В фазе aim (за мышью) — только Enter / Esc / Delete.
       if (placeIntent === "insert" && insertPhase === "aim") {
-        if (code === "Escape") {
+        if (code === "Escape" || code === "Delete" || code === "Backspace") {
           clearGhost();
           status("Отмена расстановки");
           return true;
@@ -2259,19 +2937,19 @@ export function createTourFurniturePlace(opts) {
         return false;
       }
       // Только event.code (физическая клавиша), не символ раскладки.
-      if (code === "Digit9" || code === "Numpad9") {
+      if (code === "Home") {
         yawFree = true;
         yaw += Math.PI / 12;
         applySurface({ throughWalls: true });
         return true;
       }
-      if (code === "Digit0" || code === "Numpad0") {
+      if (code === "End") {
         yawFree = true;
         yaw -= Math.PI / 12;
         applySurface({ throughWalls: true });
         return true;
       }
-      if (code === "KeyG") {
+      if (code === "Insert") {
         toggleViewMirror();
         return true;
       }
@@ -2286,6 +2964,10 @@ export function createTourFurniturePlace(opts) {
       if (code === "Equal" || code === "NumpadAdd") {
         sy = Math.min(2.5, sy + 0.05);
         applySurface({ throughWalls: true });
+        return true;
+      }
+      if (code === "Delete" || code === "Backspace") {
+        deleteWhilePlacing();
         return true;
       }
       if (code === "Escape") {
@@ -2371,14 +3053,65 @@ export function createTourFurniturePlace(opts) {
     return false;
   }
 
+  /** Оси плана дома в мире (стены ∥ плану, не мировым X/Z). */
+  function planWallAxes() {
+    const o = planToWorld(0, 0);
+    const e = planToWorld(1, 0);
+    const n = planToWorld(0, 1);
+    _wallAxisA.set(e[0] - o[0], 0, e[1] - o[1]);
+    _wallAxisB.set(n[0] - o[0], 0, n[1] - o[1]);
+    if (_wallAxisA.lengthSq() < 1e-8) _wallAxisA.set(1, 0, 0);
+    else _wallAxisA.normalize();
+    if (_wallAxisB.lengthSq() < 1e-8) _wallAxisB.set(0, 0, 1);
+    else _wallAxisB.normalize();
+  }
+
+  /**
+   * Две оси для стрелок: всегда оси плана дома (основные стены),
+   * чтобы движение и курс не косило от foot-нормалей.
+   */
+  function wallMoveAxes() {
+    planWallAxes();
+  }
+
+  /** Из четырёх направлений ±A/±B выбрать ближе всего к viewDir. */
+  function snapDirToWallAxes(viewDir, out = _snapDir) {
+    const ax = _wallAxisA.x;
+    const az = _wallAxisA.z;
+    const bx = _wallAxisB.x;
+    const bz = _wallAxisB.z;
+    const dots = [
+      viewDir.x * ax + viewDir.z * az,
+      -(viewDir.x * ax + viewDir.z * az),
+      viewDir.x * bx + viewDir.z * bz,
+      -(viewDir.x * bx + viewDir.z * bz),
+    ];
+    let best = 0;
+    for (let i = 1; i < 4; i++) {
+      if (dots[i] > dots[best]) best = i;
+    }
+    if (best === 0) out.set(ax, 0, az);
+    else if (best === 1) out.set(-ax, 0, -az);
+    else if (best === 2) out.set(bx, 0, bz);
+    else out.set(-bx, 0, -bz);
+    return out;
+  }
+
   function viewMoveIntent() {
-    // Всегда от наблюдателя: I вглубь, K к себе, J влево, L вправо (экран / взгляд).
+    // I/K/J/L от взгляда, шаг только вдоль осей стен (параллель / перпендикуляр).
     cameraFlatAxes();
+    wallMoveAxes();
     const move = new THREE.Vector3();
-    if (held.KeyI) move.add(_fwd);
-    if (held.KeyK) move.sub(_fwd);
-    if (held.KeyJ) move.sub(_right); // влево от наблюдателя
-    if (held.KeyL) move.add(_right); // вправо от наблюдателя
+    if (held.ArrowUp) move.add(snapDirToWallAxes(_fwd, _snapDir));
+    if (held.ArrowDown) {
+      _viewDir.copy(_fwd).negate();
+      move.add(snapDirToWallAxes(_viewDir, _snapDir));
+    }
+    if (held.ArrowLeft) {
+      _viewDir.copy(_right).negate();
+      move.add(snapDirToWallAxes(_viewDir, _snapDir));
+    }
+    if (held.ArrowRight) move.add(snapDirToWallAxes(_right, _snapDir));
     move.y = 0;
     if (move.lengthSq() > 1e-8) move.normalize();
     return move;
@@ -2387,24 +3120,26 @@ export function createTourFurniturePlace(opts) {
   function moveGhost(dt) {
     if (mode !== "place") return;
     if (!ghost && !groupMembers) return;
-    // Вставка aim — только мышь, без IJKL.
+    // Вставка aim — только мышь, без стрелок.
     if (!groupMembers && placeIntent === "insert" && insertPhase === "aim") return;
-    const dy = (held.KeyR ? 1 : 0) + (held.KeyF ? -1 : 0);
+    const dy = (held.PageUp ? 1 : 0) + (held.PageDown ? -1 : 0);
     const move = viewMoveIntent();
 
     if (groupMembers) {
       if (move.lengthSq() > 1e-8) {
-        ghostRoot.position.x += move.x * STEP * dt;
-        ghostRoot.position.z += move.z * STEP * dt;
+        resolveMoveAgainstWalls(move, dt);
+        alignFloorToNearbyWall(move);
+        pushOutOfNearbyWalls();
       }
       if (dy !== 0) {
         ghostRoot.position.y += Math.sign(dy) * LIFT_STEP * dt;
       }
+      ghostRoot.updateMatrixWorld(true);
       updateProjections();
       return;
     }
 
-    // R/F у стены: если ещё на полу — автоприжим без телепорта.
+    // PgUp/PgDn у стены: если ещё на полу — автоприжим без телепорта.
     if (dy !== 0 && mount === "floor") {
       if (!ensureWallMountForLift()) return;
     }
@@ -2429,18 +3164,15 @@ export function createTourFurniturePlace(opts) {
           wallAnchor.addScaledVector(_tangent, STEP * dt);
         }
       }
-      // подтянуть плоскость стены рядом, не перенося объект на далёкий hit
+      // подтянуть плоскость рядом; чужую грань / разворот нормали — игнор
       const probe = wallAnchor.clone().addScaledVector(wallNormal, 0.25);
       const hit = findWallHit(probe, wallNormal.clone().negate(), 0.8);
-      if (hit) {
-        wallNormal.copy(hit.normal);
-        wallPlanePoint.copy(hit.point);
-      }
-      applySurface();
+      if (hit) adoptWallHit(hit);
+      applySurface({ throughWalls: true });
       return;
     }
 
-    // пол: IJKL с упором в стены (после 3 упоров — проход этой стены)
+    // пол: стрелки с упором; ~0.75с / 3 нажатия — проход 1 м
     if (move.lengthSq() > 1e-8) {
       resolveMoveAgainstWalls(move, dt);
     }
