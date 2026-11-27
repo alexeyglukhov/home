@@ -2,7 +2,7 @@
 import * as THREE from "three";
 
 const HOUSE_DX = -1;
-const EYE = 1.60;
+const EYE = 1.70; // чуть выше «глаз» стоя (было 1.60)
 const WALK = 1.30;
 const LOOK = 3;
 const GAP = 0.20;

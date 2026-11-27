@@ -23,7 +23,7 @@ description: >-
 node house-light/scripts/optimize-glb-assets.mjs
 ```
 
-- Мебель/топочная: `optimize` (meshopt + webp, **без** `--join` / `--simplify` — иначе полки вроде `Cabinet top bottom` сливаются в боковину, G03).
+- Мебель/топочная: `optimize` (meshopt + webp; **`--join false --simplify false --instance false`** — иначе полки сливаются (G03) или unit-меши ±1 ломают посадку (G01)).
 - **Машины — только gentle** (dedup/prune/meshopt, без simplify и webp): иначе ломается `KHR_materials_pbrSpecularGlossiness` (пятна на кузове, пропавший блеск). Исходники машин: `house-plot/models/` или git `b1e4dc3`.
 - В конце optimize **всегда** вызывается `bake-furniture-meta.mjs` → обновляет `furniture/model-meta.json`.
 
@@ -243,7 +243,7 @@ URL мебели: `./furniture/` + `file` из каталога (`fileUrl`).
 Нельзя брать сырой scene AABB. После смены логики — полный bake `model-meta.json` и поправить `catalog.json` `cm` под новый `nativeM` (тонкое стекло: глубина ≥ ceil(native·100) см, иначе `fit` сжимает модель).
 
 Вставка из каталога: фаза `aim` (призрак за мышью) → клик или Enter → `tune` → Enter фиксирует. Только клик фиксации aim **съедает** pointerdown (орбита с этого клика не стартует).
-**Aim всегда на пол** (`placeGhostOnFloorAtPointer`): даже если под курсором стена или другая мебель — XZ с луча, ноги на `sampleFloorY`, без mount=wall и без `alignFloorToNearbyWall`.
+**Aim всегда на пол** (`placeGhostOnFloorAtPointer` / `pointerFloorXZ`): луч ∩ горизонтальная плоскость пола → XZ; Y только `sampleFloorY + FOOT_CLEAR`. Стены/мебель/перевёрнутая нормаль плиты не дают Y и не клеят на стену. `mount=wall` только после PgUp (ТВ), не с луча при вставке.
 
 `blocksOrbit()` всегда `false`. Орбита блокируется лишь пока открыт каталог (`syncFurnitureOrbitLock` в `app.js`).
 

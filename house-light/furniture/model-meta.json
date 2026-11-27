@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "updated": "2026-11-27T22:40:07.681Z",
+  "updated": "2026-11-27T23:01:48.510Z",
   "models": {
     "D01": {
       "file": "models/D01.glb",
@@ -1117,12 +1117,12 @@
       "fittedM": {
         "w": 1.72,
         "d": 0.557,
-        "h": 1.954
+        "h": 2.078
       },
       "nativeM": {
         "w": 1.722,
         "d": 0.558,
-        "h": 1.956
+        "h": 2.08
       },
       "nativeMin": [
         -0.861,
@@ -1131,12 +1131,12 @@
       ],
       "nativeMax": [
         0.861,
-        1.956,
+        2.08,
         0.28
       ],
       "nativeCenter": [
         0,
-        0.978,
+        1.04,
         0.001
       ],
       "seatOffset": [
@@ -1145,9 +1145,9 @@
         -0.001
       ],
       "feetY": 0,
-      "droppedMeshes": 9,
+      "droppedMeshes": 12,
       "lastPose": {
-        "sx": 1.0,
+        "sx": 0.7499999999999998,
         "sy": 1.0,
         "sz": 1.0,
         "mirror": false,
@@ -1243,7 +1243,7 @@
       "feetY": 0,
       "droppedMeshes": 12,
       "lastPose": {
-        "sx": 1.0,
+        "sx": 1.1,
         "sy": 1.0,
         "sz": 1.0,
         "mirror": false,
@@ -1293,9 +1293,9 @@
       "lastPose": {
         "sx": 1.0,
         "sy": 1.0,
-        "sz": 1.0,
+        "sz": 1.2000000000000002,
         "mirror": false,
-        "mirrorZ": false
+        "mirrorZ": true
       }
     },
     "G05": {
@@ -1390,8 +1390,8 @@
         "sx": 1.0,
         "sy": 1.0,
         "sz": 1.0,
-        "mirror": false,
-        "mirrorZ": false
+        "mirror": true,
+        "mirrorZ": true
       }
     },
     "G07": {
@@ -1435,11 +1435,11 @@
       "feetY": 0,
       "droppedMeshes": 20,
       "lastPose": {
-        "sx": 1.0,
+        "sx": 1.2342298915530543,
         "sy": 1.0,
         "sz": 1.0,
-        "mirror": false,
-        "mirrorZ": false
+        "mirror": true,
+        "mirrorZ": true
       }
     },
     "G08": {
@@ -4459,8 +4459,8 @@
       "feetY": 0,
       "droppedMeshes": 3,
       "lastPose": {
-        "sx": 0.7499999999999998,
-        "sy": 1.0,
+        "sx": 0.8499999999999999,
+        "sy": 0.7999999999999998,
         "sz": 0.7499999999999998,
         "mirror": false,
         "mirrorZ": true

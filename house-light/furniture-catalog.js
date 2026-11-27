@@ -394,12 +394,12 @@ export function mountFurnitureCatalog(hooks = {}) {
       /* ignore */
     }
     if (typeof onPick === "function" && item) {
-      status.textContent = `Выбрано ${id} — в «Экскурсии» появится полупрозрачный призрак для расстановки.`;
+      status.textContent = `Вставка ${id}…`;
       onPick(item);
       setOpen(false);
       return;
     }
-    status.textContent = `Скопировано ${id}. В «Экскурсии» можно расставлять из каталога.`;
+    status.textContent = `Скопировано ${id}. Для вставки: осмотр без крыши, каталог (M).`;
   });
   openButton.addEventListener("click", () => setOpen(true));
   document.getElementById("furniture-catalog-close").addEventListener("click", () => setOpen(false));

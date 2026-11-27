@@ -3,7 +3,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "./vendor/GLTFLoader.js";
 import { MeshoptDecoder } from "./vendor/meshopt_decoder.module.js";
-import { selectVisibleParts, selectFootParts } from "./furniture-visible-bounds.js";
+import { selectVisibleParts, selectFootParts, isGeometricHelper } from "./furniture-visible-bounds.js";
 import { prepareCarModel, isCarCatalogId } from "./car-prepare.js";
 
 const loader = new GLTFLoader();
@@ -38,7 +38,7 @@ const LIFT_STEP = 0.9; // м/с вдоль стены
 const WALL_MAX_H = 2.55;
 
 /** bump при strip/optimize GLB — иначе браузер держит старый хелпер ±1 м (W08). */
-const FURN_GLB_V = 4;
+const FURN_GLB_V = 5;
 
 function fileUrl(file) {
   const u = new URL("./furniture/" + file, import.meta.url);
@@ -278,6 +278,8 @@ export function createTourFurniturePlace(opts) {
   const _size = new THREE.Vector3();
   const _center = new THREE.Vector3();
   const _corner = new THREE.Vector3();
+  const _floorPlane = new THREE.Plane();
+  const _floorHit = new THREE.Vector3();
   /** Зазор низа мебели над полом при посадке (всегда). */
   const FOOT_CLEAR = 0.01;
   /** Flush для настенного крепления (ТВ). */
@@ -744,8 +746,8 @@ export function createTourFurniturePlace(opts) {
   }
 
   /**
-   * Самый низкий Y по ВСЕМ видимым мешам (без selectVisibleParts).
-   * Нужен для посадки: фильтр корпуса/фурнитуры не должен поднимать «ноги».
+   * Самый низкий Y по видимым мешам (не корпус-якорь — иначе вешалка утапливает).
+   * Unit-хелперы ±1 (рейки после битого instance) не считаем — иначе G01 в воздухе.
    */
   function measureLowestMeshY(root) {
     let minY = Infinity;
@@ -754,6 +756,18 @@ export function createTourFurniturePlace(opts) {
     root.traverse((obj) => {
       if (!obj.isMesh || !obj.geometry || obj.userData.selectHelper) return;
       if (!meshAncestorVisible(obj)) return;
+      if (!obj.geometry.boundingBox) obj.geometry.computeBoundingBox();
+      const lb = obj.geometry.boundingBox;
+      if (
+        lb
+        && isGeometricHelper({
+          name: obj.name || "",
+          min: [lb.min.x, lb.min.y, lb.min.z],
+          max: [lb.max.x, lb.max.y, lb.max.z],
+        })
+      ) {
+        return;
+      }
       const pos = obj.geometry.attributes.position;
       if (!pos) return;
       _selMat.copy(obj.matrixWorld);
@@ -3322,51 +3336,60 @@ export function createTourFurniturePlace(opts) {
   }
 
   /**
+   * XZ точки на полу под курсором: луч ∩ горизонтальная плоскость.
+   * Стены/мебель/перевёрнутые нормали плиты не участвуют — Y потом sampleFloorY.
+   */
+  function pointerFloorXZ(out = _floorHit) {
+    raycaster.setFromCamera(_ndc.set(lastPointerNdc.x, lastPointerNdc.y), camera);
+    raycaster.far = 250;
+    const origin = raycaster.ray.origin;
+    const dir = raycaster.ray.direction;
+    // черновая высота пола под камерой / под прицелом
+    let yGuess = walkGround(origin.x, origin.z);
+    if (!(yGuess > 0.05)) yGuess = 0.57;
+    _floorPlane.normal.set(0, 1, 0);
+    _floorPlane.constant = -yGuess;
+    if (raycaster.ray.intersectPlane(_floorPlane, out)) {
+      // уточнить плоскость реальным полом под (x,z)
+      const fy = sampleFloorY(out.x, out.z);
+      if (Number.isFinite(fy) && Math.abs(fy - yGuess) > 0.002) {
+        _floorPlane.constant = -fy;
+        if (!raycaster.ray.intersectPlane(_floorPlane, out)) {
+          out.set(out.x, fy, out.z);
+        }
+      }
+      return true;
+    }
+    // луч почти горизонтален — XZ с первого попадания или шаг вперёд
+    const hits = raycaster.intersectObjects(meshTargets(), true);
+    if (hits.length) {
+      out.set(hits[0].point.x, 0, hits[0].point.z);
+      return true;
+    }
+    if (Math.abs(dir.y) < 1e-6) return false;
+    const t = (yGuess - origin.y) / dir.y;
+    if (!(t > 0)) return false;
+    out.set(origin.x + dir.x * t, yGuess, origin.z + dir.z * t);
+    return true;
+  }
+
+  /**
    * Начальная вставка (aim): всегда на пол под курсором — даже если луч
    * сначала попал в стену или другую мебель. Не клеиться к стене, не выталкивать.
+   * Y только sampleFloorY + FOOT_CLEAR (не hit.point.y — у плиты нормаль часто вниз).
    */
   function placeGhostOnFloorAtPointer() {
     if (!ghost || !ghostModel || !lastPointerNdc.ok) return false;
     cameraFlatAxes();
     const prefer = Math.atan2(_fwd.x, _fwd.z);
-    raycaster.setFromCamera(_ndc.set(lastPointerNdc.x, lastPointerNdc.y), camera);
-    raycaster.far = 250;
-    const hits = raycaster.intersectObjects(meshTargets(), true);
-
-    let x;
-    let z;
-    let floorYHint = null;
-    // пол по лучу — даже если ближе стена/мебель (hits отсортированы по дистанции)
-    for (const h of hits) {
-      if (!h.face) continue;
-      _n.copy(h.face.normal).transformDirection(h.object.matrixWorld).normalize();
-      if (_n.y > 0.55) {
-        x = h.point.x;
-        z = h.point.z;
-        floorYHint = h.point.y;
-        break;
-      }
-    }
-    if (x == null && hits.length) {
-      // только стена/мебель — XZ с попадания, Y с пола под ним
-      x = hits[0].point.x;
-      z = hits[0].point.z;
-    }
-    if (x == null) {
-      // пустой луч — плоскость y≈0 под взглядом
-      const origin = raycaster.ray.origin;
-      const dir = raycaster.ray.direction;
-      if (Math.abs(dir.y) < 1e-6) return false;
-      const t = -origin.y / dir.y;
-      if (!(t > 0)) return false;
-      x = origin.x + dir.x * t;
-      z = origin.z + dir.z * t;
-    }
+    if (!pointerFloorXZ(_floorHit)) return false;
+    const x = _floorHit.x;
+    const z = _floorHit.z;
 
     mount = "floor";
     contactWall = null;
     const fy = sampleFloorY(x, z);
-    ghostRoot.position.set(x, floorYHint != null ? floorYHint : fy, z);
+    ghostRoot.position.set(x, fy + FOOT_CLEAR, z);
     if (!yawFree) {
       const probe = _tmp.set(x, Math.max(fy, 1.2) + 0.5, z);
       yaw = yawParallelToWalls(prefer, probe);
@@ -3379,14 +3402,15 @@ export function createTourFurniturePlace(opts) {
   }
 
   /**
-   * Осмотр: поставить ghost в точку под курсором (пол или стена).
-   * Вставка aim — только пол (см. placeGhostOnFloorAtPointer).
+   * Поставить ghost под курсором: при вставке/копии — только пол.
+   * Стена — только уже в mount=wall (PgUp у ТВ), не с луча.
    * @returns {boolean}
    */
   function placeGhostAtPointer() {
     if (!ghost || !ghostModel) return false;
     if (!lastPointerNdc.ok) return false;
-    if (placeIntent === "insert" && insertPhase === "aim") {
+    // вставка и обычный прицел — всегда пол, несмотря на стены/мебель
+    if (mount !== "wall") {
       return placeGhostOnFloorAtPointer();
     }
     cameraFlatAxes();
@@ -3394,45 +3418,15 @@ export function createTourFurniturePlace(opts) {
     raycaster.setFromCamera(_ndc.set(lastPointerNdc.x, lastPointerNdc.y), camera);
     raycaster.far = 250;
     const hits = raycaster.intersectObjects(meshTargets(), true);
-    let floorHit = null;
     let wallHit = null;
     for (const h of hits) {
       if (!h.face) continue;
       _n.copy(h.face.normal).transformDirection(h.object.matrixWorld).normalize();
-      if (_n.y > 0.55) {
-        if (!floorHit) floorHit = { point: h.point.clone(), normal: _n.clone() };
-        continue;
-      }
       if (Math.abs(_n.y) > 0.35) continue;
       // нормаль в сторону камеры / в комнату
       const toCam = camera.getWorldPosition(_tmp).sub(h.point);
       if (_n.dot(toCam) < 0) _n.negate();
       if (!wallHit) wallHit = { point: h.point.clone(), normal: _n.clone() };
-    }
-    // Ближайший hit: если луч сначала стену — стена, иначе пол
-    let preferWall = false;
-    if (hits.length && hits[0].face) {
-      _n.copy(hits[0].face.normal).transformDirection(hits[0].object.matrixWorld).normalize();
-      preferWall = Math.abs(_n.y) <= 0.35;
-    }
-    if (preferWall && wallHit) {
-      mount = "wall";
-      wallNormal.copy(wallHit.normal);
-      wallPlanePoint.copy(wallHit.point);
-      wallAnchor.set(wallHit.point.x, wallHit.point.y, wallHit.point.z);
-      wallAnchor.addScaledVector(wallNormal, 0.02);
-      applySurface();
-      return true;
-    }
-    if (floorHit) {
-      mount = "floor";
-      ghostRoot.position.set(floorHit.point.x, floorHit.point.y, floorHit.point.z);
-      if (!yawFree) {
-        const probe = _tmp.set(floorHit.point.x, Math.max(floorHit.point.y, 1.2) + 0.5, floorHit.point.z);
-        yaw = yawParallelToWalls(prefer, probe);
-      }
-      applySurface(); // выровнять по линии ближайшей стены
-      return true;
     }
     if (wallHit) {
       mount = "wall";

@@ -18,10 +18,10 @@ import { buildVariant31a, v31aWalkBoxes, v31aFenceSegments, V31A_WINDOWS, V31A_B
 import { buildVariant31b, v31bWalkBoxes, v31bFenceSegments, V31B_WINDOWS, V31B_BASE } from "./variant-31b.js?v=37";
 import { buildVariant31d, v31dWalkBoxes, v31dFenceSegments, V31D_WINDOWS, V31D_BASE } from "./variant-31d.js?v=140";
 import { buildVariant31c, v31cWalkBoxes, v31cFenceSegments, V31C_WINDOWS, V31C_BASE } from "./variant-31c.js?v=120";
-import { createD2Tour, createTourDaylight, D3_WINDOWS } from "./tour-d2.js?v=24";
+import { createD2Tour, createTourDaylight, D3_WINDOWS } from "./tour-d2.js?v=25";
 import { syncPrintSheets } from "./print-sheets.js?v=48";
-import { mountFurnitureCatalog } from "./furniture-catalog.js?v=19";
-import { createTourFurniturePlace } from "./furniture-tour-place.js?v=95";
+import { mountFurnitureCatalog } from "./furniture-catalog.js?v=20";
+import { createTourFurniturePlace } from "./furniture-tour-place.js?v=97";
 import { buildTopochnayaV3, topoCameraRigs, V31D_TOPO_CLEAR } from "./topochnaya-v3.js?v=100";
 
 const panel = document.getElementById("panel");
@@ -6565,6 +6565,10 @@ function startTour() {
   };
   controls.enabled = false;
   tourActive = true;
+  // near < GAP (0.20), иначе у стены клип и «смотрю сквозь стену»
+  if (camera.userData._orbitNear == null) camera.userData._orbitNear = camera.near;
+  camera.near = 0.05;
+  camera.updateProjectionMatrix();
   tourStamp = performance.now();
   tourSpeed = 5;
   activeTour().setSpeed(5);
@@ -6594,6 +6598,11 @@ function stopTour(restore) {
   if (!tourActive && !activeTour().active) return;
   activeTour().stop();
   tourActive = false;
+  if (camera.userData._orbitNear != null) {
+    camera.near = camera.userData._orbitNear;
+    delete camera.userData._orbitNear;
+    camera.updateProjectionMatrix();
+  }
   controls.enabled = true;
   if (restore && savedTourView) {
     camera.position.copy(savedTourView.pos);

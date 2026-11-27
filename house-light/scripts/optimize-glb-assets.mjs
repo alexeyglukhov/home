@@ -52,8 +52,9 @@ function npxCli(args) {
 
 /**
  * Optimize для мебели: meshopt + webp.
- * --join false: иначе полки/дно (Cabinet top bottom) сливаются в боковину
- * и пропадают как отдельные поверхности (G03).
+ * --join false: иначе полки/дно (Cabinet top bottom) сливаются в боковину (G03).
+ * --instance false: иначе unit-меши ±1 и инстансы ломают bbox/посадку (G01 в воздухе).
+ * --simplify false: не выкидывать мелкую геометрию полок.
  */
 function runOptimize(src, dest) {
   return npxCli([
@@ -69,6 +70,8 @@ function runOptimize(src, dest) {
     "--join",
     "false",
     "--simplify",
+    "false",
+    "--instance",
     "false",
   ]);
 }
