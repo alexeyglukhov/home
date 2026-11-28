@@ -16,7 +16,7 @@ import { buildVariantD4 as buildVariantD6, d4WalkBoxes as d6WalkBoxes, d4FenceSe
 import { buildVariant31, v31WalkBoxes, v31FenceSegments, V31_WINDOWS, V31_BASE } from "./variant-31.js?v=51";
 import { buildVariant31a, v31aWalkBoxes, v31aFenceSegments, V31A_WINDOWS, V31A_BASE } from "./variant-31a.js?v=23";
 import { buildVariant31b, v31bWalkBoxes, v31bFenceSegments, V31B_WINDOWS, V31B_BASE } from "./variant-31b.js?v=37";
-import { buildVariant31d, v31dWalkBoxes, v31dFenceSegments, V31D_WINDOWS, V31D_BASE } from "./variant-31d.js?v=140";
+import { buildVariant31d, v31dWalkBoxes, v31dFenceSegments, V31D_WINDOWS, V31D_BASE } from "./variant-31d.js?v=141";
 import { buildVariant31c, v31cWalkBoxes, v31cFenceSegments, V31C_WINDOWS, V31C_BASE } from "./variant-31c.js?v=120";
 import { createD2Tour, createTourDaylight, D3_WINDOWS } from "./tour-d2.js?v=25";
 import { syncPrintSheets } from "./print-sheets.js?v=48";

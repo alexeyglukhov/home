@@ -2,7 +2,7 @@
 // помещения по agency/var3.1d.svg (хоз.блок, сдвинутые стены/двери/окна).
 // Масштаб: эталон кровати 2,20 м (uu→м как в var3.1c). Координаты — метры плана.
 import * as THREE from "three";
-import { addVar31FurnitureFloor, markHouseFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31d-furniture-floor.js?v=24";
+import { addVar31FurnitureFloor, markHouseFloor, V31_FLOOR_WEST, V31_FLOOR_EAST } from "./var31d-furniture-floor.js?v=25";
 
 export const V31D_BASE = { x: 0, y: 0 };
 
@@ -1170,8 +1170,8 @@ export function buildVariant31d(api) {
       [-6.66, 19.31], [15.85, 19.31], [15.85, -0.65],
       [7.18, -0.65], [7.18, 6.25], [-6.66, 6.25],
     ];
-    // Верх отмостки ниже плитки парковки (≈0,01), иначе z-fight / моргание.
-    const blind = api.addSlabHole(outer, hole, -0.02, 0.025, 0xd4cfc4);
+    // Верх отмостки ниже плитки парковки (0,065), иначе z-fight / моргание.
+    const blind = api.addSlabHole(outer, hole, 0.01, 0.035, 0xd4cfc4);
     if (blind) {
       blind.material.polygonOffset = true;
       blind.material.polygonOffsetFactor = -1;
@@ -1227,9 +1227,10 @@ export function buildVariant31d(api) {
       }
       return mesh;
     };
-    // Плитка у земли (верх ≈0,01): раньше 0,065 — «подиум», колёса утопали.
-    const TILE_Y0 = -0.02;
-    const TILE_H = 0.03;
+    // Верх плитки 0,065 — заметно выше травы (−0,08), иначе сверху z-fight и плитка «тонет» в газоне.
+    // Машины (Y01/Y02) садятся stick на walkTop, не вручную в «подиум».
+    const TILE_Y0 = 0.03;
+    const TILE_H = 0.035;
     const { x0: cx0, x1: cx1, y0: cy0, y1: cy1, xArm, yArm } = CARPORT;
     const westFenceAtY = (y) => {
       const t = (y - nw[1]) / (sw[1] - nw[1]);

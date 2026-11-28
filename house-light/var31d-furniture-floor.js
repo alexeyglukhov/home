@@ -77,8 +77,8 @@ export function addVar31FurnitureFloor(api, floorZ) {
   const { planToWorld, addMesh } = api;
   // 2 мм над плитой — ниже FOOT_CLEAR (1 см), иначе деколь режет дно шкафов (G03).
   const zFloor = floorZ + 0.002;
-  // Чуть выше плитки парковки (верх ≈0,01), иначе подпись «Навес» тонет в плите.
-  const zYard = 0.045;
+  // Чуть выше плитки парковки (верх 0,065), иначе подпись «Навес» тонет в плите.
+  const zYard = 0.068;
   const layers = [
     { z: zFloor, boxes: [FURN_WEST_HALL, FURN_WEST_NORTH, FURN_EAST, FURN_TERRACE, FURN_TERRACE_IN, FURN_PORCH] },
     { z: zYard, boxes: [FURN_CANOPY_W, FURN_CANOPY_N] },
